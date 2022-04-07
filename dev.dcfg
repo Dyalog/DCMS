@@ -1,0 +1,21 @@
+{
+	Settings: {
+		MAXWS: "256M",
+		app_dir: "/g/DCMS",
+		SESSION_FILE: "/a/Config/rp_182.dse",
+		ServerCertFile: "/d/certs/localhost.crt",
+		ServerKeyFile: "/d/certs/localhost.key",
+		debug: 1,
+		log_level: 2,
+		log: "[app_dir]/dev_log.txt",
+		log_file: "[app_dir]/dyalog_log_file.dlf",
+		api_info: "[app_dir]/api.json",
+
+		Jarvis: "/d/Jarvis.dyalog",
+		HttpCommand: "C:/Program Files/Dyalog/Dyalog APL-64 18.2 Unicode/Library/Conga/HttpCommand.dyalog",
+
+		CodeLocation: "#.DMCS",
+		Paradigm: "REST",
+		LX: "⎕←⎕SE.Link.Create 'DCMS',⍥⊂⎕SE.Link.LaunchDir,'/back' ⋄ ⎕←#.DCMS.Setup 1",
+	}
+}
