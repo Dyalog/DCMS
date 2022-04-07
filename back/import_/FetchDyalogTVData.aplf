@@ -1,0 +1,52 @@
+ msg←FetchDyalogTVData dtv;SQA;cur;videos;values;video_ids;columns;types;date_columns;res;events;event_ids;categories;category_ids;db;exists_ids
+⍝ Fetch Dyalog TV data and inject into DB
+ msg←0   ⍝ OK
+ db←#.DCMS.db
+ SQA←#.SQA
+ cur←db,'.i'
+
+ res←#.HttpCommand.GetJSON'Get'(dtv,'videos')
+ :If 200≠res.HttpStatus
+     msg←⍕res.(HttpStatus HttpMessage)
+ :Else
+⍝ videos←res.Data
+     videos←⎕JSON ##.dtv_videos
+     values←↑videos.(id category_id title created_at event event_id order presenter publishedAt'dyalog_tv_system'youtube_id)
+     video_ids←3 1⊃SQA.Do db'SELECT id FROM dtv_videos'
+     exists_ids←(1/⍨≢video_ids)(video_ids)
+     columns←'id' 'category_id' 'title' 'created_at' 'event' 'event_id' 'order' 'presenter' 'publishedAt' 'updated_by' 'youtube_id'
+     types←'I' 'C10' '<C256' '<C26(S)' '<C128' 'C10' 'I' '<C256' 'ts<C26(S)' '<C128' '<C11'
+     date_columns←columns⍳⊆'created_at' 'publishedAt'
+     values[;date_columns]←¯1↓¨values[;date_columns]   ⍝ Drop trailing Z from timestamps
+     UpdateInsertExternalResource((⊂'dtv_videos'),exists_ids,columns types values)
+ :EndIf
+
+ res←#.HttpCommand.GetJSON'Get'(dtv,'events')
+ :If 200≠res.HttpStatus
+     msg←⍕res.(HttpStatus HttpMessage)
+ :Else
+     events←res.Data
+     event_ids←,3 1⊃SQA.Do db'SELECT id FROM dtv_events'
+     exists_ids←(1/⍨≢event_ids)(event_ids)
+     columns←'id' 'background' 'created_at' 'event' 'footer' 'header' 'order' 'short_name' 'updated_by'
+     types←'I' '<C256' '<C26(S)' '<C128' '<C256' '<C256' 'I' '<C128' '<C128'
+     values←↑events.(id background created_at event footer header order shortname'dyalog_tv_system')
+     date_columns←columns⍳⊆'created_at'
+     values[;date_columns]←¯1↓¨values[;date_columns]   ⍝ Drop trailing Z from timestamps
+     UpdateInsertExternalResource((⊂'dtv_events'),exists_ids,columns types values)
+ :EndIf
+
+⍝ === categorys ===
+ res←#.HttpCommand.GetJSON'Get'(dtv,'categorys')
+ :If 200≠res.HttpStatus
+     msg←⍕res.(HttpStatus HttpMessage)
+ :Else
+     categories←res.Data
+     category_ids←3 1⊃SQA.Do db'SELECT id FROM dtv_categorys'
+     exists_ids←(1/⍨≢category_ids)(category_ids)
+     columns←'id' 'category' 'updated_by'
+     types←'I' '<C128' '<C128'
+     values←↑categories.(id category'dyalog_tv_system')
+     UpdateInsertExternalResource((⊂'dtv_categorys'),exists_ids,columns types values)
+ :EndIf
+ msg←0   ⍝ OK

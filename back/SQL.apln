@@ -1,0 +1,16 @@
+:Namespace SQL
+
+    db←'db'
+
+    Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
+
+    ∇ msg←Do(sql values);bulk;cur
+      cur←db,'.i'
+      msg←0 2⍴⍬''
+      msg⍪←Check #.SQA.Prepare cur sql('Bulk'(≢values))
+      msg⍪←Check #.SQA.X cur values
+      msg⍪←Check #.SQA.Close cur
+    ∇
+
+
+:EndNamespace

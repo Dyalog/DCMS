@@ -1,0 +1,12 @@
+ ExistingYouTubeVideoIDs←{
+⍝ ←: (bitmask of existing records)(ids of existing records)
+⍝    (+/bitmask)=≢ids
+     sql←'SELECT id,youtube_id FROM youtube_videos'
+     _←sql #.DCMS.Catch(res←#.SQA.Do #.DCMS.db sql)
+     (id yt)←,¨↓⍉3 1⊃res
+     0∊⍴yt:⍬⍬
+     eyt←⊃¨⍵
+     bitmask←,yt∊⍨eyt
+     ids←id/⍨yt∊eyt
+     bitmask ids
+ }

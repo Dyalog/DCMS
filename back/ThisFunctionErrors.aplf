@@ -1,0 +1,6 @@
+ r←ThisFunctionErrors arg
+ r←÷arg
+ r,←+/arg
+ :If 1<≢⍴arg
+     r←¯1 'not a vector'
+ :EndIf

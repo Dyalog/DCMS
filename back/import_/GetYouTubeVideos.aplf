@@ -1,0 +1,15 @@
+ GetYouTubeVideos←{
+     ⍺←''
+     q←url,'playlistItems'
+     q,←'?playlistId=',⍵
+     q,←'&pageToken=',⍺
+     q,←'&key=',key
+     q,←'&part=snippet'
+     q,←'&maxResults=50'
+     r←#.HttpCommand.GetJSON'Get'q
+ ⍝ TODO created_at updated_at updated_by
+ ⍝     now←'YYYY-MM-DD"T"hh:mm:ss"Z"'FormatDateTime 1 ⎕DT⊂⎕TS
+     data←r.Data.items.snippet.(resourceId.videoId title description channelId channelTitle''publishedAt)
+     0≠⎕NC'r.Data.nextPageToken':data,r.Data.nextPageToken ∇ ⍵
+     data
+ }

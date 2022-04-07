@@ -1,0 +1,20 @@
+ msg←UpdateInsertExternalResource(table exists ids columns types values);SQA;exists;updates;inserts;i_columns;i_values;i_types;u_values;u_ids;id_drop;ColumnEquals;sql;cur;u_columns;db
+ msg←0 'ok'
+ :If 0=≢exists
+     columns←2↓∊'`'(', ',⊣,⊣,⍨⊢)¨columns
+     types←1↓∊(',:',':',⍨⊢)¨types
+     sql←'INSERT INTO ',table,' (',columns,') VALUES (',types,')'
+     sql #.DCMS.(Catch∘SQL.Do)sql values
+ :Else
+     (updates inserts)←(⊢,⍥⊂~),exists
+     i_values←inserts⌿values
+     i_columns←2↓∊'`'(', ',⊣,⊣,⍨⊢)¨columns
+     i_types←1↓∊(',:',':',⍨⊢)¨types
+     sql←'INSERT INTO ',table,' (',i_columns,') VALUES (',i_types,')'
+     sql #.DCMS.(Catch∘SQL.Do)sql i_values
+     sql #.DCMS.(Catch∘SQL.Do) sql i_values
+     u_values←updates⌿values
+     ColumnEquals←',`',('`',⍨⊣),'=:',':',⍨⊢
+     sql←'UPDATE ',table,' SET ',' WHERE id = :C11:',⍨1↓∊columns ColumnEquals¨types
+     sql #.DCMS.(Catch∘SQL.Do)sql(u_values,ids)
+ :EndIf

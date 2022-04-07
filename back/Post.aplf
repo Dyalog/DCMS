@@ -1,0 +1,14 @@
+ Post←{
+⍝ Add new data to the database
+     ⎕←''
+ 
+     ⎕←⍵.Method
+     ⎕←ep←⍵.Endpoint
+     ⎕←⍵.Body
+
+     res←⍵.Response
+     res.Headers⍪←AllowOrigin #.DCMS.service.AcceptFrom
+
+     ⎕JSON'{"result": "success"}'
+     ⊃⎕NGET'C:\d\DCMS\front\videos.html'
+ }

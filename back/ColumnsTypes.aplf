@@ -1,0 +1,6 @@
+ ColumnsTypes←{
+     l←≢⍵
+     tbl←-⌿'()'∘.=⍵
+     col←','(≠⊆⊢)1↓⍵⌿⍨≠\(<\∨(⌽<\∘⌽))'()'∊⍨⍵   ⍝ Extract text between outermost parentheses
+     ↓⍉↑2↑¨' '(≠⊆⊢)¨col                       ⍝ (Column names)(types)
+ }

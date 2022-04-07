@@ -1,0 +1,23 @@
+ Get←{
+⍝ todo: trad and trap
+⍝ :trap debug
+     ⎕←'GET'
+     ⎕← ⍵.(Endpoint QueryParams)
+     ep←1↓⍵.Endpoint
+     #.req←⍵
+     res←⍵.Response
+     res.Headers⍪←AllowOrigin #.DCMS.service.AcceptFrom
+     res.Headers⍪←'Access-Control-Allow-Headers' '*'
+     'tables'≡ep:#.GLOBAL.tables
+     'columns'≡ep:read_.Columns ⍵.QueryParams
+     'presenters'≡ep:#.GLOBAL.presenters
+     (⊂ep)∊#.GLOBAL.tables:ep read_.Query ⍵.QueryParams
+     ('dtv_videos'≡10↑ep)∧11=≢youtube_id←11↓ep:read_.ReturnSingleVideo youtube_id
+     'error'≡ep:Error ⍵   ⍝ Testing error responses
+     res.Status←404
+     res.StatusText←'Resource not found.'
+     res
+     :else
+⍝     Catch 999 'BAD'
+⍝ res.status←500
+ }

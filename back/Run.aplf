@@ -1,0 +1,66 @@
+ msg←Run dev;LoadDependency;SQA;migrations;latest;migration;batch;sequence;err;utf8_columns;tables;columns;types;type_names;table_information;schema;schema_definitions;TableName;ColumnsTypes;conversions;tc;MapSQAPLTypeConversions;UnknownColumnTypes;type_defs;sql;result;order;files
+ :If 0∊⍴dev ⋄ debug←⍬⍴⊃(//⎕VFI)GetEnv'debug' ⋄ :Else ⋄ debug←dev ⋄ ⋄ :EndIf
+⍝ BAD!!! ⎕TRAP←debug↓(⊂0 'C' 'Catch ⎕EN ⎕DMX.DM')
+⍝ :Trap debug↓0
+⍝ Create or use database
+ Catch ThisFunctionErrors 2 2⍴⍳4
+ Catch #.SQA.Do db'create database if not exists dyalog_cms character set = utf8mb4'
+⍝ Todo: test on default mariadb linux install - does IT need to set utf8mb4?
+⍝ SQA.Do db'character set = utf8'
+ Catch #.SQA.Do db'Use dyalog_cms'
+⍝ TODO: 500 error response
+
+⍝ Collect table information to use in functions and expose in API as /tables /columns /types
+ schema_definitions←'.*\d+-.*.sql'⎕S'&'⊃0(⎕NINFO⍠'Wildcard' 1)app_dir,'/back/sql/*.sql'
+⍝ StatementsFromSchema
+⍝ Check and apply migrations
+ sequence←∊2⊃¨⎕VFI¨⊃¨'-'(≠⊆⊢)¨2⊃¨⎕NPARTS¨schema_definitions
+ :If 0=⊃latest←#.SQA.Do db'select max(batch) from migrations'
+     (migrations sequence)←schema_definitions sequence↓⍨¨1+3 1⊃latest   ⍝ Database exists, apply after most recent migration
+ :Else
+     migrations←schema_definitions
+ :EndIf
+ :For (migration batch) :InEach (migrations sequence)
+     sql←StatementsFromSchema migration
+     Catch¨#.SQA.Do¨(⊂db)∘,¨⊂¨sql
+     Catch #.SQA.Do db'insert into migrations (`migration`,`batch`) values (:file<C255:,:num<I:);'migration batch
+ :EndFor
+⍝ Collect table information to use in functions and expose in API as /tables /columns /types
+ :If 0=⎕NC'#.GLOBAL' ⋄ 'GLOBAL'#.⎕NS ⍬ ⋄ :EndIf
+ Catch ProcessTableInformation schema_definitions
+ sql←'show tables in dyalog_cms'
+ tables←,3 1⊃Catch #.SQA.Do db sql
+
+ table_information←1↓2⊃#.SQA.Columns db
+ tables←3(⌷⍤1)table_information
+ (columns types type_names)←↓⍉↑↓∘⍉¨tables{⊂⍵}⌸(⊂4 5 6)(⌷⍤1)table_information
+ order←#.GLOBAL.tables⍳⍨∪tables
+ #.GLOBAL.utf8_columns←(⍸12∘=)¨types[order]
+ #.GLOBAL.(columns types type_names)←(⊂order)∘⌷¨columns types type_names
+ #.GLOBAL.presenters←presenters
+
+ Catch import_.FetchDyalogTVData #.GLOBAL.api.dtv
+ Catch import_.YouTubeImport 0
+
+ tables←⊆'events' ⍝'presentations' 'presenters'
+ files←('/',⍨GetEnv'app_dir')∘,¨⊆'d_events.csv' ⍝ 'd_presentations.csv' 'd_presenters.csv'
+ Catch import_.InitialDyalogData tables files
+
+
+
+ :If 0=⎕NC'service'
+     service←⎕NEW #.Jarvis
+     service.CodeLocation←⎕THIS
+     service.Paradigm←'REST'
+     service.Port←8081
+     service.(url←'http://localhost:',⍕Port)
+     service.Debug←debug
+⍝         service.ServerCertFile←GetEnv'ServerCertFile'
+⍝         service.ServerKeyFile←GetEnv'ServerKeyFile'
+⍝         service.Secure←1
+     service.Start
+ :EndIf
+⍝ :Else
+⍝ Catch 3 'AN ERROR!'
+⍝    Catch ⎕EN ⎕DMX.DM   ⍝ Error handling here
+⍝ :EndTrap

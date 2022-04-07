@@ -1,0 +1,11 @@
+ {msg}←{action}Catch error_info;nl;en;info;rank;depth
+⍝ One-stop shop error handling, logging and signalling
+⍝ try (en info)←error_info; otherwise just log ⍕¨⊆error_info
+⍝      en: error number   <0     =0   >0
+⍝                       warning  ok  error
+⍝    info: any relevant information from previous function call
+
+⍝  action: what was being attempted?
+ :If 0=⎕NC'action' ⋄ action←'' ⋄ :EndIf
+ ⎕←{1<≢⍴⍵:(⊢↑⍨10⌊≢)⍕⍵ ⋄ 1<|≡⍵:(⊢↑⍨10⌊≢)⍕⍵ ⋄ ⍕⍵}error_info
+ msg←error_info

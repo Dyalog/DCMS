@@ -1,0 +1,7 @@
+datetime     <C26(S)
+int(⎕)       I
+varchar(⎕)   <C⎕
+boolean      I
+text         <C65535
+char(⎕)      <C⎕
+date         <C26(S)

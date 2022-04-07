@@ -1,0 +1,6 @@
+Update←{
+    req←⎕NEW #.HttpCommand
+    req.URL←⍵
+    req.Command←'Get'
+    (req.Run).Data
+}

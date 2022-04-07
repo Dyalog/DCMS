@@ -1,0 +1,7 @@
+ MapTypeConversions←{
+     t←⍵~⊂'KEY'                      ⍝ Primary key not a column
+     w←' '@(0=≢¨){1↓⍵/⍨≠\⍵∊'()'}¨t   ⍝ Extract field widths e.g. 11 from int(11)
+     bt←w ⎕R'⎕'⊢t                    ⍝ Replace field widths with blanks
+     R←{∊(⊂⍺⍺)@(⍵⍵∘=)⊢⍵}             ⍝ Replace blanks with field widths
+     w{(⍺ R'⎕')⊢⍵}¨tc[tc[;1]⍳bt;2]   ⍝ SQAPL type conversions
+ }

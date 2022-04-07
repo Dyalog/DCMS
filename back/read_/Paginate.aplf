@@ -1,0 +1,34 @@
+ Paginate←{
+     response←⍵
+     table←⍺
+     p←response.current_page
+     lp←response.last_page
+
+⍝ 1..n
+⍝ 1 2 ... p(-,+)3 ... n-1 n
+⍝ 1 2 ... n-10..n
+
+⍝
+
+     cii←10≥p+3                    ⍝ Current in initial
+     cif←(p lp>.-3 10)∧~cii        ⍝ Current in final
+     i←⍳lp⌊2 10[1+cii]             ⍝ Initial page range
+     hf←lp>10                      ⍝ Has final?
+     f←lp+fl-⍨⍳hf×fl←2 10[1+cif]   ⍝ Final page range
+     r←p+¯4+⍳7×hf∧cii⍲cif          ⍝ Current page range
+
+     lnkp←(p-1),i,r,f,p+1                                 ⍝ Link page numbers
+     url←#.DCMS.service.url,'/',t,'?page='                ⍝ Base URL
+     pu←{p=1:⊂'null' ⋄ url,⍕p-1}⍬                         ⍝ Previous URL
+     nu←{p=lp:⊂'null' ⋄ url,⍕p+1}⍬                        ⍝ Next URL
+     lnku←pu,⍥⊆(url∘,¨⍕¨i,r,f),⍥⊆nu                       ⍝ Link URLs
+     ll←'&laquo; Previous',⍥⊆(⍕¨i,r,f),⍥⊆'Next &raquo;'   ⍝ Link labels
+     la←'false' 'true'[1+p=lp]                            ⍝ Link active
+     Link←url∘{
+         link←⎕JSON'{}'
+         link.(url label active)←⍵
+         link
+     }
+     response.links←Link¨↓⍉↑lu ll la
+     response
+ }

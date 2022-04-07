@@ -1,0 +1,25 @@
+ ReturnSingleVideo←{
+     db←##.db
+     statement←'SELECT * FROM dtv_videos WHERE youtube_id = "',⍵,'"'
+     0≠⊃sql_response←#.SQA.Do db statement:(3⊃sql_response)⎕SIGNAL 775
+     table←#.GLOBAL.tables⍳⊂'dtv_videos' ⋄ FromUTF8←'UTF-8'⎕UCS ⎕UCS ⋄ utf8←table⊃#.GLOBAL.utf8_columns
+     response←⊃⎕JSON ⎕JSON⊂2,⊂(table⊃#.GLOBAL.columns)⍪⍉FromUTF8¨@utf8⍉3 1⊃sql_response
+   ⍝  response
+     response.category←⎕JSON'{}'
+     statement←'SELECT * FROM dtv_categorys WHERE id = "',(⊃response.category_id),'"'
+     0≠⊃sql_response←#.SQA.Do db statement:(3⊃sql_response)⎕SIGNAL 775
+     response.category←⊃⎕JSON ⎕JSON⊂2,⊂(1↓4⌷⍤1⊢2⊃#.SQA.Columns db'dtv_categorys')⍪3 1⊃sql_response
+     response.category.event_id←response.event_id
+     statement←'SELECT * FROM dtv_events WHERE id = "',(⍕response.event_id),'"'
+     0≠⊃sql_response←#.SQA.Do db statement:(3⊃sql_response)⎕SIGNAL 775
+     response.event←⊃⎕JSON ⎕JSON⊂2,⊂(1↓4⌷⍤1⊢2⊃#.SQA.Columns db'dtv_events')⍪3 1⊃sql_response
+⍝     response
+     response.snippet←⎕JSON'{}'
+     statement←'SELECT * FROM youtube_videos WHERE youtube_id = "',⍵,'"'
+     0≠⊃sql_response←#.SQA.Do db statement:('SQL Error: ',3⊃sql_response)⎕SIGNAL 775
+     snippet_members←'youtube_id' 'channel_id' 'channel' 'category_id' 'title' 'publishedAt' 'description' 'raw' 'created_at' 'updated_at' 'updated_by'
+     snippet←#.GLOBAL.(columns⊃⍨tables⍳⊂'youtube_videos')⍳⊆snippet_members
+     snippet←(⊂snippet)⌷,3 1⊃sql_response
+     response.snippet.(youtube_id channelId channel categoryId title publishedAt description raw created_at updated_at updated_by)←snippet
+     response
+ }

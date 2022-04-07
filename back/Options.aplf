@@ -1,0 +1,9 @@
+ Options←{
+     ⎕←'Options'
+     #.req←⍵
+     res←⍵.Response
+     res.Headers⍪←AllowOrigin #.DCMS.service.AcceptFrom
+     res.Headers⍪←'access-control-allow-headers' 'body, content-type'
+     res.Headers⍪←'access-control-allow-methods'(1 ⎕C 1↓∊','∘,¨⊣/#.DCMS.service.RESTMethods)
+     res
+ }

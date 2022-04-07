@@ -1,0 +1,4 @@
+ LoadSchema←{
+     (txt enc nl)←⎕NGET ⍵
+     ';'(≠⊆⊢)' '@(∊∘(⎕UCS nl))⊢txt
+ }

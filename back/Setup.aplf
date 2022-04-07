@@ -1,0 +1,21 @@
+ {msg}←Setup dev;database;response
+ msg←0
+ :If 0∊⍴dev
+     debug←⍬⍴⊃(//⎕VFI)GetEnv'debug'
+ :Else
+     debug←dev
+ :EndIf
+ log_file←GetEnv'log'
+ 'SQA'#.⎕CY'sqapl' ⋄ ⎕←'Imported: #.SQA'
+ LoadDependency←{
+     0=#.⎕NC ⍵:Catch ⎕SE.Link.Import #,⍥⊂GetEnv ⍵
+ }
+ app_dir←GetEnv'app_dir'
+ 'GLOBAL'#.⎕NS ⍬
+ #.GLOBAL.api←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'api_info'
+ ⎕SE.Link.Import ⎕THIS(app_dir,'/database.apla')
+ LoadDependency¨'Jarvis' 'HttpCommand'
+ Catch #.SQA.Init''
+ db←'db'
+ response←#.SQA.Connect db,⍥⊆database
+ Catch response
