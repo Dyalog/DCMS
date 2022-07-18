@@ -1,0 +1,63 @@
+ res←QueryVideos req;fields;nested_matrix;data;sort;sv;rnk;chs;v;s;Rank;filters;fv;fc;flt;idx;r;pg;ppg;p;f;t;in_range;qp;ytid;i
+⍝ Search database to return videos matching query parameters
+⍝ req: HTTP Request Object from Jarvis
+⍝ res: Table of query results
+
+⍝ TODO rank results which find multiple terms more highly (+/,∨/)
+⍝ TODO speedup if necessary: #.CACHE.index as text vector: Trim trailing blanks, catenate with ⎕UCS 0, then ⍸ (other code points for field separators also)
+ nested_matrix←2   ⍝ For conversion to JSON
+
+ :If 1<≢7↓req.Endpoint   ⍝ Single video
+     ytid←¯1 ⎕C⊃⌽'/'(≠⊆⊢)req.Endpoint
+     :If 11≠≢ytid
+         res←req
+         'Invalid video ID'req.Fail 400
+         :Return
+     :EndIf
+     i←ytid⍳⍨#.CACHE.videos.(index_cols⊃⍨fields⍳⊂)'youtube_id'
+     :If i>≢#.CACHE.videos.values
+         res←req
+         'Video not found'req.Fail 404
+     :Else
+         res←⊃⎕JSON ⎕JSON⊂nested_matrix,⊂#.CACHE.videos.fields⍪#.CACHE.videos.values[,i;]
+     :EndIf
+     :Return
+ :EndIf
+
+ qp←req.QueryParams
+ :If 0=≢qp
+     res←⎕JSON ⎕JSON⊂(nested_matrix)(#.CACHE.videos.(fields⍪values))
+     :Return
+ :EndIf
+
+ (p v)←↓⍉qp⌿⍨~∧/¨' '=⊢/qp         ⍝ Query (parameters values) without empty values
+ v←⎕C v,⊂''
+ s←' ,'((~∊⍨)⊆⊢)v⊃⍨⊂p⍳⊆'search'   ⍝ Split search terms space or comma separated
+ Rank←s∘{0∊⍴⍺:1⍴⍨≢⍵ ⋄ ⊃+/∨/¨⍺⍷¨⊆⍵}
+ fc←⊂'' ⋄ idx←#.CACHE.videos.index_all
+ (f t)←v⌷⍨⊂p⍳'from' 'to'
+ filters←⊆'presenter' 'event'
+ fields←⊆'presenter' 'event_shortname'
+ fv←v⌷⍨⊂p⍳filters
+ in_range←(f t)FilterDateTimes #.CACHE.videos.(index_cols⊃⍨fields⍳⊂)'published_at'
+ fc←in_range∘⌿¨#.CACHE.videos.(index_cols⌷⍨fields∘(⊂⍤⍳))fields
+ flt←⊃∧/∨/¨fv⍷¨fc
+ idx←flt⌿in_range⌿#.CACHE.videos.index_all
+ r←flt\Rank idx
+ chs←0≠r        ⍝ Choose these rows
+ rnk←⊂⍒r/⍨r≠0   ⍝ Rank results in this order
+ data←rnk⌷chs⌿in_range⌿#.CACHE.videos.values
+
+⍝ Default: sort by relevance rank       ⍝ TODO  remove empties
+⍝  newest: sort by most recent then rank
+⍝  oldest: sort by least recent then rank
+ sort←3|'newest' 'oldest'⍳⊆v⊃⍨⊂p⍳⊂'sort'
+ :If 0<sort
+     sv←chs⌿in_range⌿#.CACHE.videos.(index_cols⊃⍨⊂fields⍳⊂'published_at')
+     data⌷⍨←⊂⊖⍣sort⍋rnk⌷sv   ⍝ sort results
+ :EndIf
+
+ res←⎕JSON ⎕JSON⊂nested_matrix(#.CACHE.videos.fields⍪data)      ⍝ as JSON
+
+ (pg ppg)←(2⊃⎕VFI)¨⊃∘v¨p⍳'page' 'per_page'
+ res←('videos'pg ppg)#.DCMS.read_.Paginate res

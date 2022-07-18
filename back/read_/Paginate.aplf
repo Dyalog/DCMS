@@ -1,27 +1,33 @@
  Paginate←{
-     response←⍵
-     table←⍺
-     p←response.current_page
-     lp←response.last_page
+     (ep p ppg)←⍺   ⍝ (page)(current_page)(URL endpoint)
+     0∊⍴ppg:⍵       ⍝ No pagination, return response unchanged
+     (p ppg)←⍬∘⍴¨p ppg
+     p←⊃pg,1        ⍝ Current page
+     n←≢⍵           ⍝ Total results count
+     ppg←n⌊ppg      ⍝ Results per page
+     lp←⌈n÷ppg      ⍝ Last page number
 
-⍝ 1..n
-⍝ 1 2 ... p(-,+)3 ... n-1 n
-⍝ 1 2 ... n-10..n
+⍝ Return a subset of results as a page
+⍝ Including URL links to previous and next pages
+⍝ For total query results n and current page p, the links provided in the response (as a list called "links") are one of three variations:
+⍝ 1..n                             if 10>≢pages
+⍝ 1 2 ... p(-,+)3 ... n-1 n        if 10<≢pages and this page is more than 10 from the end
+⍝ 1 2 ... n-10..n                  if 10<≢pages and this page is less than 10 from the end
 
 ⍝
 
-     cii←10≥p+3                    ⍝ Current in initial
-     cif←(p lp>.-3 10)∧~cii        ⍝ Current in final
+     cii←10≥p+3                    ⍝ Current page in initial pages
+     cif←(p lp>.-3 10)∧~cii        ⍝ Current page in final pages
      i←⍳lp⌊2 10[1+cii]             ⍝ Initial page range
      hf←lp>10                      ⍝ Has final?
      f←lp+fl-⍨⍳hf×fl←2 10[1+cif]   ⍝ Final page range
      r←p+¯4+⍳7×hf∧cii⍲cif          ⍝ Current page range
 
      lnkp←(p-1),i,r,f,p+1                                 ⍝ Link page numbers
-     url←#.DCMS.service.url,'/',t,'?page='                ⍝ Base URL
+     url←#.DCMS.service.url,'/',ep,'?page='               ⍝ Base URL
      pu←{p=1:⊂'null' ⋄ url,⍕p-1}⍬                         ⍝ Previous URL
      nu←{p=lp:⊂'null' ⋄ url,⍕p+1}⍬                        ⍝ Next URL
-     lnku←pu,⍥⊆(url∘,¨⍕¨i,r,f),⍥⊆nu                       ⍝ Link URLs
+     lu←pu,⍥⊆(url∘,¨⍕¨i,r,f),⍥⊆nu                         ⍝ Link URLs
      ll←'&laquo; Previous',⍥⊆(⍕¨i,r,f),⍥⊆'Next &raquo;'   ⍝ Link labels
      la←'false' 'true'[1+p=lp]                            ⍝ Link active
      Link←url∘{
@@ -29,6 +35,19 @@
          link.(url label active)←⍵
          link
      }
+     response←⎕JSON'{}'
+     response.current_page←p
+     response.last_page←lp
+     response.per_page←ppg
+     response.from←1+ppg×¯1+p
+     response.to←n⌊ppg×p
+     response.total←n
+     response.data←⍵⌷⍨⊂∪n⌊(ppg×¯1+p)+⍳ppg
+     response.first_page_url←url,'1'
+     response.last_page_url←url,⍕lp
+     response.prev_page_url←pu
+     response.next_page_url←nu
+     response.path←#.DCMS.service.url,'/',ep
      response.links←Link¨↓⍉↑lu ll la
      response
  }

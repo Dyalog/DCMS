@@ -1,7 +1,7 @@
-datetime     <C26(S)
-int(⎕)       I
+datetime     <S
+int(⎕)       <I
 varchar(⎕)   <C⎕
-boolean      I
+boolean      <I
 text         <C65535
 char(⎕)      <C⎕
-date         <C26(S)
+date         <D

@@ -1,23 +1,23 @@
- Get←{
-⍝ todo: trad and trap
-⍝ :trap debug
-     ⎕←'GET'
-     ⎕← ⍵.(Endpoint QueryParams)
-     ep←1↓⍵.Endpoint
-     #.req←⍵
-     res←⍵.Response
-     res.Headers⍪←AllowOrigin #.DCMS.service.AcceptFrom
+ res←Get req;nested_matrix;ytid;ep;single_video;videos;persons
+ nested_matrix←2         ⍝ For conversion to JSON (http://help.dyalog.com/18.2/#Language/System%20Functions/json.htm > JSON export > Wrappers)
+ :If 0<#.GLOBAL.debug ⋄ #.last←req ⋄ :EndIf
+ :Trap #.GLOBAL.debug↓0
+     res←req.Response
+     res.Headers←0 2⍴''
+    res.Headers⍪←'Access-Control-Allow-Origin' #.DCMS.service.AcceptFrom
      res.Headers⍪←'Access-Control-Allow-Headers' '*'
-     'tables'≡ep:#.GLOBAL.tables
-     'columns'≡ep:read_.Columns ⍵.QueryParams
-     'presenters'≡ep:#.GLOBAL.presenters
-     (⊂ep)∊#.GLOBAL.tables:ep read_.Query ⍵.QueryParams
-     ('dtv_videos'≡10↑ep)∧11=≢youtube_id←11↓ep:read_.ReturnSingleVideo youtube_id
-     'error'≡ep:Error ⍵   ⍝ Testing error responses
-     res.Status←404
-     res.StatusText←'Resource not found.'
-     res
-     :else
-⍝     Catch 999 'BAD'
-⍝ res.status←500
- }
+     #.DCMS.Catch 0 req.(Endpoint QueryParams)
+     :If '/videos'≡7↑req.Endpoint
+         res←read_.QueryVideos req   ⍝ TODO add/change to query parameter
+     :ElseIf (8≥≢req.Endpoint)∧'/events'≡7↑req.Endpoint
+         res←read_.QueryEvents ⍬
+     :ElseIf '/persons'≡8↑req.Endpoint
+         res←read_.QueryPersons req
+     :ElseIf '/presenters'≡11↑req.Endpoint
+         res←read_.QueryPresenters ⍬
+     :Else
+         'Resource not found'req.Fail 404
+     :EndIf
+ :Else
+     #.DCMS.Catch ⎕EN ⎕DMX.DM
+ :EndTrap

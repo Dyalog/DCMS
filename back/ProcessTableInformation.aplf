@@ -11,7 +11,8 @@
      sql←' '∘(1↓,⊢⍤/⍨1(⊢∨⌽)0,≠)⍵
      '` '~⍨sql/⍨2=+\' '=sql
  }
- tc←↑' '(≠⊆⊢)¨(⎕UCS 10 13)((~∊⍨)⊆⊢)⊃⎕NGET #.DCMS.app_dir,'/back/sql/type_conversions.txt'
+ tc←↑' '(≠⊆⊢)¨(⎕UCS 10 13)((~∊⍨)⊆⊢)⊃⎕NGET #.GLOBAL.app_dir,'/back/sql/type_conversions.txt'
+ #.GLOBAL.type_conversions←tc
  MapSQAPLTypeConversions←{
      t←⍵~⊂'KEY'                            ⍝ Primary key not a column
      w←' '@(0=≢¨){1↓⍵/⍨≠\⍵∊'()'}¨t         ⍝ Extract field widths e.g. 11 from int(11)
@@ -28,12 +29,12 @@
      msg←↑⊃,/(ut UnknownTypeInColumn¨¨uc)InTable¨¨⊂¨t/tables
      (rc)(msg)
  }
- #.GLOBAL.(tables type_defs type_conversions)←⊂⍬
+ #.GLOBAL.(tables type_defs type_sqapl)←⊂⍬
  :For schema :In schema_definitions
      statements←(StatementsFromSchema schema)~⊂''
      tables←TableName¨statements
      (columns types)←↓⍉↑ColumnsTypes¨statements
      conversions←MapSQAPLTypeConversions¨types
      msg←UnknownColumnTypes conversions
-     #.GLOBAL.(tables type_defs type_conversions),←tables types conversions
+     #.GLOBAL.(tables type_defs type_sqapl),←tables types conversions
  :EndFor

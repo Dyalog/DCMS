@@ -1,0 +1,11 @@
+ (columns types values)←ImportExcelData table;app_dir;info;file;xl;header;columns;types;num;values;not_found;sql;exists;ids
+ msg←0 'OK'
+⍝ Attempt to overwrite records with missing fields
+⍝ Attempt to modify records older than 1 month old
+⍝ Column data wrong type or malformed
+ app_dir←'/',⍨#.DCMS.GetEnv'app_dir'
+ info←⊃⎕NGET app_dir,'/data_sources.json5'
+ info←⎕JSON⍠'Dialect' 'JSON5'⊢info
+ file←app_dir,info⍎table
+ xl←⊃#.XL2APL.Main.GetEntireWorkbook file
+ (columns types values)←NormaliseExcelValues table xl

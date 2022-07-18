@@ -1,1 +1,0 @@
-AllowOrigin←{'access-control-allow-origin' (('*',⍨⊆⍵)⊃⍨1+0∊⍴⍵)}

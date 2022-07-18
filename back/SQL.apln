@@ -4,12 +4,27 @@
 
     Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
 
-    ∇ msg←Do(sql values);bulk;cur
+    ∇ r←Use database
+      r←#.DCMS.Catch #.SQA.Do db('USE ',database)
+    ∇
+
+
+    ∇ r←DoBulk(sql values);bulk;cur;nulls;n
       cur←db,'.i'
-      msg←0 2⍴⍬''
-      msg⍪←Check #.SQA.Prepare cur sql('Bulk'(≢values))
-      msg⍪←Check #.SQA.X cur values
-      msg⍪←Check #.SQA.Close cur
+      n←≢⊃⍣(1=≢⍴values)⊢values
+      r←#.DCMS.Catch #.SQA.Prepare cur sql('Bulk'n)
+      r←#.DCMS.Catch #.SQA.X cur,⍥⊆values
+     ⍝ ,⍥⊆ above allows SQAPL nulls matrix to be provided stranded with values
+      r←#.DCMS.Catch #.SQA.Close cur
+    ∇
+
+    ∇ r←{ucs}Do sql
+      :If 0=⎕NC'ucs' ⋄ ucs←0 ⋄ :EndIf  ⍝ Unicode convert these columns
+      r←sql #.DCMS.Catch #.SQA.Do db sql
+      :If 0=⊃r
+          r←3 1⊃r
+          (ucs/r)←('UTF-8'⎕UCS ⎕UCS)¨ucs/r
+      :EndIf
     ∇
 
 

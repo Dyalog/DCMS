@@ -1,0 +1,20 @@
+ res←QueryPersons req;p;v;i;id;j;qp
+ res←req.Response
+ qp←req.QueryParams
+ (p v)←↓⍉qp
+ :If 0=≢p   ⍝ All persons
+     res←⎕JSON #.CACHE.persons.list
+     :Return
+ :EndIf
+ v←v,⊂''
+ i←2⊃⎕VFI v⊃⍨⊂p⍳⊂'id'
+ id←#.CACHE.persons.id⍳i
+ :If id>≢#.CACHE.persons.id
+     'Resource not found'req.Fail 404
+ :Else
+     res←id⊃⎕JSON #.CACHE.persons.list
+     res.media←⎕JSON id⊃#.CACHE.persons.media
+⍝     res←⎕JSON res
+ :EndIf
+
+ ⍝ TODO save space by storying id and text-JSON only rather than object

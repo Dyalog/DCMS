@@ -1,0 +1,84 @@
+{
+    videos: {
+        fields: [
+                    { "field": "youtube_id",      "unicode": 0 },
+                    { "field": "url",             "unicode": 0 }, 
+                    { "field": "title",           "unicode": 1 }, 
+                    { "field": "presenter",       "unicode": 1 },
+                    { "field": "event",           "unicode": 1 },
+                    { "field": "category",        "unicode": 1 },
+                    { "field": "event_shortname", "unicode": 1 },
+                    { "field": "description",     "unicode": 1 },
+                    { "field": "published_at",    "unicode": 0 }
+        ],
+        sql: "SELECT youtube_videos.youtube_id,media.url,presentation.title,person.name,event.title,category.category,event.url_slug,youtube_videos.description,youtube_videos.published_at FROM presenter\
+              RIGHT JOIN person ON person.id = person_id\
+              RIGHT JOIN presentation ON presentation.id = presentation_id\
+              LEFT JOIN media ON presentation.id = media.presentation_id\
+              LEFT JOIN youtube_videos ON youtube_videos.id = media.media_id\
+              LEFT JOIN event ON event.id = presentation.event_id\
+              LEFT JOIN category on category.id = presentation.category_id\
+            ;"
+    },
+    events: {
+        fields: [
+                    { "field": "id",            "unicode": 0 },
+                    { "field": "title",         "unicode": 1 },
+                    { "field": "start",         "unicode": 0 },
+                    { "field": "end",           "unicode": 0 },
+                    { "field": "has_time",      "unicode": 0 },
+                    { "field": "url_slug",      "unicode": 1 },
+                    { "field": "location",      "unicode": 1 },
+                    { "field": "early_bird",    "unicode": 0 },
+                    { "field": "signup_url",    "unicode": 1 },
+                    { "field": "news_start",    "unicode": 0 },
+                    { "field": "news_duration", "unicode": 0 },
+                    { "field": "event_logo",    "unicode": 0 },
+                    { "field": "icon",          "unicode": 0 }
+        ]
+    },
+    presenters: {
+        sql: "SELECT name FROM person"
+    },
+    persons: {
+        person: {
+            fields: [
+                { "field": "id",                     "unicode": 0 },
+                { "field": "name",                   "unicode": 1 },
+                { "field": "organisation",           "unicode": 1 },
+                { "field": "description",            "unicode": 1 },
+                { "field": "location",               "unicode": 1 },
+                { "field": "join_dyalog_date",       "unicode": 0 },
+                { "field": "leave_dyalog_date",      "unicode": 0 },
+                { "field": "picture",                "unicode": 1 },
+                { "field": "short_description",      "unicode": 1 },
+                { "field": "evangelism_description", "unicode": 1 },
+            ],
+            sql: "SELECT id,name,organisation,description,country,join_dyalog_date,\
+                    leave_dyalog_date,picture,short_description,evangelism_description\
+                    FROM person WHERE person.organisation = 'Dyalog Ltd'"
+        },
+        media: {
+            fields: [
+                { "field": "person",     "unicode": 1 },
+                { "field": "id",         "unicode": 0 },
+                { "field": "title",      "unicode": 1 },
+                { "field": "type",       "unicode": 0 },
+                { "field": "url",        "unicode": 1 },
+                { "field": "youtube_id", "unicode": 0 },
+            ],
+            sql: "SELECT person.id,media.id,media.title,media.type,media.url,youtube_id FROM media\
+                    LEFT JOIN presenter ON presenter.presentation_id = media.presentation_id\
+                    INNER JOIN person ON person.id = person_id\
+                    LEFT JOIN youtube_videos ON media.media_id = youtube_videos.id\
+                    WHERE person.organisation = 'Dyalog Ltd'"
+        },
+        some: [
+            { "field": "id",          "unicode": 0 },
+            { "field": "name",        "unicode": 1 },
+            { "field": "icon",        "unicode": 0 },
+            { "field": "url",         "unicode": 1 },
+            { "field": "description", "unicode": 1 },
+        ]
+    }
+}

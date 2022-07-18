@@ -19,10 +19,10 @@ CREATE TABLE `dtv_videos` (
     `event_id` int(10),
     `external` boolean,
     `description` text,
-    `publishedAt` datetime,
-    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated_by` varchar(128),
-    `created_at` datetime
+    `published_at` datetime,
+    `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` varchar(128)
 );
 
 CREATE TABLE `dtv_events` (
@@ -36,9 +36,9 @@ CREATE TABLE `dtv_events` (
     `dyalog_logo` varchar(256),
     `order` int(11),
     `short_name` varchar(128),
-    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated_by` varchar(128),
-    `created_at` datetime
+    `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` varchar(128)
 );
 
 CREATE TABLE `dtv_categorys` (
@@ -46,7 +46,7 @@ CREATE TABLE `dtv_categorys` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
     `category` varchar(128),
     `order` int(11),
-    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated_by` varchar(128),
-    `created_at` datetime
+    `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` varchar(128)
 );

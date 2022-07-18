@@ -1,21 +1,27 @@
- {msg}←Setup dev;database;response
+ {msg}←Setup dev;database;response;app_dir;LoadDependency;db;schema_definitions
  msg←0
+ ⎕PW←⊃(//⎕VFI)GetEnv'PW'
+ '#.GLOBAL'⎕NS ⍬
  :If 0∊⍴dev
-     debug←⍬⍴⊃(//⎕VFI)GetEnv'debug'
+     #.GLOBAL.debug←⍬⍴⊃(//⎕VFI)GetEnv'debug'
  :Else
-     debug←dev
+     #.GLOBAL.debug←dev
  :EndIf
- log_file←GetEnv'log'
+ #.GLOBAL.log_file←GetEnv'log'
  'SQA'#.⎕CY'sqapl' ⋄ ⎕←'Imported: #.SQA'
- LoadDependency←{
-     0=#.⎕NC ⍵:Catch ⎕SE.Link.Import #,⍥⊂GetEnv ⍵
- }
- app_dir←GetEnv'app_dir'
- 'GLOBAL'#.⎕NS ⍬
- #.GLOBAL.api←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'api_info'
- ⎕SE.Link.Import ⎕THIS(app_dir,'/database.apla')
+ #.⎕CY GetEnv'XL2APL' ⋄ ⎕←'Imported: #.XL2APL'
+ LoadDependency←{0=#.⎕NC ⍵:Catch ⎕SE.Link.Import #,⍥⊂GetEnv ⍵}
  LoadDependency¨'Jarvis' 'HttpCommand'
+ #.GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
+ #.GLOBAL.secrets←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'secrets'
+ #.GLOBAL.data_sources←LoadDataSourcePaths #.GLOBAL.app_dir
  Catch #.SQA.Init''
- db←'db'
- response←#.SQA.Connect db,⍥⊆database
+ #.GLOBAL.db←db←'db'
+ response←#.SQA.Connect db,⍥⊆#.GLOBAL.secrets.mariadb   ⍝ Move to SQL namespace
  Catch response
+ #.SQA.Do db'create database if not exists dyalog_cms character set = utf8mb4'
+⍝ Todo: test on default mariadb linux install - does IT need to set utf8mb4?
+ SQL.Use'dyalog_cms'
+
+ schema_definitions←SetupSchema #.GLOBAL.app_dir,'/back/sql/*.sql'
+ SetGlobalInfo schema_definitions
