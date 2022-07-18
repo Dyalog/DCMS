@@ -1,0 +1,5 @@
+ TestGetPresenters←{
+     ⍺←'http://localhost:8081/presenters'
+     _←Assert 200=(#.HttpCommand.Get ⍺).HttpStatus   ⍝ all presenters
+     1
+ }

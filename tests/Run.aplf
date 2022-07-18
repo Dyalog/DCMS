@@ -1,0 +1,5 @@
+ r←Run tests
+ TestGetVideos ⍬
+ TestGetEvents ⍬
+ TestGetPresenters ⍬
+ TestGetPersons ⍬

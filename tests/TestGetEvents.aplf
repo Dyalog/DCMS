@@ -1,0 +1,7 @@
+ TestGetEvents←{
+     ⍺←'http://localhost:8081/events'
+     G←⍺∘HttpGet
+     fields←'id' 'title' 'start' 'end' 'has_time' 'url_slug' 'location' 'early_bird' 'signup_url' 'news_start' 'news_duration' 'event_logo' 'icon'
+     _←Assert∧/fields∊(⊃G'').⎕NL-⍳9   ⍝ all events
+     1
+ }
