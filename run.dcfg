@@ -1,16 +1,19 @@
 {
 	Settings: {
 		MAXWS: "2G",
-		PW: 3000,
+		PW: 200,
 		app_dir: "/g/DCMS",
+		service_url: "https://localhost",
+		service_port: 8081,
 		allow_from: "http://localhost:8080",
 		SESSION_FILE: "/a/Config/rp_182.dse",
 		ServerCertFile: "/d/certs/localhost.crt",
 		ServerKeyFile: "/d/certs/localhost.key",
-		debug: 0,
+		debug: 1,
+		log_level: 2,
 		log: "[app_dir]/dev_log.txt",
 		log_file: "[app_dir]/dyalog_log_file.dlf",
-		api_info: "[app_dir]/api.json5",
+		secrets: "[app_dir]/secrets.json5",          // API keys, database connection information etc.
 
 		Jarvis: "/d/Jarvis.dyalog",
 		HttpCommand: "C:/Program Files/Dyalog/Dyalog APL-64 18.2 Unicode/Library/Conga/HttpCommand.dyalog",
@@ -18,6 +21,6 @@
 
 		CodeLocation: "#.DMCS",
 		Paradigm: "REST",
-		LX: "⎕←⎕SE.Link.Create 'DCMS',⍥⊂⎕SE.Link.LaunchDir,'/back' ⋄ ⎕←#.DCMS.Run⍬",
+		LX: "⎕←⎕SE.Link.Create 'DCMS',⍥⊂⎕SE.Link.LaunchDir,'/back' ⋄ ⎕←#.DCMS.Run ⍬",
 	}
 }
