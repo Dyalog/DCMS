@@ -8,9 +8,9 @@
      #.GLOBAL.debug←dev
  :EndIf
  #.GLOBAL.log_file←GetEnv'log'
- 'SQA'#.⎕CY'sqapl' ⋄ ⎕←'Imported: #.SQA'
- #.⎕CY GetEnv'XL2APL' ⋄ ⎕←'Imported: #.XL2APL'
- LoadDependency←{0=#.⎕NC ⍵:Catch ⎕SE.Link.Import #,⍥⊂GetEnv ⍵}
+ 'SQA'#.⎕CY'sqapl'
+ #.⎕CY GetEnv'XL2APL'
+ LoadDependency←{0=#.⎕NC ⍵:⎕SE.Link.Import #,⍥⊂GetEnv ⍵}
  LoadDependency¨'Jarvis' 'HttpCommand'
  #.GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
  #.GLOBAL.secrets←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'secrets'
