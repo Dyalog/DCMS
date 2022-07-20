@@ -1,0 +1,32 @@
+version: "3.1"
+
+services:
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: dcms_web
+        volumes:
+        - ${PWD}:/app
+        - ${PWD}/data:/data
+        tty: true
+        secrets:
+            - dcms_secrets.json5
+            - localhost.crt
+            - localhost.key
+        ports:
+            - "4502:4502"
+            - "8081:8080"
+        environment:
+            - RIDE_INIT=serve:*:4502
+            - LIBPATH=/opt/mdyalog/18.2/64/unicode/lib
+
+secrets:
+    dcms_secrets.json5:
+        file: ./secrets/secrets.json5
+    localhost.crt:
+        file: ./secrets/localhost.crt
+    localhost.key:
+        file: ./secrets/localhost.key
+
+

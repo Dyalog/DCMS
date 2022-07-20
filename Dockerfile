@@ -16,7 +16,7 @@ RUN cd /tmp && \
     cp mysql-connector-odbc-5.3.7-linux-ubuntu16.04-x86-64bit/lib/* /libmyodbc  && \
     rm -Rf /tmp/mysql-connector-odbc-5.3.7-linux-ubuntu16.04-x86-64bit.tar.gz /tmp/mysql-connector-odbc-5.3.7-linux-ubuntu16.04-x86-64bit
 
-ADD docker/odbc.ini /
-RUN chmod 666 /odbc.ini
+ADD docker/odbc.ini /etc
+RUN chmod 666 /etc/odbc.ini
 
 USER dyalog
