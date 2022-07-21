@@ -1,55 +1,20 @@
- msg←YouTubeImport skip;SQA;sql_response;video_data;values;columns;types;date_columns;updates;inserts;cur;i_values;i_columns;i_types;u_values;u_ids;id_drop;ColumnEquals;youtube_ids;key;fields;r;videos_data;table;FetchVideo;channels;ids;now;exists_ids
+ msg←YouTubeImport ytid;SQA;sql_response;video_data;values;columns;types;date_columns;updates;inserts;cur;i_values;i_columns;i_types;u_values;u_ids;id_drop;ColumnEquals;youtube_ids;key;fields;r;videos_data;table;FetchVideo;channels;ids;now;url;exists;dt_cols
  msg←0   ⍝ OK
-⍝ 1. Fetch all video and playlist IDs for channels specified in GetEnv'youtube_channels'
-⍝ 2. Fetch data about all of those videos (expensive, use sparingly - once a month, or API endpoint to request a specific video be updated in the DB)
-⍝ 3. Copy relevant data into media table
-
-⍝ Now - last request made on 2022-04-04 and stored in "youtube_videos.json" and "youtube_playlists.json"
-⍝       initial database data is from these files, but API fetches will be set up before deployment
 
 ⍝ TODO: data caching with eTags
- :If skip
-     →0
+ url←#.GLOBAL.secrets.youtube
+ key←#.GLOBAL.secrets.youtube_key
+
+ :If #.GLOBAL.debug
+     video_data←⎕CSV(#.GLOBAL.app_dir,'video_data.csv')⍬ 4
+ :Else
+     video_data←GetYouTubeVideos ytid
  :EndIf
 
- url←#.GLOBAL.api.youtube
- key←#.GLOBAL.api.youtube_key
- channels←#.GLOBAL.api.youtube_channels
-
- channels.uploads←GetUploadIDs¨channels.id
- channels.(playlist_ids playlists)←GetPlaylistIDsTitles¨channels.id
- channels.playlist_items←GetPlaylistItems¨¨channels.playlist_ids
-
-⍝ video_data←GetYouTubeVideos¨channels.uploads
- video_data←⎕JSON⊃⎕NGET(#.DCMS.GetEnv'app_dir'),'/youtube_videos.json'
- exists_ids←ExistingYouTubeVideoIDs¨video_data
+ (exists ids)←ExistingYouTubeVideoIDs video_data[;1]
  (columns types)←ColumnInformation'youtube_videos'
- columns types↓⍨←¯3   ⍝ TODO created_at updated_at updated_by
- date_columns←columns⍳⊆'published_at'
- ((⊂date_columns)⊃¨¨video_data)←¯1↓¨¨(⊂date_columns)⊃¨¨video_data   ⍝ Drop Z from datetimes
- updates←(⊂'youtube_videos')∘,¨exists_ids,¨columns types∘,¨⊂∘↑¨video_data
- #.DCMS.Catch UpdateInsertExternalResource¨updates
-⍝ TODO: just get needed fields
- →0
-⍝ TODO: playlists
- playlists←
- Playlists←
- {#.HttpCommand.GetJSON'Get'(url,'playlists?channelId=UC89lIdGnKlEozb1WcYQprNw&key=',key,'&part=snippet,contentDetails&maxResults=50')}⍬
- FetchVideo←{#.HttpCommand.GetJSON'Get'(url,'videos?id=',⍵,'&key=',key,'&part=snippet&fields=',fields)}
- {#.HttpCommand.GetJSON'Get'(url,'channels?id=UC89lIdGnKlEozb1WcYQprNw&key=',key,'&part=contentDetails')}
- h←⎕NEW #.HttpCommand
- h.Method←'GET'
- h.Headers⍪←'If-None-Match'etag
- h.URL←url,'channels?id=UC89lIdGnKlEozb1WcYQprNw&key=',key,'&part=contentDetails'
- r3←h.Run
- r.Data.items.contentDetails.relatedPlaylists.uploads
-
-⍝ Fetch etag. If etag ≢ cache, fetch query
-
-
- r2.Data.pageInfo.(resultsPerPage<totalResults)   ⍝ If true, got to grab the next page
-
- r←FetchVideo¨'Tq144y6DrME' 'AFfEC-nBaYQ' 'j2vhqHlRlYs'
- videos_data←r/⍨200=r.HttpStatus ⋄ videos_data←r.Data
- #.DCMS.Catch r/⍨200≠r.HttpStatus
- values←↑⊃,/videos_data.items.snippet.(categoryId channelId channelTitle description publishedAt title)
+ (columns types)←(~columns∊⊆'id' 'created_at' 'updated_at')∘/¨columns types   ⍝ Remove these auto-generated columns
+ video_data,←⊂'DCMS_YouTubeImport'
+ dt_cols←types∊⊂'<S'   ⍝ '<S' should probably be read from sql/type_conversions.txt
+ (dt_cols/video_data)←TZ2DDN¨(types∊⊂'<S')/video_data
+ #.DCMS.Catch UpdateInsertExternalResource('youtube_videos'exists ids columns types video_data)

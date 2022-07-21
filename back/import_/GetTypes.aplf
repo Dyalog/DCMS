@@ -1,0 +1,4 @@
+ GetTypes←{
+     (c t)←#.GLOBAL.((columns type_sqapl)⊃⍨¨tables⍳⊆)⍺
+     t[c⍳⊆⍵]
+ }

@@ -1,6 +1,6 @@
  ColumnInformation←{
      t←#.GLOBAL.tables⍳⊆⍵
-     i←t⊃¨#.GLOBAL.(columns type_conversions)
-     id←(⊃i)⍳⊂'id'
-     {⍵[id~⍨⍳≢⍵]}¨i
+     t⊃¨#.GLOBAL.(columns type_sqapl)
+⍝     id←(⊃i)⍳⊂'id'
+⍝     {⍵[id~⍨⍳≢⍵]}¨i
  }
