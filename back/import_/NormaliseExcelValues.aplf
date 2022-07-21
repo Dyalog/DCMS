@@ -1,0 +1,16 @@
+ NormaliseExcelValues←{
+ ⍝    xl: namespace from XL2APL.Main.GetEntireWorkbook
+ ⍝ table: name of table in database
+ ⍝     ←: (columns types values)
+     (t x)←⍵
+     v←⍉↑⊂⍤¯1¨xl.Data     ⍝ Unvert inverted table of values
+     h←,xl.Header
+     (c t)←#.DCMS.import_.ColumnInformation table
+     0<≢nf←h/⍨~h∊c:('These column names in the Excel file were not found in the corresponding database table: ',⊃(⊣,',',⊢)/nf)⎕SIGNAL 201
+     t←(⊢/⍴v)↑(⊂⍋h⍳c)⌷t            ⍝ Ensure column in database match columns in values
+     n←t∊⊆'<I' '<S' '<D'           ⍝ Numeric type columns
+     (n/v)←(2⊃⎕VFI)¨n/v            ⍝ Convert to numeric type
+     cd←∨/¨'C'=t                   ⍝ Character type columns
+     (cd/v)←{⍵/⍨⌽~∧\⌽' '=⍵}¨cd/v   ⍝ Drop trailing blanks
+     h t v
+ }
