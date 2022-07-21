@@ -1,4 +1,0 @@
- LoadDataSourcePaths←{
-     json←⊃⎕NGET ⍵,'data_sources.json5'
-     ⎕JSON⍠'Dialect' 'JSON5'⊢json
- }

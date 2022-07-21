@@ -1,15 +1,19 @@
 :Namespace SQL
 
-    db←'db'
+    db←'db'   ⍝ TODO: move from GLOBAL to DCMS.SQL?
+
+    schema_defs←##.GetEnv'schema_defs'
 
     Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
+
+    :section SQAPL
 
     ∇ r←Connect datasource;src;Catch;SQA;db
       Catch←##.Catch ⋄ SQA←#.SQA
       Catch SQA.Init''
       #.GLOBAL.db←db←'db'
       Catch src←#.SQA.DSN'' ⋄ src←2⊃src
-      :If ~(1⌷datasource)∊⍥⎕c⊣/src
+      :If ~(1⌷datasource)∊⍥⎕C⊣/src
           501 ⎕SIGNAL⍨'Datasource ',(⊃datasource),' not found.'
       :EndIf
       res←#.SQA.Connect db,⍥⊆datasource
@@ -40,5 +44,84 @@
       :EndIf
     ∇
 
+    :endsection
+
+    :section SCHEMA_PROCESSING
+
+      LoadSchema←{
+          (txt enc nl)←⎕NGET ⍵
+          ';'(≠⊆⊢)' '@(∊∘(⎕UCS nl))⊢txt
+      }
+
+      StatementsFromSchema←{
+          (txt enc nl)←⎕NGET ⍵
+          sql←'/\*.+\*/'⎕R''⍠'Greedy' 0⊢txt   ⍝ Remove comments
+          sql←' '@(∊∘(⎕UCS nl))sql            ⍝ Replace newlines with spaces
+          sql←' '∘(1↓,⊢⍤/⍨1(⊢∨⌽)0,≠)sql       ⍝ Remove leading, trailing, duplicate blanks
+          ';'(≠⊆⊢)sql                         ⍝ Split on semicolons
+      }
+
+      TableName←{   ⍝ Extract "table_name" from statements of the form "CREATE TABLE table_name"
+          sql←' '∘(1↓,⊢⍤/⍨1(⊢∨⌽)0,≠)⍵
+          '` '~⍨sql/⍨2=+\' '=sql
+      }
+
+      MapSQAPLTypeConversions←{
+          t←⍵~⊂'KEY'                            ⍝ Primary key not a column
+          tc←⍺                                  ⍝ Type conversions table
+          w←' '@(0=≢¨){1↓⍵/⍨≠\⍵∊'()'}¨t         ⍝ Extract field widths e.g. 11 from int(11)
+          bt←w ⎕R'⎕'⊢t                          ⍝ Replace field widths with blanks
+          R←{∊(⊂⍺⍺)@(⍵⍵∘=)⊢⍵}                   ⍝ Replace blanks with field widths
+          w{(⍺ R'⎕')⊢⍵}¨(tc⍪⊂'')[tc[;1]⍳bt;2]   ⍝ SQAPL type conversions (blank if not found)
+      }
+
+      ColumnsTypes←{
+          col←⍵~'`'                                    ⍝ Remove backticks
+          col←','(≠⊆⊢)1↓col⌿⍨≠\(<\∨(⌽<\∘⌽))'()'∊⍨col   ⍝ Extract text between outermost parentheses
+          iscol←~'PRIMARY KEY'∘(∨/⍷⍥⎕C)¨col            ⍝ Ignore PRIMARY KEY
+          ↓⍉↑2↑¨' '(≠⊆⊢)¨iscol/col                     ⍝ (column names)(types)
+      }
+
+      UnknownColumnTypes←{
+          ec←∊∘(⊂'')¨⍵ ⋄ t←∨/¨ec ⋄ rc←-∨/t    ⍝ empty columns; tables containing unknown types; return code (0 if none, ¯1 otherwise)
+          0=rc:0 ''                           ⍝ All types known
+          (ut uc)←t∘/¨(⊂ec)/¨¨types columns   ⍝ unknown types;  unknown columns
+          UnknownTypeInColumn←{0∊⍴⍵:'' ⋄ ∊'Unknown type (',⍺,') in column (',⍵,')'}
+          InTable←{⍺,' in table (',⍵,')'}
+          msg←↑⊃,/(ut UnknownTypeInColumn¨¨uc)InTable¨¨⊂¨t/tables
+          (rc)(msg)
+      }
+
+    ∇ schema_definitions←SetupSchema folder;schema_definitions;sequence;latest;migrations;migration;batch;sql;db
+      schema_definitions←'.*\d+-.*.sql'⎕S'&'⊃0(⎕NINFO⍠'Wildcard' 1)folder
+      sequence←∊2⊃¨⎕VFI¨⊃¨'-'(≠⊆⊢)¨2⊃¨⎕NPARTS¨schema_definitions
+      db←#.GLOBAL.db
+      :If 0=⊃latest←#.SQA.Do db'select max(batch) from migrations'
+          (migrations sequence)←schema_definitions sequence↓⍨¨1+3 1⊃latest   ⍝ Database exists, apply after most recent migration
+      :Else
+          migrations←schema_definitions
+      :EndIf
+      :For (migration batch) :InEach (migrations sequence)
+          sql←StatementsFromSchema migration
+          ##.Catch¨#.SQA.Do¨(⊂db)∘,¨⊂¨sql
+          ##.Catch #.SQA.Do db'insert into migrations (`migration`,`batch`) values (:file<C255:,:num<I:);'migration batch
+      :EndFor
+    ∇
+
+    ∇ ProcessTableInformation;schema;schema_definitions;statements;tables;columns;types;conversions
+      #.GLOBAL.type_conversions←↑' '(≠⊆⊢)¨(⎕UCS 10 13)((~∊⍨)⊆⊢)⊃⎕NGET #.GLOBAL.app_dir,'/back/sql/type_conversions.txt'
+      #.GLOBAL.(tables type_defs type_sqapl)←⊂⍬
+      schema_definitions←SetupSchema schema_defs
+      :For schema :In schema_definitions
+          statements←(StatementsFromSchema schema)~⊂''
+          tables←TableName¨statements
+          (columns types)←↓⍉↑ColumnsTypes¨statements
+          conversions←#.GLOBAL.type_conversions∘MapSQAPLTypeConversions¨types
+          msg←UnknownColumnTypes conversions
+          #.GLOBAL.(tables type_defs type_sqapl),←tables types conversions
+      :EndFor
+    ∇
+
+    :endsection
 
 :EndNamespace

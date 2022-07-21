@@ -1,4 +1,4 @@
- {msg}←Setup dev;database;response;app_dir;LoadDependency;db;schema_definitions
+ {msg}←Setup dev;database;response;app_dir;LoadDependency;db;schema_definitions;sql;tables;table_information;columns;types;type_names;order
  msg←0
  ⎕PW←⊃(//⎕VFI)GetEnv'PW'
  '#.GLOBAL'⎕NS ⍬
@@ -14,10 +14,23 @@
  LoadDependency¨'Jarvis' 'HttpCommand'
  #.GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
  #.GLOBAL.secrets←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'secrets'
+ LoadDataSourcePaths←{
+     json←⊃⎕NGET ⍵,'data_sources.json5'
+     ⎕JSON⍠'Dialect' 'JSON5'⊢json
+ }
  #.GLOBAL.data_sources←LoadDataSourcePaths #.GLOBAL.app_dir
  Catch #.SQA.Init''
  #.GLOBAL.db←db←'db'
  SQL.Connect #.GLOBAL.secrets.database
-
- schema_definitions←SetupSchema #.GLOBAL.app_dir,'/back/sql/*.sql'
- SetGlobalInfo schema_definitions
+ SQL.ProcessTableInformation
+ db←SQL.db
+ :If 0=⎕NC'#.GLOBAL' ⋄ 'GLOBAL'#.⎕NS ⍬ ⋄ :EndIf
+ sql←'show tables in dyalog_cms'
+ tables←,3 1⊃Catch #.SQA.Do db sql
+ table_information←1↓2⊃#.SQA.Columns db
+ tables←3(⌷⍤1)table_information
+ (columns types type_names)←↓⍉↑↓∘⍉¨tables{⊂⍵}⌸(⊂4 5 6)(⌷⍤1)table_information
+ order←#.GLOBAL.tables⍳⍨∪tables
+ #.GLOBAL.utf8_columns←(⍸12∘=)¨types[order]
+ #.GLOBAL.(columns types type_names)←(⊂order)∘⌷¨columns types type_names
+ #.GLOBAL.data_sources←LoadDataSourcePaths #.GLOBAL.app_dir
