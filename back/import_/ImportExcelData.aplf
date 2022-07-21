@@ -6,6 +6,6 @@
  app_dir←'/',⍨#.DCMS.GetEnv'app_dir'
  info←⊃⎕NGET app_dir,'/data_sources.json5'
  info←⎕JSON⍠'Dialect' 'JSON5'⊢info
- file←app_dir,info⍎table
+ file←info⍎table
  xl←⊃#.XL2APL.Main.GetEntireWorkbook file
  (columns types values)←NormaliseExcelValues table xl
