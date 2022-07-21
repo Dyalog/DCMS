@@ -1,4 +1,5 @@
-*.xlsx
 data_sources.json5
 secrets.json5
 dyalog_log_file.dlf
+video_data.csv
+data/
