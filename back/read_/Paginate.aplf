@@ -1,5 +1,5 @@
  Paginate←{
-     (ep p ppg)←⍺   ⍝ (page)(current_page)(URL endpoint)
+     (ep p ppg)←⍺   ⍝ (URL endpoint)(current_page)(per_page)
      0∊⍴ppg:⍵       ⍝ No pagination, return response unchanged
      (p ppg)←⍬∘⍴¨p ppg
      p←⊃pg,1        ⍝ Current page
@@ -14,22 +14,20 @@
 ⍝ 1 2 ... p(-,+)3 ... n-1 n        if 10<≢pages and this page is more than 10 from the end
 ⍝ 1 2 ... n-10..n                  if 10<≢pages and this page is less than 10 from the end
 
-⍝
-
      cii←10≥p+3                    ⍝ Current page in initial pages
      cif←(p lp>.-3 10)∧~cii        ⍝ Current page in final pages
      i←⍳lp⌊2 10[1+cii]             ⍝ Initial page range
      hf←lp>10                      ⍝ Has final?
      f←lp+fl-⍨⍳hf×fl←2 10[1+cif]   ⍝ Final page range
-     r←p+¯4+⍳7×hf∧cii⍲cif          ⍝ Current page range
+     r←p+¯4+⍳7×hf∧~cif             ⍝ Current page range is p(-,+)3 iff 10<≢pages (hf) and more than 10 from end (~cif)
 
-     lnkp←(p-1),i,r,f,p+1                                 ⍝ Link page numbers
-     url←#.DCMS.service.url,'/',ep,'?page='               ⍝ Base URL
-     pu←{p=1:⊂'null' ⋄ url,⍕p-1}⍬                         ⍝ Previous URL
-     nu←{p=lp:⊂'null' ⋄ url,⍕p+1}⍬                        ⍝ Next URL
-     lu←pu,⍥⊆(url∘,¨⍕¨i,r,f),⍥⊆nu                         ⍝ Link URLs
-     ll←'&laquo; Previous',⍥⊆(⍕¨i,r,f),⍥⊆'Next &raquo;'   ⍝ Link labels
-     la←'false' 'true'[1+p=lp]                            ⍝ Link active
+     lnkp←(p-1),i,r,f,p+1                                         ⍝ Link page numbers
+     url←#.DCMS.service.url,'/',ep,'?per_page=',(⍕ppg),'&page='   ⍝ Base URL
+     pu←{p=1:⊂'null' ⋄ url,⍕p-1}⍬                                 ⍝ Previous URL
+     nu←{p=lp:⊂'null' ⋄ url,⍕p+1}⍬                                ⍝ Next URL
+     lu←pu,⍥⊆(url∘,¨⍕¨i,r,f),⍥⊆nu                                 ⍝ Link URLs
+     ll←'&laquo; Previous',⍥⊆(⍕¨i,r,f),⍥⊆'Next &raquo;'           ⍝ Link labels
+     la←'false' 'true'[1+p=lnkp]                                  ⍝ Link active
      Link←url∘{
          link←⎕JSON'{}'
          link.(url label active)←⍵
