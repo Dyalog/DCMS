@@ -122,7 +122,7 @@
     ∇
 
     ∇ ProcessTableInformation;schema;schema_definitions;statements;tables;columns;types;conversions
-      #.GLOBAL.type_conversions←↑' '(≠⊆⊢)¨(⎕UCS 10 13)((~∊⍨)⊆⊢)⊃⎕NGET #.GLOBAL.app_dir,'/back/sql/type_conversions.txt'
+      #.GLOBAL.type_conversions←↑' '(≠⊆⊢)¨(⎕UCS 10 13)((~∊⍨)⊆⊢)⊃⎕NGET #.GLOBAL.app_dir,'/src/sql/type_conversions.txt'
       #.GLOBAL.(tables type_defs type_sqapl)←⊂⍬
       schema_definitions←SetupSchema schema_defs
       :For schema :In schema_definitions

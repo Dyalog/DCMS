@@ -3,7 +3,7 @@
 ⍝ Store pre-joined table for API Endpoint and Query results
 ⍝ Store simple character matrices for searching
  nested_matrix←2
- endpoints←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET #.GLOBAL.app_dir,'back/read_/endpoints.json5'
+ endpoints←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET #.GLOBAL.app_dir,'src/read_/endpoints.json5'
 
  '#.CACHE.persons'⎕NS ⍬
  (fields ucs)←↓⍉↑endpoints.persons.person.fields.(field unicode)
