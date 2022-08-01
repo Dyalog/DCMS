@@ -5,6 +5,7 @@
     schema_defs←##.GetEnv'schema_defs'
 
     Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
+    FromUTF8←'UTF-8'∘(⊣⎕UCS ⎕UCS)
 
     :section SQAPL
 
@@ -52,7 +53,7 @@
       r←sql #.DCMS.Catch #.SQA.Do db sql
       :If 0=⊃r
           r←3 1⊃r
-          (ucs/r)←('UTF-8'⎕UCS ⎕UCS)¨ucs/r
+          (ucs/r)←FromUTF8¨ucs/r
       :EndIf
     ∇
 

@@ -28,7 +28,7 @@
 
  sql←'SELECT id,title,event_id FROM presentation'
  current←#.DCMS.SQL.Do sql
- current[;2]←('UTF-8'⎕UCS ⎕UCS)¨current[;2]
+ current[;2]←FromUTF8¨current[;2]
 
  cc←'id' 'title' 'event_id'            ⍝ Existing value columns
  cv←'title' 'event_id' 'description'   ⍝ Input value columns
@@ -42,10 +42,10 @@
 ⍝ Presenters
  sql←'SELECT id,name FROM person'
  p←#.DCMS.SQL.Do sql
- p[;2]←('UTF-8'⎕UCS ⎕UCS)¨p[;2]
+ p[;2]←FromUTF8¨p[;2]
  sql←'SELECT id,title,event_id FROM presentation'
  pr←#.DCMS.SQL.Do sql
- pr[;2]←RLTB∘('UTF-8'⎕UCS ⎕UCS)¨pr[;2]
+ pr[;2]←RLTB∘FromUTF8¨pr[;2]
                                       ⍝ --- Assumes all data appears in pr ---
  i←pr[pr[;2]⍳data[;1];1]              ⍝ ID into presentations table
 ⍝ ('title' From presentations) OrderedBy ('title' From input)
