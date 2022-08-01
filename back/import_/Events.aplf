@@ -1,6 +1,6 @@
  msg←Events;columns;types;values;sql;current;exists;ids;all_cols;table
  table←'event'
- (columns types values)←ImportExcelData table
+ (columns types values)←ImportCSVData table
  sql←'SELECT * FROM ',table
  current←#.DCMS.SQL.Do sql
  all_cols←#.GLOBAL.(columns⊃⍨tables⍳⊆)table

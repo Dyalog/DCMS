@@ -1,0 +1,15 @@
+ DateTime2DDN←{
+⍝ Must be YYYY MM DD hh:mm
+⍝ May be delimited by :/-
+     0∊⍴⍵:⊂⍬
+     C←{
+         11::'NaN'
+         0=≢⍵:⍬
+         spl←':/ -'((~∊⍨)⊆⊢)⍵
+         4 2 2≢3↑≢¨spl:'NaN'
+         ∊2⊃∘⎕VFI¨spl
+     }
+     cnv←C¨⍵   ⍝ Convert datetimes
+     ∨/br←∨/cnv∊⊂'NaN':('Badly formatted dates on rows: ',⍕⍸br)⎕SIGNAL 422
+     {0∊⍴⍵:⍬ ⋄ 1 ⎕DT⊂⍵}¨cnv
+ }

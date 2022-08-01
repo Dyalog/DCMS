@@ -1,0 +1,16 @@
+ (columns types values)←ImportCSVData table;not_found;t;c;dt
+⍝ Attempt to overwrite records with missing fields
+⍝ Attempt to modify records older than 1 month old
+⍝ Column data wrong type or malformed
+ info←⊃⎕NGET(##.GetEnv'app_dir'),'/data_sources.json5'
+ info←⎕JSON⍠'Dialect' 'JSON5'⊢info
+ file←info⍎table
+ (values columns)←⎕CSV file ⍬ 4 1
+ (c t)←ColumnInformation table
+ not_found←columns/⍨~columns∊c
+ :If 0<≢not_found
+     ('These column names in the Excel file were not found in the corresponding database table: ',⊃(⊣,',',⊢)/not_found)⎕SIGNAL 201
+ :EndIf
+ types←(⊢/⍴values)↑(⊂⍋columns⍳c)⌷t   ⍝ Match order of columns in CSV file
+ dt←types∊⊆'<S' '<D'
+ (dt/values)←DateTime2DDN dt/values
