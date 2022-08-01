@@ -87,7 +87,7 @@
 
  sql←'SELECT id,title,url FROM media'
  ucs←0 1 0
- current←0 1 0#.DCMS.SQL.Do sql
+ current←0 1 0 #.DCMS.SQL.Do sql
  cc←'id' 'title' 'url'
   ⍝ TODO: annoying that columns must be declared in particular order (order of appearance in values matrix)
  columns←'title' 'type' 'media_id' 'url' 'presentation_id'

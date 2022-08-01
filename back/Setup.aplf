@@ -21,7 +21,7 @@
  #.GLOBAL.data_sources←LoadDataSourcePaths #.GLOBAL.app_dir
  Catch #.SQA.Init''
  #.GLOBAL.db←db←'db'
- SQL.Connect #.GLOBAL.secrets.database
+ SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
  SQL.ProcessTableInformation
  db←SQL.db
  :If 0=⎕NC'#.GLOBAL' ⋄ 'GLOBAL'#.⎕NS ⍬ ⋄ :EndIf

@@ -8,18 +8,30 @@
 
     :section SQAPL
 
-    ∇ r←Connect datasource;src;Catch;SQA;db
+    ∇ r←Connect datasource;src;Catch;SQA;db;opt
       Catch←##.Catch ⋄ SQA←#.SQA
       Catch SQA.Init''
       #.GLOBAL.db←db←'db'
       Catch src←#.SQA.DSN'' ⋄ src←2⊃src
       :If ~(1⌷datasource)∊⍥⎕C⊣/src
-          501 ⎕SIGNAL⍨'Datasource ',(⊃datasource),' not found.'
+          'opt'⎕NS ⍬ ⋄ opt.(wait timeout)←3 5 ⋄ opt.datasource←⊃datasource
+          Reconnect opt
       :EndIf
       res←#.SQA.Connect db,⍥⊆datasource
       SQA.Do db'create database if not exists dyalog_cms character set = utf8mb4'
       ⍝ Todo: test on default mariadb linux install - does IT need to set utf8mb4?
       Use'dyalog_cms'
+    ∇
+
+    ∇ r←Reconnect opt;src;timeout;found
+      :Repeat
+          Catch ¯1 'Attempting to find datasource ',opt.datasource,⊂'. ',(⍕opt.wait),' attempts remaining.'
+          ⎕DL opt.timeout
+          Catch src←#.SQA.DSN'' ⋄ src←2⊃src
+          found←(1⌷datasource)∊⍥⎕C⊣/src
+          opt.wait-←1 ⋄ timeout←opt.wait≤0
+      :Until timeout∨found
+      501 ⎕SIGNAL⍨'Datasource ',(⊃datasource),' not found.'
     ∇
 
     ∇ r←Use database

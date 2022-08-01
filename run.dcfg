@@ -1,23 +1,21 @@
 {
 	Settings: {
 		MAXWS: "2G",
-		PW: 200,
-		app_dir: "/g/DCMS",
+		PW: 300,
+		app_dir: "/app",
 		service_url: "https://localhost",
-		service_port: 8081,
+		service_port: 8080,
 		allow_from: "http://localhost:8080",
-		SESSION_FILE: "/a/Config/rp_182.dse",
-		ServerCertFile: "/d/certs/localhost.crt",
-		ServerKeyFile: "/d/certs/localhost.key",
+		ServerCertFile: "/secrets/localhost.crt",
+		ServerKeyFile: "/secrets/localhost.key",
 		debug: 1,
-		log_level: 2,
 		log: "[app_dir]/dev_log.txt",
 		log_file: "[app_dir]/dyalog_log_file.dlf",
-		secrets: "[app_dir]/secrets.json5",          // API keys, database connection information etc.
+		schema_defs: "[app_dir]/back/sql/*.sql",
 
-		Jarvis: "/d/Jarvis.dyalog",
-		HttpCommand: "C:/Program Files/Dyalog/Dyalog APL-64 18.2 Unicode/Library/Conga/HttpCommand.dyalog",
-		XL2APL: "C:/Users/rpark/Documents/APL/Apps/XL2APL-Application-0.0.18/XL2APL/XL2APL.dws",
+		Jarvis: "/app/packages/Jarvis.dyalog",
+		HttpCommand: "/app/packages/HttpCommand.dyalog",
+		XL2APL: "/app/packages/XL2APL.dws",
 
 		CodeLocation: "#.DMCS",
 		Paradigm: "REST",

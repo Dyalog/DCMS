@@ -1,4 +1,4 @@
-version: "3.1"
+version: "2"
 
 services:
     web:
@@ -9,24 +9,30 @@ services:
         volumes:
         - ${PWD}:/app
         - ${PWD}/data:/data
+        - ${PWD}/secrets:/secrets
         tty: true
-        secrets:
-            - dcms_secrets.json5
-            - localhost.crt
-            - localhost.key
         ports:
             - "4502:4502"
-            - "8081:8080"
+            - "8080:8080"
         environment:
-            - RIDE_INIT=serve:*:4502
-            - LIBPATH=/opt/mdyalog/18.2/64/unicode/lib
-
-secrets:
-    dcms_secrets.json5:
-        file: ./secrets/secrets.json5
-    localhost.crt:
-        file: ./secrets/localhost.crt
-    localhost.key:
-        file: ./secrets/localhost.key
-
-
+            RIDE_INIT: http:*:4502
+            LIBPATH: /opt/mdyalog/18.2/64/unicode/lib
+            SQL_SERVER: ${SQL_SERVER}
+            SQL_DATABASE: ${SQL_DATABASE}
+            SQL_USER: ${SQL_USER}
+            SQL_PASSWORD: ${SQL_PASSWORD}
+            SQL_PORT: ${SQL_PORT}
+            DYALOG_VERSION: ${DYALOG_VERSION}
+            SECRETS: ${DCMS_SECRETS}
+    db:
+        image: mariadb
+        volumes:
+            - ${PWD}/dcms_db:/var/lib/mysql
+        environment:
+            MARIADB_DATABASE: ${SQL_DATABASE}
+            MARIADB_USER: ${SQL_USER}
+            MARIADB_PASSWORD: ${SQL_PASSWORD}
+            MARIADB_RANDOM_ROOT_PASSWORD: 1
+        ports:
+            - 3396:3306/tcp
+        tty: true

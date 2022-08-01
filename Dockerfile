@@ -1,21 +1,17 @@
-FROM dyalog/dyalog
+FROM dyalog/dyalog:odbc-18.2
 
 USER root
 
-RUN apt-get update   && apt-get install -y --no-install-recommends \
-    ca-certificates     \
-    unixodbc            \ 
-    wget                \
-    mariadb-client   && \
-  apt-get clean && rm  -Rf /var/lib/apt/lists/*
+RUN wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+dpkg -i packages-microsoft-prod.deb && \
+rm packages-microsoft-prod.deb
 
-RUN cd /tmp && \
-    wget https://dev.mysql.com/get/Downloads/Connector-ODBC/5.3/mysql-connector-odbc-5.3.7-linux-ubuntu16.04-x86-64bit.tar.gz   && \
-    tar xf mysql-connector-odbc-5.3.7-linux-ubuntu16.04-x86-64bit.tar.gz && \
-    mkdir /libmyodbc    && \
-    cp mysql-connector-odbc-5.3.7-linux-ubuntu16.04-x86-64bit/lib/* /libmyodbc  && \
-    rm -Rf /tmp/mysql-connector-odbc-5.3.7-linux-ubuntu16.04-x86-64bit.tar.gz /tmp/mysql-connector-odbc-5.3.7-linux-ubuntu16.04-x86-64bit
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      apt-transport-https   \
+      dotnet-runtime-3.1 && \
+    apt-get clean && rm -Rf /var/lib/apt/lists/*
 
+ADD docker/entrypoint /
 ADD docker/odbc.ini /etc
 RUN chmod 666 /etc/odbc.ini
 
