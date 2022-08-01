@@ -9,7 +9,6 @@
  :EndIf
  #.GLOBAL.log_file←GetEnv'log'
  'SQA'#.⎕CY'sqapl'
- #.⎕CY GetEnv'XL2APL'
  LoadDependency←{0=#.⎕NC ⍵:⎕SE.Link.Import #,⍥⊂GetEnv ⍵}
  LoadDependency¨'Jarvis' 'HttpCommand'
  #.GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
