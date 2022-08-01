@@ -10,6 +10,8 @@
      t←(⊢/⍴v)↑(⊂⍋h⍳c)⌷t            ⍝ Ensure column in database match columns in values
      n←t∊⊆'<I' '<S' '<D'           ⍝ Numeric type columns
      (n/v)←(2⊃⎕VFI)¨n/v            ⍝ Convert to numeric type
+     n←t∊⊂'<S'
+     (n/v)←¯1+n/v                  ⍝ Excel has off-by-one datetime
      cd←∨/¨'C'=t                   ⍝ Character type columns
      (cd/v)←{⍵/⍨⌽~∧\⌽' '=⍵}¨cd/v   ⍝ Drop trailing blanks
      h t v

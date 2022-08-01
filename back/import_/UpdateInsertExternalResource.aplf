@@ -17,8 +17,8 @@
  dt_cols←types∊⊂'<S'   ⍝ This must match datetime in sql/type_conversions.txt
  d_cols←types∊⊂'<D'    ⍝ This must match date     in sql/type_conversions.txt
  values[⍸nulls]←0
- (dt_cols/values)←{0∊⍴⍵:⍵ ⋄ ¯1(⊃⊣⎕DT+)¨⍵}dt_cols/values
- (d_cols/values)←{0∊⍴⍵:⍵ ⋄ ¯1(3↑∘⊃⊣⎕DT+)¨⍵}d_cols/values
+ (dt_cols/values)←{0∊⍴⍵:⍵ ⋄ ¯1 ⎕DT ⍵}dt_cols/values
+ (d_cols/values)←{0∊⍴⍵:⍵ ⋄ 3↑¨¯1 ⎕DT ⍵}d_cols/values
  WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
  WrapColons←(1↓∊)(',:',':',⍨⊢)¨
  :If ~∨/exists
