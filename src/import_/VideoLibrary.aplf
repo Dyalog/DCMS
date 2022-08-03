@@ -4,6 +4,7 @@
 ⍝ Import data from video library spreadsheet and link data in database
  msg←0 'OK'
  table←'presentation'
+ :trap 22
  file←#.GLOBAL.(data_sources∘⍎)table
  data←∪3↓⎕CSV file ⍬ 4
  data⌿⍨←~data[;1]∊⊂'xxx'
@@ -95,3 +96,4 @@
  (exists ids)←(columns values)('title' 'url'Compare)(cc current)
 
  UpdateInsertExternalResource('media'exists ids columns types values)
+:endtrap

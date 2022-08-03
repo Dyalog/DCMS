@@ -12,12 +12,11 @@
  LoadDependency←{0=#.⎕NC ⍵:⎕SE.Link.Import #,⍥⊂GetEnv ⍵}
  LoadDependency¨'Jarvis' 'HttpCommand'
  #.GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
- #.GLOBAL.secrets←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'secrets'
+ #.GLOBAL.secrets←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'DCMS_SECRETS'
  LoadDataSourcePaths←{
      json←⊃⎕NGET ⍵,'data_sources.json5'
      ⎕JSON⍠'Dialect' 'JSON5'⊢json
  }
- #.GLOBAL.data_sources←LoadDataSourcePaths #.GLOBAL.app_dir
  Catch #.SQA.Init''
  #.GLOBAL.db←db←'db'
  SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
@@ -32,4 +31,3 @@
  order←#.GLOBAL.tables⍳⍨∪tables
  #.GLOBAL.utf8_columns←(⍸12∘=)¨types[order]
  #.GLOBAL.(columns types type_names)←(⊂order)∘⌷¨columns types type_names
- #.GLOBAL.data_sources←LoadDataSourcePaths #.GLOBAL.app_dir

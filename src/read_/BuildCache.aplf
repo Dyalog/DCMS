@@ -4,21 +4,25 @@
 ⍝ Store simple character matrices for searching
  nested_matrix←2
  endpoints←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET #.GLOBAL.app_dir,'src/read_/endpoints.json5'
-
  '#.CACHE.persons'⎕NS ⍬
  (fields ucs)←↓⍉↑endpoints.persons.person.fields.(field unicode)
  sql←endpoints.persons.person.sql
- val←fields⍪ucs #.DCMS.SQL.Do sql
- #.CACHE.persons.list←⎕JSON⊂nested_matrix val
- #.CACHE.persons.(id←(⎕JSON list).id)
- (fields ucs)←↓⍉↑endpoints.persons.media.fields.(field unicode)
- sql←endpoints.persons.media.sql
  val←ucs #.DCMS.SQL.Do sql
- per←∊∪name←⊣/val
- grp←name{⊂0 1↓⍵}⌸val
- med←⎕JSON∘⎕JSON¨⊂¨nested_matrix,⍥⊂¨(fields~⊂'person')∘⍪¨grp
- #.CACHE.persons.media←⎕NS¨⍬⍨¨#.CACHE.persons.id
- #.CACHE.persons.media[#.CACHE.persons.id⍳per]←⎕JSON¨med
+ :If 0=≢val
+     #.CACHE.persons←⍬
+ :Else
+     val⍪⍨←fields
+     #.CACHE.persons.list←⎕JSON⊂nested_matrix val
+     #.CACHE.persons.id←PersonIDs #.CACHE.persons.list
+     (fields ucs)←↓⍉↑endpoints.persons.media.fields.(field unicode)
+     sql←endpoints.persons.media.sql
+     val←ucs #.DCMS.SQL.Do sql
+     per←∊∪name←⊣/val
+     grp←name{⊂0 1↓⍵}⌸val
+     med←⎕JSON∘⎕JSON¨⊂¨nested_matrix,⍥⊂¨(fields~⊂'person')∘⍪¨grp
+     #.CACHE.persons.media←⎕NS¨⍬⍨¨#.CACHE.persons.id
+     #.CACHE.persons.media[#.CACHE.persons.id⍳per]←⎕JSON¨med
+ :EndIf
 
  '#.CACHE.events'⎕NS ⍬
  (fields ucs)←↓⍉↑endpoints.events.fields.(field unicode)
@@ -35,15 +39,20 @@
  (fields ucs)←↓⍉↑endpoints.videos.fields.(field unicode)
  sql←endpoints.videos.sql
  val←ucs #.DCMS.SQL.Do sql
- ytid←val⌷⍤1⍨fields⍳⊂'youtube_id'
- (val ytid)←(val ytid)⌿¨⍨⊂(~0∊⍴)¨ytid
- val←ytid{((,1 3↑⍵),(,1↑0 4↓⍵),⍨(⊣,',',⊢)/∪4⌷⍤1⊢⍵)}⌸val   ⍝ Group by YouTube ID and format multiple presenters as comma-separated lists
-                                                                    ⍝ TODO factor this out as its own function, including processing presenters separately to rest of table?
- #.CACHE.videos.index_all←⎕C⍕val
- dti←fields⍳⊂'published_at'
- ddn←{Days∊(2⊃⎕VFI)¨⍵}¨'- :'∘((~∊⍨)⊆⊢)¨(⍉val)⌷⍨dti        ⍝ Dyalog Day Numbers for date range filtering (from=&to=YYYY-MM-DD)
- RLTB←{⍵⌿⍤1⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}                             ⍝ Remove Leading and Trailing Blanks
- #.CACHE.videos.index_cols←RLTB¨⎕C⍕∘⍪¨↓⍉val               ⍝ TODO probably shouldn't lower case YouTube IDs
- #.CACHE.videos.index_cols[dti]←⊂ddn
- #.CACHE.videos.fields←fields
- #.CACHE.videos.values←val
+ :If 0=≢val
+     #.CACHE.videos.fields←fields
+     #.CACHE.videos.values←''⍴⍨0,≢fields
+     #.CACHE.videos.index_cols←''⍨¨⍳≢fields
+ :Else
+     ytid←val⌷⍤1⍨fields⍳⊂'youtube_id'
+     (val ytid)←(val ytid)⌿¨⍨⊂(~0∊⍴)¨ytid
+     val←ytid{((,1 3↑⍵),(,1↑0 4↓⍵),⍨(⊣,',',⊢)/∪4⌷⍤1⊢⍵)}⌸val   ⍝ Group by YouTube ID and format multiple presenters as comma-separated lists
+     #.CACHE.videos.index_all←⎕C⍕val
+     dti←fields⍳⊂'published_at'
+     ddn←{Days∊(2⊃⎕VFI)¨⍵}¨'- :'∘((~∊⍨)⊆⊢)¨(⍉val)⌷⍨dti        ⍝ Dyalog Day Numbers for date range filtering (from=&to=YYYY-MM-DD)
+     RLTB←{⍵⌿⍤1⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}                             ⍝ Remove Leading and Trailing Blanks
+     #.CACHE.videos.index_cols←RLTB¨⎕C⍕∘⍪¨↓⍉val               ⍝ TODO probably shouldn't lower case YouTube IDs
+     #.CACHE.videos.index_cols[dti]←⊂ddn
+     #.CACHE.videos.fields←fields
+     #.CACHE.videos.values←val                                                                    ⍝ TODO factor this out as its own function, including processing presenters separately to rest of table?
+ :EndIf

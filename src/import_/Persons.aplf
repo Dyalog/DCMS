@@ -1,5 +1,6 @@
  msg←Persons ;columns;types;values;sql;current;exists;ids;all_cols;table
  table←'person'
+ :trap 22
  (columns types values)←ImportCSVData table
  sql←'SELECT * FROM ',table
  current←1 #.DCMS.SQL.Do sql
@@ -7,3 +8,4 @@
  (exists ids)←(columns values)('name'Compare)(all_cols current)
  (columns types values),←⊂¨'updated_by' '<C128' 'DCMS_ImportPersons'
  UpdateInsertExternalResource(table exists ids columns types values)
+:endtrap
