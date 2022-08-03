@@ -6,6 +6,9 @@
 ⍝ SQA.Do db'character set = utf8'
 ⍝     Catch #.SQA.Do db'Use dyalog_cms'
 ⍝ TODO: 500 error response
+     :If ⎕NEXISTS #.GLOBAL.app_dir,'data_sources.json5'
+         #.GLOBAL.data_sources←⎕JSON⊃⎕NGET #.GLOBAL.app_dir,'data_sources.json5'
+     :EndIf
 
      import_.Events
      import_.Persons

@@ -4,7 +4,7 @@
 ⍝ Import data from video library spreadsheet and link data in database
  msg←0 'OK'
  table←'presentation'
- :trap 22
+ :trap 22 6
  file←#.GLOBAL.(data_sources∘⍎)table
  data←∪3↓⎕CSV file ⍬ 4
  data⌿⍨←~data[;1]∊⊂'xxx'
