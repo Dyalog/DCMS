@@ -12,7 +12,7 @@
  LoadDependency←{0=#.⎕NC ⍵:⎕SE.Link.Import #,⍥⊂GetEnv ⍵}
  LoadDependency¨'Jarvis' 'HttpCommand'
  #.GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
- #.GLOBAL.secrets←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'DCMS_SECRETS'
+ #.GLOBAL.secrets←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'SECRETS'
  LoadDataSourcePaths←{
      json←⊃⎕NGET ⍵,'data_sources.json5'
      ⎕JSON⍠'Dialect' 'JSON5'⊢json
