@@ -18,7 +18,7 @@
           'opt'⎕NS ⍬ ⋄ opt.(wait timeout)←3 5 ⋄ opt.datasource←⊃datasource
           Reconnect opt
       :EndIf
-      res←#.SQA.Connect db,⍥⊆datasource
+      Catch #.SQA.Connect db,⍥⊆datasource
       SQA.Do db'create database if not exists dyalog_cms character set = utf8mb4'
       ⍝ Todo: test on default mariadb linux install - does IT need to set utf8mb4?
       Use'dyalog_cms'
