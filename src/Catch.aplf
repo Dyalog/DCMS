@@ -24,10 +24,14 @@
  :CaseList 0
      :If 0≠en
          ⎕←error_info
+         msg←res
+         res.Payload←ErrorPage error_info
+         error_info←(⍕∊⊃¨error_info)∩⎕A,⎕D,' '
+         error_info req.Fail 500
      :EndIf
  :Case 1
      :If 0<en
-         (⍕error_info)⎕SIGNAL en
+         (,⍕error_info)⎕SIGNAL en
      :Else
          Trunc←{1<≢⍴⍵:(⊢↑⍨10⌊≢)⍵ ⋄ ⍵}⍕   ⍝ Truncate output for session log
          RNC←~∘(⎕UCS 10 13)∘,_Depth2     ⍝ Remove newline characters for nicer output
