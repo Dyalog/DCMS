@@ -1,11 +1,9 @@
  msg←Run dev;debug
  msg←0 'OK'
- #.DCMS.Setup ⍬
+ #.DCMS.Setup dev
  :If 0∊⍴dev ⋄ debug←#.GLOBAL.debug ⋄ :Else ⋄ debug←dev ⋄ ⋄ :EndIf
  :Trap debug↓0
-⍝ SQA.Do db'character set = utf8'
-⍝     Catch #.SQA.Do db'Use dyalog_cms'
-⍝ TODO: 500 error response
+
      :If ⎕NEXISTS #.GLOBAL.app_dir,'data_sources.json5'
          #.GLOBAL.data_sources←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET #.GLOBAL.app_dir,'data_sources.json5'
      :EndIf
@@ -15,7 +13,7 @@
      import_.VideoLibrary
 
      read_.BuildCache #.GLOBAL.tables
-s:
+
      :If 0=⎕NC'service'
          service←⎕NEW #.Jarvis
          service.CodeLocation←⎕THIS
@@ -23,13 +21,9 @@ s:
          service.Port←2⊃⎕VFI GetEnv'service_port'
          service.url←(GetEnv'service_url'),':',⍕service.Port
          service.Debug←debug
-         service.ServerCertFile←GetEnv'ServerCertFile'
-         service.ServerKeyFile←GetEnv'ServerKeyFile'
-         service.Secure←1
          service.AcceptFrom←GetEnv'allow_from'
          service.Start
      :EndIf
  :Else
-⍝ Catch 3 'AN ERROR!'
      Catch ⎕EN ⎕DMX.DM   ⍝ Error handling
  :EndTrap
