@@ -1,0 +1,24 @@
+ res←Post req;data;rc
+⍝ Upload file
+⍝ Until we have a nice database managing interface, simply use bearer token in header
+⍝ Check access token
+⍝ TODO give more informative responses based on whether/which updates / creates were successful
+ #.last←req
+ res←auth_.VerifyToken req
+
+ :If ~∨/401 403∊res.Status
+     :Select req.Endpoint
+     :Case '/event'
+         rc←import_.Events req.Body
+     :Case '/person'
+         rc←import_.Persons req.Body
+     :Case '/videos'
+         rc←import_.VideoLibrary req.Body
+     :Else
+         rc←1 ⋄ req.Fail 404
+     :EndSelect
+ :EndIf
+ :If 0=rc
+     res.Status←201
+     res.StatusText←'Created'
+ :EndIf

@@ -1,12 +1,12 @@
- msg←VideoLibrary;table;file;data;sql;RLTB;eid;evt;event;wse;i;idx;cat;values;current;cc;cv;exists;ids;columns;types;p;pr;n;urls;yt;ytx;ext;id;ytd;ucs
+ msg←VideoLibrary data;table;file;data;sql;RLTB;eid;evt;event;wse;i;idx;cat;values;current;cc;cv;exists;ids;columns;types;p;pr;n;urls;yt;ytx;ext;id;ytd;ucs
 ⍝ Tables modified: presentations, presenters, media
 ⍝ TODO: not table as argument... but what?
 ⍝ Import data from video library spreadsheet and link data in database
- msg←0 'OK'
+ msg←0
  table←'presentation'
- :trap 22 6
- file←#.GLOBAL.(data_sources∘⍎)table
- data←∪3↓⎕CSV file ⍬ 4
+⍝ data←FromUTF8 data
+ data←∪3↓⎕CSV data'S' 4 0
+
  data⌿⍨←~data[;1]∊⊂'xxx'
 ⍝ TITLE SOURCE PRESENTER(S) COMPANY YYYY-MM URL ABSTRACT TIMELINE
 ⍝   1     2        3          4       5      6     7        8
@@ -96,4 +96,3 @@
  (exists ids)←(columns values)('title' 'url'Compare)(cc current)
 
  UpdateInsertExternalResource('media'exists ids columns types values)
-:endtrap

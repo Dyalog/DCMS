@@ -1,11 +1,10 @@
- msg←Persons ;columns;types;values;sql;current;exists;ids;all_cols;table
+ msg←Persons data;columns;types;values;sql;current;exists;ids;all_cols;table
+ msg←0
  table←'person'
- :trap 22
- (columns types values)←ImportCSVData table
+ (columns types values)←CSV2APL FromUTF8 data
  sql←'SELECT * FROM ',table
  current←1 #.DCMS.SQL.Do sql
  all_cols←#.GLOBAL.(columns⊃⍨tables⍳⊆)table
  (exists ids)←(columns values)('name'Compare)(all_cols current)
  (columns types values),←⊂¨'updated_by' '<C128' 'DCMS_ImportPersons'
  UpdateInsertExternalResource(table exists ids columns types values)
-:endtrap
