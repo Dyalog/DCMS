@@ -3,7 +3,7 @@
  :If 2=≢⍴data
      msg←0
      table←'event'
-     (columns types values)←CSV2APL FromUTF8 data
+     (columns types values)←PrepareCSV FromUTF8 data
      sql←'SELECT * FROM ',table
      current←#.DCMS.SQL.Do sql
      all_cols←#.GLOBAL.(columns⊃⍨tables⍳⊆)table

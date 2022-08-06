@@ -2,6 +2,6 @@
  file←#.GLOBAL.data_sources⍎source
  :If 0=⎕NEXISTS file
      res←¯404,⊂'Data source file ',file,' does not exist.'
-     :Return
+ :Else
+     res←0,⊂⎕CSV source ⍬ 4 0
  :EndIf
- res←0,⊂⎕CSV source ⍬ 4 0
