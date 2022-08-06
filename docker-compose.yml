@@ -15,7 +15,6 @@ services:
             - "4502:4502"
             - "8080:8080"
         environment:
-            RIDE_INIT: http:*:4502
             LIBPATH: /opt/mdyalog/18.2/64/unicode/lib
             SQL_SERVER: ${SQL_SERVER}
             SQL_DATABASE: ${SQL_DATABASE}
