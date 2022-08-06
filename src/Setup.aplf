@@ -31,3 +31,4 @@
  order←#.GLOBAL.tables⍳⍨∪tables
  #.GLOBAL.utf8_columns←(⍸12∘=)¨types[order]
  #.GLOBAL.(columns types type_names)←(⊂order)∘⌷¨columns types type_names
+ #.GLOBAL.data_sources←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET #.GLOBAL.app_dir,'data_sources.json5'
