@@ -30,10 +30,10 @@
      :Return
  :EndIf
 
- (p v)←↓⍉qp⌿⍨~∧/¨' '=⊢/qp         ⍝ Query (parameters values) without empty values
+ (p v)←↓⍉qp⌿⍨~∧/¨' '=⊢/qp            ⍝ Query (parameters values) without empty values
  v←⎕C v,⊂''
- s←' ,'((~∊⍨)⊆⊢)v⊃⍨⊂p⍳⊆'search'   ⍝ Split search terms space or comma separated
- Rank←s∘{0∊⍴⍺:1⍴⍨≢⍵ ⋄ ⊃+/∨/¨⍺⍷¨⊆⍵}
+ s←' ,'((~∊⍨)⊆⊢)v⊃⍨⊂p⍳⊆'search'      ⍝ Split search terms space or comma separated
+ Rank←s∘{0∊⍴⍺:1⍴⍨≢⍵ ⋄ ⊃+/∨/¨⍺⍷¨⊆⍵}   ⍝ Count number of search terms found in each row
  fc←⊂'' ⋄ idx←#.CACHE.videos.index_all
  (f t)←v⌷⍨⊂p⍳'from' 'to'
  filters←⊆'presenter' 'event'
