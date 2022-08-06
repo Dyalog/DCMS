@@ -1,16 +1,14 @@
  msg←Run dev;debug
- msg←0 'OK'
+ msg←1 2⍴0 'OK'
  #.DCMS.Setup dev
  :If 0∊⍴dev ⋄ debug←#.GLOBAL.debug ⋄ :Else ⋄ debug←dev ⋄ ⋄ :EndIf
  :Trap debug↓0
 
-     :If ⎕NEXISTS #.GLOBAL.app_dir,'data_sources.json5'
-         #.GLOBAL.data_sources←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET #.GLOBAL.app_dir,'data_sources.json5'
-     :EndIf
-
-     import_.Events
-     import_.Persons
-     import_.VideoLibrary
+    ⍝ During development, we can read these as local files
+    ⍝ In production, they will be POSTed to the service
+     msg⍪←Catch import_.(Events ImportFromFile)'event'
+     msg⍪←Catch import_.(Persons ImportFromFile)'person'
+     msg⍪←Catch import_.(VideoLibrary ImportFromFile)'presentation'
 
      read_.BuildCache #.GLOBAL.tables
 

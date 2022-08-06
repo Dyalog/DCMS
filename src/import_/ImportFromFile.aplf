@@ -1,0 +1,7 @@
+ res←ImportFromFile source;data;file
+ file←#.GLOBAL.data_sources⍎source
+ :If 0=⎕NEXISTS file
+     res←¯404,⊂'Data source file ',file,' does not exist.'
+     :Return
+ :EndIf
+ res←0,⊂⎕CSV source ⍬ 4 0
