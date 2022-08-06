@@ -1,13 +1,11 @@
  msg←Events data;columns;types;values;sql;current;exists;ids;all_cols;table;file_path
- msg←400 'Events data must be a matrix'
- :If 2=≢⍴data
-     msg←0
-     table←'event'
-     (columns types values)←PrepareCSV FromUTF8 data
-     sql←'SELECT * FROM ',table
-     current←#.DCMS.SQL.Do sql
-     all_cols←#.GLOBAL.(columns⊃⍨tables⍳⊆)table
-     (exists ids)←(columns values)('title'Compare)(all_cols current)
-     (columns types values),←⊂¨'updated_by' '<C128' 'DCMS_ImportEvents'
-     UpdateInsertExternalResource(table exists ids columns types values)
- :EndIf
+⍝ data: simple char vec of CSV data
+ msg←0
+ table←'event'
+ (columns types values)←table PrepareCSV FromUTF8 data
+ sql←'SELECT * FROM ',table
+ current←#.DCMS.SQL.Do sql
+ all_cols←#.GLOBAL.(columns⊃⍨tables⍳⊆)table
+ (exists ids)←(columns values)('title'Compare)(all_cols current)
+ (columns types values),←⊂¨'updated_by' '<C128' 'DCMS_ImportEvents'
+ UpdateInsertExternalResource(table exists ids columns types values)

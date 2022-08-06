@@ -3,7 +3,7 @@
  :If 2=≢⍴data
      msg←0
      table←'person'
-     (columns types values)←PrepareCSV FromUTF8 data
+     (columns types values)←table PrepareCSV FromUTF8 data
      sql←'SELECT * FROM ',table
      current←1 #.DCMS.SQL.Do sql
      all_cols←#.GLOBAL.(columns⊃⍨tables⍳⊆)table
