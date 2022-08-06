@@ -17,8 +17,9 @@
  :If 0=⎕NC'action' ⋄ action←'' ⋄ :EndIf
 
  :If 0=2|⎕DR⊃error_info                  ⍝ Numeric error code not provided
-     error_info←¯1,⊆error_info
+     error_info←500,⊆error_info
  :EndIf
+ error_info←⊃¨⊆¨error_info
  en←⊃error_info
  info←⊃⌽⊆error_info
  :Select #.GLOBAL.debug
@@ -27,7 +28,6 @@
          ⎕←error_info
          :If 0≠⎕NC'res'
              msg←res
-             res.Payload←ErrorPage error_info
              info←(⍕∊info)∩' ',(⊢,⎕C)⎕A,⎕D
              info req.Fail en
          :EndIf
