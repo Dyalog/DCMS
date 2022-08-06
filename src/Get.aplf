@@ -4,7 +4,7 @@
  :Trap #.GLOBAL.debug↓0
      res←req.Response
      res.Headers←0 2⍴''
-    res.Headers⍪←'Access-Control-Allow-Origin' #.DCMS.service.AcceptFrom
+     res.Headers⍪←'Access-Control-Allow-Origin'#.DCMS.service.AcceptFrom
      res.Headers⍪←'Access-Control-Allow-Headers' '*'
      #.DCMS.Catch 0 req.(Endpoint QueryParams)
      :If '/videos'≡7↑req.Endpoint
@@ -15,6 +15,16 @@
          res←read_.QueryPersons req
      :ElseIf '/presenters'≡11↑req.Endpoint
          res←read_.QueryPresenters ⍬
+     :ElseIf '/refresh'≡8↑req.Endpoint
+⍝ A better way to handle authorisation would be to have auth_.VerifyToken return a permissions value which could then be checked against
+⍝ groups of endpoints. Is it more efficient to funnel requests into groups where it DOES have permissions and then choose endpoint behaviour,
+⍝ or like here, list through endpoints and check if you have permissions for the one you are trying to access?
+⍝ req becomes a semiglobal state handler through its reference semantics.
+⍝ API functions take a Jarvis Request object as argument which they modify, and whose ref they return.
+         res←auth_.VerifyToken req
+         :If ~∨/401 403∊res.Status
+             #.DCMS.read_.BuildCache ⍬
+         :EndIf
      :Else
          'Resource not found'req.Fail 404
      :EndIf

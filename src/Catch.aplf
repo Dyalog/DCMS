@@ -1,4 +1,4 @@
- {msg}←{action}Catch error_info;_Depth2;Trunc;RNC;en
+ {msg}←{action}Catch error_info;_Depth2;Trunc;RNC;en;info
                   ⍝ Dr A?
  msg←error_info   ⍝ Pass information through
 ⍝ One-stop shop error handling, logging and signalling
@@ -20,14 +20,17 @@
      error_info←¯1,⊆error_info
  :EndIf
  en←⊃error_info
+ info←⊃⌽⊆error_info
  :Select #.GLOBAL.debug
  :CaseList 0
      :If 0≠en
          ⎕←error_info
-         msg←res
-         res.Payload←ErrorPage error_info
-         error_info←(⍕∊⊃¨error_info)∩⎕A,⎕D,' '
-         error_info req.Fail 500
+         :If 0≠⎕NC'res'
+             msg←res
+             res.Payload←ErrorPage error_info
+             info←(⍕∊info)∩' ',(⊢,⎕C)⎕A,⎕D
+             info req.Fail en
+         :EndIf
      :EndIf
  :Case 1
      :If 0<en

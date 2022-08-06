@@ -2,6 +2,8 @@
 ⍝ Tables modified: presentations, presenters, media
 ⍝ TODO: not table as argument... but what?
 ⍝ Import data from video library spreadsheet and link data in database
+ msg←400 'Bad video library CSV data'
+ :If 2=≢⍴data
  msg←0
  table←'presentation'
 ⍝ data←FromUTF8 data
@@ -96,3 +98,4 @@
  (exists ids)←(columns values)('title' 'url'Compare)(cc current)
 
  UpdateInsertExternalResource('media'exists ids columns types values)
+:endif

@@ -1,4 +1,6 @@
  msg←Persons data;columns;types;values;sql;current;exists;ids;all_cols;table
+ msg←400 'Persons data must be a correctly formatted CSV'
+ :if 2=≢⍴data
  msg←0
  table←'person'
  (columns types values)←CSV2APL FromUTF8 data
@@ -8,3 +10,4 @@
  (exists ids)←(columns values)('name'Compare)(all_cols current)
  (columns types values),←⊂¨'updated_by' '<C128' 'DCMS_ImportPersons'
  UpdateInsertExternalResource(table exists ids columns types values)
+ :endif

@@ -5,7 +5,7 @@
 ⍝ TODO give more informative responses based on whether/which updates / creates were successful
  #.last←req
  res←auth_.VerifyToken req
-
+ rc←res.(Status StatusText)
  :If ~∨/401 403∊res.Status
      :Select req.Endpoint
      :Case '/event'
@@ -18,7 +18,9 @@
          rc←1 ⋄ req.Fail 404
      :EndSelect
  :EndIf
- :If 0=rc
+ :If 0=⊃rc
      res.Status←201
      res.StatusText←'Created'
+ :Else
+     res←Catch rc
  :EndIf
