@@ -1,14 +1,16 @@
  VerifyToken←{
+⍝ ⍵: Jarvis HTTP request object
+⍝ ←: Jarvis HTTP response object
      h←⍵.Headers
      r←⍵.Response
      i←(⊣/h)⍳⊂'authorization'
-     i>≢h:r⊣⍵.Fail 403            ⍝ FAIL No authorization header found
-     auth←h⊃⍨⊂2,i
-     sel←+\' '=auth               ⍝ Selector / splitter mask for choosing space-separated part of header contents
+     i>≢h:r⊣⍵.Fail 403               ⍝ FAIL 'No authorization header found'
+     auth←h⊃⍨⊂2,⍨i
+     sel←+\' '=auth                  ⍝ Selector / splitter mask for choosing space-separated part of header contents
      bear←auth⌿⍨1>sel
      bear≢⍥⎕C'bearer':r⊣⍵.Fail 401   ⍝ FAIL 'Invalid authorization header'
      tok←1↓auth⌿⍨1≤sel
      key←#.GLOBAL.secrets.upload_token
-     tok≢key:r⊣⍵.Fail 401         ⍝ FAIL invalid bearer token
+     tok≢key:r⊣⍵.Fail 401            ⍝ FAIL 'Invalid bearer token'
      r
  }
