@@ -9,7 +9,9 @@
  sql←endpoints.persons.person.sql
  val←ucs #.DCMS.SQL.Do sql
  :If 0=≢val
-     #.CACHE.persons←⍬
+     #.CACHE.persons.list←⍬
+     #.CACHE.persons.id←⍬
+     #.CACHE.persons.media←⍬
  :Else
      val⍪⍨←fields
      #.CACHE.persons.list←⎕JSON⊂nested_matrix val
@@ -43,6 +45,7 @@
      #.CACHE.videos.fields←fields
      #.CACHE.videos.values←''⍴⍨0,≢fields
      #.CACHE.videos.index_cols←''⍨¨⍳≢fields
+     #.CACHE.videos.index_all←⍕⍪''
  :Else
      ytid←val⌷⍤1⍨fields⍳⊂'youtube_id'
      (val ytid)←(val ytid)⌿¨⍨⊂(~0∊⍴)¨ytid
