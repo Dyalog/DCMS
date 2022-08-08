@@ -9,9 +9,9 @@
  sql←endpoints.persons.person.sql
  val←ucs #.DCMS.SQL.Do sql
  :If 0=≢val
-     #.CACHE.persons.list←⍬
-     #.CACHE.persons.id←⍬
-     #.CACHE.persons.media←⍬
+     #.CACHE.persons.list←⎕JSON⍬
+     #.CACHE.persons.id←⎕JSON⍬
+     #.CACHE.persons.media←⎕JSON⍬
  :Else
      val⍪⍨←fields
      #.CACHE.persons.list←⎕JSON⊂nested_matrix val
