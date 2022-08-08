@@ -16,7 +16,7 @@
          :Case '/videos'
              rc←import_.VideoLibrary req.Body
          :Else
-             rc←1 ⋄ req.Fail 404
+             rc←404
          :EndSelect
      :EndIf
      :If 0=⊃rc

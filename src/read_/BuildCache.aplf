@@ -1,5 +1,5 @@
  msg←BuildCache msg;sql;val;ucs;u;t;epd;fields;ytid;nested_matrix;endpoints;ddn;dti;per;name;grp;med;RLTB
- msg←0   ⍝ OK
+ msg←0 'OK'
 ⍝ Store pre-joined table for API Endpoint and Query results
 ⍝ Store simple character matrices for searching
  nested_matrix←2
