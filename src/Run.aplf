@@ -1,27 +1,14 @@
  msg←Run dev;debug
  msg←1 2⍴0 'OK'
  #.DCMS.Setup dev
- :If 0∊⍴dev ⋄ debug←#.GLOBAL.debug ⋄ :Else ⋄ debug←dev ⋄ ⋄ :EndIf
- :Trap debug↓0
-
-    ⍝ During development, we can read these as local files
-    ⍝ In production, they will be POSTed to the service
-     msg⍪←Catch import_.(Events ImportFromFile)'event'
-     msg⍪←Catch import_.(Persons ImportFromFile)'person'
-     msg⍪←Catch import_.(VideoLibrary ImportFromFile)'presentation'
-
-     read_.BuildCache #.GLOBAL.tables
-
-     :If 0=⎕NC'service'
-         service←⎕NEW #.Jarvis
-         service.CodeLocation←⎕THIS
-         service.Paradigm←'REST'
-         service.Port←2⊃⎕VFI GetEnv'service_port'
-         service.url←(GetEnv'service_url'),':',⍕service.Port
-         service.Debug←debug
-         service.AcceptFrom←GetEnv'allow_from'
-         service.Start
-     :EndIf
- :Else
-     Catch ⎕EN ⎕DMX.DM   ⍝ Error handling
- :EndTrap
+ :If 0∊⍴dev ⋄ debug←#.GLOBAL.debug ⋄ :Else ⋄ debug←dev ⋄ :EndIf
+ :If 0=⎕NC'service'
+     service←⎕NEW #.Jarvis
+     service.CodeLocation←⎕THIS
+     service.Paradigm←'REST'
+     service.Port←2⊃⎕VFI GetEnv'service_port'
+     service.url←(GetEnv'service_url'),':',⍕service.Port
+     service.Debug←debug
+     service.AcceptFrom←GetEnv'allow_from'
+     service.Start
+ :EndIf
