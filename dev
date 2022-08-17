@@ -1,0 +1,10 @@
+#!/bin/bash
+export SQL_SERVER=db
+export SQL_DATABASE=dyalog_cms
+export SQL_USER=dcms
+export SQL_PASSWORD=apl
+export SQL_PORT=3306
+export DYALOG_VERSION=18.2
+export DCMS_SECRETS=/app/secrets/secrets.json5
+export RIDE_INIT=http:*:4502
+docker-compose -f docker-compose.yml up
