@@ -13,10 +13,6 @@
  LoadDependency¨'Jarvis' 'HttpCommand'
  #.GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
  #.GLOBAL.secrets←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'SECRETS'
- LoadDataSourcePaths←{
-     json←⊃⎕NGET ⍵,'data_sources.json5'
-     ⎕JSON⍠'Dialect' 'JSON5'⊢json
- }
  Catch #.SQA.Init''
  #.GLOBAL.db←db←'db'
  SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
@@ -31,4 +27,3 @@
  order←#.GLOBAL.tables⍳⍨∪tables
  #.GLOBAL.utf8_columns←(⍸12∘=)¨types[order]
  #.GLOBAL.(columns types type_names)←(⊂order)∘⌷¨columns types type_names
- #.GLOBAL.data_sources←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET #.GLOBAL.app_dir,'data_sources.json5'
