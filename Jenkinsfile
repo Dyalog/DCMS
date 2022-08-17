@@ -9,14 +9,14 @@ node ('Docker') {
 	}
 	stage ('Update Dyalog') {
 		withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
-			DockerJarvis=docker.image('dyalog/dyalog:odbc')
-			DockerJarvis.pull()
+			DockerDyalog=docker.image('dyalog/dyalog:odbc')
+			DockerDyalog.pull()
 		}
 	}
 	stage ('Update MariaDB') {
 			withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
-			DockerJarvis=docker.image('mariadb')
-			DockerJarvis.pull()
+			DockerDB=docker.image('mariadb')
+			DockerDB.pull()
 		}
 	}
 	stage ('Test service') {
