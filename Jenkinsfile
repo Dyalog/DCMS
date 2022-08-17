@@ -20,7 +20,9 @@ node ('Docker') {
 		}
 	}
 	stage ('Test service') {
-		DockerApp = DockerDyalog.run ("-v ${WORKSPACE}:/app")
+		withEnv(['CONFIGFILE=/app/run.dcfg']) {
+			DockerApp = DockerDyalog.run ("-v ${WORKSPACE}:/app")
+		}
 		println(DockerApp.id)
 		def DOCKER_IP = sh (
 			script: "docker inspect ${DockerApp.id} | jq .[0].NetworkSettings.IPAddress | sed 's/\"//g'",
@@ -28,9 +30,7 @@ node ('Docker') {
 		).trim()
 		
 		try {
-			withEnv(['CONFIGFILE=/app/run.dcfg']) {
-				sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile} && ${WORKSPACE}/CI/runtests.sh ${Testfile} ${DOCKER_IP}"
-			}
+			sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile} && ${WORKSPACE}/CI/runtests.sh ${Testfile} ${DOCKER_IP}"
 		}
 		catch (Exception e) {
 			println 'Failed to start DCMS service correctly - cleaning up.'
