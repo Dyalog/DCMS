@@ -28,7 +28,9 @@ node ('Docker') {
 		).trim()
 		
 		try {
-			sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile} && ${WORKSPACE}/CI/runtests.sh ${Testfile} ${DOCKER_IP}"
+			withEnv(['CONFIGFILE=/app/run.dcfg']) {
+				sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile} && ${WORKSPACE}/CI/runtests.sh ${Testfile} ${DOCKER_IP}"
+			}
 		}
 		catch (Exception e) {
 			println 'Failed to start DCMS service correctly - cleaning up.'
