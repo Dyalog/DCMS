@@ -3,7 +3,7 @@
 ⍝ Until we have a nice database managing interface, simply use bearer token in header
 ⍝ Check access token
 ⍝ TODO give more informative responses based on whether/which updates / creates were successful
- #.last←req
+ :If 0<#.GLOBAL.debug ⋄ #.last←req ⋄ :EndIf
  res←auth_.VerifyToken req
  rc←res.(Status StatusText)
  :Trap 201
