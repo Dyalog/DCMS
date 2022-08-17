@@ -28,7 +28,7 @@ node ('Docker') {
 		).trim()
 		
 		try {
-			sh "sleep 1- && rem -f ${Testfile} && touch ${Testfile} && ${WORKSPACE}/CI/runtests.sh ${Testfile} ${DOCKER_IP}"
+			sh "sleep 1 && rem -f ${Testfile} && touch ${Testfile} && ${WORKSPACE}/CI/runtests.sh ${Testfile} ${DOCKER_IP}"
 		}
 		catch (Exception e) {
 			println 'Failed to start DCMS service correctly - cleaning up.'
