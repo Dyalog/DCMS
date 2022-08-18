@@ -29,7 +29,7 @@ node ('Docker') {
 		).trim()
 		
 		sh "echo ${DBIP}"
-		sleep time.toInteger(30)
+		sleep 30
 		
 		withCredentials([file(credentialsId: '205bc57d-1fae-4c67-9aeb-44c1144f071c', variable: 'DCMS_SECRETS')]) {
 			DockerApp = DockerDyalog.run ("-t -u 6203 -v ${DCMS_SECRETS}:${DCMS_SECRETS} -e CONFIGFILE=/app/run.dcfg -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=$DBIP -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v ${WORKSPACE}:/app")
