@@ -24,6 +24,7 @@
       SQA.Do db'create database if not exists dyalog_cms character set = utf8mb4'
       ⍝ Todo: test on default mariadb linux install - does IT need to set utf8mb4?
       Use'dyalog_cms'
+      ⎕←'Connected to SQL database'
     ∇
 
     ∇ r←Reconnect opt;src;timeout;found
@@ -124,6 +125,7 @@
           ##.Catch¨#.SQA.Do¨(⊂db)∘,¨⊂¨sql
           ##.Catch #.SQA.Do db'insert into migrations (`migration`,`batch`) values (:file<C255:,:num<I:);'migration batch
       :EndFor
+      ⎕←'Finished SetupSchema'
     ∇
 
     ∇ ProcessTableInformation;schema;schema_definitions;statements;tables;columns;types;conversions
@@ -138,6 +140,7 @@
           msg←UnknownColumnTypes conversions
           #.GLOBAL.(tables type_defs type_sqapl),←tables types conversions
       :EndFor
+      ⎕←'Processed table information'
     ∇
 
     :endsection
