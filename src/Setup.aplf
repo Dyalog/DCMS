@@ -1,6 +1,8 @@
  {msg}←Setup dev;database;response;app_dir;LoadDependency;db;schema_definitions;sql;tables;table_information;columns;types;type_names;order
  msg←0
  ⎕PW←⊃(//⎕VFI)GetEnv'PW'
+ ⎕←⎕SH'env'
+ ⎕←⎕SH'cat $ODBCINI'
  '#.GLOBAL'⎕NS ⍬
  :If 0∊⍴dev
      #.GLOBAL.debug←⍬⍴⊃(//⎕VFI)GetEnv'debug'
