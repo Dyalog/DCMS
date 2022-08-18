@@ -10,6 +10,9 @@ touch ${TESTFILE}
 
 sleep 10
 
+echo "sleeping 3600..."
+sleep 3600
+
 for F in `ls ${WORKSPACE}/CI/test-*.sh`; do 
   /bin/bash ${F} ${DOCKER_IP} 
 
