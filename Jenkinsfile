@@ -21,7 +21,8 @@ node ('Docker') {
 	//}
 	stage ('Test service') {
 		withCredentials([file(credentialsId: '205bc57d-1fae-4c67-9aeb-44c1144f071c', variable: 'DCMS_SECRETS')]) {
-			DockerApp = DockerDyalog.run ("-e CONFIGFILE=/app/run.dcfg -e SECRETS=$DCMS_SECRETS -v ${WORKSPACE}:/app")
+			sh "cp $DCMS_SECRETS ${WORKSPACE}/secrets.json5"
+			DockerApp = DockerDyalog.run ("-e CONFIGFILE=/app/run.dcfg -e SECRETS=/app/secrets.json5 -v ${WORKSPACE}:/app")
 			println(DockerApp.id)
 			def DOCKER_IP = sh (
 				script: "docker inspect ${DockerApp.id} | jq .[0].NetworkSettings.IPAddress | sed 's/\"//g'",
