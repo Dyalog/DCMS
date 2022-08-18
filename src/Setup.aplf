@@ -4,7 +4,6 @@
  ⎕←⎕SH'env'
  ⎕←⎕SH'cat $ODBCINI'
  ⎕←'Waiting... 3600'
- ⎕←⎕DL 3600
  '#.GLOBAL'⎕NS ⍬
  :If 0∊⍴dev
      #.GLOBAL.debug←⍬⍴⊃(//⎕VFI)GetEnv'debug'
@@ -19,8 +18,13 @@
  #.GLOBAL.secrets←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET GetEnv'SECRETS'
  Catch #.SQA.Init''
  #.GLOBAL.db←db←'db'
+ ⎕←'GetEnv'
+ ⎕←GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
  SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
+ ⎕←'Connected to SQL'
  SQL.ProcessTableInformation
+ ⎕←'Processed table information'
+ ⎕←⎕DL 3600
  db←SQL.db
  :If 0=⎕NC'#.GLOBAL' ⋄ 'GLOBAL'#.⎕NS ⍬ ⋄ :EndIf
  sql←'show tables in dyalog_cms'
