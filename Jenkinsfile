@@ -43,7 +43,7 @@ node ('Docker') {
 			try {
 				sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile} && ${WORKSPACE}/CI/runtests.sh ${Testfile} ${DOCKER_IP}"
 			}
-			catch (Exception e) {
+			catch (e) {
 				DockerAppDB.stop()
 				println 'Failed to start DCMS service correctly - cleaning up.'
 				sh ("docker logs ${DockerApp.id}")
