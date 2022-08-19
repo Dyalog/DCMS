@@ -1,4 +1,4 @@
-site_name: My Docs
+site_name: Dyalog Content Management System
 theme:
   name: material
 markdown_extensions:
