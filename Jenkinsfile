@@ -52,13 +52,13 @@ node ('Docker') {
 					commit_id = readFile('.git/commit-id')
 					sh "${WORKSPACE}/CI/githubComment.sh ${DockerApp.id} ${commit_id}"
 				}
+				DockerApp.stop()
+				echo "Throwing Exception..."
+				echo "Exception is: ${e}"
+				throw new Exception("${e}");
 			}
-			DockerApp.stop()
-			DockerAppDB.stop()
-			echo "Throwing Exception..."
-			echo "Exception is: ${e}"
-			throw new Exception("${e}");
 		}
 	}
 	DockerApp.stop()
+	DockerAppDB.stop()
 }
