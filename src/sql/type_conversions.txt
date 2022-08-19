@@ -1,8 +1,0 @@
-datetime     ,<S        ,DATETIME
-int(⎕)       ,<I        ,INT UNSIGNED
-int(⎕)       ,<I        ,INT
-varchar(⎕)   ,<C⎕       ,VARCHAR
-boolean      ,<I        ,TINYINT
-text         ,<C65535   ,TEXT
-char(⎕)      ,<C⎕       ,CHAR
-date         ,<D        ,DATE

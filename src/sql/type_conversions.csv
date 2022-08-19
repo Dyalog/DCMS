@@ -1,0 +1,7 @@
+datetime     ,<S        ,93
+int(⎕)       ,<I        ,4
+varchar(⎕)   ,<C⎕       ,-9
+boolean      ,<I        ,-6
+text         ,<C65535   ,-10
+char(⎕)      ,<C⎕       ,-8
+date         ,<D        ,91
