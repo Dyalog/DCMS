@@ -55,7 +55,7 @@ node ('Docker') {
 			}
 			DockerApp.stop()
 			DockerAppDB.stop()
-			throw e;
+			throw new Exception e;
 		}
 	}
 	DockerApp.stop()
