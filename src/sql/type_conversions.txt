@@ -1,7 +1,8 @@
-datetime     <S
-int(⎕)       <I
-varchar(⎕)   <C⎕
-boolean      <I
-text         <C65535
-char(⎕)      <C⎕
-date         <D
+datetime     ,<S        ,DATETIME
+int(⎕)       ,<I        ,INT UNSIGNED
+int(⎕)       ,<I        ,INT
+varchar(⎕)   ,<C⎕       ,VARCHAR
+boolean      ,<I        ,TINYINT
+text         ,<C65535   ,TEXT
+char(⎕)      ,<C⎕       ,CHAR
+date         ,<D        ,DATE

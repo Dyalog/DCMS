@@ -1,13 +1,13 @@
 CREATE TABLE `news` (
     PRIMARY KEY (`id`),
-    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `headline` varchar(256),
     `snippet` varchar(512),
     `url` varchar(256),
     `type` varchar(128),
     `image` varchar(512),
     `start` datetime,
-    `duration` int(8),
+    `duration` int(8) unsigned,
     `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `updated_by` varchar(128)
@@ -15,7 +15,7 @@ CREATE TABLE `news` (
 
 CREATE TABLE `event` (
     PRIMARY KEY(`id`),
-    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `title` varchar(256) NOT NULL,
     `start` datetime,            /* Time and date of event start if applicable */
     `end` datetime,              /* Time and date of event end if applicable */
@@ -25,10 +25,10 @@ CREATE TABLE `event` (
     `location` varchar(512),     /* Location of event, physical address/venue, online or name of media to use */
     `physical` boolean,          /* Is it a physical event? */
     `digital` boolean,           /* Is it a digital event? */
-    `early_bird` datetime NULL DEFAULT NULL,       /* Date and time when early bird registration ends */
+    `early_bird` datetime NULL DEFAULT NULL,   /* Date and time when early bird registration ends */
     `signup_url` varchar(256),   /* Date and time of when event should appear in the news section */
     `news_start` datetime,       /* URL of page to sign up */
-    `news_duration` int(8),      /* Number of days the event appears in the news section of website */
+    `news_duration` int(8) unsigned,   /* Number of days the event appears in the news section of website */
     `event_logo` varchar(256),   /* Dyalog text logo with event name/location/year */
     `icon` varchar(256),         /* Mythical icon e.g. ship,hammer,snake */
     `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -37,24 +37,24 @@ CREATE TABLE `event` (
 );
 CREATE TABLE `presentation` (         /* Key table for media e.g. videos/podcasts */
     PRIMARY KEY(`id`),
-    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `title` varchar(256),              /* Presentation title */
     `start` datetime,                  /* Time and date of presentation start */
     `end` datetime,                    /* Time and date of presentation end */
     `abstract` varchar(256),           /* Short summary/description */
     `description` text,                /* Long description */
-    `category_id` int(11),             /* ID link to category table */
-    `event_id` int(11),                /* From dropdown of events */
+    `category_id` int(10) unsigned,    /* ID link to category table */
+    `event_id` int(10) unsigned,       /* From dropdown of events */
     `location` varchar(512),           /* Can be used to add sub-location e.g. room,auditorium */
     `news_start` datetime,             /* Date and time of when presentation should appear in the news section */
-    `news_duration` int(8),            /* Number of days the presentation appears in the news section of website */
+    `news_duration` int(8) unsigned,   /* Number of days the presentation appears in the news section of website */
     `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `updated_by` varchar(128)
 );
 CREATE TABLE `person` (
     PRIMARY KEY(`id`),
-    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `name` varchar(128) NOT NULL,
     `role` varchar(128),             /* current role at organisation */
     `organisation` varchar(256),     /* current organisation */
@@ -73,7 +73,7 @@ CREATE TABLE `person` (
 
 CREATE TABLE `community` (
     PRIMARY KEY (`id`),
-    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `name` varchar(256),
     `description` text,
     `url` varchar(256),
@@ -85,9 +85,9 @@ CREATE TABLE `community` (
 
 CREATE TABLE `presenter` (
     PRIMARY KEY(`id`),
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `presentation_id` int(11),     /* ID key into presentations table */
-    `person_id` int(11),           /* ID key into persons table */
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `presentation_id` int(10) unsigned,     /* ID key into presentations table */
+    `person_id` int(10) unsigned,           /* ID key into persons table */
     `role` varchar(128),           /* Role at time of presentation. From persons table, but allow manual override */
     `organisation` varchar(256),   /* Organisation (e.g. company, university) at time of presentation */
     `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -96,13 +96,13 @@ CREATE TABLE `presenter` (
 );
 CREATE TABLE `media` (
     PRIMARY KEY(`id`),
-    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `type` char(32) NOT NULL,      /* Name of table for corresponding media table e.g. youtube_videos,podcasts */
     `title` varchar(256) NOT NULL,
     `url` varchar(256),            /* Maybe better to ID into separate table for each media type? */
-    `media_id` int(11),            /* ID into table for type e.g. youtube_video, podcast etc. */
+    `media_id` int(10) unsigned,            /* ID into table for type e.g. youtube_video, podcast etc. */
     `publication_date` datetime,
-    `presentation_id` int(11),     /* ID key into presentations table */
+    `presentation_id` int(10) unsigned,     /* ID key into presentations table */
     `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `updated_by` varchar(128)
@@ -110,7 +110,7 @@ CREATE TABLE `media` (
 
 CREATE TABLE `category` (
     PRIMARY KEY (`id`),
-    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `category` varchar(128),
     `description` varchar(256),
     `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -120,7 +120,7 @@ CREATE TABLE `category` (
 
 CREATE TABLE `some` (   /* Social Media */
     PRIMARY KEY(`id`),
-    `id` int(11),
+    `id` int(10) unsigned,
     `name` varchar(128),
     `icon` varchar(128),
     `url` varchar(128),
@@ -130,8 +130,8 @@ CREATE TABLE `some` (   /* Social Media */
     `updated_by` varchar(128)
 );
 CREATE TABLE `personalsome` (
-    `person_id` int(11),
-    `some_id` int(11),
+    `person_id` int(10) unsigned,
+    `some_id` int(10) unsigned,
     `url` varchar(256),
     `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
     `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
