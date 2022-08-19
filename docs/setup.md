@@ -1,8 +1,30 @@
 # Installation and Configuration
 Development config in **dev.dcfg**. Runtime config in **run.dcfg**. The system is developed on a raw system (currently Windows) and deployed in docker on Linux.
 
-## Install and configure MariaDB on the host system
+## Install ODBC drivers on the host system
+!!!Warning
+	You **MUST** use the [**MySQL ODBC Driver**](https://dev.mysql.com/downloads/connector/odbc/), as the type conversions in `src/sql/type_conversions.csv` and consequently `#.GLOBAL.type_conversions` and `#.GLOBAL.type_sqapl` (set in `#.DCMS.SQL.ProcessTableInformation`) rely on the numbers in the `DATA_TYPE` column of `#.(SQA.Columns DCMS.SQL.db)`.
 
+!!!Failure
+	If a type which has no conversion defined in `src/sql/type_conversions.csv` is present in the database, setup will fail with an error 106 "Uknown column type in rows: ", listing the row numbers in `1↓2⊃#.SQA.Columns #.DCMS.SQL.db` (`d` in ProcessTableInformation) with the problem data types.
+
+If you use a different driver, check the output of `#.SQA.Columns #.DCMS.SQL.db` and change the numeric values in the 3rd column of `src/sql/type_conversions.csv`.
+
+You can find out which `DATA_TYPE` numbers should be used with:
+
+```APL
+      ]view 2(↑⍤1)2⊃#.SQA.TypeInfo #.DCMS.SQL.db
+```
+
+and relating the `TYPE_NAME` column to those specified in `src/sql/type_conversions.csv`.
+
+To see only types used in the database, try:
+
+```APL
+      {∪1↓⍵[;(1⌷⍵)⍳⊆'DATA_TYPE' 'TYPE_NAME']}2⊃#.SQA.Columns db
+```
+
+## Install and configure MariaDB on the host system
 Install mariadb and set your database root user passowrd:
 
 ```bash
@@ -45,14 +67,9 @@ grant all privileges on dyalog_cms to user dcms
     - app_dir
     - service_url
 
-- TODO: also make it securely RIDE-able
-- TODO: use github submodule to depend on Jarivs, HttpCommand and XL2APL
-
 ## secrets
 Docker secrets are used to store:
 - External API keys (e.g. YouTube)
-- Mariadb login information
-- server certificates 
 
 ## data sources
 Most manually updated source data is specified in **data_sources.json5**.
