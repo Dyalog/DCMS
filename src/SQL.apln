@@ -19,7 +19,7 @@
       :If 0≠⊃r←#.SQA.Connect db,⍥⊆datasource
           ('Could not connect to ',⊃datasource)⎕SIGNAL⊃r
       :EndIf
-      SQA.Do db'create database if not exists dyalog_cms character set = utf8mb4'
+      SQA.Do db'create database if not exists dyalog_cms'
       ⍝ Todo: test on default mariadb linux install - does IT need to set utf8mb4?
       Use'dyalog_cms'
       ⎕←'Connected to SQL database'
@@ -100,9 +100,11 @@
           table_information←2⊃#.SQA.Columns db
           h←1⌷table_information ⋄ d←1↓table_information   ⍝ Header; Data
           #.GLOBAL.tables←∪d[;h⍳⊂'TABLE_NAME']
-          tc←⎕CSV #.GLOBAL.app_dir,'/src/sql/type_conversions.txt'   ⍝ Type conversions matrix
+          tc←⎕CSV(#.GLOBAL.app_dir,'/src/sql/type_conversions.csv')⍬ 4  ⍝ Type conversions matrix
           cz←d[;h⍳⊂'COLUMN_SIZE']
-          tn←tc[(⊢/tc)⍳d[;h⍳⊂'TYPE_NAME'];2]
+          ti←(⊢/tc)⍳d[;h⍳⊂'DATA_TYPE']
+          ∨/ti>≢tc:('Unknown column types in rows ',⍕⍸ti>≢tc)⎕SIGNAL 106
+          tn←tc[ti;2]
           sqat←('<'∘=⊂⊢)∊(⍕¨cz/⍨'⎕'∘∊¨tn)@('⎕'∘=)∊tn   ⍝ SQAPL type definitions
           t←d[;h⍳⊂'TABLE_NAME']
           #.GLOBAL.tables←∪t
