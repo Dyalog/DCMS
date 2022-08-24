@@ -12,27 +12,13 @@ services:
         ports:
             - 4502:4502
             - 8080:8080
-        environment:
-            RIDE_INIT: ${RIDE_INIT}
-            LIBPATH: /opt/mdyalog/18.2/64/unicode/lib
-            SQL_SERVER: ${SQL_SERVER}
-            SQL_DATABASE: ${SQL_DATABASE}
-            SQL_USER: ${SQL_USER}
-            SQL_PASSWORD: ${SQL_PASSWORD}
-            SQL_PORT: ${SQL_PORT}
-            DYALOG_VERSION: ${DYALOG_VERSION}
-            SECRETS: ${DCMS_SECRETS}
-            CONFIGFILE: /app/run.dcfg
+        env_file: env
     db:
         image: mariadb
         container_name: dcms_db
         volumes:
             - ${PWD}/dcms_db:/var/lib/mysql
-        environment:
-            MARIADB_DATABASE: ${SQL_DATABASE}
-            MARIADB_USER: ${SQL_USER}
-            MARIADB_PASSWORD: ${SQL_PASSWORD}
-            MARIADB_RANDOM_ROOT_PASSWORD: 1
+        env_file: env
         ports:
             - 3396:3306/tcp
         tty: true

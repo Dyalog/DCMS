@@ -5,3 +5,4 @@ video_data.csv
 data/
 secrets/
 dcms_db/
+env
