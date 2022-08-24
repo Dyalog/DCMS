@@ -116,7 +116,7 @@ node ('Docker') {
         withCredentials([
                 usernamePassword(credentialsId: '02543ae7-7ed9-4448-ba20-6b367d302ecc', passwordVariable: 'SECRETKEY', usernameVariable: 'ACCESSKEY')]) {
             if (env.BRANCH_NAME.contains('master')) {
-                sh ("sed -i 's%{{PWD}}%/DockerVolumes/ftp/dcmsweb/${Branch}/%g' ./docker-compose.yml")
+                sh ("sed -i 's%\${PWD}%/DockerVolumes/ftp/dcmsweb/${Branch}/%g' ./docker-compose.yml")
                 sh '/usr/local/bin/rancher-compose -f ./docker-compose.yml --access-key $ACCESSKEY --secret-key $SECRETKEY --url http://rancher.dyalog.com:8080/v2-beta/projects/1a5/stacks/1st60 -p DCMS up --force-upgrade --confirm-upgrade --pull -d'
             }
         }
