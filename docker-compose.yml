@@ -9,9 +9,6 @@ services:
         - ${PWD}/data:/data
         - ${PWD}/secrets:/secrets
         tty: true
-        ports:
-            - 4502:4502
-            - 8080:8080
         env_file: env
     db:
         image: mariadb
@@ -19,6 +16,4 @@ services:
         volumes:
             - ${PWD}/dcms_db:/var/lib/mysql
         env_file: env
-        ports:
-            - 3396:3306/tcp
         tty: true

@@ -25,5 +25,8 @@ echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${PWD}/env
 #echo MYSQL_ROOT_PASSWORD=changeme >> ${WORKSPACE}/env
 
 echo COMPOSE IS: $COMPOSE
+
+
+echo "Use docker inspect to get the IP of the running container"
 $COMPOSE pull
 $COMPOSE -f docker-compose.yml up
