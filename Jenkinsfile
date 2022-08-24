@@ -90,6 +90,7 @@ node ('Docker') {
             sh ("mkdir -p /DockerVolumes/ftp/dcmsweb/${Branch}/")
             sh ("cp -R * /DockerVolumes/ftp/dcmsweb/${Branch}/")
         }
+		sh 'rm -Rf ${WORKSPACE}/secrets'
 		}
     }
 	stage ('Create ENV file') {
