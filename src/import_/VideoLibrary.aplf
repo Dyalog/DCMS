@@ -3,11 +3,12 @@
 ⍝ TODO: not table as argument... but what?
 ⍝ Import data from video library spreadsheet and link data in database
  msg←400 'Bad video library CSV data'
+ data←FromUTF8 data
+ data←∪3↓⎕CSV data'S' 4 0
  :If 2=≢⍴data
      msg←0
      table←'presentation'
 ⍝ data←FromUTF8 data
-     data←∪3↓⎕CSV data'S' 4 0
 
      data⌿⍨←~data[;1]∊⊂'xxx'
 ⍝ TITLE SOURCE PRESENTER(S) COMPANY YYYY-MM URL ABSTRACT TIMELINE

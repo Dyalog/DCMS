@@ -4,12 +4,7 @@
 ⍝ TODO: data caching with eTags
  url←#.GLOBAL.secrets.youtube
  key←#.GLOBAL.secrets.youtube_key
-
- :If #.GLOBAL.debug
-     video_data←⎕CSV(#.GLOBAL.app_dir,'video_data.csv')⍬ 4
- :Else
-     video_data←GetYouTubeVideos ytid
- :EndIf
+ video_data←GetYouTubeVideos ytid
 
  (exists ids)←ExistingYouTubeVideoIDs video_data[;1]
  (columns types)←ColumnInformation'youtube_videos'
