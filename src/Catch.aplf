@@ -22,7 +22,7 @@
  error_info←⊃¨⊆¨error_info
  en←⊃error_info
  info←⊃⌽⊆error_info
- :Select #.GLOBAL.debug
+ :Select ⊃#.GLOBAL.debug
  :CaseList 0
      :If 0≠en
          ⎕←error_info
