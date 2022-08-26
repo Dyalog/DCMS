@@ -20,11 +20,11 @@
      q←'?sort=newest'
      _←Assert(⊢≡{⍵[⍒⍵]})(G q).published_at       ⍝ sort by newest
      q←'?from=2021-05-01'
-     _←Assert 2021 5 1(∧/≤)_DateTimeCompare(G q).published_at   ⍝ datefrom
+     _←Assert'2021 5 1'(∧/≤)_DateTimeCompare(G q).published_at   ⍝ datefrom
      q←'?to=2020-01-01'
-     _←Assert 2021 5 1(∧/≥)_DateTimeCompare(G q).published_at   ⍝ dateto
+     _←Assert'2021 5 1'(∧/≥)_DateTimeCompare(G q).published_at   ⍝ dateto
      q←'?from=2016-01-01&to=2018-01-01'
-     _←Assert(2016 1 1)(2018 1 1)RangeContains _DateTimeCompare(G q).published_at
+     _←Assert('2016 1 1' '2018 1 1')RangeContains _DateTimeCompare(G q).published_at
      q←'?per_page=10'
      pf←⊆'current_page' 'last_page' 'per_page'   ⍝ fields for paginated responses
      pf,←⊆'first_page_url' 'last_page_url' 'prev_page_url' 'next_page_url'

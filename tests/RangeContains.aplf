@@ -1,0 +1,6 @@
+ RangeContains←{
+⍝ ⍵: num vec
+⍝ ⍺: num vec 2=⍴⍺
+⍝ ⍵ is within inclusive range [ 1⌷⍺ , 2⌷⍺ ]
+     ⍺(1=4 9⍸⍳+3×⍸)⍵
+ }

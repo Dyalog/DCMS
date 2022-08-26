@@ -1,0 +1,10 @@
+ _DateTimeCompare←{
+⍝ ⍺: nested char vec :: YYYY-MM-DD [hh:mm:ss]
+⍝ ⍵: nested char vec :: YYYY-MM-DD [hh:mm:ss]
+⍝ ⍺⍺: Comparison function
+⍝ ←: Boolean
+⍝ Convert ⍺ ⍵ into Dyalog Day Number
+⍝ Apply ⍺⍺ between to compare values
+     TS2DT←{1 ⎕DT⍎¨¨'- :'∘((~∊⍨)⊆⊢)¨⍵}
+     (⊆⍺)⍺⍺⍥TS2DT ⍵
+ }

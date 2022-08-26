@@ -25,6 +25,8 @@
          :If ~∨/401 403∊res.Status
              #.DCMS.read_.BuildCache ⍬
          :EndIf
+     :ElseIf '/tables'≡7↑req.Endpoint
+         res←#.GLOBAL.tables
      :Else
          'Resource not found'req.Fail 404
      :EndIf

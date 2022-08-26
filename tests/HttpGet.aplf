@@ -1,0 +1,4 @@
+ HttpGet←{
+     r←#.HttpCommand.GetJSON'GET'(⍺,⍵)
+     r.Data
+ }
