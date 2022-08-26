@@ -105,10 +105,11 @@
           ti←(⊢/tc)⍳d[;h⍳⊂'DATA_TYPE']
           ∨/ti>≢tc:('Unknown column types in rows ',⍕⍸ti>≢tc)⎕SIGNAL 106
           tn←tc[ti;2]
-          sqat←('<'∘=⊂⊢)∊(⍕¨cz/⍨'⎕'∘∊¨tn)@('⎕'∘=)∊tn   ⍝ SQAPL type definitions
+          sqat←('<'∘=⊂⊢)∊(⍕¨cz/⍨'⎕'∘∊¨tn)@('⎕'∘=)∊tn   ⍝ Replace ⎕ with numeric field widths (COLUMN_SIZE) in SQAPL type definitions
           t←d[;h⍳⊂'TABLE_NAME']
           #.GLOBAL.tables←∪t
           #.GLOBAL.type_sqapl←t⊢∘⊂⌸sqat
+          #.GLOBAL.columns←t⊢∘⊂⌸d[;h⍳⊂'COLUMN_NAME']
           'Processed table information'
       }
 
