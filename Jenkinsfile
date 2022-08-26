@@ -65,7 +65,7 @@ node ('Docker') {
 
 	stage ('Publish Try APL') {
 		withCredentials([file(credentialsId: '205bc57d-1fae-4c67-9aeb-44c1144f071c', variable: 'DCMS_SECRETS')]) {
-		sh 'mkdir -p ${WORKSPACE}/secrets && cp ${DCMS_SECRETS} ${WORKSPACE}/secrets/'
+		sh 'mkdir -p ${WORKSPACE}/secrets && cat ${DCMS_SECRETS} >> ${WORKSPACE}/secrets/secrets.json5'
         if (Branch == 'master') {
             ftpPublisher alwaysPublishFromMaster: false, continueOnError: false, failOnError: false, publishers: [[
                 configName: 'DCMSWeb',
