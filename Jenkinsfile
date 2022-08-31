@@ -63,84 +63,61 @@ node ('Docker') {
 		DockerAppDB.stop()
 	}
 
-	stage ('Publish DCMS') {
-		if (Branch == 'master') {
-			withCredentials([file(credentialsId: '205bc57d-1fae-4c67-9aeb-44c1144f071c', variable: 'DCMS_SECRETS')]) {
-				sh 'mkdir -p ${WORKSPACE}/secrets && cat $DCMS_SECRETS >> ${WORKSPACE}/secrets/secrets.json5'
-			}
-			ftpPublisher alwaysPublishFromMaster: false, continueOnError: false, failOnError: false, publishers: [[
-				configName: 'DCMSWeb',
-				transfers: [[
-					asciiMode: false,
-					cleanRemote: false,
-					excludes: '',
-					flatten: false,
-					makeEmptyDirs: false,
-					noDefaultExcludes: false,
-					patternSeparator: '[, ]+',
-					remoteDirectory: "/${Branch}/",
-					remoteDirectorySDF: false,
-					removePrefix: '',
-					sourceFiles: '**/*'
-				]],
-				usePromotionTimestamp: false,
-				useWorkspaceInPromotion: false,
-				verbose: true
-			]]
-		} else if (Branch == 'staging') {
-			withCredentials([file(credentialsId: '205bc57d-1fae-4c67-9aeb-44c1144f071c', variable: 'DCMS_SECRETS')]) {
-				sh 'mkdir -p ${WORKSPACE}/secrets && cat $DCMS_SECRETS >> ${WORKSPACE}/secrets/secrets.json5'
-			}
-			ftpPublisher alwaysPublishFromMaster: false, continueOnError: false, failOnError: false, publishers: [[
-				configName: 'DCMSWeb',
-				transfers: [[
-					asciiMode: false,
-					cleanRemote: false,
-					excludes: '',
-					flatten: false,
-					makeEmptyDirs: false,
-					noDefaultExcludes: false,
-					patternSeparator: '[, ]+',
-					remoteDirectory: "/${Branch}/",
-					remoteDirectorySDF: false,
-					removePrefix: '',
-					sourceFiles: '**/*'
-				]],
-				usePromotionTimestamp: false,
-				useWorkspaceInPromotion: false,
-				verbose: true
-			]]
-		} else {
-			sh ("mkdir -p /DockerVolumes/ftp/dcmsweb/${Branch}/")
-			sh ("cp -R * /DockerVolumes/ftp/dcmsweb/${Branch}/")
+	stage ('Publish Try APL') {
+		withCredentials([file(credentialsId: '205bc57d-1fae-4c67-9aeb-44c1144f071c', variable: 'DCMS_SECRETS')]) {
+		sh 'mkdir -p ${WORKSPACE}/secrets && cat $DCMS_SECRETS >> ${WORKSPACE}/secrets/secrets.json5'
+        if (Branch == 'master') {
+            ftpPublisher alwaysPublishFromMaster: false, continueOnError: false, failOnError: false, publishers: [[
+                configName: 'DCMSWeb',
+                transfers: [[
+                    asciiMode: false,
+                    cleanRemote: false,
+                    excludes: '',
+                    flatten: false,
+                    makeEmptyDirs: false,
+                    noDefaultExcludes: false,
+                    patternSeparator: '[, ]+',
+                    remoteDirectory: "/${Branch}/",
+                    remoteDirectorySDF: false,
+                    removePrefix: '',
+                    sourceFiles: '**/*'
+                ]],
+                usePromotionTimestamp: false,
+                useWorkspaceInPromotion: false,
+                verbose: true
+            ]]
+        } else {
+            sh ("mkdir -p /DockerVolumes/ftp/dcmsweb/${Branch}/")
+            sh ("cp -R * /DockerVolumes/ftp/dcmsweb/${Branch}/")
+        }
 		}
-	}
+    }
 	stage ('Create ENV file') {
 		// This will come from Jenkins data after testing
 		sh '''
-			echo SQL_SERVER=db > ${WORKSPACE}/env
-			echo SQL_DATABASE=dyalog_cms >> ${WORKSPACE}/env
-			echo SQL_USER=dcms >> ${WORKSPACE}/env
-			echo SQL_PASSWORD=apl >> ${WORKSPACE}/env
-			echo SQL_PORT=3306 >> ${WORKSPACE}/env
-			echo SECRETS=/app/secrets/secrets.json5 >> ${WORKSPACE}/env
-			echo RIDE_INIT=http:*:4502 >> ${WORKSPACE}/env
-			echo MYSQL_DATABASE=dyalog_cms >> ${WORKSPACE}/env
-			echo MYSQL_USER=dcms >> ${WORKSPACE}/env
-			echo MYSQL_PASSWORD=apl >> ${WORKSPACE}/env
-			echo MYSQL_PORT=3306 >> ${WORKSPACE}/env
-			echo CONFIGFILE=/app/run.dcfg >> ${WORKSPACE}/env
+		  echo SQL_SERVER=db > ${WORKSPACE}/env
+		  echo SQL_DATABASE=dyalog_cms >> ${WORKSPACE}/env
+		  echo SQL_USER=dcms >> ${WORKSPACE}/env
+		  echo SQL_PASSWORD=apl >> ${WORKSPACE}/env
+		  echo SQL_PORT=3306 >> ${WORKSPACE}/env
+		  echo SECRETS=/app/secrets/secrets.json5 >> ${WORKSPACE}/env
+		  echo RIDE_INIT=http:*:4502 >> ${WORKSPACE}/env
+		  echo MYSQL_DATABASE=dyalog_cms >> ${WORKSPACE}/env
+		  echo MYSQL_USER=dcms >> ${WORKSPACE}/env
+		  echo MYSQL_PASSWORD=apl >> ${WORKSPACE}/env
+		  echo MYSQL_PORT=3306 >> ${WORKSPACE}/env
+		  echo CONFIGFILE=/app/run.dcfg >> ${WORKSPACE}/env
 
-			echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${WORKSPACE}/env
+		  echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${WORKSPACE}/env
 		'''
 	}
 	stage('Deploying with Rancher') {
-		withCredentials([
-			usernamePassword(credentialsId: '02543ae7-7ed9-4448-ba20-6b367d302ecc', passwordVariable: 'SECRETKEY', usernameVariable: 'ACCESSKEY')]) {
-			if (env.BRANCH_NAME.contains('master')) {
-				sh ("sed -i 's%\${PWD}%/DockerVolumes/ftp/dcmsweb/${Branch}/%g' ./docker-compose.yml")
-				sh '/usr/local/bin/rancher-compose -f ./docker-compose.yml --access-key $ACCESSKEY --secret-key $SECRETKEY --url http://rancher.dyalog.com:8080/v2-beta/projects/1a5/stacks/1st60 -p DCMS up --force-upgrade --confirm-upgrade --pull -d'
-			}
-		}
-	}
+        withCredentials([
+                usernamePassword(credentialsId: '02543ae7-7ed9-4448-ba20-6b367d302ecc', passwordVariable: 'SECRETKEY', usernameVariable: 'ACCESSKEY')]) {
+            if (env.BRANCH_NAME.contains('master')) {
+                sh ("sed -i 's%\${PWD}%/DockerVolumes/ftp/dcmsweb/${Branch}/%g' ./docker-compose.yml")
+                sh '/usr/local/bin/rancher-compose -f ./docker-compose.yml --access-key $ACCESSKEY --secret-key $SECRETKEY --url http://rancher.dyalog.com:8080/v2-beta/projects/1a5/stacks/1st60 -p DCMS up --force-upgrade --confirm-upgrade --pull -d'
+            }
+        }
+    }
 }
