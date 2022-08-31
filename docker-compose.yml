@@ -3,7 +3,6 @@ version: "2"
 services:
     web:
         image: dyalog/dyalog:odbc
-        container_name: dcms_web
         volumes:
         - ${PWD}:/app
         - ${PWD}/data:/data
@@ -12,7 +11,6 @@ services:
         env_file: env
     db:
         image: mariadb:10.8.2
-        container_name: dcms_db
         volumes:
             - ${PWD}/dcms_db:/var/lib/mysql
         env_file: env
