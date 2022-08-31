@@ -10,7 +10,7 @@ services:
         tty: true
         env_file: env
     db:
-        image: mariadb:10.8.2
+        image: mariadb:10.8.2   # https://serverfault.com/questions/1103333/mariadb-10-8-3-in-docker-cant-initialize-timers
         volumes:
             - ${PWD}/dcms_db:/var/lib/mysql
         env_file: env
