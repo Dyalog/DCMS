@@ -14,6 +14,7 @@
  export.cct←⊂'team_dyalog'
  exists←dcms{0=≢⍵:0 ⋄ ⍺∊∊2⊃∘⎕VFI¨⍵}wp
  create←(~exists)⌿export
+ create.cct_status←⊂'draft'
  update←exists⌿export
  update←update{0=≢⍺:⍺ ⋄ ref←⍺ ⋄ ref._ID←⍵ ⋄ ref}_id
  JetCCTCreate¨create,⊂''
