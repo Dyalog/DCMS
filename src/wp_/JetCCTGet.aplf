@@ -1,12 +1,14 @@
- msg←JetCCTGet cct;h;user;pass;url;r;prot;name
- (prot url)←SplitURL #.GLOBAL.secrets.wordpress.url
+ msg←JetCCTGet cct;h;user;pass;url;r;prot;name;auth
+ url←#.GLOBAL.secrets.wordpress.url
  name←#.GLOBAL.secrets.wordpress.user
  pass←#.GLOBAL.secrets.wordpress.token
+ auth←'Basic ',#.HttpCommand.Base64Encode name,':',pass
  h←⎕NEW #.HttpCommand
  h.Command←'GET'
- h.URL←prot,name,':',pass,'@',url,cct
+ h.URL←url,cct
+ h.Headers⍪←'Authorization'auth
  r←h.Run
- :If 200=r.HttpStatus
+ :If 200≡r.HttpStatus
      msg←r.Data
  :Else
      msg←'WordPress JetCCT GET FAILED: ',r.(⍕HttpStatus),' ',r.HttpMessage

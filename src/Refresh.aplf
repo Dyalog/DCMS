@@ -1,5 +1,7 @@
  res←Refresh req
- res←req.Response
+ :If 0<≢req
+     res←req.Response
+ :EndIf
 ⍝ Rebulid cache used by API GET functions in #.DCMS.read_
  read_.BuildCache ⍬
 ⍝ Push data to WordPress JetEngine Custom Content
