@@ -12,9 +12,12 @@
  map←↓⍉↑(('id' 'dcms_id')('name' 'name'))
  export←j MapJSONKeys map
  export.cct←⊂'team_dyalog'
- exists←dcms{0=≢⍵:0 ⋄ ⍺∊∊2⊃∘⎕VFI¨⍵}wp
+ exists←dcms∊wp
+ _id⌿⍨←wp∊dcms   ⍝ Ignore dcms_id which do not exist in DCMS
  create←(~exists)⌿export
- create.cct_status←⊂'draft'
+ :If 0<≢create
+     create.cct_status←⊂'draft'
+ :EndIf
  update←exists⌿export
  update←update{0=≢⍺:⍺ ⋄ ref←⍺ ⋄ ref._ID←⍵ ⋄ ref}_id
  JetCCTCreate¨create,⊂''
