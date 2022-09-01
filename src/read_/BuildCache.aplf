@@ -9,13 +9,14 @@
  sql←endpoints.persons.person.sql
  val←ucs #.DCMS.SQL.Do sql
  :If 0=≢val
-     #.CACHE.persons.list←⎕JSON⍬
-     #.CACHE.persons.id←⎕JSON⍬
-     #.CACHE.persons.media←⎕JSON⍬
+     #.CACHE.persons.list←⎕JSON ⍬
+     #.CACHE.persons.id←⎕JSON ⍬
+     #.CACHE.persons.media←⎕JSON ⍬
  :Else
      val⍪⍨←fields
      #.CACHE.persons.list←⎕JSON⊂nested_matrix val
-     #.CACHE.persons.id←PersonIDs #.CACHE.persons.list
+     #.CACHE.persons.id←'id'JSONExtract #.CACHE.persons.list
+     #.CACHE.persons.organisation←'organisation'JSONExtract #.CACHE.persons.list
      (fields ucs)←↓⍉↑endpoints.persons.media.fields.(field unicode)
      sql←endpoints.persons.media.sql
      val←ucs #.DCMS.SQL.Do sql

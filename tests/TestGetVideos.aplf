@@ -1,6 +1,6 @@
  TestGetVideos←{
-     ⍺←'http://localhost:8081/videos'
-     G←⍺∘HttpGet
+     ⍺←'http://localhost:8081/' ⋄ url←⍺,'videos'
+     G←url∘HttpGet
      fields←'description' 'event' 'category' 'presenter' 'title' 'url' 'youtube_id' 'published_at'
      _←Assert∧/fields∊(⊃G'').⎕NL-⍳9              ⍝ all videos
      vid←'/AFvfBE19OFg'                          ⍝ ⍰ known existing video youtube ID
@@ -9,11 +9,11 @@
      _←Assert∧/fields∊(G vid).⎕NL-⍳9             ⍝ single video (NEW)
      p←⊂'Morten Kromberg' ⋄ q←'?search=morten'   ⍝ ⍰ known existing presenter
      _←Assert p∊(G q).presenter                  ⍝ search videos
-     q←'?search=rich rank'                       ⍝ ⍰ known valid search terms
+     q←'?search=rich%20rank'                       ⍝ ⍰ known valid search terms
      _←Assert∧/fields∊(⊃G q).⎕NL-⍳9              ⍝ multiple search terms
      q←'?presenter=morten'                       ⍝ ⍰ known existing presenter
      _←Assert p∊(G q).presenter                  ⍝ by presenter
-     evt←⊂'Dyalog ''21' ⋄ q←'?event=Dyalog ''21'
+     evt←⊂'Dyalog ''21' ⋄ q←'?event=dyalog21'
      _←Assert evt∊(G q).event                    ⍝ by event
      q←'?search=&presenter=&event='
      _←Assert∧/fields∊(⊃G q).⎕NL-⍳9              ⍝ all parameters empty
@@ -36,7 +36,7 @@
      q←'?search=',vid,'&per_page=10'
      _←Assert 1=≢(G q).data                      ⍝ per_page=10 & one result
      vid←'/NOTVALID'                             ⍝ invalid ID
-     _←Assert 400=(#.HttpCommand.Get ⍺,vid).HttpStatus
+     _←Assert 404=(#.HttpCommand.Get ⍺,vid).HttpStatus
      vid←'/RIGHTLENGTH'                          ⍝ video not found
      _←Assert 404=(#.HttpCommand.Get ⍺,vid).HttpStatus
      1

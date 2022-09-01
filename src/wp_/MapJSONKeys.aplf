@@ -1,0 +1,6 @@
+ MapJSONKeys←{
+     0=≢⍺:⍺
+     r←⎕JSON¨(≢⍺)⍴⊂'{}'
+     (ka kr)←⍵
+     ⎕JSON ⎕JSON⊂,2,⊂kr⍪⍺∘.⍎ka   ⍝ Use ⎕JSON Export Wrapper to convert nested matrix
+ }

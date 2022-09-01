@@ -56,7 +56,7 @@
             ],
             sql: "SELECT id,name,organisation,description,country,join_dyalog_date,\
                     leave_dyalog_date,picture,short_description,evangelism_description\
-                    FROM person WHERE person.organisation = 'Dyalog Ltd'"
+                    FROM person"
         },
         media: {
             fields: [

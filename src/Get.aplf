@@ -1,12 +1,11 @@
  res←Get req;nested_matrix;ytid;ep;single_video;videos;persons
  nested_matrix←2         ⍝ For conversion to JSON (http://help.dyalog.com/18.2/#Language/System%20Functions/json.htm > JSON export > Wrappers)
  :If 0<#.GLOBAL.debug ⋄ #.last←req ⋄ :EndIf
- :Trap #.GLOBAL.debug↓0
+ :Trap #.GLOBAL.debug↓0 0
      res←req.Response
      res.Headers←0 2⍴''
      res.Headers⍪←'Access-Control-Allow-Origin'#.DCMS.service.AcceptFrom
      res.Headers⍪←'Access-Control-Allow-Headers' '*'
-     #.DCMS.Catch 0 req.(Endpoint QueryParams)
      :If '/videos'≡7↑req.Endpoint
          res←read_.QueryVideos req   ⍝ TODO add/change to query parameter
      :ElseIf (8≥≢req.Endpoint)∧'/events'≡7↑req.Endpoint
@@ -23,7 +22,7 @@
 ⍝ API functions take a Jarvis Request object as argument which they modify, and whose ref they return.
          res←auth_.VerifyToken req
          :If ~∨/401 403∊res.Status
-             #.DCMS.read_.BuildCache ⍬
+             #.DCMS.Refresh req
          :EndIf
      :ElseIf '/tables'≡7↑req.Endpoint
          res←#.GLOBAL.tables
