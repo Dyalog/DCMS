@@ -12,7 +12,7 @@
  map←↓⍉↑(('id' 'dcms_id')('name' 'name'))
  export←j MapJSONKeys map
  export.cct←⊂'team_dyalog'
- exists←dcms∊∊2⊃∘⎕VFI¨wp
+ exists←dcms{0=≢⍵:0 ⋄ ⍺∊∊2⊃∘⎕VFI¨⍵}wp
  create←(~exists)⌿export
  update←exists⌿export
  update←update{0=≢⍺:⍺ ⋄ ref←⍺ ⋄ ref._ID←⍵ ⋄ ref}_id
