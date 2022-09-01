@@ -1,8 +1,28 @@
 # API Reference
-The API's REST query paramters match that of current Dyalog TV, but may be extended in future.
 
 ## Endpoints
-By default, every table in the database is exposed as an endpoint `http://localhost:8081/table_name`.
+GET endpoints are defined in `/src/read_/endpoints.json5`.
+
+Programmatically, endpoint switches are explicit in `#.DCMS.Get` and `#.DCMS.Post`.
+
+- GET /videos
+- GET /persons
+- GET /presenters
+- GET /refresh  
+    Update the API data from the database. Requires authentication.
+- GET /tables  
+    A list of all database tables
+
+The POST endpoints are used by the admin functions. They all require authentication.
+- POST /event
+- POST /person
+- POST /videos
+
+### GET persons
+Query parameters:
+
+- id
+- organisation
 
 ## API functions
 These APL functions provide the REST interface.
@@ -107,3 +127,8 @@ Return a JSON object with the following members:
 
 to do service.url from config file
 to do snippets from youtube_import
+
+### TODO
+if you create a staging branch, then you can pretty much copy the IF statement in the deployment, ideally, we'll probably move the Credentials for that section too so we can run the staging in Bramley rather than in Gosport, change the URL and the name / ID and it will just happen (I need to set the ID up first)
+as for the database, it will use the same dockerfile - so either you'd have a staging dockerfile, or persistent data - what you could do is have an admin command on a post so you can do something like curl -X POST -d "CLEARDATABASE" http://dcms.dyalog.bramley/api/v1/admin/commands
+that's just an example, but if you have the commands there to do a DROP TABLE.... followed by your migrations, then you're probably in a good spot to reset it when you need to

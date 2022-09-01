@@ -1,0 +1,14 @@
+ JetCCTUpdate←{
+     0=≢⍵:''
+     info←⍵
+     (prot url)←SplitURL #.GLOBAL.secrets.wordpress.url
+     name←#.GLOBAL.secrets.wordpress.user
+     pass←#.GLOBAL.secrets.wordpress.token
+     h←⎕NEW #.HttpCommand
+     h.Command←'POST'
+     h.URL←prot,name,':',pass,'@',url,info.cct,'/',info._ID
+     h.Params←info
+     r←h.Run
+     200≠r.HttpStatus:512 ⎕SIGNAL⍨'WordPress JetCCTUpdate POST FAILED: ',r.(⍕HttpStatus),' ',r.HttpMessage
+     0(r.Data)
+ }

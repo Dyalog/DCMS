@@ -1,6 +1,6 @@
  TestGetPersons←{
-     ⍺←'http://localhost:8081/persons'
-     G←⍺∘HttpGet
+     ⍺←'http://localhost:8081/' ⋄ url←⍺,'persons'
+     G←url∘HttpGet
      fields←'description' 'evangelism_description' 'id' 'join_dyalog_date' 'leave_dyalog_date' 'location' 'name' 'organisation' 'picture' 'short_description'
      _←Assert∧/fields∊(⊃G'').⎕NL-⍳9   ⍝ all persons
      q←'?id=1' ⋄ fields,←⊂'media'     ⍝ ⍰ known person

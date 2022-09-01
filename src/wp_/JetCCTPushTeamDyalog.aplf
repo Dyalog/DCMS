@@ -1,0 +1,20 @@
+ msg←JetCCTPushTeamDyalog
+ msg←0 'OK'
+ d←#.CACHE.persons.organisation∊⊂'Dyalog Ltd'
+ j←d⌿⎕JSON #.CACHE.persons.list
+ :If 0=≢j
+     msg←¯404 'No persons in DCMS system'
+     :Return
+ :EndIf
+ dcms←j.id
+ p←JetCCTGet'team_dyalog'
+ (_id wp)←ExtractIDs p
+ map←↓⍉↑(('id' 'dcms_id')('name' 'name'))
+ export←j MapJSONKeys map
+ export.cct←⊂'team_dyalog'
+ exists←dcms∊∊2⊃∘⎕VFI¨wp
+ create←(~exists)⌿export
+ update←exists⌿export
+ update←update{0=≢⍺:⍺ ⋄ ref←⍺ ⋄ ref._ID←⍵ ⋄ ref}_id
+ JetCCTCreate¨create,⊂''
+ JetCCTUpdate¨update,⊂''

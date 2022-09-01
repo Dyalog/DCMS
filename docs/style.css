@@ -1,0 +1,3 @@
+img { border: solid 3px gray; }
+.inline-img { display:inline; }
+.inline-img > img { margin: 0.3rem; }

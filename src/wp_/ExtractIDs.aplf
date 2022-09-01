@@ -1,0 +1,5 @@
+ ExtractIDs←{
+     j←⎕JSON ⍵
+     0=≢j:⍬
+     ↓⍉↑j.(_ID dcms_id)
+ }

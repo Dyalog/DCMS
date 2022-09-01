@@ -1,5 +1,5 @@
  TestGetPresenters←{
-     ⍺←'http://localhost:8081/presenters'
-     _←Assert 200=(#.HttpCommand.Get ⍺).HttpStatus   ⍝ all presenters
+     ⍺←'http://localhost:8081/' ⋄ url←⍺,'presenters'
+     _←Assert 200=(#.HttpCommand.Get url).HttpStatus   ⍝ all presenters
      1
  }

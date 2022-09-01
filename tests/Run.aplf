@@ -1,5 +1,7 @@
  r←Run tests
- TestGetVideos ⍬
- TestGetEvents ⍬
- TestGetPresenters ⍬
- TestGetPersons ⍬
+ url←'https://dcms.dyalog.com/'
+ :If 0=⎕NC'#.HttpCommand' ⋄ ⎕SE.SALT.Load'HttpCommand' ⋄ :EndIf
+ url TestGetVideos ⍬
+ url TestGetEvents ⍬
+ url TestGetPresenters ⍬
+ url TestGetPersons ⍬
