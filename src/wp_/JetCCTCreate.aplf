@@ -1,9 +1,9 @@
  JetCCTCreate←{
      info←⍵
      0=≢info:
-     (prot url)←SplitURL #.GLOBAL.secrets.wordpress.url
+     url←#.GLOBAL.secrets.wordpress.url
      name←#.GLOBAL.secrets.wordpress.user
-     pass←#.GLOBAL.secrets.wordpress.token
+     pass←#.GLOBAL.secrets.wordpress.token~' '
      auth←'Basic ',#.HttpCommand.Base64Encode name,':',pass
      h←⎕NEW #.HttpCommand
      h.Command←'POST'
