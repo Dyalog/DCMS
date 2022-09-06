@@ -1,4 +1,5 @@
  TestGetEvents←{
+     ⎕←'Test GET events'
      ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'events'
      G←url∘HttpGet
      fields←'id' 'title' 'start' 'end' 'has_time' 'url_slug' 'location' 'early_bird' 'signup_url' 'news_start' 'news_duration' 'event_logo' 'icon'

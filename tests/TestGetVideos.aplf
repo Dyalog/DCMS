@@ -1,4 +1,5 @@
  TestGetVideos←{
+     ⎕←'Test GET videos'
      ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'videos'
      G←url∘HttpGet
      fields←'description' 'event' 'category' 'presenter' 'title' 'url' 'youtube_id' 'published_at'

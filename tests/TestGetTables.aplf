@@ -1,4 +1,5 @@
  TestGetTables←{
+     ⎕←'Test GET tables'
      ⍺←'http://localhost:8081' ⋄ url←(AddTrailingSlash ⍺),'tables'
      G←url∘HttpGet
      fields←'migrations' 'event' 'presenter' 'news' 'category' 'youtube_playlists' 'presentation' 'youtube_playlist_videos' 'youtube_videos' 'personalsome' 'community' 'some' 'person' 'media'
