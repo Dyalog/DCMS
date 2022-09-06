@@ -53,9 +53,10 @@
                 { "field": "picture",                "unicode": 1 },
                 { "field": "short_description",      "unicode": 1 },
                 { "field": "evangelism_description", "unicode": 1 },
+                { "field": "url_slug", "unicode": 1 },
             ],
             sql: "SELECT id,name,organisation,description,country,join_dyalog_date,\
-                    leave_dyalog_date,picture,short_description,evangelism_description\
+                    leave_dyalog_date,picture,short_description,evangelism_description,url_slug\
                     FROM person"
         },
         media: {
