@@ -16,8 +16,8 @@
      :If id>≢#.CACHE.persons.id
          'Resource not found'req.Fail 404
      :Else
-         res←id⊃⎕JSON #.CACHE.persons.list
-         res.media←⎕JSON id⊃#.CACHE.persons.media
+         res←,id⊃⎕JSON #.CACHE.persons.list
+         res[1].media←⎕JSON id⊃#.CACHE.persons.media
      :EndIf
 ⍝ Organisation given, return selected persons
  :ElseIf 0<≢o

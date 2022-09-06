@@ -24,6 +24,20 @@ Query parameters:
 - id
 - organisation
 
+Returns a **LIST**:
+
+- description           
+- evangelism_description
+- id                    
+- join_dyalog_date      
+- leave_dyalog_date     
+- location              
+- name                  
+- organisation          
+- picture               
+- short_description     
+- media (empty unless `id` specified)
+
 ## API functions
 These APL functions provide the REST interface.
 

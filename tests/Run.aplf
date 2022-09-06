@@ -1,7 +1,9 @@
- r←Run tests
- url←'https://dcms.dyalog.com/'
+ r←Run url
+ :If 0∊⍴url ⋄ url←'http://localhost:8081' ⋄ :EndIf
+ ⎕←'Testing ',url
  :If 0=⎕NC'#.HttpCommand' ⋄ ⎕SE.SALT.Load'HttpCommand' ⋄ :EndIf
  url TestGetVideos ⍬
  url TestGetEvents ⍬
  url TestGetPresenters ⍬
  url TestGetPersons ⍬
+ url TestGetTables ⍬
