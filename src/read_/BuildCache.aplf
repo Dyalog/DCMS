@@ -13,6 +13,7 @@
      #.CACHE.persons.id←⎕JSON ⍬
      #.CACHE.persons.media←⎕JSON ⍬
  :Else
+     (val fields),←∘⊂¨'' 'media'   ⍝ Empty media field unless id specified
      val⍪⍨←fields
      #.CACHE.persons.list←⎕JSON⊂nested_matrix val
      #.CACHE.persons.id←'id'JSONExtract #.CACHE.persons.list
