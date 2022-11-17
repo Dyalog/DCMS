@@ -1,8 +1,9 @@
  ExtractYouTubeID←{
   ⍝ Extract YouTube IDs from URLs
-     base←'youtube.com' 'dyalog.tv' 'youtu.be'
-     yt←∨⌿base(∨/⍷)¨⍤0 1⊢⍵
-     rgx←'/embed/.+$' '\?v=.+&' '\?v=.+$' 'youtu.be/[^?](.+){10}'
-     ytx←⊃∘⌽¨'?=&/'∘((~∊⍨)⊆⊢)¨rgx ⎕S'&'⍠'Greedy' 0⊢yt/urls
-     yt ytx
+     ps←'https://dyalog\.tv/[^/]+/\?v=' 'https://www.youtube.com/embed/' 'https://www.youtube.com/watch\?v=' 'https://youtu.be/'
+     p←{'(',⍵,')([^&]+)'}¨ps
+     x←⊃¨(p ⎕S'\2'⍠('ML' 1)('Mode' 'D'))¨urls
+     mask←(⊂'')≢¨x
+     ids←∪mask/x
+     ids mask
  }
