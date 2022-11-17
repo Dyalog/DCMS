@@ -1,4 +1,4 @@
- msg←VideoLibrary data;table;file;data;sql;RLTB;eid;evt;event;wse;i;idx;cat;values;current;cc;cv;exists;ids;columns;types;p;pr;n;urls;yt;ytx;ext;id;ytd;ucs
+ msg←VideoLibrary data;table;file;data;sql;RLTB;eid;evt;event;wse;i;idx;cat;values;current;cc;cv;exists;ids;columns;types;p;pr;n;urls;ext;id;ytd;ucs;ytx;yt
 ⍝ Tables modified: presentations, presenters, media
 ⍝ TODO: not table as argument... but what?
 ⍝ Import data from video library spreadsheet and link data in database
@@ -76,11 +76,11 @@
      values←⍬⍴⍨0,⍨≢data
      values,←data[;1]                                              ⍝ title
      urls←data[;6]
-     (yt ytx)←ExtractYouTubeID urls
+     (ytx yt)←ExtractYouTubeID urls
      ext←{(≢⍵)↑⍸⍣¯1,1+'https?://.+'⎕S{⍵.(BlockNum)}⊢⍵}urls/⍨~yt    ⍝ External links to videos (not dyalog.tv/youtube)
      ext←ext/⍸~yt
      values,←(⊂'external_video')@ext⊢(≢urls)⍴⊂'youtube_video'      ⍝ media.type
-     (id ytd)←YouTubeImport ytx                                    ⍝ Retrieve data from YouTube API
+     YouTubeImport ytx                                    ⍝ Retrieve data from YouTube API
      sql←'SELECT id,youtube_id FROM youtube_videos'
      (id ytd)←↓⍉#.DCMS.SQL.Do sql
      i←ytd⍳ytx
