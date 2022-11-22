@@ -1,0 +1,29 @@
+ UpdatePresenterValues←{
+⍝ Generate argument for DCMS.import_.UpdateInsertExternalResource
+⍝     ⍺:                       ⎕NS :: current data from SQL database
+⍝   ⍺.p:     (1<≡)(2=≢⍴)[int,char] :: person[id,name]
+⍝  ⍺.pr: (1<≡)(2=≢⍴)[int,char,int] :: presentation[id,title,event_id]
+⍝ ⍺.evt:         (1<≡)(2=≢⍴)[char] :: unique event titles
+⍝ ⍺.eid:          (1=≡)(1=≢⍴)[int] :: unique event IDs
+⍝     ⍵:               (1<≡)(2=≢⍴) :: data[title;event;presenter;organisation;YYY-MM;URL;description;???]⍝ new data from VideoLibrary sheet
+
+⍝     ←: id presentation_id person_id role organisation
+⍝        #.GLOBAL.(columns⊃⍨tables⍳⊂'presenter')
+     (p pr evt eid)←⍺.(p pr evt eid) ⋄ d←⍵
+
+     p[;2]←##.FromUTF8¨p[;2]
+     pr[;2]←##.(RLTB∘FromUTF8)¨pr[;2]   ⍝ TODO maybe should happen when brought from SQL into workspace
+   ⍝ --- Assumes all data appears in pr ---
+     d,←(eid,0)[evt⍳d[;2]]              ⍝ Event IDs corresponding to presentations
+     i←pr[;2 3]⍳d[;1 9]                 ⍝ ID into presentations table
+     n←##.RLTB¨¨(⎕UCS 10)∘(≠⊆⊢)¨d[;3]   ⍝ Presenter names
+     columns←⊂'presentation_id'
+     values←⍪i/⍨≢¨n                     ⍝ ID into presentations table
+                                        ⍝ expanded by number of names (multiple presenters)
+     columns,←⊂'person_id'
+     values,←0@(>∘(≢p))∊(⊢/p)∘⍳¨n       ⍝ ID into persons table
+     columns,←⊂'updated_by'
+     values,←⊂'DCMS_ImportVideoLibrary'
+
+     (columns values)
+ }
