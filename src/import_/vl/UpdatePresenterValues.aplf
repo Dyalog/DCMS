@@ -21,7 +21,7 @@
      values←⍪i/⍨≢¨n                     ⍝ ID into presentations table
                                         ⍝ expanded by number of names (multiple presenters)
      columns,←⊂'person_id'
-     values,←0@(>∘(≢p))∊(⊢/p)∘⍳¨n       ⍝ ID into persons table
+     values,←(p⍪0 '')[∊(⊢/p)∘⍳¨n;1]     ⍝ ID into persons table
      columns,←⊂'updated_by'
      values,←⊂'DCMS_ImportVideoLibrary'
 
