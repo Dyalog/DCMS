@@ -1,4 +1,4 @@
- msg←VideoLibrary data;table;file;data;sql;RLTB;eid;evt;event;wse;i;idx;cat;values;current;cc;cv;exists;ids;columns;types;p;pr;n;urls;ext;id;ytd;ucs;ytx;yt
+ msg←VideoLibrary data;file;data;sql;RLTB;eid;evt;event;wse;i;idx;cat;values;current;cc;cv;exists;ids;columns;types;p;pr;n;urls;ext;id;ytd;ucs;ytx;yt
 ⍝ Tables modified: presentations, presenters, media
 ⍝ TODO: not table as argument... but what?
 ⍝ Import data from video library spreadsheet and link data in database
@@ -7,17 +7,19 @@
  data←∪3↓⎕CSV data'S' 4 0
  :If 2=≢⍴data
      msg←0
-     table←'presentation'
-⍝ data←FromUTF8 data
 
-     data⌿⍨←~data[;1]∊⊂'xxx'
 ⍝ TITLE SOURCE PRESENTER(S) COMPANY YYYY-MM URL ABSTRACT TIMELINE
 ⍝   1     2        3          4       5      6     7        8
+     data⌿⍨←~data[;1]∊⊂'xxx'
+
+⍝ Database data for comparison before SQL update/insert
+     'DB'⎕NS ⍬
 
 ⍝ SOURCE key into events table
      sql←'SELECT id,title FROM event'
      RLTB←{⍵/⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}                                        ⍝ Remove leading and trailing blanks TODO: might not need
      (eid evt)←↓⍉RLTB¨#.DCMS.SQL.Do sql ⋄ eid←∊eid                     ⍝ (id title)
+     DB.(eid evt)←eid evt
      event←(eid,0)⌷⍨⊂evt⍳data[;2]                                      ⍝ ID into event table
      (wse i)←↓⍉↑'Dyalog.+workshop'⎕S{⍵.Match(1+⍵.BlockNum)}⊢data[;2]   ⍝ (Dyalog 'YY)(ID into data to be inserted)
      wse←wse↑⍨¨¯2+⍸¨'workshop'∘⍷¨wse                                   ⍝ Workshop event name (Dyalog 'YY)
@@ -40,32 +42,22 @@
 
      columns←'title' 'event_id' 'description' 'updated_by'
      values,←⊂'DCMS.import_.VideoLibrary'
-     types←table GetTypes columns
-     UpdateInsertExternalResource(table exists ids columns types values)
+     types←'presentation'GetTypes columns
+     UpdateInsertExternalResource('presentation'exists ids columns types values)
 
 ⍝ Presenters
      sql←'SELECT id,name FROM person'
-     p←#.DCMS.SQL.Do sql
-     p[;2]←FromUTF8¨p[;2]
+     DB.p←#.DCMS.SQL.Do sql
      sql←'SELECT id,title,event_id FROM presentation'
-     pr←#.DCMS.SQL.Do sql
-     pr[;2]←RLTB∘FromUTF8¨pr[;2]
-                                      ⍝ --- Assumes all data appears in pr ---
-     i←pr[pr[;2]⍳data[;1];1]              ⍝ ID into presentations table
-⍝ ('title' From presentations) OrderedBy ('title' From input)
-     n←RLTB¨¨(⎕UCS 10)∘(≠⊆⊢)¨data[;3]     ⍝ Presenter names
-
-     values←⍪i/⍨≢¨n                       ⍝ ID into presentations table expanded by number of names
-     values,←0@(>∘(≢p))∊(⊢/p)∘⍳¨n         ⍝ ID into persons table
-     columns←'presentation_id' 'person_id' 'updated_by'
-     values,←⊂'DCMS_ImportVideoLibrary'
+     DB.pr←#.DCMS.SQL.Do sql
+     (columns values)←DB vl.UpdatePresenterValues data
      types←'presenter'GetTypes columns
 
      sql←'SELECT id,presentation_id,person_id FROM presenter'
-     current←#.DCMS.SQL.Do sql
+     DB.prs←#.DCMS.SQL.Do sql
      cc←'id' 'presentation_id' 'person_id'   ⍝ Existing value columns
      cv←'presentation_id' 'person_id'        ⍝ Input value columns
-     (exists ids)←(cv values)('presentation_id' 'person_id'Compare)(cc current)
+     (exists ids)←(cv values)('presentation_id' 'person_id'Compare)(cc DB.prs)
 
      UpdateInsertExternalResource('presenter'exists ids columns types values)
 
@@ -86,8 +78,8 @@
      i←ytd⍳ytx
      values,←yt\(id,0)[i]                                          ⍝ media_id (youtube_videos table ID) TODO: external_videos table
      values,←urls[ext]@ext⊢('youtu.be/'∘,¨ytx)@(⍸yt)⊢(≢urls)⍴⊂''   ⍝ url
-     i←pr[;2 3]⍳data[;1],⍪event
-     values,←(⊂i)⌷pr[;1],0                                         ⍝ presentation_id
+     i←DB.pr[;2 3]⍳data[;1],⍪event
+     values,←(⊂i)⌷DB.pr[;1],0                                         ⍝ presentation_id
 
      sql←'SELECT id,title,url FROM media'
      ucs←0 1 0
