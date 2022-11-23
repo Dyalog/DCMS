@@ -35,7 +35,7 @@ V1=`cat src/Version.aplf | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+
 function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
 if [ $(version $V1) -le $(version $V0) ]; then
-    echo "Please increment version number.\nPrevious: $V0\nCurrent: $V1"
+    printf "Please increment version number\nPrevious: $V0\nCurrent: $V1\n"
     exit 1
 fi
 
