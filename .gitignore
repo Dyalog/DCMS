@@ -6,3 +6,4 @@ data/
 secrets/
 dcms_db/
 env
+DCMS.code-workspace
