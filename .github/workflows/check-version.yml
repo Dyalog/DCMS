@@ -15,14 +15,17 @@ jobs:
   check_version:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    container: rikedyp/dtools
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
       - name: check-version
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          git fetch --no-tags --prune --depth=2 origin master
           CI/check_version.sh
