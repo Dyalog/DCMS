@@ -27,27 +27,17 @@ do
     fi
 done
 
-
+# Previous version
 V0=`git show HEAD~1:src/Version.aplf | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+'" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+"`
+# New version
 V1=`cat src/Version.aplf | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+'" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+"`
 
 function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
-echo $V0
-echo $V1
-
 if [ $(version $V1) -le $(version $V0) ]; then
-    echo "Please increment version number. Current version $V1"
+    printf "Please increment version number\nPrevious: $V0\nCurrent: $V1\n"
     exit 1
 fi
 
-major_minor=`echo ${raw_version} | grep -o "[0-9]\+\.[0-9]\+"`
-special=""
-if n=$(echo ${raw_version} | grep -wic "\-\w+$"); then
-    special=`echo ${raw_version} | grep -o "\-\w\+$"`
-fi
-
-full_version=${major_minor}.${patch}${special}
-
-echo ${full_version}
+echo ${V1}
 
