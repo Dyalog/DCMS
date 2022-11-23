@@ -9,9 +9,11 @@
                     { "field": "category",        "unicode": 1 },
                     { "field": "event_shortname", "unicode": 1 },
                     { "field": "description",     "unicode": 1 },
-                    { "field": "published_at",    "unicode": 0 }
+                    { "field": "published_at",    "unicode": 0 },
+					{ "field": "thumbnail",       "unicode": 0 },
+					{ "field": "youtube_url",     "unicode": 0 },
         ],
-        sql: "SELECT youtube_videos.youtube_id,media.url,presentation.title,person.name,event.title,category.category,event.url_slug,youtube_videos.description,youtube_videos.published_at FROM presenter\
+        sql: "SELECT youtube_videos.youtube_id,media.url,presentation.title,person.name,event.title,category.category,event.url_slug,youtube_videos.description,youtube_videos.published_at,youtube_videos.thumbnail,youtube_videos.url FROM presenter\
               RIGHT JOIN person ON person.id = person_id\
               RIGHT JOIN presentation ON presentation.id = presentation_id\
               LEFT JOIN media ON presentation.id = media.presentation_id\

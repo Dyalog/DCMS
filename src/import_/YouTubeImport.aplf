@@ -1,11 +1,13 @@
- msg←YouTubeImport ytid;SQA;sql_response;video_data;values;columns;types;date_columns;updates;inserts;cur;i_values;i_columns;i_types;u_values;u_ids;id_drop;ColumnEquals;youtube_ids;key;fields;r;videos_data;table;FetchVideo;channels;ids;now;url;exists;dt_cols
+ msg←YouTubeImport ytid;SQA;sql_response;video_data;values;columns;types;date_columns;updates;inserts;cur;i_values;i_columns;i_types;u_values;u_ids;id_drop;ColumnEquals;youtube_ids;key;fields;r;videos_data;table;FetchVideo;channels;ids;now;url;exists;dt_cols;Thumbnail;YTURL
  msg←0   ⍝ OK
-
 ⍝ TODO: data caching with eTags
  url←#.GLOBAL.secrets.youtube
  key←#.GLOBAL.secrets.youtube_key
  video_data←GetYouTubeVideos ytid
-
+ Thumbnail←('https://img.youtube.com/vi/','/mqdefault.jpg',⍨⊢)
+ YTURL←'https://youtu.be/'∘,
+ video_data,←Thumbnail¨video_data[;1]   ⍝ Add thumbnail URL
+ video_data,←YTURL¨video_data[;1]       ⍝ Add youtube_url
  (exists ids)←ExistingYouTubeVideoIDs video_data[;1]
  (columns types)←ColumnInformation'youtube_videos'
  (columns types)←(~columns∊⊆'id' 'created_at' 'updated_at')∘/¨columns types   ⍝ Remove these auto-generated columns
