@@ -1,4 +1,4 @@
- msg←YouTubeImport ytid;SQA;sql_response;video_data;values;columns;types;date_columns;updates;inserts;cur;i_values;i_columns;i_types;u_values;u_ids;id_drop;ColumnEquals;youtube_ids;key;fields;r;videos_data;table;FetchVideo;channels;ids;now;url;exists;dt_cols;Thumbnail;YTURL
+ msg←YouTubeImport ytid;url;key;video_data;Thumbnail;YTURL;exists;ids;columns;types;dt_cols
  msg←0   ⍝ OK
 ⍝ TODO: data caching with eTags
  url←#.GLOBAL.secrets.youtube
@@ -10,8 +10,9 @@
  video_data,←YTURL¨video_data[;1]       ⍝ Add youtube_url
  (exists ids)←ExistingYouTubeVideoIDs video_data[;1]
  (columns types)←ColumnInformation'youtube_videos'
- (columns types)←(~columns∊⊆'id' 'created_at' 'updated_at')∘/¨columns types   ⍝ Remove these auto-generated columns
- video_data,←⊂'DCMS_YouTubeImport'
+ (columns types)←(~columns∊⊆'id' 'created_at' 'updated_at' 'updated_by')∘/¨columns types   ⍝ Remove these auto-generated columns
+ (columns types),←¨⊂¨'updated_by' '<C128'                                                  ⍝ Move updated_by to end
+ video_data,←⊂'DCMS_YouTubeImport'                                                         ⍝      for convenience
  dt_cols←types∊⊂'<S'   ⍝ '<S' should probably be read from sql/type_conversions.txt
  (dt_cols/video_data)←TZ2DDN¨(types∊⊂'<S')/video_data
  #.DCMS.Catch UpdateInsertExternalResource('youtube_videos'exists ids columns types video_data)

@@ -28,9 +28,10 @@
      cat←(⊂'User Meeting Workshop')@i⊢(⊂'')⍴⍨≢data                     ⍝ User Meeting Workshop as presentation.category if workshop
 
 ⍝ Insert data into presentations table
-     values←⍪1(⌷⍤1)data         ⍝ title
-     values,←event              ⍝ event_id
-     values,←7(⌷⍤1)data         ⍝ description
+     values←⍪1(⌷⍤1)data          ⍝ title
+     values,←event               ⍝ event_id
+     values,←7(⌷⍤1)data          ⍝ description
+     values,←TZ2DDN¨5(⌷⍤1)data   ⍝ presentation start date (YYYY-MM)
 
      sql←'SELECT id,title,event_id FROM presentation'
      current←#.DCMS.SQL.Do sql
@@ -40,7 +41,7 @@
      cv←'title' 'event_id' 'description'   ⍝ Input value columns
      (exists ids)←(cv values)('title' 'event_id'Compare)(cc current)
 
-     columns←'title' 'event_id' 'description' 'updated_by'
+     columns←'title' 'event_id' 'description' 'start' 'updated_by'
      values,←⊂'DCMS.import_.VideoLibrary'
      types←'presentation'GetTypes columns
      UpdateInsertExternalResource('presentation'exists ids columns types values)
