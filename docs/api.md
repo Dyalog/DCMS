@@ -38,6 +38,32 @@ Returns a **LIST**:
 - short_description     
 - media (empty unless `id` specified)
 
+### GET videos
+Can be searched using several parameters:
+
+- search=**search query string**
+- presenter=**name to search**
+- from=**YYYY-MM-DD**
+- to=**YYYY-MM-DD**
+- event=**event shortname**
+
+#### Video by YouTube ID
+e.g. /videos/_EcoRpYr3FE
+
+Returns a JSON object containing:
+
+- category (string)
+- description (string)
+- event (string)
+- event_shortname (string)
+- presenter (string)
+- published_at (datetime)
+- thumbnail (string)   # URL
+- title (string)
+- url (string)
+- youtube_id (string)
+- youtube_url (string)
+
 ## API functions
 These APL functions provide the REST interface.
 
@@ -59,41 +85,6 @@ Any column can be specifically searched using the `[column_name]=[query]` "colum
 #### AddNewRecord
 
 ### update_
-
-## Video by YouTube ID
-e.g. dyalog.tv/api/v1/videos/_EcoRpYr3FE
-
-Returns a JSON object containing:
-- youtube_id
-- title
-- presenter
-- order
-- category_id (string)
-- event_id
-- created_at
-- updated_at
-- publishedAt
-- category
-    - id (integer)
-    - event_id (integer)
-    - category (string)
-    - order (integer)
-    - created_at (datetime)
-    - updated_at (datetime)
-- event
-    - id ()
-- snippet
-    - id (integer)
-    - youtube_id (string)
-    - channelId (string)
-    - channel (string)
-    - categoryId (string)
-    - title (string)
-    - publishedAt (datetime)
-    - description
-    - raw (JSON string)
-    - created_at
-    - updated_at
 
 ## Unqualified resource
 Return the full resource as a JSON list. Each record is an object.
