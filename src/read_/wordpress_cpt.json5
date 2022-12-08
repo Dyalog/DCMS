@@ -1,0 +1,12 @@
+{
+	team_dyalog_videos: {
+		sql: "SELECT youtube_videos.youtube_id,media.url,youtube_videos.thumbnail,presentation.title,person.id,person.name,presentation.start FROM presenter\
+              RIGHT JOIN person ON person.id = person_id\
+              RIGHT JOIN presentation ON presentation.id = presenter.presentation_id\
+              LEFT JOIN media ON presentation.id = media.presentation_id\
+              LEFT JOIN youtube_videos ON youtube_videos.id = media.media_id\
+              WHERE person.organisation='Dyalog Ltd'\
+              ORDER BY presentation.start DESC\
+            ;"
+	}
+}

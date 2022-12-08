@@ -1,0 +1,1 @@
+ReadJSON←{⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET⍵}

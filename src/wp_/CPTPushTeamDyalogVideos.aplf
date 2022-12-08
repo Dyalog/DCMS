@@ -1,0 +1,22 @@
+r←CPTPushTeamDyalogVideos;cpt;videos
+⍝ TODO: decide which videos defined in a JSON file OR "featured" marker on video itself
+⍝ Else most recent 3 videos
+
+⍝ Use WordPress API to get post IDs corresponding to Team Dyalog members via their DCMS ID
+⍝ Get most recent 3 videos by each person
+⍝ If person has < 3 videos total, do not update Team Dyalog Videos for that person
+⍝ Push CPT
+
+⍝ Try Push Morten
+cpt ← ReadJSON #.GLOBAL.app_dir,'src/read_/wordpress_cpt.json5'
+videos ← ##.SQL.Do cpt.team_dyalog_videos.sql
+⍝ Build requests
+⍝ Make requests
+⍝ Check responses
+⎕←3↑videos⌿⍨2=videos[;5]   ⍝ Morten Kromberg
+cpt←GetTeamCPT 1
+(wp dcms)←↓⍉↑cpt.(id acf.dcms_id)
+n←≢wp
+
+CPTCreate cpt
+⍝
