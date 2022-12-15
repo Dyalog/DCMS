@@ -49,6 +49,7 @@
 
  new_cpt←cpt.team_dyalog_videos.json CPTBuildRequest publish_latest columns
  new_cpt.post_type←⊂'team-dyalog-videos'
+ new_cpt.status←⊂'publish'
 
  unpublish_posts←⊃,/unpublish/¨grouped_posts
  id←{0<≢⍵:⍵.id ⋄ ⍬}unpublish_posts
@@ -59,4 +60,4 @@
  CPTCreate¨new_cpt
  CPTUpdate¨unpublish_cpt
 
- post_date←(in_database/dcms){⊂MmmmYYYY2DDN ⍵.acf.presentation_date}⌸in_database/posts
+ r←0 'updated team-dyalog-videos CPT'
