@@ -23,7 +23,7 @@
 		SECRETS: "[app_dir]/secrets/secrets.json5",
 
 		Jarvis: "/d/Jarvis.dyalog",
-		HttpCommand: "C:/Program Files/Dyalog/Dyalog APL-64 18.2 Unicode/Library/Conga/HttpCommand.dyalog",
+		HttpCommand: "/g/DCMS/packages/HttpCommand.dyalog",
 		XL2APL: "C:/Users/rpark/Documents/APL/Apps/XL2APL-Application-0.0.18/XL2APL/XL2APL.dws",
 
 		CodeLocation: "#.DMCS",
