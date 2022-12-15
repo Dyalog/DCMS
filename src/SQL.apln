@@ -10,7 +10,6 @@
     ∇ r←Connect datasource;src;Catch;SQA;opt
       SQA←#.SQA
       SQA.Init''
-      #.GLOBAL.db←db
       src←#.SQA.DSN'' ⋄ src←2⊃src
       :If ~(1⌷datasource)∊⍥⎕C⊣/src
           'opt'⎕NS ⍬ ⋄ opt.(wait timeout)←3 5 ⋄ opt.datasource←⊃datasource
@@ -58,6 +57,12 @@
               r←3 1⊃r
               (ucs/r)←FromUTF8¨ucs/r
           :EndIf
+      :ElseIf '08S01'≡2(1)⊃r           ⍝ SQL Server has gone away, attempt to reconnect
+          #.SQA.Close db
+          Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
+          r←ucs Do sql
+      :Else
+          (1 ⎕JSON 3⊃r)⎕SIGNAL 501   ⍝ Other SQL error
       :EndIf
     ∇
 
