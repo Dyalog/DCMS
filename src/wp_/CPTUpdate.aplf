@@ -1,17 +1,17 @@
- CPTUpdate←{
-     info←⍵
-     0=≢info:
-     url←#.GLOBAL.secrets.wordpress.url
-     name←#.GLOBAL.secrets.wordpress.user
-     pass←#.GLOBAL.secrets.wordpress.token~' '
-     h←#.HttpCommand.New'POST'
-     h.URL←url,'wp/v2/',info.post_type,'/',⍕info.id
-     _←'Accept-Encoding'(h.AddHeader do)'gzip,deflate'
-     h.Auth←name pass
-     h.TranslateData←1  ⍝ Automatically convert JSON response to namespace
-     h.Params←info
-     r←h.Run
-     0≠r.rc:420 ⎕SIGNAL⍨r.msg
-     200≠r.HttpStatus:512 ⎕SIGNAL⍨'WordPress JetCCTCreate POST FAILED: ',r.(⍕HttpStatus),' ',r.HttpMessage
-     r.Data
- }
+ r←CPTUpdate info;url;name;pass;h
+ url←#.GLOBAL.secrets.wordpress.url
+ name←#.GLOBAL.secrets.wordpress.user
+ pass←#.GLOBAL.secrets.wordpress.token~' '
+ h←#.HttpCommand.New'POST'
+ h.URL←url,'wp/v2/',info.post_type,'/',⍕info.id
+ 'Accept-Encoding'h.AddHeader'gzip,deflate'
+ h.Auth←name pass
+ h.TranslateData←1  ⍝ Automatically convert JSON response to namespace
+ h.Params←info
+ r←h.Run
+ :If 0≠r.rc
+     420 ⎕SIGNAL⍨r.msg
+ :ElseIf 200≠r.HttpStatus
+     512 ⎕SIGNAL⍨'WordPress JetCCTCreate POST FAILED: ',r.(⍕HttpStatus),' ',r.HttpMessage
+ :EndIf
+ r←r.Data
