@@ -16,18 +16,26 @@ Then go to **Custom Fields**. From here you can add and edit field groups.
 	1. In the **Group Settings** tab, enable **Show in REST API**
 
 ### Push data from DCMS to WordPress via REST
-We *push* data up to wordpress via its REST API, to populate the CPT fields. This is done by `DCMS.wp_.CPTPush[entity]` functions. For example, `CPTPushTeamDyalogVideos` creates and updates the **Team Dyalog Videos** posts.
+We *push* data up to wordpress via its REST API, to populate the CPT fields. This is done by `wp_.CPTPush[entity]` functions. For example, `CPTPushTeamDyalogVideos` creates and updates the **Team Dyalog Videos** posts.
 
-A custom content type contains the ID into the relevant SQL table. For example, the `person` CCT contains fields:
+The SQL used to fetch data from the database and a JSON list describing the structure of the JSON payload for the `wp_.CPTCreate` HTTP request are given in [`wp_/wordpress_cpt.json5`](../src/wp_/wordpress_cpt.json5).
 
-- `_ID` (ID in WordPress jet-cct table), 
-- `dcms_id` (ID into `person` endpoint in DCMS API)
-- `name` (Name just for easy manual identification for debugging)
+The `json` property of a `wordpress_cpt` object has leaf nodes in the same order in which they will appear in the `columns`, which correspond firstly to fields obtained via SQL using the `sql` property as the statement, and secondly to any columns which are otherwise obtained, computed or re-formatted in the `wp_.CPTPush[entity]` function.
 
-This data is pushed to WordPress via the REST API in the `#.DCMS.wp_` namespace. The data is simply supplied as JSON.
+For example, the `team-dyalog-videos` CCT contains fields:
 
-The `/refresh` endpoint can be used to trigger a rebuild of the API data and an update of wordpress CCT items. 
+- `title` (text), 
+- `acf` (object)
+	- `url` (text, URL)
+	- `media_id` (number, ID into table for `media.type` (`youtube_videos`))
+	- `thumbnail` (text, HTML img)
+	- `person_id` (ID into DCMS `person` table)	
+	- `presentation date` (text, date: `YYYY-MM-DD hh:mm:ss`)
+	- `readable_date` (text)	
+	- `post_id` (number, team CPT post ID)
+
+The `/refresh` endpoint can be used to trigger a rebuild of the API data and an update of wordpress CPT items. 
 
 ### Authentication
-A WordPress user `DCMS` has permission to edit others' posts. This Access Capabilitiy (`edit_others_posts`) is set in the settings for the Custom Content Type. You can create a password (`#.GLOBAL.api.wordpress_token` in the [secrets](secrets.md)) from Wordpress via **Users → Profile → Application Password**.
+A WordPress user has permission to edit others' posts. You can create a password (`#.GLOBAL.api.wordpress_token` in the [secrets](secrets.md)) from Wordpress via **Users → Profile → Application Password**.
 
