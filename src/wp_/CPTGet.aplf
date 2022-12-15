@@ -1,0 +1,13 @@
+ r←{i}CPTGet endpoint;url;and
+ :If 0=⎕NC'i' ⋄ i←1 ⋄ :EndIf
+ and←'?&'[1+'?'∊endpoint]
+ url←#.GLOBAL.secrets.wordpress.url,'wp/v2/',endpoint,and,'page=',⍕i
+ r←(#.HttpCommand.GetJSON'GET'url)
+ :Select r.HttpStatus
+ :Case 200   ⍝ Page found, try next page
+     r←r.Data,(i+1)CPTGet endpoint
+ :Case 400   ⍝ No more pages, return
+     r←''
+ :Else       ⍝ ERROR
+     r.HttpMessage ⎕SIGNAL r.HttpStatus
+ :EndSelect

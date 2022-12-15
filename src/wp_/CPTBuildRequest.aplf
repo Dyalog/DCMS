@@ -1,0 +1,19 @@
+ CPTBuildRequest←{
+     structure←⍺        ⍝ Nested vector ()
+     (data columns)←⍵   ⍝ Matrix; Vector
+     GetKeys←{⍺←0 ⋄ 1=≡⍵:⊂⍺ ⍵ ⋄ ⊃,/(⍺+1)∇¨⍵}
+     UniqueSortedByDepth←{∪⍵[⍋⊃¨⍵]}
+     Nested2Depth←{
+         (d k)←↓⍉↑UniqueSortedByDepth GetKeys ⍵
+         d←1⌈¯1+d
+         d k
+     }
+     (depth key)←Nested2Depth structure
+     JSONMatrixType←{(¯3×''∘≡¨⍵)+4 3+.×' ' 0∘.=⊃¨0∘⍴¨⍵}   ⍝ See ⎕JSON Matrix Format
+     JSONPayload←{
+         type←JSONMatrixType ⍵
+         mat←0 '' '' 1⍪⍉↑depth key ⍵ type
+         0 ⎕JSON 1 ⎕JSON⍠'Format' 'M'⊢mat
+     }
+     JSONPayload⍤1⊢(data,⊂'')[;columns⍳key]
+ }

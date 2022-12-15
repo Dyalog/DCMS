@@ -1,0 +1,25 @@
+ _ComputePublicationMasks←{
+⍝ Unpublish posts with date earlier than N latest where post ≠ new
+⍝ ⍺⍺: number of items to appear
+     n←⍺⍺
+⍝     e.g. latest 3 videos on Team Dyalog page
+⍝ ⍺ ∧ ⍵: namespace
+⍝        ns.ddn: Dyalog Day Number to compare
+⍝         ns.id: Identifier so we do not re-publish existing item
+⍝ ⍺: Currently published items
+⍝ ⍵: New items
+⍝ ←: (unpublish publish)
+⍝     unpublish: mask of items in ⍺
+⍝       publish: mask of items in ⍵
+
+       ⍝ Keep items where ⍺.id∩⍵.id
+        ⍝ mask is 0 in this case
+       ⍝ Keep most recent 3 items
+     keep←⍺.id∊⍵.id
+     push←~⍵.id∊⍺.id
+     ddn←(keep/⍺.ddn),push/⍵.ddn
+     i←⍳≢ddn
+     r←(keep,push)\i∊n↑⍒ddn             ⍝ Mask of n latest items between ⍺ and ⍵
+     (keep push)←↑∘r¨1 ¯1×≢¨keep push   ⍝ Partitioned into (≢⍺.X)(≢⍵.X) items
+     (~keep)(push)
+ }
