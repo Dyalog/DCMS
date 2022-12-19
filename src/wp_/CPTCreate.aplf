@@ -1,4 +1,5 @@
  r←CPTCreate info;url;name;pass;h
+ :If ' '≡info ⋄ →0 ⋄ :EndIf
  url←#.GLOBAL.secrets.wordpress.url
  name←#.GLOBAL.secrets.wordpress.user
  pass←#.GLOBAL.secrets.wordpress.token~' '
