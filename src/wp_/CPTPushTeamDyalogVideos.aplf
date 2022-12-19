@@ -19,39 +19,13 @@
  Clean←{⍵⌿⍨~∨/0=≢¨⍵}
  videos←∪Clean ##.SQL.Do cpt.team_dyalog_videos.sql
  latest←3 Latest videos
-
  posts←CPTGet'team-dyalog-videos'
-⍝ Build requests
 ⍝ Create 2 masks - posts to unpublish AND latest to upload
- (person_id post_id)←↓⍉↑posts.(acf.(person_id post_id))
- in_database←person_id∊'person_id'From videos   ⍝ Only process posts with person_id in retrieved videos
- grouped_posts←(in_database/person_id){⊂⍵}⌸in_database/posts
- grouped_latest←(∪in_database/person_id){latest⊂⍤⌿⍤1 2⍨⍺∘.=⍵}'person_id'From latest
- DateTime2DDN←##.import_.DateTime2DDN
-
- current_posts←⎕NS¨⍬⍨¨grouped_posts
- current_posts.ddn←DateTime2DDN¨grouped_posts.acf.presentation_date
- current_posts.id←grouped_posts.acf.media_id
- new_posts←⎕NS¨⍬⍨¨grouped_latest
- new_posts.ddn←DateTime2DDN¨'presentation_date'∘From¨grouped_latest
- new_posts.id←'media_id'∘From¨grouped_latest
- (unpublish publish)←↓⍉↑current_posts(3 _ComputePublicationMasks)¨new_posts
-
- publish_latest←⊃⍪⌿publish⌿¨grouped_latest
- HumanDateTime←1200⌶
- publish_latest,←'Mmmm YYYY'HumanDateTime DateTime2DDN'presentation_date'From publish_latest   ⍝ readable_date
- HTMLimg←{'<img src="',⍵,'" />'}
- thumbnail←columns⍳⊆'thumbnail'
- publish_latest[;thumbnail]←HTMLimg¨publish_latest[;thumbnail]
- person_post_id←CPTGet'team?_fields=id,acf.dcms_id,acf.first_name'
- (post_id dcms_id)←↓⍉↑person_post_id.(id acf.dcms_id)
- publish_latest,←post_id[dcms_id⍳'person_id'From publish_latest]                               ⍝ post_id
+ (unpublish_posts publish_latest)←posts CompareTeamDyalogVideos latest
+ publish_latest←TeamDyalogVideosCustomFields publish_latest columns
 
  new_cpt←cpt.team_dyalog_videos.json CPTBuildRequest publish_latest columns
- new_cpt.post_type←⊂'team-dyalog-videos'
- new_cpt.status←⊂'publish'
 
- unpublish_posts←⊃,/unpublish/¨grouped_posts
  id←{0<≢⍵:⍵.id ⋄ ⍬}unpublish_posts
  UnpublishCPT←{r←⎕JSON'{"status":"draft", "post_type": "team-dyalog-videos"}' ⋄ r.id←⍵ ⋄ r}
  unpublish_cpt←{0<≢⍵:UnpublishCPT¨⍵ ⋄ ''}id

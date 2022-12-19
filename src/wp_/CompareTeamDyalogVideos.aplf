@@ -1,0 +1,29 @@
+ CompareTeamDyalogVideos←{
+⍝ ⍺: posts list of JSON objects
+⍝ ⍵: latest videos matrix
+⍝ ←: (unpublish_posts publish_latest)
+⍝ Compare existing wordpress posts with latest videos in database
+⍝ ensuring there are 3 latest videos in wordpress for a particular person (or none if there are less)
+⍝ return CPT post objects (from wordpress) and a matrix of latest videos (from the database) to be used to create HTTP requests
+     (posts latest)←⍺ ⍵
+     0∊≢¨posts latest:posts latest
+     (person_id post_id)←↓⍉↑posts.(acf.(person_id post_id))
+     in_database←person_id∊'person_id'From videos   ⍝ Only process posts with person_id in retrieved videos
+     ~∨/in_database:0 1
+     grouped_posts←(in_database/person_id){⊂⍵}⌸in_database/posts
+     grouped_latest←(∪in_database/person_id){latest⊂⍤⌿⍤1 2⍨⍺∘.=⍵}'person_id'From latest
+     DateTime2DDN←##.import_.DateTime2DDN
+
+     current_posts←⎕NS¨⍬⍨¨grouped_posts
+     current_posts.ddn←DateTime2DDN¨grouped_posts.acf.presentation_date
+     current_posts.id←grouped_posts.acf.media_id
+     new_posts←⎕NS¨⍬⍨¨grouped_latest
+     new_posts.ddn←DateTime2DDN¨'presentation_date'∘From¨grouped_latest
+     new_posts.id←'media_id'∘From¨grouped_latest
+     (unpublish publish)←↓⍉↑current_posts(3 _ComputePublicationMasks)¨new_posts
+
+     publish_latest←⊃⍪⌿publish⌿¨grouped_latest
+     unpublish_posts←⊃,/unpublish/¨grouped_posts
+
+     unpublish_posts publish_latest
+ }

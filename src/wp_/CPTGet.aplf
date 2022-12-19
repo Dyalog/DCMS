@@ -5,7 +5,11 @@
  r←(#.HttpCommand.GetJSON'GET'url)
  :Select r.HttpStatus
  :Case 200   ⍝ Page found, try next page
-     r←r.Data,(i+1)CPTGet endpoint
+     :If 0≠≢r.Data
+         r←r.Data,(i+1)CPTGet endpoint
+     :Else
+         r←''
+     :EndIf
  :Case 400   ⍝ No more pages, return
      r←''
  :Else       ⍝ ERROR
