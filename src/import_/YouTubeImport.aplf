@@ -4,7 +4,7 @@
  url←#.GLOBAL.secrets.youtube
  key←#.GLOBAL.secrets.youtube_key
  video_data←GetYouTubeVideos ytid
- Thumbnail←('https://img.youtube.com/vi/','/mqdefault.jpg',⍨⊢)
+ Thumbnail←('https://img.youtube.com/vi/','/maxresdefault.jpg',⍨⊢)
  YTURL←'https://youtu.be/'∘,
  video_data,←Thumbnail¨video_data[;1]   ⍝ Add thumbnail URL
  video_data,←YTURL¨video_data[;1]       ⍝ Add youtube_url
