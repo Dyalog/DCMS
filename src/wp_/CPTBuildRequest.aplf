@@ -1,6 +1,7 @@
  CPTBuildRequest←{
      structure←⍺        ⍝ Nested vector ()
      (data columns)←⍵   ⍝ Matrix; Vector
+     0∊⍴data:⍬
      GetKeys←{⍺←0 ⋄ 1=≡⍵:⊂⍺ ⍵ ⋄ ⊃,/(⍺+1)∇¨⍵}
      UniqueSortedByDepth←{∪⍵[⍋⊃¨⍵]}
      Nested2Depth←{
@@ -15,5 +16,8 @@
          mat←0 '' '' 1⍪⍉↑depth key ⍵ type
          0 ⎕JSON 1 ⎕JSON⍠'Format' 'M'⊢mat
      }
-     JSONPayload⍤1⊢(data,⊂'')[;columns⍳key]
+     r←JSONPayload⍤1⊢(data,⊂'')[;columns⍳key]
+     r.post_type←⊂'team-dyalog-videos'
+     r.status←⊂'publish'
+     r
  }
