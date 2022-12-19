@@ -1,0 +1,12 @@
+GetTeamCPT←{
+    url←#.GLOBAL.secrets.wordpress.url
+    name←#.GLOBAL.secrets.wordpress.user
+    pass←#.GLOBAL.secrets.wordpress.token~' '
+    h←#.HttpCommand.New'GET'
+    h.URL←url,'wp/v2/team-dyalog?_fields=id,acf.dcms_id&page=',⍕⍵
+    h.Auth←name pass
+    r←h.Run
+    200=r.HttpStatus:(⎕JSON r.Data),∇1+⍵
+    400=r.HttpStatus:⍬
+    r.HttpMessage⎕SIGNAL r.HttpStatus   ⍝ Bad request
+}

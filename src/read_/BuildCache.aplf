@@ -1,63 +1,63 @@
- msg←BuildCache msg;sql;val;ucs;u;t;epd;fields;ytid;nested_matrix;endpoints;ddn;dti;per;name;grp;med;RLTB
- msg←0 'OK'
+msg←BuildCache msg;sql;val;ucs;u;t;epd;fields;ytid;nested_matrix;endpoints;ddn;dti;per;name;grp;med;RLTB
+msg←0 'OK'
 ⍝ Store pre-joined table for API Endpoint and Query results
 ⍝ Store simple character matrices for searching
- nested_matrix←2
- endpoints←⎕JSON⍠'Dialect' 'JSON5'⊃⎕NGET #.GLOBAL.app_dir,'src/read_/endpoints.json5'
- '#.CACHE.persons'⎕NS ⍬
- (fields ucs)←↓⍉↑endpoints.persons.person.fields.(field unicode)
- sql←endpoints.persons.person.sql
- val←ucs #.DCMS.SQL.Do sql
- :If 0=≢val
-     #.CACHE.persons.list←⎕JSON ⍬
-     #.CACHE.persons.id←⎕JSON ⍬
-     #.CACHE.persons.media←⎕JSON ⍬
- :Else
-     (val fields),←∘⊂¨'' 'media'   ⍝ Empty media field unless id specified
-     val⍪⍨←fields
-     #.CACHE.persons.list←⎕JSON⊂nested_matrix val
-     #.CACHE.persons.id←'id'JSONExtract #.CACHE.persons.list
-     #.CACHE.persons.organisation←'organisation'JSONExtract #.CACHE.persons.list
-     (fields ucs)←↓⍉↑endpoints.persons.media.fields.(field unicode)
-     sql←endpoints.persons.media.sql
-     val←ucs #.DCMS.SQL.Do sql
-     per←∊∪name←⊣/val
-     grp←name{⊂0 1↓⍵}⌸val
-     med←⎕JSON∘⎕JSON¨⊂¨nested_matrix,⍥⊂¨(fields~⊂'person')∘⍪¨grp
-     #.CACHE.persons.media←⎕NS¨⍬⍨¨#.CACHE.persons.id
-     #.CACHE.persons.media[#.CACHE.persons.id⍳per]←⎕JSON¨med
- :EndIf
+nested_matrix←2
+endpoints←ReadJSON #.GLOBAL.app_dir,'src/read_/endpoints.json5'
+'#.CACHE.persons'⎕NS ⍬
+(fields ucs)←↓⍉↑endpoints.persons.person.fields.(field unicode)
+sql←endpoints.persons.person.sql
+val←ucs #.DCMS.SQL.Do sql
+:If 0=≢val
+    #.CACHE.persons.list←⎕JSON ⍬
+    #.CACHE.persons.id←⎕JSON ⍬
+    #.CACHE.persons.media←⎕JSON ⍬
+:Else
+    (val fields),←∘⊂¨'' 'media'   ⍝ Empty media field unless id specified
+    val⍪⍨←fields
+    #.CACHE.persons.list←⎕JSON⊂nested_matrix val
+    #.CACHE.persons.id←'id'JSONExtract #.CACHE.persons.list
+    #.CACHE.persons.organisation←'organisation'JSONExtract #.CACHE.persons.list
+    (fields ucs)←↓⍉↑endpoints.persons.media.fields.(field unicode)
+    sql←endpoints.persons.media.sql
+    val←ucs #.DCMS.SQL.Do sql
+    per←∊∪name←⊣/val
+    grp←name{⊂0 1↓⍵}⌸val
+    med←⎕JSON∘⎕JSON¨⊂¨nested_matrix,⍥⊂¨(fields~⊂'person')∘⍪¨grp
+    #.CACHE.persons.media←⎕NS¨⍬⍨¨#.CACHE.persons.id
+    #.CACHE.persons.media[#.CACHE.persons.id⍳per]←⎕JSON¨med
+:EndIf
 
- '#.CACHE.events'⎕NS ⍬
- (fields ucs)←↓⍉↑endpoints.events.fields.(field unicode)
- sql←'SELECT ',(1↓∊','∘,¨fields),' FROM event'
- val←fields⍪ucs #.DCMS.SQL.Do sql
- #.CACHE.events←⎕JSON ⎕JSON⊂nested_matrix val
+'#.CACHE.events'⎕NS ⍬
+(fields ucs)←↓⍉↑endpoints.events.fields.(field unicode)
+sql←'SELECT ',(1↓∊','∘,¨fields),' FROM event'
+val←fields⍪ucs #.DCMS.SQL.Do sql
+#.CACHE.events←⎕JSON ⎕JSON⊂nested_matrix val
 
- '#.CACHE.presenters'⎕NS ⍬
- sql←endpoints.presenters.sql
- val←1 #.DCMS.SQL.Do sql
- #.CACHE.presenters←⎕JSON ⎕JSON,val
+'#.CACHE.presenters'⎕NS ⍬
+sql←endpoints.presenters.sql
+val←1 #.DCMS.SQL.Do sql
+#.CACHE.presenters←⎕JSON ⎕JSON,val
 
- '#.CACHE.videos'⎕NS ⍬
- (fields ucs)←↓⍉↑endpoints.videos.fields.(field unicode)
- sql←endpoints.videos.sql
- val←ucs #.DCMS.SQL.Do sql
- :If 0=≢val
-     #.CACHE.videos.fields←fields
-     #.CACHE.videos.values←''⍴⍨0,≢fields
-     #.CACHE.videos.index_cols←''⍨¨⍳≢fields
-     #.CACHE.videos.index_all←⍕⍪''
- :Else
-     ytid←val⌷⍤1⍨fields⍳⊂'youtube_id'
-     (val ytid)←(val ytid)⌿¨⍨⊂(~0∊⍴)¨ytid
-     val←ytid{((,1 3↑⍵),(,1↑0 4↓⍵),⍨(⊣,',',⊢)/∪4⌷⍤1⊢⍵)}⌸val   ⍝ Group by YouTube ID and format multiple presenters as comma-separated lists
-     #.CACHE.videos.index_all←⎕C⍕val
-     dti←fields⍳⊂'published_at'
-     ddn←{Days∊(2⊃⎕VFI)¨⍵}¨'- :'∘((~∊⍨)⊆⊢)¨(⍉val)⌷⍨dti        ⍝ Dyalog Day Numbers for date range filtering (from=&to=YYYY-MM-DD)
-     RLTB←{⍵⌿⍤1⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}                             ⍝ Remove Leading and Trailing Blanks
-     #.CACHE.videos.index_cols←RLTB¨⎕C⍕∘⍪¨↓⍉val               ⍝ TODO probably shouldn't lower case YouTube IDs
-     #.CACHE.videos.index_cols[dti]←⊂ddn
-     #.CACHE.videos.fields←fields
-     #.CACHE.videos.values←val                                                                    ⍝ TODO factor this out as its own function, including processing presenters separately to rest of table?
- :EndIf
+'#.CACHE.videos'⎕NS ⍬
+(fields ucs)←↓⍉↑endpoints.videos.fields.(field unicode)
+sql←endpoints.videos.sql
+val←ucs #.DCMS.SQL.Do sql
+:If 0=≢val
+    #.CACHE.videos.fields←fields
+    #.CACHE.videos.values←''⍴⍨0,≢fields
+    #.CACHE.videos.index_cols←''⍨¨⍳≢fields
+    #.CACHE.videos.index_all←⍕⍪''
+:Else
+    ytid←val⌷⍤1⍨fields⍳⊂'youtube_id'
+    (val ytid)←(val ytid)⌿¨⍨⊂(~0∊⍴)¨ytid
+    val←ytid{((,1 3↑⍵),(,1↑0 4↓⍵),⍨(⊣,',',⊢)/∪4⌷⍤1⊢⍵)}⌸val   ⍝ Group by YouTube ID and format multiple presenters as comma-separated lists
+    #.CACHE.videos.index_all←⎕C⍕val
+    dti←fields⍳⊂'published_at'
+    ddn←{Days∊(2⊃⎕VFI)¨⍵}¨'- :'∘((~∊⍨)⊆⊢)¨(⍉val)⌷⍨dti        ⍝ Dyalog Day Numbers for date range filtering (from=&to=YYYY-MM-DD)
+    RLTB←{⍵⌿⍤1⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}                             ⍝ Remove Leading and Trailing Blanks
+    #.CACHE.videos.index_cols←RLTB¨⎕C⍕∘⍪¨↓⍉val               ⍝ TODO probably shouldn't lower case YouTube IDs
+    #.CACHE.videos.index_cols[dti]←⊂ddn
+    #.CACHE.videos.fields←fields
+    #.CACHE.videos.values←val                                                                    ⍝ TODO factor this out as its own function, including processing presenters separately to rest of table?
+:EndIf
