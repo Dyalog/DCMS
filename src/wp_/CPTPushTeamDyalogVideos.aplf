@@ -53,9 +53,8 @@
 
  unpublish_posts←⊃,/unpublish/¨grouped_posts
  id←{0<≢⍵:⍵.id ⋄ ⍬}unpublish_posts
- UnpublishCPT←{r←⎕JSON'{"status":"draft"}' ⋄ r.id←⍵ ⋄ r}
+ UnpublishCPT←{r←⎕JSON'{"status":"draft", "post_type": "team-dyalog-videos"}' ⋄ r.id←⍵ ⋄ r}
  unpublish_cpt←{0<≢⍵:UnpublishCPT¨⍵ ⋄ ''}id
- unpublish_cpt.post_type←⊂'team-dyalog-videos'
 
  CPTCreate¨new_cpt
  CPTUpdate¨unpublish_cpt
