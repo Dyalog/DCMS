@@ -1,4 +1,4 @@
- r←CPTPushTeamDyalogVideos;Clean;From;Latest;columns;cpt;d;exists;k;latest;new_cpt;posts;t;videos;in_database;unpublish;publish;grouped_posts;grouped_latest;publish_latest;unpublish_cpt;id;DateTime2DDN;thumbnail;HumanDateTime;HTMLimg;person_post_id;post_id;dcms_id;unpublish_posts;UnpublishCPT;person_id;current_posts;new_posts
+ r←CPTPushTeamDyalogVideos;Clean;From;Latest;columns;cpt;d;exists;k;latest;new_cpt;posts;t;videos;in_database;unpublish;publish;grouped_posts;grouped_latest;publish_latest;unpublish_cpt;id;DateTime2DDN;thumbnail;HumanDateTime;HTMLimg;person_post_id;post_id;dcms_id;unpublish_posts;UnpublishCPT;person_id;current_posts;new_posts;update_columns;update_cpt;update_latest
 ⍝ TODO: decide which videos defined in a JSON file OR "featured" marker on video itself
 
 ⍝ Use WordPress API to get post IDs corresponding to Team Dyalog members via their DCMS ID
@@ -21,10 +21,13 @@
  latest←3 Latest videos
  posts←CPTGet'team-dyalog-videos'
 ⍝ Create 2 masks - posts to unpublish AND latest to upload
- (unpublish_posts publish_latest)←posts CompareTeamDyalogVideos latest
+ ((update_latest update_columns)unpublish_posts publish_latest)←posts CompareTeamDyalogVideos latest
+
  publish_latest←TeamDyalogVideosCustomFields publish_latest columns
+ update_latest←TeamDyalogVideosCustomFields update_latest update_columns
 
  new_cpt←cpt.team_dyalog_videos.json CPTBuildRequest publish_latest columns
+ update_cpt←('id',⍥⊆cpt.team_dyalog_videos.json)CPTBuildRequest update_latest update_columns
 
  id←{0<≢⍵:⍵.id ⋄ ⍬}unpublish_posts
  UnpublishCPT←{r←⎕JSON'{"status":"draft", "post_type": "team-dyalog-videos"}' ⋄ r.id←⍵ ⋄ r}
@@ -32,5 +35,5 @@
 
  CPTCreate¨new_cpt
  CPTUpdate¨unpublish_cpt
-
+ CPTUpdate¨update_cpt
  r←0 'updated team-dyalog-videos CPT'

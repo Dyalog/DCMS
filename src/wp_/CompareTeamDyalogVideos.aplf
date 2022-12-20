@@ -24,6 +24,14 @@
 
      publish_latest←⊃⍪⌿publish⌿¨grouped_latest
      unpublish_posts←⊃,/unpublish/¨grouped_posts
-
-     unpublish_posts publish_latest
+     update_posts←posts~unpublish_posts
+     update_id←update_posts.id
+     (id pid)←↓⍉↑update_posts.(id acf.(person_id media_id))
+     pid←↑pid
+     lid←'media_id' 'person_id'From latest
+     ulatest←(≢pid)≥pid⍳lid ⋄ upid←lid⍳pid
+     update_id←id⌷⍨⊂upid⌿⍨(≢lid)≥upid
+     update_latest←ulatest⌿latest
+     update_columns←columns,⍨⊂'id' ⋄ update_latest,⍨←update_id
+     (update_latest update_columns)unpublish_posts publish_latest
  }
