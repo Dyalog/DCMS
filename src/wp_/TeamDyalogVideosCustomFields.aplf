@@ -6,11 +6,12 @@
 ⍝ ONLY data with a post_id found in wordpress "team" posts are returned
      HumanDateTime←1200⌶
      DateTime2DDN←##.import_.DateTime2DDN
+     From←columns{⍵[;⍺⍺⍳⊆⍺]}
      data,←'Mmmm YYYY'HumanDateTime DateTime2DDN'presentation_date'From data   ⍝ readable_date
      HTMLimg←{'<img src="',⍵,'" />'}
      thumbnail←columns⍳⊆'thumbnail'
      data[;thumbnail]←HTMLimg¨data[;thumbnail]
-     person_post_id←CPTGet'team?_fields=id,acf.dcms_id,acf.first_name'
+     person_post_id←CPTGet'team-dyalog?_fields=id,acf.dcms_id,acf.first_name'
      (post_id dcms_id)←↓⍉↑person_post_id.(id acf.dcms_id)
      idx←dcms_id⍳'person_id'From data
      in_wordpress←(≢post_id)≥idx
