@@ -1,4 +1,4 @@
- r←CPTPushTeamDyalogVideos;Clean;From;Latest;columns;cpt;d;exists;k;latest;new_cpt;posts;t;videos;in_database;unpublish;publish;grouped_posts;grouped_latest;publish_latest;unpublish_cpt;id;DateTime2DDN;thumbnail;HumanDateTime;HTMLimg;person_post_id;post_id;dcms_id;unpublish_posts;UnpublishCPT;person_id;current_posts;new_posts;update_columns;update_cpt;update_latest
+ r←CPTPushTeamDyalogVideos;Clean;From;Latest;columns;cpt;d;exists;k;latest;new_cpt;posts;t;videos;in_database;unpublish;publish;grouped_posts;grouped_latest;publish_latest;unpublish_cpt;id;DateTime2DDN;thumbnail;HumanDateTime;HTMLimg;person_post_id;post_id;dcms_id;unpublish_posts;UnpublishCPT;person_id;current_posts;new_posts;update_columns;update_cpt;update_latest;n
 ⍝ TODO: decide which videos defined in a JSON file OR "featured" marker on video itself
 
 ⍝ Use WordPress API to get post IDs corresponding to Team Dyalog members via their DCMS ID
@@ -13,15 +13,16 @@
  From←columns{⍵[;⍺⍺⍳⊆⍺]}
  Latest←{
      sorted←(⊂⍒'presentation_date'From ⍵)⌷⍵
-     latest←('person_id'From sorted){⊂(3⌊≢⍵)↑⍵}⌸sorted
-     ⊃⍪⌿latest⌿⍨⍺=≢¨latest
+     latest←('person_id'From sorted){⊂(n⌊≢⍵)↑⍵}⌸sorted
+     ⊃⍪⌿latest↑¨⍨n⌊≢¨latest
  }
  Clean←{⍵⌿⍨~∨/0=≢¨⍵}
  videos←∪Clean ##.SQL.Do cpt.team_dyalog_videos.sql
- latest←3 Latest videos
+ n←10
+ latest←n Latest videos
  posts←CPTGet'team-dyalog-videos'
 ⍝ Create 2 masks - posts to unpublish AND latest to upload
- ((update_latest update_columns)unpublish_posts publish_latest)←posts CompareTeamDyalogVideos latest
+ ((update_latest update_columns)unpublish_posts publish_latest)←posts(n _CompareTeamDyalogVideos)latest
 
  publish_latest←TeamDyalogVideosCustomFields publish_latest columns
  update_latest←TeamDyalogVideosCustomFields update_latest update_columns
