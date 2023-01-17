@@ -2,7 +2,7 @@
      ⎕←'Test GET videos'
      ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'videos'
      G←url∘HttpGet
-     fields←'description' 'event' 'category' 'presenter' 'title' 'url' 'youtube_id' 'published_at'
+     fields←'category' 'description' 'event' 'event_shortname' 'presented_at' 'presenter' 'published_at' 'thumbnail' 'title' 'url' 'youtube_id' 'youtube_url'
      _←Assert∧/fields∊(G'')[1].⎕NL-⍳9            ⍝ all videos
      vid←'/AFvfBE19OFg'                          ⍝ ⍰ known existing video youtube ID
      _←Assert∧/fields∊(G vid).⎕NL-⍳9             ⍝ single video

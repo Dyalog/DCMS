@@ -12,5 +12,5 @@
     ⍝ ←: id  youtube_id  title  description  channel_id  channel  category_id  published_at  created_at  updated_at  updated_by
      id←r.Data.items.id
      _←{0=≢⍵:'' ⋄ #.DCMS.Catch ¯404,⊂'YouTube videos ID= (',⍵,') not available.'}1↓∊','∘,¨⍵/⍨~⍵∊id
-     ↑r.Data.items.((⊂id),snippet.(title description channelId channelTitle ⍬ publishedAt))   ⍝ ⍬ for category_id
+     ↑r.Data.items.((⊂id),snippet.(title description channelId channelTitle ⍬ publishedAt thumbnails.high.url))   ⍝ ⍬ for category_id
  }
