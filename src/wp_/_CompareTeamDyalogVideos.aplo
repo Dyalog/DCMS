@@ -2,13 +2,15 @@
 ⍝ ⍺: posts list of JSON objects
 ⍝ ⍵: latest videos matrix
 ⍝ ⍺⍺: maximum number of team-dyalog-videos posts per person in WordPress
-⍝ ←: (unpublish_posts publish_latest)
+⍝ ←:  (update_latest update_columns)unpublish_posts publish_latest
+⍝     ((matrix of update data to HTTP POST)(names of columns to do update))(post JSON namespaces to set to Draft)(matrix of new data to HTTP POST)
+⍝     Update data requires us to find an existing WordPress post ID to update, whereas new data does not
 ⍝ Compare existing wordpress posts with latest videos in database
 ⍝ ensuring there are at most 10 latest videos in wordpress for a particular person
 ⍝ return CPT post objects (from wordpress) and a matrix of latest videos (from the database) to be used to create HTTP requests
      (posts latest)←⍺ ⍵
      n←⍺⍺
-     0∊≢¨posts latest:posts latest
+     0∊≢¨posts latest:((0↑latest)(''))posts latest
      posts⌿⍨←0=∊posts.(⎕NC'HttpStatus')                                  ⍝ Ignore posts which failed to download
      (person_id post_id)←↓⍉↑posts.acf.(person_id post_id)
      in_database←person_id∊'person_id'From videos                        ⍝ Only process posts with person_id in retrieved videos

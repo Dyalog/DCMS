@@ -21,7 +21,7 @@
  n←10
  latest←n Latest videos
  posts←CPTGet'team-dyalog-videos'
-⍝ Create 2 masks - posts to unpublish AND latest to upload
+
  ((update_latest update_columns)unpublish_posts publish_latest)←posts(n _CompareTeamDyalogVideos)latest
 
  publish_latest←TeamDyalogVideosCustomFields publish_latest columns
