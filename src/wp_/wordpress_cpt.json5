@@ -1,13 +1,14 @@
 {
 	team_dyalog_videos: {
-		sql: "SELECT presentation.title,media.url,media.id,youtube_videos.thumbnail,person.id,presentation.start,youtube_videos.description FROM presenter\
+		sql: "SELECT presentation.title,media.url,media.id,youtube_videos.thumbnail,person.id,presentation.start,event.title,youtube_videos.description FROM presenter\
               RIGHT JOIN person ON person.id = person_id\
               RIGHT JOIN presentation ON presentation.id = presenter.presentation_id\
+              RIGHT JOIN event ON event.id = presentation.event_id\
               LEFT JOIN media ON presentation.id = media.presentation_id\
               LEFT JOIN youtube_videos ON youtube_videos.id = media.media_id\
               WHERE person.organisation='Dyalog Ltd'\
               ORDER BY presentation.start DESC\
-            ;",
+              ;",
 		json: [
 			"title",
 			["acf",[
@@ -16,8 +17,9 @@
 				"thumbnail",
 				"person_id",
 				"presentation_date",
+				"event",
 				"description",
-				"readable_date",   // added in wp_.CPTPushTeamDyalog
+				"readable_date",   // added in wp_.TeamDyalogVideosCustomFields called from wp_.CPTPushTeamDyalog
 				"post_id",         // added in wp_.CPTPushTeamDyalog
 			]],
 		]
