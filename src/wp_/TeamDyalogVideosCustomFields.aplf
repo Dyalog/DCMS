@@ -3,7 +3,6 @@
      (data columns)←⍵
      0∊⍴data:data
 ⍝ ←: data appended with generated field data
-⍝ ONLY data with a post_id found in wordpress "team" posts are returned
      HumanDateTime←1200⌶
      DateTime2DDN←##.import_.DateTime2DDN
      From←columns{⍵[;⍺⍺⍳⊆⍺]}
@@ -15,7 +14,7 @@
      (post_id dcms_id)←↓⍉↑person_post_id.(id acf.dcms_id)
      idx←dcms_id⍳'person_id'From data
      in_wordpress←(≢post_id)≥idx
-     data⌿⍨←in_wordpress
+     data⌿⍨←in_wordpress   ⍝ ONLY data with a post_id found in wordpress "team" posts are returned
      data,←post_id[in_wordpress/idx]                                           ⍝ post_id
      data
  }
