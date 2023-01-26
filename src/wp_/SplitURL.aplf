@@ -1,5 +1,0 @@
- SplitURL←{
-     prot←⊃'^https?://'⎕S'&'⍠1⊢⍵
-     url←⍵↓⍨≢prot
-     prot url
- }

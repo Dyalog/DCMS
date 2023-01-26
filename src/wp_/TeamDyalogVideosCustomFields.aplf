@@ -6,7 +6,7 @@
      HumanReadableDateTime←1200⌶
      DateTime2DDN←##.import_.DateTime2DDN
      From←columns{⍵[;⍺⍺⍳⊆⍺]}
-     data,←'Mmmm YYYY'HumanReadableDateTime DateTime2DDN'presentation_date'From data
+     data,←'Mmmm YYYY'HumanReadableDateTime DateTime2DDN'date'From data
      HTMLimg←{'<img src="',⍵,'" />'}
      thumbnail←columns⍳⊆'thumbnail'
      data[;thumbnail]←HTMLimg¨data[;thumbnail]

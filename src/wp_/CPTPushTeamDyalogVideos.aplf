@@ -1,40 +1,43 @@
- r←CPTPushTeamDyalogVideos;Clean;From;Latest;columns;cpt;d;exists;k;latest;new_cpt;posts;t;videos;in_database;unpublish;publish;grouped_posts;grouped_latest;publish_latest;unpublish_cpt;id;DateTime2DDN;thumbnail;HumanDateTime;HTMLimg;person_post_id;post_id;dcms_id;unpublish_posts;UnpublishCPT;person_id;current_posts;new_posts;update_columns;update_cpt;update_latest;n
+ r←CPTPushTeamDyalogVideos;n;cpt;columns;From;Latest;Clean;videos;latest;posts;lid;pid;update;update_columns;update_spec;update_posts;create;create_posts;created;updated
 ⍝ TODO: decide which videos defined in a JSON file OR "featured" marker on video itself
 
 ⍝ Use WordPress API to get post IDs corresponding to Team Dyalog members via their DCMS ID
-⍝ Get most recent 3 videos by each person
-⍝ If person has < 3 videos total, do not update Team Dyalog Videos for that person
-
+⍝ Get most recent n videos for Team Dyalog members
+ n←10
 ⍝ Parse column (field) names from wordpress_cpt definition
  cpt←ReadJSON #.GLOBAL.app_dir,'src/wp_/wordpress_cpt.json5'
  columns←Unfurl cpt.team_dyalog_videos.json
 
-⍝ Fetch videos from database and get 3 latest videos by each Team Dyalog member
+⍝ Fetch videos from database and get n latest videos by each Team Dyalog member
  From←columns{⍵[;⍺⍺⍳⊆⍺]}
  Latest←{
-     sorted←(⊂⍒'presentation_date'From ⍵)⌷⍵
-     latest←('person_id'From sorted){⊂(n⌊≢⍵)↑⍵}⌸sorted
-     ⊃⍪⌿latest↑¨⍨n⌊≢¨latest
+     sorted←(⊂⍒'date'From ⍵)⌷⍵
+     latest←('person_id'From sorted){⊂⍵}⌸sorted
+     ⊃⍪⌿(⊢↑⍨n⌊≢)¨latest
  }
  Clean←{⍵⌿⍨~∨/0=≢¨⍵}
  videos←∪Clean ##.SQL.Do cpt.team_dyalog_videos.sql
- n←10
- latest←n Latest videos
- posts←CPTGet'team-dyalog-videos'
 
- ((update_latest update_columns)unpublish_posts publish_latest)←posts(n _CompareTeamDyalogVideos)latest
+ latest←n Latest videos             ⍝ From DCMS database
+ posts←CPTGet'team-dyalog-videos'   ⍝ From WordPress
 
- publish_latest←TeamDyalogVideosCustomFields publish_latest columns
- update_latest←TeamDyalogVideosCustomFields update_latest update_columns
+ lid←'media_id'From latest ⋄ pid←posts.acf.media_id
 
- new_cpt←cpt.team_dyalog_videos.json CPTBuildRequest publish_latest columns
- update_cpt←('id',⍥⊆cpt.team_dyalog_videos.json)CPTBuildRequest update_latest update_columns
+⍝ Update posts with latest data from database
+ update←latest⌿⍨lid∊pid
+ update←TeamDyalogVideosCustomFields update update_columns
+ update,←posts.id[posts.acf.media_id⍳'media_id'From update]
+ update_columns←columns,⊂'id'
+ update_spec←cpt.team_dyalog_videos.json,⊂'id'
+ update_posts←update_spec CPTBuildRequest update update_columns
 
- id←{0<≢⍵:⍵.id ⋄ ⍬}unpublish_posts
- UnpublishCPT←{r←⎕JSON'{"status":"draft", "post_type": "team-dyalog-videos"}' ⋄ r.id←⍵ ⋄ r}
- unpublish_cpt←{0<≢⍵:UnpublishCPT¨⍵ ⋄ ''}id
+⍝ Publish recent videos from Latest not found in posts from WordPress
+ create←latest⌿⍨lid(~∊)pid
+ create←TeamDyalogVideosCustomFields create columns
+ create_posts←cpt.team_dyalog_videos.json CPTBuildRequest create columns
 
- CPTCreate¨new_cpt
- CPTUpdate¨unpublish_cpt
- CPTUpdate¨update_cpt
+ created←CPTCreate¨create_posts
+ ⎕←(⍕≢created),' posts created.'
+ updated←CPTUpdate¨update_posts
+ ⎕←(⍕≢updated),' posts updated.'
  r←0 'updated team-dyalog-videos CPT'
