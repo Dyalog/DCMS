@@ -1,6 +1,6 @@
 {
 	team_dyalog_videos: {
-		sql: "SELECT presentation.title,media.url,media.id,youtube_videos.thumbnail,person.id,presentation.start,event.title,youtube_videos.description FROM presenter\
+		sql: "SELECT presentation.title,presentation.start,media.url,media.id,youtube_videos.thumbnail,person.id,event.title,youtube_videos.description FROM presenter\
               RIGHT JOIN person ON person.id = person_id\
               RIGHT JOIN presentation ON presentation.id = presenter.presentation_id\
               RIGHT JOIN event ON event.id = presentation.event_id\
@@ -11,12 +11,12 @@
               ;",
 		json: [
 			"title",
+			"date",                // presentation date becomes post date to allow sorting by date in Elementor Loop Grid
 			["acf",[
 				"url",
 				"media_id",
-				"thumbnail",
+				"thumbnail",      // URL is wrapped in HTML in wp_.TeamDyalogCustomFields
 				"person_id",
-				"presentation_date",
 				"event",
 				"description",
 				"readable_date",   // added in wp_.TeamDyalogVideosCustomFields called from wp_.CPTPushTeamDyalog
