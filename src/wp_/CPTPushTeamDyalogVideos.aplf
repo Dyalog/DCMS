@@ -25,7 +25,7 @@
 
 ⍝ Update posts with latest data from database
  update←latest⌿⍨lid∊pid
- update←TeamDyalogVideosCustomFields update update_columns
+ update←TeamDyalogVideosCustomFields update columns
  update,←posts.id[posts.acf.media_id⍳'media_id'From update]
  update_columns←columns,⊂'id'
  update_spec←cpt.team_dyalog_videos.json,⊂'id'
