@@ -5,21 +5,40 @@ GET endpoints are defined in `/src/read_/endpoints.json5`.
 
 Programmatically, endpoint switches are explicit in `#.DCMS.Get` and `#.DCMS.Post`.
 
-- GET /videos
-- GET /persons
-- GET /presenters
-- GET /refresh  
-    Update the API data from the database. Requires authentication.
-- GET /tables  
-    A list of all database tables
+Most implement a REST-like scheme, in which /endpoint lists all available items, possilbly with querying available, and /endpoint/id lists a single specific item within that endpoint.
 
-The POST endpoints are used by the admin functions. They all require authentication.
-- POST /event
-- POST /person
-- POST /videos
+### GET
 
-### GET persons
-Query parameters:
+#### /videos
+Used by the video library
+
+**Query:**
+
+- `search` free text search of titles, descriptions, presenters and events
+- `from` videos no earlier than date of form `YYYY-MM-DD`
+- `to` videos no more recent than date of form `YYYY-MM-DD`
+- `event` short name of event (e.g. Dyalog '22 → Dyalog22)
+
+#### Video by YouTube ID
+e.g. /videos/_EcoRpYr3FE
+
+Returns a JSON object containing:
+
+- category (string)
+- description (string)
+- event (string)
+- event_shortname (string)
+- presenter (string)
+- published_at (datetime)
+- thumbnail (string)   # URL
+- title (string)
+- url (string)
+- youtube_id (string)
+- youtube_url (string)
+
+#### /persons
+
+**Query:**
 
 - id
 - organisation
@@ -38,31 +57,26 @@ Returns a **LIST**:
 - short_description     
 - media (empty unless `id` specified)
 
-### GET videos
-Can be searched using several parameters:
+**Single video**  
+Use `/videos/youtube_id`
 
-- search=**search query string**
-- presenter=**name to search**
-- from=**YYYY-MM-DD**
-- to=**YYYY-MM-DD**
-- event=**event shortname**
+#### More
+- GET /events  
+	all event details
+- GET /dtv_events  
+	Events where some are grouped to make Dyalog TV (video library) interface less cluttered
+- GET /persons
+- GET /presenters
+- GET /refresh  
+    Update the API data from the database. Requires authentication.
+- GET /tables  
+    A list of all database tables
 
-#### Video by YouTube ID
-e.g. /videos/_EcoRpYr3FE
+The POST endpoints are used by the admin functions. They all require authentication.
 
-Returns a JSON object containing:
-
-- category (string)
-- description (string)
-- event (string)
-- event_shortname (string)
-- presenter (string)
-- published_at (datetime)
-- thumbnail (string)   # URL
-- title (string)
-- url (string)
-- youtube_id (string)
-- youtube_url (string)
+- POST /event
+- POST /person
+- POST /videos
 
 ## API functions
 These APL functions provide the REST interface.
@@ -84,16 +98,6 @@ Any column can be specifically searched using the `[column_name]=[query]` "colum
 
 #### AddNewRecord
 
-### update_
-
-## Unqualified resource
-Return the full resource as a JSON list. Each record is an object.
-
-## Search
-s=query
-
-Wildcard (SQL %) search the title and presenter columns for this text and return a JSON list, each object is a full record that matches.
-
 ## sort
 `sort=[newest/oldest]`
 
@@ -104,13 +108,18 @@ date_from=
 date_to=
 
 ## Pagination
-page=p
-paginate=n
+
+**Query:**
+Endpoints which return lists can be paginated
+
+- `page` which page to return
+- `per_page` number of items per page
 
 Return a JSON object with the following members:
-- current_page (integer)
-- data (JSON list of relevant records)
-- last_page (integer)
+
+- `current_page` (integer)
+- `data` (JSON list of relevant records)
+- `last_page` (integer)
 - Page URLs currently only apply to whole resource on dyalog.tv, not query results. 
     - to do: check which, if any, are used and how
     - to do: is URL hard coded or can server be told?
@@ -119,15 +128,15 @@ Return a JSON object with the following members:
     - prev_page_url (string)
     - next_page_url (string)
     - path (string url of the resource with no query paramters)
-- from (integer) first entry in the list of query results that appears on this page
-- to (integer) last entry in the list of query results that appears on this page
-- per_page (integer)
-- total (integer)
-- links (JSON list) to previous, next, label for "...", first 10 pages and last two pages
+- `from` (integer) first entry in the list of query results that appears on this page
+- `to` (integer) last entry in the list of query results that appears on this page
+- `per_page` (integer)
+- `total` (integer)
+- `links` (JSON list) to previous, next, label for "...", first 10 pages and last two pages
     each item is an object containing
-    - url (string)
-    - label (string)
-    - active (boolean)
+    - `url` (string)
+    - `label` (string)
+    - `active` (boolean)
 
 
 to do service.url from config file
