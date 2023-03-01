@@ -1,5 +1,5 @@
  r←CPTCreate info;url;name;pass;h
- :If 0≡info ⋄ →0 ⋄ :EndIf   ⍝ info is a prototype if the list is empty
+ :If 0≡info ⋄ r←'' ⋄ →0 ⋄ :EndIf   ⍝ info is a prototype if the list is empty
  url←#.GLOBAL.secrets.wordpress.url
  name←#.GLOBAL.secrets.wordpress.user
  pass←#.GLOBAL.secrets.wordpress.token~' '
