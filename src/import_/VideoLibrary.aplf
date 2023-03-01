@@ -1,6 +1,5 @@
- msg←VideoLibrary data;file;data;sql;RLTB;eid;evt;event;wse;i;idx;cat;values;current;cc;cv;exists;ids;columns;types;p;pr;n;urls;ext;id;ytd;ucs;ytx;yt
+ msg←VideoLibrary data;file;data;sql;eid;evt;event;wse;i;idx;cat;values;current;cc;cv;exists;ids;columns;types;p;pr;n;urls;ext;id;ytd;ucs;ytx;yt
 ⍝ Tables modified: presentations, presenters, media
-⍝ TODO: not table as argument... but what?
 ⍝ Import data from video library spreadsheet and link data in database
  msg←400 'Bad video library CSV data'
  data←FromUTF8 data
@@ -17,8 +16,7 @@
 
 ⍝ SOURCE key into events table
      sql←'SELECT id,title FROM event'
-     RLTB←{⍵/⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}                                        ⍝ Remove leading and trailing blanks TODO: might not need
-     (eid evt)←↓⍉RLTB¨#.DCMS.SQL.Do sql ⋄ eid←∊eid                     ⍝ (id title)
+     (eid evt)←↓⍉#.DCMS.SQL.Do sql ⋄ eid←∊eid                     ⍝ (id title)
      DB.(eid evt)←eid evt
      event←(eid,0)⌷⍨⊂evt⍳data[;2]                                      ⍝ ID into event table
      (wse i)←↓⍉↑'Dyalog.+workshop'⎕S{⍵.Match(1+⍵.BlockNum)}⊢data[;2]   ⍝ (Dyalog 'YY)(ID into data to be inserted)
