@@ -3,7 +3,7 @@
 ⍝     ⍺:                       ⎕NS :: current data from SQL database
 ⍝   ⍺.p:     (1<≡)(2=≢⍴)[int,char] :: person[id,name]
 ⍝  ⍺.pr: (1<≡)(2=≢⍴)[int,char,int] :: presentation[id,title,event_id]
-⍝ ⍺.evt:         (1<≡)(2=≢⍴)[char] :: unique event titles
+⍝ ⍺.evt:         (1<≡)(1=≢⍴)[char] :: unique event titles
 ⍝ ⍺.eid:          (1=≡)(1=≢⍴)[int] :: unique event IDs
 ⍝     ⍵:               (1<≡)(2=≢⍴) :: data[title;event;presenter;organisation;YYY-MM;URL;description;???]⍝ new data from VideoLibrary sheet
 
