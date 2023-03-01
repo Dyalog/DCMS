@@ -10,23 +10,32 @@
 ⍝ Return a subset of results as a page
 ⍝ Including URL links to previous and next pages
 ⍝ For total query results n and current page p, the links provided in the response (as a list called "links") are one of three variations:
-⍝ 1..n                             if 10>≢pages
+⍝ 1..n                             if 10≥≢pages    #
+⍝ (⍳10) ... n-1 n                  if 10>this page
 ⍝ 1 2 ... p(-,+)3 ... n-1 n        if 10<≢pages and this page is more than 10 from the end
-⍝ 1 2 ... n-10..n                  if 10<≢pages and this page is less than 10 from the end
+⍝ 1 2 ... n-9..n                   if 10<≢pages and this page is 10 or less from the end
 
-     cii←10≥p+3                    ⍝ Current page in initial pages
-     cif←(p lp>.-3 10)∧~cii        ⍝ Current page in final pages
-     i←⍳lp⌊2 10[1+cii]             ⍝ Initial page range
-     hf←lp>10                      ⍝ Has final?
-     f←lp+fl-⍨⍳hf×fl←2 10[1+cif]   ⍝ Final page range
-     r←p+¯4+⍳7×hf∧~cif             ⍝ Current page range is p(-,+)3 iff 10<≢pages (hf) and more than 10 from end (~cif)
+     ComputeLinksPageNumbers←{
+         (p lp)←⍵
+         10≥lp:(⍳lp)⍬ ⍬
+         10>p:(⍳10)⍬(¯2+lp+⍳2)
+         10<lp-p:(1 2)((¯4+p⌈6)+⍳6⌊p)(¯2+lp+⍳2)
+         (1 2)⍬(¯10+lp+⍳10)
+     }
+     (ip cp fp)←ComputeLinksPageNumbers(p lp)   ⍝ initial pages, current pages, final pages
 
-     lnkp←(p-1),i,r,f,p+1                                         ⍝ Link page numbers
+     null←0 ⋄ _←,⍥⊆
+     (hc hf)←0<≢¨cp fp                                            ⍝ has current, has final
+     lnkp←(p-1),ip,(hc/null),cp,(hf/null),fp,p+1                  ⍝ Link page numbers
+     (ipl cpl fpl)←⍕¨¨ip cp fp                                    ⍝ Link page labels
      url←#.DCMS.service.url,'/',ep,'?per_page=',(⍕ppg),'&page='   ⍝ Base URL
-     pu←{p=1:⊂'null' ⋄ url,⍕p-1}⍬                                 ⍝ Previous URL
-     nu←{p=lp:⊂'null' ⋄ url,⍕p+1}⍬                                ⍝ Next URL
-     lu←pu,⍥⊆(url∘,¨⍕¨i,r,f),⍥⊆nu                                 ⍝ Link URLs
-     ll←'&laquo; Previous',⍥⊆(⍕¨i,r,f),⍥⊆'Next &raquo;'           ⍝ Link labels
+     pu←{p=1:⊂⊂'null' ⋄ url,⍕p-1}⍬                                 ⍝ Previous URL
+     nu←{p=lp:⊂⊂'null' ⋄ url,⍕p+1}⍬                                ⍝ Next URL
+     (iu cu fu)←url∘,¨¨ipl cpl fpl
+     lu←pu _ iu,(hc/null),cu,(hf/null),fu _ nu                    ⍝ Link URLs
+     ((0≡¨lu)/lu)←⊂⊂'null'
+     (pl nl)←'&laquo; Previous' 'Next &raquo;'
+     ll←pl _ ipl,(hc/⊂'...')_ cpl,(hf/⊂'...')_ fpl _ nl           ⍝ Link labels
      la←'false' 'true'[1+p=lnkp]                                  ⍝ Link active
      Link←url∘{
          link←⎕JSON'{}'
