@@ -16,21 +16,21 @@
 ⍝ 1 2 ... n-9..n                   if 10<≢pages and this page is 10 or less from the end
 
      ComputeLinksPageNumbers←{
-         (n p lp)←⍵
-         10≥lp:(⍳n)⍬ ⍬
+         (p lp)←⍵
+         10≥lp:(⍳lp)⍬ ⍬
          10>p:(⍳10)⍬(¯2+lp+⍳2)
          10<lp-p:(1 2)((¯4+p⌈6)+⍳6⌊p)(¯2+lp+⍳2)
          (1 2)⍬(¯10+lp+⍳10)
      }
-     (ip cp fp)←ComputeLinksPageNumbers(n p lp)   ⍝ initial pages, current pages, final pages
+     (ip cp fp)←ComputeLinksPageNumbers(p lp)   ⍝ initial pages, current pages, final pages
 
      null←0 ⋄ _←,⍥⊆
      (hc hf)←0<≢¨cp fp                                            ⍝ has current, has final
      lnkp←(p-1),ip,(hc/null),cp,(hf/null),fp,p+1                  ⍝ Link page numbers
      (ipl cpl fpl)←⍕¨¨ip cp fp                                    ⍝ Link page labels
      url←#.DCMS.service.url,'/',ep,'?per_page=',(⍕ppg),'&page='   ⍝ Base URL
-     pu←{p=1:⊂'null' ⋄ url,⍕p-1}⍬                                 ⍝ Previous URL
-     nu←{p=lp:⊂'null' ⋄ url,⍕p+1}⍬                                ⍝ Next URL
+     pu←{p=1:⊂⊂'null' ⋄ url,⍕p-1}⍬                                 ⍝ Previous URL
+     nu←{p=lp:⊂⊂'null' ⋄ url,⍕p+1}⍬                                ⍝ Next URL
      (iu cu fu)←url∘,¨¨ipl cpl fpl
      lu←pu _ iu,(hc/null),cu,(hf/null),fu _ nu                    ⍝ Link URLs
      ((0≡¨lu)/lu)←⊂⊂'null'
