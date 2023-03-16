@@ -21,15 +21,19 @@
  latest←n Latest videos             ⍝ From DCMS database
  posts←CPTGet'team-dyalog-videos'   ⍝ From WordPress
 
- lid←'media_id'From latest ⋄ pid←posts.acf.media_id
+ lid←'media_id'From latest
 
 ⍝ Update posts with latest data from database
- update←latest⌿⍨lid∊pid
- update←TeamDyalogVideosCustomFields update columns
- update,←posts.id[posts.acf.media_id⍳'media_id'From update]
- update_columns←columns,⊂'id'
- update_spec←cpt.team_dyalog_videos.json,⊂'id'
- update_posts←update_spec CPTBuildRequest update update_columns
+ update_posts←' '
+ :If 0<≢posts
+     pid←posts.acf.media_id
+     update←latest⌿⍨lid∊pid
+     update←TeamDyalogVideosCustomFields update columns
+     update,←posts.id[posts.acf.media_id⍳'media_id'From update]
+     update_columns←columns,⊂'id'
+     update_spec←cpt.team_dyalog_videos.json,⊂'id'
+     update_posts←update_spec CPTBuildRequest update update_columns
+ :EndIf
 
 ⍝ Publish recent videos from Latest not found in posts from WordPress
  create←latest⌿⍨lid(~∊)pid
@@ -37,7 +41,7 @@
  create_posts←cpt.team_dyalog_videos.json CPTBuildRequest create columns
 
  created←CPTCreate¨create_posts
- ⎕←(⍕≢created),' posts created.'
+ ⎕←(⍕+/≢¨created),' posts created.'
  updated←CPTUpdate¨update_posts
- ⎕←(⍕≢updated),' posts updated.'
+ ⎕←(⍕+/≢¨updated),' posts updated.'
  r←0 'updated team-dyalog-videos CPT'
