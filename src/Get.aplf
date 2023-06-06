@@ -30,6 +30,7 @@
          res←#.GLOBAL.tables
      :Else
          'Resource not found'req.Fail 404
+         req.Response.Payload←⊃⎕NGET #.GLOBAL.app_dir,'/src/html/404.html'
      :EndIf
  :Else
      #.DCMS.Catch ⎕EN ⎕DMX.DM
