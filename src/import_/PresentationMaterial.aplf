@@ -1,0 +1,64 @@
+ rc←PresentationMaterial csv
+⍝ rc:
+⍝     0: 201 Created
+⍝  else: Error
+⍝ TODO Response should include data that was created
+
+⍝ Create and update `presentation` and `presenter` tables
+
+ rc←0
+ →0
+
+ data←⎕CSV csv'S'
+ Col←((1⌷data)(1↓data))∘{(h t)←⍺ ⋄ t[;h⍳⍥⎕C⊆⍵]}
+ (evt eid)←↓⍉##.SQL.Do'SELECT title,id FROM event'
+ idx←evt⍳Col'event'
+ :If ∨/bad←idx>≢evt
+     rc←409('Event: ',((⊣,',',⊢)/bad/evt),' not found in event table')
+     :Return
+ :EndIf
+ event_id←eid[idx]
+ title←(⍕¨Col'code'),¨': '∘,¨Col'title'
+
+⍝ insert: text url
+⍝ get:    pmid
+ header←'text' 'url'
+ pm_data←header⍪Col'Link text' 'Link URL'
+
+ table←'presentation_material'
+ (columns types values)←table PrepareCSV FromUTF8 pm_data ⎕CSV'' 'S'
+ sql←'SELECT * FROM ',table
+ current←#.DCMS.SQL.Do sql
+ all_cols←#.GLOBAL.(columns⊃⍨tables⍳⊆)table
+ (exists ids)←(columns values)('text' 'url'Compare)(all_cols current)
+ (columns types values),←⊂¨'updated_by' '<C128' 'DCMS_Import_PresentationMaterial'
+ UpdateInsertExternalResource(table exists ids columns types values)
+
+ table←'presenter'
+ db_pres←##.SQL.Do'SELECT presentation.id,presentation.title,event.title FROM presentation LEFT JOIN event ON event.id = event_id'
+
+ (name affiliation)←PresenterAffiliation Col'presenter' 'affiliation'
+ pres_id←(db_pres[;1],0)[db_pres[;2 3]⍳title,⍪Col'event']
+ n←≢¨name ⋄ presentation_id←n/pid
+ db_pers←##.SQL.Do'SELECT id,name FROM person'
+ person_id←(db_pers[;1],0)[db_pers[;2]⍳⊃⍪⌿name]
+ organisation←⊃⍪⌿affiliation
+
+ header←'presentation_id' 'person_id' 'organisation'
+ presenter←header⍪presentation_id,person_id,⍪organisation
+
+ (columns types values)←table PrepareCSV FromUTF8 presenter ⎕CSV'' 'S'
+ sql←'SELECT * FROM ',table
+ current←#.DCMS.SQL.Do sql
+ all_cols←#.GLOBAL.(columns⊃⍨tables⍳⊆)table
+ (exists ids)←(columns values)('person_id' 'presentation_id'Compare)(all_cols current)
+ (columns types values),←⊂¨'updated_by' '<C128' 'DCMS_ImportEvents'
+ UpdateInsertExternalResource(table exists ids columns types values)
+
+
+
+
+
+
+
+⍝

@@ -3,6 +3,7 @@
 ⍝ Until we have a nice database managing interface, simply use bearer token in header
 ⍝ Check access token
 ⍝ TODO give more informative responses based on whether/which updates / creates were successful
+⍝∘∘∘
  :If 0<#.GLOBAL.debug ⋄ #.last←req ⋄ :EndIf
  res←auth_.VerifyToken req
  rc←res.(Status StatusText)
@@ -15,6 +16,10 @@
              rc←import_.Persons req.Body
          :Case '/videos'
              rc←import_.VideoLibrary req.Body
+         :Case '/presentation_presenter'
+             rc←import_.PresentationPresenter req.Body
+         :Case '/presentation_material'
+             rc←import_.PresentationMaterial req.Body
          :Else
              rc←404
          :EndSelect
