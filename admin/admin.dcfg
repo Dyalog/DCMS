@@ -10,6 +10,6 @@
 
 		HttpCommand: "[app_dir]/packages/HttpCommand.dyalog",
 
-		LX:           "⎕←⎕SE.Link.Create 'DCMS_ADMIN',⍥⊂⎕SE.Link.LaunchDir",
+		LX:           "⎕←⎕SE.Link.Create 'DCMS_ADMIN',⍥⊂⎕SE.Link.LaunchDir ⋄ DCMS_ADMIN.Setup ⋄ ⎕CS DCMS_ADMIN",
 	}
 }
