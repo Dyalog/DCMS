@@ -39,7 +39,7 @@
 
  (name affiliation)←PresenterAffiliation Col'presenter' 'affiliation'
  pres_id←(db_pres[;1],0)[db_pres[;2 3]⍳title,⍪Col'event']
- n←≢¨name ⋄ presentation_id←n/pid
+ n←≢¨name ⋄ presentation_id←n/pres_id
  db_pers←##.SQL.Do'SELECT id,name FROM person'
  person_id←(db_pers[;1],0)[db_pers[;2]⍳⊃⍪⌿name]
  organisation←⊃⍪⌿affiliation
