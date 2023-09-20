@@ -1,4 +1,4 @@
- r←{workbook}Upload sheets;xl
+ r←{workbook}Upload sheets;xl;idx;data;pres
  :If 0=⎕NC'workbook'
      workbook←GetEnv'WORKBOOK'
  :EndIf
@@ -19,6 +19,10 @@
 
  :For sheet :In sheets
      ⎕←'Updating ',sheet.Name,' data'
+     :If ('Video'≡sheet.Name)∧0=⎕NC'pres'
+         sheets,⍨←xl.ActiveWorkbook.Sheets[⊂'Presentation']
+         →18
+     :EndIf
      data←sheet.UsedRange.Value2
      data⌿⍨←~⌽∧\⌽∧/⎕NULL∘≡¨data   ⍝ until last non-empty row because some sheets claim to have more values
      data←(⊂'')@(⎕NULL∘≡¨)data
@@ -29,9 +33,15 @@
      :Case 'Event'
          'event'UploadTable csv
      :Case 'Presentation'
+         'pres'⎕NS''
+         pres.(event code title)←↓⍉3(↑⍤1)data
          'presentation_presenter'UploadTable csv
      :Case 'Presentation Material'
          'presentation_material'UploadTable csv
+     :Case 'Video'
+         idx←pres.(event,⍪code)⍳data[;(1⌷data)⍳⊆'Event' 'Presentation Code']
+         data,←(⊂'Presentation Title')@1⊢(pres.((⍕¨code),¨': '∘,¨title)⍪'' '')[idx]
+         'video'UploadTable data ⎕CSV''
      :EndSelect
 
  :EndFor
