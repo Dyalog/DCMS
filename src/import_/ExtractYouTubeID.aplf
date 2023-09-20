@@ -2,7 +2,7 @@
   ⍝ Extract YouTube IDs from URLs
      ps←'https://dyalog\.tv/[^/]+/\?v=' 'https://www.youtube.com/embed/' 'https://www.youtube.com/watch\?v=' 'https://youtu.be/'
      p←{'(',⍵,')([^&]+)'}¨ps
-     x←⊃¨(p ⎕S'\2'⍠('ML' 1)('Mode' 'D'))¨urls
+     x←⊃¨(p ⎕S'\2'⍠('ML' 1)('Mode' 'D'))¨⍵
      mask←(⊂'')≢¨x
      ids←∪mask/x
      ids mask

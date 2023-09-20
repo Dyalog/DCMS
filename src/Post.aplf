@@ -16,6 +16,8 @@
              rc←import_.Persons req.Body
          :Case '/videos'
              rc←import_.VideoLibrary req.Body
+         :Case '/video'
+             rc←import_.Video req.Body
          :Case '/presentation_presenter'
              rc←import_.PresentationPresenter req.Body
          :Case '/presentation_material'
