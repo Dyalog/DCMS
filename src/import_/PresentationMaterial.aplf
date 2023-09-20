@@ -1,4 +1,4 @@
- rc←PresentationMaterial csv
+ rc←PresentationMaterial csv;opts;data;Col;evt;eid;idx;bad;event_id;title;header;pm_data;table;columns;types;values;sql;current;all_cols;exists;ids;db_pm;db_pres;type;media_id;presentation_id;title_url
 ⍝ rc:
 ⍝     0: 201 Created
 ⍝  else: Error
@@ -7,7 +7,6 @@
 ⍝ Create and update `presentation` and `presenter` tables
 
  rc←0
- →0
 
  data←⎕CSV csv'S'
  Col←((1⌷data)(1↓data))∘{(h t)←⍺ ⋄ t[;h⍳⍥⎕C⊆⍵]}
@@ -34,27 +33,24 @@
  (columns types values),←⊂¨'updated_by' '<C128' 'DCMS_Import_PresentationMaterial'
  UpdateInsertExternalResource(table exists ids columns types values)
 
- table←'presenter'
- db_pres←##.SQL.Do'SELECT presentation.id,presentation.title,event.title FROM presentation LEFT JOIN event ON event.id = event_id'
+ db_pm←##.SQL.Do'SELECT id,text,url FROM presentation_material'
+ db_pres←##.SQL.Do'SELECT presentation.id,presentation.title,event.title FROM presentation LEFT JOIN event ON event_id=event.id'
+ type←⊂'media'
+ media_id←(db_pm[;1],0)[db_pm[;2 3]⍳Col'link text' 'link url']
+ presentation_id←(db_pres[;1],0)[db_pres[;2 3]⍳title,⍪Col'event']
+ title_url←Col'link text' 'link url'
+ header←'title' 'url' 'type' 'presentation_id' 'media_id'
+ pm_data←header⍪(0≠presentation_id)⌿title_url,type,presentation_id,⍪media_id
 
- (name affiliation)←PresenterAffiliation Col'presenter' 'affiliation'
- pres_id←(db_pres[;1],0)[db_pres[;2 3]⍳title,⍪Col'event']
- n←≢¨name ⋄ presentation_id←n/pid
- db_pers←##.SQL.Do'SELECT id,name FROM person'
- person_id←(db_pers[;1],0)[db_pers[;2]⍳⊃⍪⌿name]
- organisation←⊃⍪⌿affiliation
+ table←'media'
 
- header←'presentation_id' 'person_id' 'organisation'
- presenter←header⍪presentation_id,person_id,⍪organisation
+ opts←⎕NS''
+ opts.table←'media'
+ opts.data←pm_data ⎕CSV''
+ opts.compare←'presentation_id' 'media_id'
+ opts.updated_by←'DCMS_Import_PresentationMaterial'
 
- (columns types values)←table PrepareCSV FromUTF8 presenter ⎕CSV'' 'S'
- sql←'SELECT * FROM ',table
- current←#.DCMS.SQL.Do sql
- all_cols←#.GLOBAL.(columns⊃⍨tables⍳⊆)table
- (exists ids)←(columns values)('person_id' 'presentation_id'Compare)(all_cols current)
- (columns types values),←⊂¨'updated_by' '<C128' 'DCMS_ImportEvents'
- UpdateInsertExternalResource(table exists ids columns types values)
-
+ ImportExternalResource opts
 
 
 
