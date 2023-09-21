@@ -26,9 +26,6 @@
 ⍝                   type (youtube_videos, video) title media_id (youtube_videos) url publication_date
  (ytx yt)←ExtractYouTubeID Col'URL'
  YouTubeImport ytx
- sql←'SELECT id,youtube_id FROM youtube_videos'
- (id ytid)←↓⍉##.SQL.Do sql
- i←ytid⍳ytx
 
  columns←⊂'id'
  values←⍪Col'ID'
@@ -40,7 +37,10 @@
  values,←Col'Video title'
 
  columns,←⊂'media_id'
- values,←(⊂'')@{~yt}yt\id
+ sql←'SELECT id,youtube_id FROM youtube_videos'
+ (id ytid)←↓⍉##.SQL.Do sql
+ i←ytid⍳ytx
+ values,←(⊂'')@{~yt}yt\(id,⊂'')[i]
 
  columns,←⊂'presentation_id'
  sql←'SELECT presentation.id,event.title,presentation.title FROM presentation LEFT JOIN event ON event_id=event.id'

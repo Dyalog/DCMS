@@ -4,6 +4,7 @@
      p←{'(',⍵,')([^&]+)'}¨ps
      x←⊃¨(p ⎕S'\2'⍠('ML' 1)('Mode' 'D'))¨⍵
      mask←(⊂'')≢¨x
-     ids←∪mask/x
+     ids←mask/x
+     ∨/nu←~≠ids:('Duplicate YouTube ID found in rows: ',⊃(⊣,' ',⊢)/⍕¨⍸nu)⎕SIGNAL 42
      ids mask
  }
