@@ -1,0 +1,88 @@
+ rc←Presentation csv;table;columns;types;values;sql;current;all_cols;exists;ids;Col;evt;eid;idx;bad;event_id;title;start;description;header;presentation;presenter;data;db_pres;affiliation;name;pres_id;presentation_id;n;db_pers;person_id;organisation;code;cols;opts;ytx;yt;id;ytid;nl;url;has_url;nyt;vids
+⍝ rc:
+⍝     0: 201 Created
+⍝  else: Error
+⍝ TODO Response should include data that was created
+
+⍝ Create and update `presentation`, `presenter`, `media` and ↑outube tables
+
+ rc←0
+ →0
+⍝ presentation
+ (data cols)←⎕CSV csv'S' 1 1
+ Col←(data cols)∘{(t h)←⍺ ⋄ t[;h⍳⊆⍵]}
+ (evt eid)←↓⍉##.SQL.Do'SELECT title,id FROM event'
+ idx←evt⍳Col'event'
+ :If ∨/bad←idx>≢evt
+     rc←409('Event: ',(⊃(⊣,',',⊢)/bad/evt),' not found in event table')
+     :Return
+ :EndIf
+ event_id←eid[idx]
+ (code title)←↓⍉Col'code' 'title'
+ ⍝ TODO category_id
+ start←YYYYMM2DateTime Col'presented_at'
+ description←Col'summary'
+
+ header←'code' 'title' 'event_id' 'start' 'description'
+ presentation←header⍪code,title,event_id,start,⍪description
+
+ 'opts'⎕NS''
+ opts.table←'presentation'
+ opts.data←presentation ⎕CSV''
+ opts.compare←'code' 'event_id'
+ opts.updated_by←'DCMS.import_.Presentation'
+ ImportExternalResource opts
+
+⍝ presenter
+ db_pres←##.SQL.Do'SELECT presentation.id,presentation.code,event.title FROM presentation LEFT JOIN event ON event.id = event_id'
+
+ (name affiliation)←PresenterAffiliation Col'presenter' 'affiliation'
+ pres_id←(db_pres[;1],0)[db_pres[;3 2]⍳Col'event' 'code']
+ n←≢¨name ⋄ presentation_id←n/pres_id
+ db_pers←##.SQL.Do'SELECT id,name FROM person'
+ person_id←(db_pers[;1],0)[db_pers[;2]⍳⊃⍪⌿name]
+ organisation←⊃⍪⌿affiliation
+
+ header←'presentation_id' 'person_id' 'organisation'
+ presenter←header⍪presentation_id,person_id,⍪organisation
+
+ 'opts'⎕NS''
+ opts.table←'presenter'
+ opts.data←presenter ⎕CSV''
+ opts.compare←'person_id' 'presentation_id'
+ opts.updated_by←'DCMS.import_.Presentation'
+ ImportExternalResource opts
+
+⍝ videos media
+ data⌿⍨←has_url←((0<≢¨)>(⎕UCS 10 39)∘(∧/∊)¨)Col'video_url' ⋄ pres_id⌿⍨←has_url ⋄ Col←(data cols)∘{(d h)←⍺ ⋄ d[;h⍳⊆⍵]}
+ nl←⎕UCS 10 13 ⋄ url←nl∘(~⍤∊⍨⊆⊢)¨Col'video_url'
+ n←≢¨url ⋄ url←⊃,/url
+ (ytx yt)←ExtractYouTubeID url
+ (Col'presenter')[0~⍨∪yt×⍸n] YouTubeImport ytx
+ nyt←0~⍨∪(~yt)×⍸n  ⍝ data rows for non-youtube videos
+ vids←'title' 'url'⍪(⊂nyt)⌷Col'title' 'video_url'
+ ids←ExternalVideoImport vids
+
+ columns←⊂'type'
+ values←⍪(⊂'external_videos')@{~yt}(⊂'youtube_videos')@{yt}⊢yt
+
+ columns,←⊂'title'
+ values,←⊃,/nl∘(~⍤∊⍨⊆⊢)¨Col'video_title'
+
+ columns,←⊂'media_id'
+ sql←'SELECT id,youtube_id FROM youtube_videos'
+ (id ytid)←↓⍉##.SQL.Do sql
+ values,←(1↓ids)@{~yt}yt\(id,0)[ytid⍳ytx]
+
+ columns,←⊂'presentation_id'
+ values,←n/pres_id
+
+ columns,←⊂'url'
+ values,←((~yt)⌿url)@{~yt}yt\'/video-library/watch/?v='∘,¨ytx
+
+ 'opts'⎕NS''
+ opts.table←'media'
+ opts.data←(columns⍪values)⎕CSV''
+ opts.compare←'presentation_id' 'media_id' 'type'
+ opts.updated_by←'DCMS.import_.Video'
+ ImportExternalResource opts

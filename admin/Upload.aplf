@@ -33,15 +33,13 @@
      :Case 'Event'
          'event'UploadTable csv
      :Case 'Presentation'
-         'pres'⎕NS''
-         pres.(event code title)←↓⍉3(↑⍤1)data
-         'presentation_presenter'UploadTable csv
+         'presentation'UploadTable csv
      :Case 'Presentation Material'
          'presentation_material'UploadTable csv
-     :Case 'Video'
-         idx←pres.(event,⍪code)⍳data[;(1⌷data)⍳⊆'Event' 'Presentation Code']
-         data,←(⊂'Presentation Title')@1⊢(pres.((⍕¨code),¨': '∘,¨title)⍪'' '')[idx]
-         'video'UploadTable data ⎕CSV''
+     ⍝:Case 'Video'
+     ⍝    idx←pres.(event,⍪code)⍳data[;(1⌷data)⍳⊆'Event' 'Presentation Code']
+     ⍝    data,←(⊂'Presentation Title')@1⊢(pres.((⍕¨code),¨': '∘,¨title)⍪'' '')[idx]
+     ⍝    'video'UploadTable data ⎕CSV''
      :EndSelect
 
  :EndFor
