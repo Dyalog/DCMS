@@ -50,9 +50,6 @@
  :Else
      ytid←val⌷⍤1⍨fields⍳⊂'youtube_id'
      (val ytid)←(val ytid)⌿¨⍨⊂(~0∊⍴)¨ytid
-     :If 0=≢val
-         →53
-     :EndIf
      val←ytid{((,1 3↑⍵),(,1↑0 4↓⍵),⍨(⊣,',',⊢)/∪4⌷⍤1⊢⍵)}⌸val   ⍝ Group by YouTube ID and format multiple presenters as comma-separated lists
      #.CACHE.videos.index_all←⎕C⍕val
      dti←fields⍳⊂'published_at'
