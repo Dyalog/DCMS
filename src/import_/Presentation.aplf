@@ -7,14 +7,15 @@
 ⍝ Create and update `presentation`, `presenter`, `media` and ↑outube tables
 
  rc←0
- →0
+
 ⍝ presentation
  (data cols)←⎕CSV csv'S' 1 1
+ data⌿⍨←∧/0<≢¨data[;cols⍳⊆'event' 'code' 'title' 'presented_at' 'presenter']   ⍝ only process rows with these columns filled
  Col←(data cols)∘{(t h)←⍺ ⋄ t[;h⍳⊆⍵]}
  (evt eid)←↓⍉##.SQL.Do'SELECT title,id FROM event'
  idx←evt⍳Col'event'
  :If ∨/bad←idx>≢evt
-     rc←409('Event: ',(⊃(⊣,',',⊢)/bad/evt),' not found in event table')
+     rc←409('Events: ',(⊃(⊣,',',⊢)/bad/evt),' not found in event table')
      :Return
  :EndIf
  event_id←eid[idx]
@@ -40,7 +41,12 @@
  pres_id←(db_pres[;1],0)[db_pres[;3 2]⍳Col'event' 'code']
  n←≢¨name ⋄ presentation_id←n/pres_id
  db_pers←##.SQL.Do'SELECT id,name FROM person'
- person_id←(db_pers[;1],0)[db_pers[;2]⍳⊃⍪⌿name]
+ idx←db_pers[;2]⍳all_names←,⊃⍪⌿name
+ :If ∨/bad←idx>≢db_pers
+     rc←409('Persons: ',(⊃(⊣,',',⊢)/∪bad/all_names),' not found in person table')
+     :Return
+ :EndIf
+ person_id←db_pers[idx;1]
  organisation←⊃⍪⌿affiliation
 
  header←'presentation_id' 'person_id' 'organisation'
