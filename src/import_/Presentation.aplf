@@ -1,4 +1,4 @@
- rc←Presentation csv;table;columns;types;values;sql;current;all_cols;exists;ids;Col;evt;eid;idx;bad;event_id;title;start;description;header;presentation;presenter;data;db_pres;affiliation;name;pres_id;presentation_id;n;db_pers;person_id;organisation;code;cols;opts;ytx;yt;id;ytid;nl;url;has_url;nyt;vids
+ rc←Presentation csv;table;columns;types;values;sql;current;all_cols;exists;ids;Col;evt;eid;idx;bad;event_id;title;start;description;header;presentation;presenter;data;db_pres;affiliation;name;pres_id;presentation_id;n;db_pers;person_id;organisation;code;cols;opts;ytx;yt;id;ytid;nl;url;has_url;nyt;vids;pres;all_names
 ⍝ rc:
 ⍝     0: 201 Created
 ⍝  else: Error
@@ -64,8 +64,9 @@
  nl←⎕UCS 10 13 ⋄ url←nl∘(~⍤∊⍨⊆⊢)¨Col'video_url'
  n←≢¨url ⋄ url←⊃,/url
  (ytx yt)←ExtractYouTubeID url
- (Col'presenter')[0~⍨∪yt×⍸n] YouTubeImport ytx
- nyt←0~⍨∪(~yt)×⍸n  ⍝ data rows for non-youtube videos
+ pres←((Col'presenter'),⊂'')[yt/⍸n]   ⍝ One presentation (row) might have multiple videos (video_url) which must be linked to the same presenters (presenter)
+ pres YouTubeImport ytx
+ nyt←(~yt)/⍸n                         ⍝ Presentations which have non-youtube videos
  vids←'title' 'url'⍪(⊂nyt)⌷Col'title' 'video_url'
  ids←ExternalVideoImport vids
 
