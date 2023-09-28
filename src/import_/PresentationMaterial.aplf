@@ -17,7 +17,6 @@
      :Return
  :EndIf
  event_id←eid[idx]
- title←(⍕¨Col'code'),¨': '∘,¨Col'title'
 
 ⍝ insert: text url
 ⍝ get:    pmid
@@ -32,10 +31,10 @@
  ImportExternalResource opts
 
  db_pm←##.SQL.Do'SELECT id,text,url FROM presentation_material'
- db_pres←##.SQL.Do'SELECT presentation.id,presentation.title,event.title FROM presentation LEFT JOIN event ON event_id=event.id'
- type←⊂'media'
+ db_pres←##.SQL.Do'SELECT presentation.id,presentation.code,event.title FROM presentation LEFT JOIN event ON event_id=event.id'
+ type←⊂'presentation_material'
  media_id←(db_pm[;1],0)[db_pm[;2 3]⍳Col'link text' 'link url']
- presentation_id←(db_pres[;1],0)[db_pres[;2 3]⍳title,⍪Col'event']
+ presentation_id←(db_pres[;1],0)[db_pres[;2 3]⍳Col'code' 'event']
  title_url←Col'link text' 'link url'
  header←'title' 'url' 'type' 'presentation_id' 'media_id'
  pm_data←header⍪(0≠presentation_id)⌿title_url,type,presentation_id,⍪media_id
