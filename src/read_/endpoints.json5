@@ -1,4 +1,7 @@
 {   // These endpoints are used in read_.BuildCache. Some additional processing may be done in BuildCache function before data is pushed to endpoints.
+  featured: {
+    youtube_ids: ["iMIw2TDgEHg", "6tkUO7Wc5Tg"]
+  },
   videos: {
       fields: [
           { "field": "youtube_id",      "unicode": 0 },

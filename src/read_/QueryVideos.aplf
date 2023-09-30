@@ -30,6 +30,11 @@
      :Return
  :EndIf
 
+ :If 'featured'≡⊃qp
+     res←##.##.CACHE.videos.featured
+     :Return
+ :EndIf
+
  (p v)←↓⍉qp⌿⍨~∧/¨' '=⊢/qp            ⍝ Query (parameters values) without empty values
  v←⎕C v,⊂''
  s←' ,'((~∊⍨)⊆⊢)v⊃⍨⊂p⍳⊆'search'      ⍝ Split search terms space or comma separated
