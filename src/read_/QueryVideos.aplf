@@ -30,7 +30,7 @@
      :Return
  :EndIf
 
- :If 'featured'≡⊃qp
+ :If 'true'≡(qp⍪'' '')⊃⍨⊂(qp[;1]⍳⊂'featured')2
      res←##.##.CACHE.videos.featured
      :Return
  :EndIf
