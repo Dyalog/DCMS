@@ -19,13 +19,9 @@
 
  :For sheet :In sheets
      ⎕←'Updating ',sheet.Name,' data'
-     :If ('Video'≡sheet.Name)∧0=⎕NC'pres'
-         sheets,⍨←xl.ActiveWorkbook.Sheets[⊂'Presentation']
-         →18
-     :EndIf
      data←sheet.UsedRange.Value2
      data⌿⍨←~⌽∧\⌽∧/⎕NULL∘≡¨data   ⍝ until last non-empty row because some sheets claim to have more values
-     data←(⊂'')@(⎕NULL∘≡¨)data
+     data←(⊂'')@(⎕NULL∘≡¨)data   ⍝ CSV can't have nulls
      csv←data ⎕CSV'' 'S'
      :Select sheet.Name
      :Case 'Person'
