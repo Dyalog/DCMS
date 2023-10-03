@@ -1,4 +1,4 @@
- msg←BuildCache msg;sql;val;ucs;u;t;epd;fields;ytid;nested_matrix;endpoints;ddn;dti;per;name;grp;med;RLTB;gmat;idx;vids
+ msg←BuildCache msg;sql;val;ucs;u;t;epd;fields;ytid;nested_matrix;endpoints;ddn;dti;per;name;grp;med;RLTB;gmat;idx;vids;ListTogether
  msg←0 'OK'
 ⍝ Store pre-joined table for API Endpoint and Query results
 ⍝ Store simple character matrices for searching
@@ -28,7 +28,9 @@
 
  (fields ucs)←↓⍉↑endpoints.dtv_events.fields.(field unicode)
  val←fields⍪ucs #.DCMS.SQL.Do endpoints.dtv_events.sql
- val←'Functional Conf'{fc←⍵[;3]∊r←⊂⍺ ⋄ ~∨/fc:⍵ ⋄ (f∨~fc)⌿r@(⊂2,⍨⍸f←<\fc)⊢⍵}val   ⍝ List all FunctionalConf as one item in video library
+ ListTogether←{fc←⍵[;3]∊r←⊂⍺ ⋄ ~∨/fc:⍵ ⋄ (f∨~fc)⌿r@(⊂2,⍨⍸f←<\fc)⊢⍵}   ⍝ List all events of this type as one item in video library
+ val←'Functional Conf'ListTogether val
+ val←'LambdaConf'ListTogether val
  val←{v←{(⊂⍋⍵)⌷⍵}1↓⍵ ⋄ (1⌷⍵)⍪v⌷⍨⊂'AD'⍋↑v[;2]}val                       ⍝ Sort alphabetical, but with [A]PL and [D]yalog entries first
  #.CACHE.dtv_events←⎕JSON ⎕JSON⊂nested_matrix val
 
