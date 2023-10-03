@@ -54,6 +54,7 @@
               LEFT JOIN presentation ON event.id = presentation.event_id\
               LEFT JOIN media ON presentation.id = media.presentation_id\
               INNER JOIN youtube_videos ON youtube_videos.id = media.media_id\
+              WHERE media.type=\"youtube_videos\"\
              "
     },
     presenters: {
