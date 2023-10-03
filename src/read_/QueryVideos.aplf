@@ -1,4 +1,4 @@
- res←QueryVideos req;fields;nested_matrix;data;sort;sv;rnk;chs;v;s;Rank;filters;fv;fc;flt;idx;r;pg;ppg;p;f;t;in_range;qp;ytid;i;ddn
+ res←QueryVideos req;fields;nested_matrix;data;sort;sv;rnk;chs;v;s;Rank;flt;idx;r;pg;ppg;p;f;t;in_range;qp;ytid;i;ddn;vids;rec_query;evt;RemoveTrailingBlanks;events;fv;pres;fe;fp
 ⍝ Search database to return videos matching query parameters
 ⍝ req: HTTP Request Object from Jarvis
 ⍝ res: Table of query results
@@ -7,6 +7,7 @@
 ⍝ TODO speedup if necessary: #.CACHE.index as text vector: Trim trailing blanks, catenate with ⎕UCS 0, then ⍸ (other code points for field separators also)
  nested_matrix←2   ⍝ For conversion to JSON
 
+ vids←##.##.##.CACHE.videos
  :If 1<≢7↓req.Endpoint   ⍝ Single video
      ytid←¯1 ⎕C⊃⌽'/'(≠⊆⊢)req.Endpoint
      :If 11≠≢ytid
@@ -14,12 +15,19 @@
          'Invalid video ID'req.Fail 400
          :Return
      :EndIf
-     i←ytid⍳⍨#.CACHE.videos.(index_cols⊃⍨fields⍳⊂)'youtube_id'
-     :If i>≢#.CACHE.videos.values
+     i←ytid⍳⍨vids.(index_cols⊃⍨fields⍳⊂)'youtube_id'
+     :If i>≢vids.values
          res←req
          'Video not found'req.Fail 404
      :Else
-         res←⊃⎕JSON ⎕JSON⊂nested_matrix,⊂#.CACHE.videos.fields⍪#.CACHE.videos.values[,i;]
+         res←⊃⎕JSON ⎕JSON⊂nested_matrix,⊂vids.fields⍪vids.values[,i;]
+         rec_query←⎕NS''
+         rec_query.Endpoint←'/videos'
+         RemoveTrailingBlanks←{⍵⌿⍨⌽~∧\⌽' '=⍵}
+         events←##.##.##.CACHE.events
+         evt←events.url_slug⊃⍨events.title⍳⍥⎕C⊂RemoveTrailingBlanks i⌷vids.(index_cols⊃⍨fields⍳⊂'event')
+         rec_query.QueryParams←↑('event'evt)('per_page' '8')
+         res.recommended←QueryVideos rec_query
      :EndIf
      :Return
  :EndIf
@@ -30,23 +38,27 @@
      :Return
  :EndIf
 
- :If 'true'≡(qp⍪'' '')⊃⍨⊂(qp[;1]⍳⊂'featured')2
+ :If 'true'≡(qp⍪'' '')⊃⍨⊂(qp[;1]⍳⊂'featured')2  ⍝ Featured or recommended videos
      res←##.##.CACHE.videos.featured
      :Return
  :EndIf
 
  (p v)←↓⍉qp⌿⍨~∧/¨' '=⊢/qp            ⍝ Query (parameters values) without empty values
- v←⎕C v,⊂''
+ v←¯1 ⎕C v,⊂''
  s←' ,'((~∊⍨)⊆⊢)v⊃⍨⊂p⍳⊆'search'      ⍝ Split search terms space or comma separated
  Rank←s∘{0∊⍴⍺:1⍴⍨≢⍵ ⋄ ⊃+/∨/¨⍺⍷¨⊆⍵}   ⍝ Count number of search terms found in each row
- fc←⊂'' ⋄ idx←#.CACHE.videos.index_all
+⍝ fc←⊂'' ⋄ idx←#.CACHE.videos.index_all
  (f t)←v⌷⍨⊂p⍳'from' 'to'
- filters←⊆'presenter' 'event'
+⍝ filters←⊆'presenter' 'event'
  fields←⊆'presenter' 'event_shortname'
- fv←v⌷⍨⊂p⍳filters
+ evt←v⊃⍨p⍳⊂'event'
+ pres←' '(≠⊆⊢)v⊃⍨p⍳⊂'presenter'
  in_range←(f t)FilterDateTimes ddn←DateTimeMatrix2DDN #.CACHE.videos.(index_cols⊃⍨fields⍳⊂)'presented_at'
- fc←in_range∘⌿¨#.CACHE.videos.(index_cols⌷⍨fields∘(⊂⍤⍳))fields
- flt←⊃∧/∨/¨fv⍷¨fc
+ (fp fe)←in_range∘⌿¨#.CACHE.videos.(index_cols⌷⍨fields∘(⊂⍤⍳))fields
+⍝ names found in presenter field, in particular event but not if event is empty
+ flt←(⊃∧/∨/¨pres⍷¨⊂fp)∧(evt{∨/(⍺↑⍨⊢/⍴⍵)⍷⍵}fe)⌈(0∊⍴evt)
+ ⍝ evt(∨/⊢⍷⍨⊢/⍤⍴⍤⊢↑⊣)fe
+ ⍝ evt{∨/(⍺↑⍨⊢/⍴⍵)⍷⍵}fe
  idx←flt⌿in_range⌿#.CACHE.videos.index_all
  r←flt\Rank idx
  chs←0≠r        ⍝ Choose these rows
