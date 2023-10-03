@@ -1,0 +1,12 @@
+ ids←ExternalVideoImport data;opts;sql;id;vids
+⍝ Put 'title' and 'url' into 'external_video' table if not exists
+⍝ Return IDs of videos in database in order appears in data
+ 'opts'⎕NS''
+ opts.table←'external_video'
+ opts.data←data ⎕CSV''
+ opts.compare←1⌷data
+ opts.updated_by←'#.DCMS.import_.ExternalVideoImport'
+ ImportExternalResource opts
+ sql←'SELECT id,title,url FROM external_video'
+ (id vids)←1 1⊂##.SQL.Do sql
+ ids←(,id,0)[vids⍳data]

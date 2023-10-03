@@ -1,10 +1,13 @@
  DateTime2DDN←{
-⍝ Must be YYYY MM DD hh:mm
+⍝ YYYY MM DD hh:mm
+⍝      or
+⍝ Microsoft OLE Automation Date
 ⍝ May be delimited by :/-
      0∊⍴⍵:⊂⍬
      C←{
          11::'NaN'
          0=≢⍵:⍬
+         0=⊃0⍴⍵:1 33 ⎕DT ⍵   ⍝ Numbers come from Excel import as OLE date numbers
          spl←':/ -'((~∊⍨)⊆⊢)⍵
          4 2 2≢3↑≢¨spl:'NaN'
          ∊2⊃∘⎕VFI¨spl

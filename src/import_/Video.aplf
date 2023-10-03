@@ -1,0 +1,58 @@
+ rc←Video csv;data;Col;evt;eid;idx;event_id;ytx;yt;sql;id;ytid;i;values;pid;pres;opts;columns;types;current;all_cols;exists;ids;table
+⍝ rc:
+⍝     0: 201 Created
+⍝  else: Error
+⍝ TODO Response should include data that was created
+
+⍝ Create and update `youtube_video` and `media` tables
+⍝ TODO `presentation_materials` for these videos
+⍝      can we get video length from YT API?
+
+ rc←0
+
+ data←⎕CSV csv'S'
+ data⌿⍨←0<≢¨data[;(1⌷data)⍳⊂'URL']                              ⍝ Only process videos which have URLs
+ Col←((1⌷data)(1↓data))∘{(h t)←⍺ ⋄ t[;h⍳⍥⎕C⊆⍵]}   ⍝ Retrieve data by column name
+
+⍝ Key into event table
+ (evt eid)←↓⍉##.SQL.Do'SELECT title,id FROM event'
+ idx←evt⍳Col'event'
+ event_id←(eid,0)[idx]
+
+⍝ TABLES TO UPDATE:
+⍝ youtube_videos || get data from YT API
+⍝                   youtube_id
+⍝ media          || link videos to presentations
+⍝                   type (youtube_videos, video) title media_id (youtube_videos) url publication_date
+ (ytx yt)←ExtractYouTubeID Col'URL'
+ YouTubeImport ytx
+
+ columns←⊂'id'
+ values←⍪Col'ID'
+
+ columns,←⊂'type'
+ values,←⍪(⊂'external_videos')@{~yt}(⊂'youtube_videos')@{yt}⊢yt
+
+ columns,←⊂'title'
+ values,←Col'Video title'
+
+ columns,←⊂'media_id'
+ sql←'SELECT id,youtube_id FROM youtube_videos'
+ (id ytid)←↓⍉##.SQL.Do sql
+ i←ytid⍳ytx
+ values,←(⊂'')@{~yt}yt\(id,⊂'')[i]
+
+ columns,←⊂'presentation_id'
+ sql←'SELECT presentation.id,event.title,presentation.title FROM presentation LEFT JOIN event ON event_id=event.id'
+ (pid pres)←1 1⊂##.SQL.Do sql
+ values,←(pid⍪⊂'')⌷⍨⊂pres⍳Col'event' 'presentation title'
+
+ columns,←⊂'url'
+ values,←((~yt)⌿Col'url')@{~yt}yt\'/video-library/watch/?v='∘,¨ytx
+
+ 'opts'⎕NS''
+ opts.table←'media'
+ opts.data←(columns⍪values)⎕CSV''
+ opts.compare←'id'
+ opts.updated_by←'DCMS.import_.Video'
+ ImportExternalResource opts

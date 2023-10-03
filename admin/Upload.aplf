@@ -1,0 +1,46 @@
+ r←{workbook}Upload sheets;xl;idx;data;pres
+ :If 0=⎕NC'workbook'
+     workbook←GetEnv'WORKBOOK'
+ :EndIf
+ 'xl'⎕WC'OLEClient' 'Excel.Application'
+ xl.Workbooks.Open⊂workbook
+ xl.Visible←1
+⍝ If no sheet specified, upload all in order:
+⍝ - Person (independent)
+⍝ - Event (independent)
+⍝ - Presentation (depends Person and Event)
+⍝ - Presentation Material (depends Presentation)
+⍝ - Video
+ :If ''≡sheets
+     sheets←xl.ActiveWorkbook.Sheets ⍝[⍳xl.ActiveWorkbook.Sheets.Count].Name
+ :Else
+     sheets←xl.ActiveWorkbook.Sheets[⊆sheets]
+ :EndIf
+
+ :For sheet :In sheets
+     ⎕←'Updating ',sheet.Name,' data'
+     data←sheet.UsedRange.Value2
+     data⌿⍨←~⌽∧\⌽∧/⎕NULL∘≡¨data   ⍝ until last non-empty row because some sheets claim to have more values
+     data←(⊂'')@(⎕NULL∘≡¨)data   ⍝ CSV can't have nulls
+     csv←data ⎕CSV'' 'S'
+     :Select sheet.Name
+     :Case 'Person'
+         'person'UploadTable csv
+     :Case 'Event'
+         'event'UploadTable csv
+     :Case 'Presentation'
+         'presentation'UploadTable csv
+     :Case 'Presentation Material'
+         'presentation_material'UploadTable csv
+     ⍝:Case 'Video'
+     ⍝    idx←pres.(event,⍪code)⍳data[;(1⌷data)⍳⊆'Event' 'Presentation Code']
+     ⍝    data,←(⊂'Presentation Title')@1⊢(pres.((⍕¨code),¨': '∘,¨title)⍪'' '')[idx]
+     ⍝    'video'UploadTable data ⎕CSV''
+     :EndSelect
+
+ :EndFor
+ Refresh''
+
+
+
+ ⍝

@@ -1,0 +1,11 @@
+ GetJSON←{
+     ⍺←Secrets'upload_token'
+     url←(GetEnv'service_url'),'/',¯1 ⎕C ⍵
+     h←⎕NEW HttpCommand
+     h.Command←'GET'
+     h.TranslateData←1
+     h.Headers←0 2⍴''
+     h.Headers⍪←'Authorization'('Bearer ',⍺)
+     h.URL←url
+     h.Run
+ }

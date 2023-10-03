@@ -8,7 +8,7 @@
               LEFT JOIN youtube_videos ON youtube_videos.id = media.media_id\
               WHERE person.organisation='Dyalog Ltd'\
               ORDER BY presentation.start DESC\
-              ;",
+          ;",
 		json: [
 			"title",
 			"date",                // presentation date becomes post date to allow sorting by date in Elementor Loop Grid
@@ -23,5 +23,24 @@
 				"post_id",         // added in wp_.CPTPushTeamDyalog
 			]],
 		]
-	}
+	},
+  presentations: {
+    sql: {
+      presentation: "SELECT presentation.id,event.title,presentation.code,presentation.title,presentation.description FROM presentation\
+                            LEFT JOIN event ON presentation.event_id=event.id\
+                    ;",
+      presenter: "SELECT presentation.id,person.name,presenter.organisation FROM presentation\
+                         LEFT JOIN presenter ON presentation_id=presentation.id\
+                         LEFT JOIN person ON person_id=person.id\
+                  ;",
+      material: "SELECT presentation.id,presentation_material.text,presentation_material.url FROM presentation\
+                        LEFT JOIN media ON presentation.id=media.presentation_id\
+                        LEFT JOIN presentation_material ON presentation_material.id=media_id\
+                        WHERE media.type=\"presentation_material\"\
+                ;"
+    },
+    json: {
+      presentation: ""
+    }
+  }
 }

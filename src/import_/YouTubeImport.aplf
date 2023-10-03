@@ -1,10 +1,17 @@
- msg←YouTubeImport ytid;url;key;video_data;Thumbnail;exists;ids;columns;types;dt_cols
+ msg←{pres}YouTubeImport ytid;url;key;video_data;Thumbnail;exists;ids;columns;types;dt_cols;names;leading_blanks_newlines;remove_leading_names_blanks
  msg←0   ⍝ OK
+ ytid←,⊆ytid
 ⍝ TODO: data caching with eTags
+ :If 0=⎕NC'pres'
+     pres←,⊂''
+ :EndIf
  url←#.GLOBAL.secrets.youtube
  key←#.GLOBAL.secrets.youtube_key
  video_data←GetYouTubeVideos ytid
  video_data,←'https://youtu.be/'∘,¨video_data[;1]       ⍝ Add youtube_url
+ names←(⎕UCS 10)(≠⊆⊢)¨pres
+ remove_leading_names_blanks←{('[\r,\n,\s]+',⍨'^',⊃(⊣,'.*',⊢)/⍵)}¨names
+ video_data[;3]←remove_leading_names_blanks{0::⍵ ⋄ ⍺ ⎕R''⍠'Mode' 'D'⊢⍵}¨video_data[;3]   ⍝ Remove presenter names from first line of description
  (exists ids)←ExistingYouTubeVideoIDs video_data[;1]
  (columns types)←ColumnInformation'youtube_videos'
  (columns types)←(~columns∊⊆'id' 'created_at' 'updated_at' 'updated_by')∘/¨columns types   ⍝ Remove these auto-generated columns

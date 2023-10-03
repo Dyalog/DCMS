@@ -1,0 +1,13 @@
+ VideosCache←{
+     (val fields)←⍵
+     ytid←val⌷⍤1⍨fields⍳⊂'youtube_id'
+     (val ytid)←(val ytid)⌿¨⍨⊂(~0∊⍴)¨ytid
+     val←ytid{((,1 3↑⍵),(,1↑0 4↓⍵),⍨(⊣,',',⊢)/∪4⌷⍤1⊢⍵)}⌸val   ⍝ Group by YouTube ID and format multiple presenters as comma-separated lists
+     index_all←⎕C⍕val
+     dti←fields⍳⊂'published_at'
+     ddn←{Days∊(2⊃⎕VFI)¨⍵}¨'- :'∘((~∊⍨)⊆⊢)¨(⍉val)⌷⍨dti        ⍝ Dyalog Day Numbers for date range filtering (from=&to=YYYY-MM-DD)
+     RLTB←{⍵⌿⍤1⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}                             ⍝ Remove Leading and Trailing Blanks
+     index_cols←RLTB¨⎕C⍕∘⍪¨↓⍉val               ⍝ TODO probably shouldn't lower case YouTube IDs
+     index_cols[dti]←⊂ddn
+     index_all index_cols fields val
+ }

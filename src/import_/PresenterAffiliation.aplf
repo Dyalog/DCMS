@@ -1,0 +1,9 @@
+ PresenterAffiliation←{
+⍝ ⍵: presenter, affiliation columns from DCMS.xlsx/Presentation sheet
+⍝ ←: vector of vectors (presenter)(affiliation)
+     nl←⎕UCS 10
+     p←⍪¨nl∘(≠⊆⊢)¨⍵[;1]
+     n←≢¨p
+     a←⍪¨n↑¨(1↓¨⊢⊂⍨nl=⊢)∘(nl∘,)¨⍵[;2]
+     p a
+ }
