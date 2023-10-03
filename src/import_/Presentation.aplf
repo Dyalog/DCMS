@@ -15,7 +15,7 @@
  (evt eid)←↓⍉##.SQL.Do'SELECT title,id FROM event'
  idx←evt⍳Col'event'
  :If ∨/bad←idx>≢evt
-     rc←409('Events: ',(⊃(⊣,',',⊢)/bad/evt),' not found in event table')
+     rc←409('Events: ',(⊃(⊣,',',⊢)/∪bad/Col'event'),' not found in event table')
      :Return
  :EndIf
  event_id←eid[idx]
