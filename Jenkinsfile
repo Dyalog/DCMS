@@ -11,7 +11,7 @@ node ('Docker') {
 	}
 	stage ('Update Dyalog') {
 		withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
-			DockerDyalog=docker.image('dyalog/dyalog:odbc')
+			DockerDyalog=docker.image('dyalog/dyalog:18.2')
 			DockerDyalog.pull()
 		}
 	}
