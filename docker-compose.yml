@@ -2,7 +2,7 @@ version: "2"
 
 services:
     web:
-        image: dyalog/dyalog:odbc
+        image: dyalog/dyalog:18.2
         volumes:
         - ${PWD}:/app
         - ${PWD}/data:/data
