@@ -33,6 +33,9 @@
      update_columns←columns,⊂'id'
      update_spec←cpt.team_dyalog_videos.json,⊂'id'
      update_posts←update_spec CPTBuildRequest update update_columns
+ :Else
+     pid←⍬
+     update_posts←' '
  :EndIf
 
 ⍝ Publish recent videos from Latest not found in posts from WordPress

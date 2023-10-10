@@ -1,4 +1,4 @@
- r←{workbook}Upload sheets;xl;idx;data;pres
+ r←{workbook}Upload sheets;xl;idx;data;pres;nulls
  :If 0=⎕NC'workbook'
      workbook←GetEnv'WORKBOOK'
  :EndIf
@@ -20,7 +20,6 @@
  :For sheet :In sheets
      ⎕←'Updating ',sheet.Name,' data'
      data←sheet.UsedRange.Value2
-     data⌿⍨←~⌽∧\⌽∧/⎕NULL∘≡¨data   ⍝ until last non-empty row because some sheets claim to have more values
      data←(⊂'')@(⎕NULL∘≡¨)data   ⍝ CSV can't have nulls
      csv←data ⎕CSV'' 'S'
      :Select sheet.Name
