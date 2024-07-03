@@ -1,0 +1,48 @@
+ Presentation←{
+⍝ Construct list of JSON objects from table
+     h←1⌷⍵
+     d←1↓⍵
+⍝ Get data for relational table IDs
+     0=≢person←(Get'person').Data:'No persons in database'⎕SIGNAL 5
+     0=≢event←(Get'event').Data:'No events in database'⎕SIGNAL 5
+     type←(Get'presentation_type').Data
+     category←(Get'category').Data
+
+     d[;col]←(event.id,0)[event.title⍳d[;col←h⍳⊂'event']]   ⍝ Event title → Event ID
+     d⌿⍨←0≠d[;col]
+     d[;col]←(type.id,0)[type.type⍳d[;col←h⍳⊂'type']]       ⍝ Type → Type ID
+
+     Pres←{
+         Col←⍵∘{⍺⊃⍨h⍳⊂⍵}
+         r←⎕NS''
+         r.title←Col'title'
+         r.event←Col'event'
+         r.code←Col'code'
+         r.type_id←Col'type'
+         r.presented_at←⊃'YYYY-MM-DD hh:mm'FormatDateTime 1 ⎕DT(//)'-'⎕VFI Col'presented_at'
+         Split←(⎕UCS 10 13)∘(~⍤∊⍨⊆⊢)
+         r.presenter←⎕NS¨''⍨¨name←Split Col'presenter'
+         r.presenter.person←person.id[person.name⍳⊆name]
+         r.presenter.affiliation←(≢r.presenter)↑Split Col'affiliation'
+         r.description←Col'summary'
+         vtitle←Split Col'video_title'
+         0∊⍴vtitle:r⊣r.videos←⍬
+         r.videos←⎕NS¨''⍨¨vtitle
+         r.videos.title←vtitle
+         r.videos.youtube_id←ExtractYouTubeID Split Col'video_url'
+         r
+     }
+
+     p←(Pres⍤1)d⌿⍨0<≢¨(⎕UCS 10 13)∘(~⍤∊⍨⊆⊢)¨d[;h⍳⊂'presenter']
+
+⍝     p←(Pres⍤1)d⌿⍨d[;h⍳⊂'event']∊17
+
+     opt←⎕NS''
+     opt.url←(##.GetEnv'service_url'),'/presentation'
+     opt.token←##.Secrets'upload_token'
+     opt.data←p
+
+     req←BuildRequest opt
+     req.Run
+⍝ Post to DCMS
+ }

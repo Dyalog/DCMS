@@ -1,0 +1,15 @@
+ PresentationMaterial←{
+     0=≢pres←(##.Get'presentation').Data:'No presentations in database'⎕SIGNAL 5
+     0=≢evt←(##.Get'event').Data:'No events in database'⎕SIGNAL 5
+
+     Col←⍵∘{⍺[;(1⌷⍺)⍳⍥⎕C⊆⍵]}
+
+     etitle←(evt.title,⊂'')[evt.id⍳pres.event_id]
+     pid←(pres.id,0)[(etitle,⍪pres.code)⍳Col'event' 'code']
+
+     data←pid,Col'link text' 'link url'
+     data⌿⍨←0≠⊣/data
+     data⍪⍨←'presentation_id' 'text' 'url'
+
+     'presentation_material'Table data
+ }

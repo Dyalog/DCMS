@@ -1,4 +1,4 @@
- r←{workbook}Upload sheets;xl;idx;data;pres;nulls
+ {r}←{workbook}Upload sheets;xl;idx;data;pres;nulls;type;etype;sheet
  :If 0=⎕NC'workbook'
      workbook←GetEnv'WORKBOOK'
  :EndIf
@@ -21,25 +21,20 @@
      ⎕←'Updating ',sheet.Name,' data'
      data←sheet.UsedRange.Value2
      data←(⊂'')@(⎕NULL∘≡¨)data   ⍝ CSV can't have nulls
-     csv←data ⎕CSV'' 'S'
+     data⌿⍨←~∧/0=≢¨data
      :Select sheet.Name
-     :Case 'Person'
-         'person'UploadTable csv
-     :Case 'Event'
-         'event'UploadTable csv
-     :Case 'Presentation'
-         'presentation'UploadTable csv
-     :Case 'Presentation Material'
-         'presentation_material'UploadTable csv
-     ⍝:Case 'Video'
-     ⍝    idx←pres.(event,⍪code)⍳data[;(1⌷data)⍳⊆'Event' 'Presentation Code']
-     ⍝    data,←(⊂'Presentation Title')@1⊢(pres.((⍕¨code),¨': '∘,¨title)⍪'' '')[idx]
-     ⍝    'video'UploadTable data ⎕CSV''
+     :Case 'person'
+         ⎕←r←'person'upload.Table data
+     :Case 'event'
+         ⎕←r←upload.Event data
+     :Case 'event_type'
+         ⎕←r←upload.EType data
+     :Case 'presentation'
+         ⎕←r←upload.Presentation data
+     :Case 'presentation_type'
+         ⎕←r←upload.PresentationType data
+     :Case 'presentation_material'
+         ⎕←r←upload.PresentationMaterial data
      :EndSelect
 
  :EndFor
- ⍝Refresh''
-
-
-
- ⍝

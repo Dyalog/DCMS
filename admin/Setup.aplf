@@ -1,2 +1,2 @@
-Setup;x2a
+Setup
 ⎕SE.Link.Import ⎕THIS (GetEnv'HttpCommand')

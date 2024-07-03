@@ -1,4 +1,5 @@
- GetJSON←{
+ Get←{
+⍝ Retrieve resource from DCMS
      ⍺←Secrets'upload_token'
      url←(GetEnv'service_url'),'/',¯1 ⎕C ⍵
      h←⎕NEW HttpCommand

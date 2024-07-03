@@ -1,0 +1,7 @@
+ PresentationType←{
+     pt←(Get'presentation_type').Data
+     data←⍵⌿⍨0<≢¨⊣/⍵
+     0∊⍴pt:'presentation_type'Table data
+     id←(pt.id,0)[pt.type⍳data]
+     'presentation_type'Table data
+ }

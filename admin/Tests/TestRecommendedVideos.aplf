@@ -1,0 +1,6 @@
+ TestRecommendedVideos←{
+     ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'videos/recommended'
+     G←url∘HttpGet
+     _←Assert((⊢≡∪)∧(6=≢))(G'?v=itGiA56NSl8&n=6')
+     1
+ }

@@ -1,0 +1,10 @@
+ ExistingIDs←{
+     (table match_col)←1 1⊂⍺
+     0∊⍴exist←(Get⊃table).Data:⍵,(⊂'id'),(¯1+≢⍵)⍴⊂⍬
+     MergeID←{
+         r←⍵
+         r,←(⊂'id'),(exist.id,0)[(exist∘.⍎match_col)⍳1↓⍵[;(1⌷⍵)⍳⊆match_col]]
+         r
+     }
+     exist MergeID ⍵
+ }

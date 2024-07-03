@@ -1,0 +1,8 @@
+ EType←{
+     et←(Get'event_type').Data
+     data←⍵⌿⍨0<≢¨⊣/⍵
+     0∊⍴et:'event_type'Table data
+     id←(et.id,0)[et.type⍳data]
+     ⍝data←⍵,(⊂'id')@1⊢id
+     'event_type'Table data
+ }

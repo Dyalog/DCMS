@@ -3,12 +3,13 @@
 		MAXWS:          "2G",
 		DYALOG_VERSION:  18.2,
 
-    service_url:    "http://localhost:8081",
-		app_dir:        "/g/DCMS",
-		SECRETS:        "[app_dir]/secrets/secrets.json5",
-    WORKBOOK:       "/d/website/DCMS.xlsx",
+		service_url:    "http://localhost:8081",
+		dcms_dir:       "/g/DCMS3",
+		admin_dir:      "[dcms_dir]/admin",
+		SECRETS:        "[dcms_dir]/secrets/secrets.json5",
+		WORKBOOK:       "/d/website/DCMS.xlsx",
 
-		HttpCommand: "[app_dir]/packages/HttpCommand.dyalog",
+		HttpCommand:    "/d/APL/packages/HttpCommand.dyalog",
 
 		LX:           "⎕←⎕SE.Link.Create 'DCMS_ADMIN',⍥⊂⎕SE.Link.LaunchDir ⋄ DCMS_ADMIN.Setup ⋄ ⎕CS DCMS_ADMIN",
 	}

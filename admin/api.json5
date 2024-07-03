@@ -1,0 +1,88 @@
+{
+  // Schema description based on simple template notation
+  "/person": {
+    GET: [""],   // Returns a list of strings
+    POST: [      // Accepts a list of objects
+      {
+        id:0, name: "",
+        role: "", organisation: "", role_summary: "", description: "",
+        location: "", picture: "", url_slug: ""
+      }
+    ]
+  },
+  "/event": {
+    POST: [{
+      id:0, title: "", start: "YYYY-MM-DD", end: "YYYY-MM-DD",
+      type:"", url_slug: "",
+      location: "", physical: false, digital: false,
+      event_logo: "", event_icon: ""
+    }]
+  },
+  "/category": {},
+  "/presentation_type": {},
+  "/presentation": {
+    POST: [{
+      id: 0, code: "", title: "", description: "", abstract: "", presented_at: "YYYY-MM-DD hh:mm:ss",
+      type: 0,       // ID into presentation_type table
+      category: 0,   // ID into presentation_category table
+      event: 0,      // ID into event table
+      location: "",
+      videos: [{title: "", youtube_id:""}],
+      materials: [{text: "", url:""}],
+      presenter: [{person: 0, affiliation:""}]
+    }]
+  },
+  "/presenter": {},
+  "/videos": {
+    GET: {
+      query: [{
+        search: "",      // Space-separated search terms across all fields
+        per_page: 0,     // Results per page
+        page: 0,         // Return this page
+        sort: "",        // newest, oldest, relevance
+        from: "",        // YYYY-MM-DD
+        to: "",          // YYYY-MM-DD
+        presenter: "",   // Space-separated person names - TODO DCMS ID
+        event: "",       // Event shortname / code
+      }],
+      result: [{
+        from: 0,
+        to: 0,
+        total: 0,
+        per_page: 0,
+        page: 0,
+        last_page: 0,      
+        first_page_url: "", prev_page_url: "", next_page_url: "", last_page_url: "",
+        path: "",
+        data: [{
+          title: "",
+          event: "",
+          event_shortname: "",
+          description: "",
+          presenter: "",
+          presented_at: "YYYY-MM-DD hh:mm:ss",
+          published_at: "YYYY-MM-DD hh:mm:ss",
+          category: "",
+          url: "",
+          youtube_id: "",
+          youtube_url: "",
+          thumbnail: ""
+        }]
+      }]
+  },
+  "/videos/ID": [],
+  "/tables": {
+    GET: [""],
+    GET: [
+      {
+        name: "",
+        columns: [""],
+        types: [""]
+      }
+    ]
+  },
+  "todo": "need some way for the front end to understand how to build forms. \
+           I think it should be able to obtain this API description or maybe openapi schema\
+           to know? maybe this doesn't need to be automated. \
+           "
+}

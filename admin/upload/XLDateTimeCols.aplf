@@ -1,0 +1,10 @@
+ XLDateTimeCols←{
+     r←⍵
+     dt_cols←(1⌷⍵)⍳⊆⍺
+     times←1↓⍵[;dt_cols]
+     times-←1   ⍝ XL dates off by one: https://learn.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year
+     valid←,0<≢¨times
+     dt←(⍴times)⍴valid/¨valid\'YYYY-MM-DD hh:mm:ss'FormatDateTime valid/,times
+     r[;dt_cols]←⍺⍪dt
+     r
+ }

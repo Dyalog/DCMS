@@ -3,16 +3,17 @@
      ⍺←'POST'
 ⍝       ⍵: parameter namespace
 ⍝   ⍵.url: endpoint URL
-⍝  ⍵.data: CSV data as text
+⍝  ⍵.data: JSON data as text
 ⍝ ⍵.token: bearer authorization token
 
-     h←⎕NEW HttpCommand
+     h←⎕NEW ##.HttpCommand
      h.URL←⍵.url
      h.Command←⍺
      h.Headers←0 2⍴''
-     h.Headers⍪←'Content-Type' 'text/csv; charset=utf-8'
+     h.Headers⍪←'Content-Type' 'application/json; charset=utf-8'
      h.Headers⍪←'Authorization'('Bearer ',⍵.token)
      h.Params←⍵.data
+     h.TranslateData←1
      h.Timeout←300
      h
  }
