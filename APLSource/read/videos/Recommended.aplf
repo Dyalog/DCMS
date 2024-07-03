@@ -1,0 +1,11 @@
+ r←Recommended req;ytid;vids;this;fields;fid;rec;Q;n
+⍝ Recommended videos should come from a separate query
+ Q←{⊃(req.QueryParams⍪⊂'')[req.QueryParams[;1]⍳⊂,⍵;2]}
+ ytid←Q'v'
+ n←2⊃⎕VFI Q'n'
+ vids←##.##.CACHE.videos
+ this←(vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id')⍳ytid
+ fields←'title' 'event' 'event_shortname' 'presented_at' 'category' 'url' 'youtube_id' 'thumbnail' 'presenter'
+ fid←vids.fields⍳fields
+ rec←vids.recommended[this;⍳n]
+ r←##.Table2JSON fields⍪##.##.CACHE.videos.values[rec;fid]

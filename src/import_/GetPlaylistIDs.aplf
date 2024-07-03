@@ -1,7 +1,0 @@
- GetPlaylistIDs←{
-     query←url,'playlists?'
-     query,←'channelId=',⍵
-     query,←'&key=',key
-     query,←'&part=snippet,contentDetails&maxResults=50'
-     #.HttpCommand.GetJSON'Get'query
- }

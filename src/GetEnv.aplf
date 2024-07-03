@@ -1,1 +1,0 @@
- GetEnv←{⊢2 ⎕NQ #'GetEnvironment'⍵}

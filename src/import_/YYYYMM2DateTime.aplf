@@ -1,5 +1,0 @@
- YYYYMM2DateTime←{
-⍝ ⍵: Date-time(s) formatted 'YYYY-MM'
-⍝ ←: Date-time(s) formatted 'YYYY-MM-DD'
-     'YYYY-MM-DD'(1200⌶)1 ⎕DT'-'(2⊃⎕VFI)¨⊆⍵
- }

@@ -1,2 +1,0 @@
- res←QueryEvents qp
- res←#.CACHE.events

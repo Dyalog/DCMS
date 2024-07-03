@@ -1,8 +1,0 @@
- GetPlaylistIDsTitles←{
-     q←url,'playlists?'
-     q,←'channelId=',⍵
-     q,←'&key=',key
-     q,←'&part=snippet,contentDetails&maxResults=50'
-     r←#.HttpCommand.GetJSON'Get'q
-     (r.Data.items.id)(r.Data.items.snippet.title)
- }

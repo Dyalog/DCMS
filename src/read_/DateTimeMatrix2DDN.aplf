@@ -1,6 +1,0 @@
- DateTimeMatrix2DDN←{
-⍝ ⍵: Character matrix of 'YYYY-MM-DD hh:mm:ss' datetime rows
-⍝ ←: Numeric vector of Dyalog Date Numbers
-⍝ Replace '-:' with ' ' in character matrix, convert to numeric ⎕TS-style vectors and then to DDN using ⎕DT
-     ¯1 1 ⎕DT 2⊃∘⎕VFI¨↓s\⍵/⍨s←(1⌷⍵)(~∊)'-:'
- }

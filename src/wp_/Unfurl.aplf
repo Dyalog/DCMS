@@ -1,8 +1,0 @@
- Unfurl←{
-    ⍝ Return depth-1 leaf nodes. Could probably be improved
-     (d l)←(≡,≢)⍵
-     3=|d:⊃,/∇¨⊢/⍵   ⍝ Unpack object
-     1=d:⊂⍵          ⍝ Leaf node
-     2=d:⍵           ⍝ List of leaf nodes
-     ⊃,/∇¨⍵
- }

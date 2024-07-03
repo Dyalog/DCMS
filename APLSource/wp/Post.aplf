@@ -1,0 +1,19 @@
+ r←Post info;url;name;pass;h;wp
+ :If 0≡info ⋄ r←'' ⋄ →0 ⋄ :EndIf   ⍝ info is a prototype if the list is empty
+ wp←##.GLOBAL.secrets.wordpress
+ url←wp.url
+ name←wp.user
+ pass←wp.token~' '
+ h←##.##.HttpCommand.New'POST'
+ h.URL←url,info.endpoint
+ 'Accept-Encoding'h.AddHeader'gzip,deflate'
+ h.Auth←name pass
+ h.TranslateData←1  ⍝ Automatically convert JSON response to namespace
+ h.Params←info
+ r←h.Run
+ :If 0≠r.rc
+     420 ⎕SIGNAL⍨r.msg
+ :ElseIf 201 207(~∨/⍤∊)r.HttpStatus
+     512 ⎕SIGNAL⍨'WordPress CPTCreate POST FAILED: ',r.(⍕HttpStatus),' ',r.HttpMessage
+ :EndIf
+ r←r.Data

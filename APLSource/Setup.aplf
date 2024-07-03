@@ -1,0 +1,31 @@
+ Setup debug;app_dir;LoadDependency
+ ⎕←'Setting up...'
+ 'GLOBAL'⎕NS''
+ :If 0∊⍴debug
+     GLOBAL.debug←⍬⍴GetEnv'debug'
+ :Else
+     GLOBAL.debug←debug
+ :EndIf
+ ⎕←'Loading dependencies...'
+ 'SQA'SQL.⎕CY'sqapl'
+ LoadDependency←{0=##.⎕NC ⍵:⎕SE.Link.Import ##,⍥⊂GetEnv ⍵}
+ LoadDependency¨'Jarvis' 'HttpCommand'
+ ⎕←'Setting app_dir'
+ GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
+ Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
+ GLOBAL.secrets←ReadJSON GetEnv'SECRETS'
+ ⎕←'Initialising SQAPL...'
+ ⎕←SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
+ ⎕←SQL.SetupSchema ⍬
+ ⎕←SQL.ProcessTableInformation ⍬
+ ⎕←read.BuildCache''
+ :If 0=⎕NC'service'
+     service←⎕NEW ##.Jarvis
+     service.CodeLocation←⎕THIS
+     service.Paradigm←'REST'
+     service.Port←2⊃⎕VFI GetEnv'service_port'
+     service.url←(GetEnv'service_url'),':',⍕service.Port
+     service.Debug←debug
+     service.AcceptFrom←GetEnv'allow_from'
+     service.Start
+ :EndIf

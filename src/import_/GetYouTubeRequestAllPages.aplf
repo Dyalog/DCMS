@@ -1,7 +1,0 @@
- GetYouTubeRequestAllPages←{
-     q←⍺
-     q,←'&pageToken='
-     r←#.HttpCommand.GetJSON'Get'q
-
-     r.Data.items.snippet.(channelId channelTitle description playlistId publishedAt resourceId.videoId title)
- }

@@ -1,0 +1,17 @@
+ res←Post req
+ :If 0<GLOBAL.debug ⋄ last←req ⋄ :EndIf
+ res←auth.VerifyToken req
+ :If ~∨/401 403∊res.Status
+     :Hold 'SQL.db'
+         :Select req.Endpoint
+         :CaseList '/person' '/event' '/event_type' '/presentation_type'
+             res←req.Endpoint import.Table req
+         :Case '/presentation'
+             res←import.Presentation req
+         :Case '/presentation_material'
+             res←import.PresentationMaterial req
+         :Else
+             res←req.Fail 404
+         :EndSelect
+     :EndHold
+ :EndIf

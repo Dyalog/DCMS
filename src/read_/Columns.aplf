@@ -1,4 +1,0 @@
- Columns←{
-     0∊⍴⍵:#.GLOBAL.columns
-     ⎕JSON⎕JSON⊂2,⊂'column' 'type' 'type_name'⍪⍉↑#.GLOBAL.(columns types type_names⊃¨⍨tables⍳⍵[⍵[;1]⍳⊂'table';2])
- }

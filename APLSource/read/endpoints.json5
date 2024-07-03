@@ -1,0 +1,41 @@
+{
+    presenters: {
+        sql: "SELECT DISTINCT name FROM person\
+                LEFT JOIN presenter ON presenter.person_id = person.id\
+                LEFT JOIN presentation ON presenter.presentation_id = presentation.id\
+                LEFT JOIN presentation_media AS pm ON pm.presentation_id = presentation.id\
+                WHERE pm.type = \"youtube_video\""
+    },
+
+    videos: {
+        fields: ["title", "event", "event_shortname", "description", "presented_at", "published_at", "category", "url"
+                , "youtube_id", "thumbnail", "presenter"],
+        sql: "SELECT yt.title, e.title, e.url_slug, yt.description, p.presented_at, yt.published_at\
+                    ,c.category, yt.url, yt.youtube_id, yt.thumbnail\
+                FROM presentation AS p\
+                LEFT JOIN event AS e ON e.id = p.event_id\
+                LEFT JOIN presentation_media AS m ON m.presentation_id = p.id\
+                LEFT JOIN youtube_video AS yt ON yt.id = m.media_id\
+                LEFT JOIN presentation_category AS c ON c.id = p.category_id\
+                WHERE m.type = \"youtube_video\"",
+        presenter: {
+            sql: "SELECT yt.youtube_id,per.name\
+                    FROM presentation AS p\
+                    RIGHT JOIN event AS e ON e.id = p.event_id\
+                    INNER JOIN presentation_media AS m ON m.presentation_id = p.id\
+                    INNER JOIN youtube_video AS yt ON yt.id = m.media_id\
+                    RIGHT JOIN presenter AS pres ON pres.presentation_id = p.id\
+                    RIGHT JOIN person AS per ON pres.person_id = per.id\
+                    WHERE m.type = \"youtube_video\""
+        }
+    },
+
+    dtv_events: {
+        fields: ["id", "title", "type", "url_slug"],
+        sql: "SELECT DISTINCT e.id,e.title,pt.type,e.url_slug FROM event AS e\
+                INNER JOIN presentation ON presentation.event_id = e.id\
+                INNER JOIN presentation_media AS pm ON pm.presentation_id = presentation.id\
+                INNER JOIN presentation_type AS pt ON presentation.type_id = pt.id\
+                WHERE pm.type = \"youtube_video\""
+    }
+}

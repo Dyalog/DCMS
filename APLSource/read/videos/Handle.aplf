@@ -1,0 +1,10 @@
+ res←Handle req
+ :If 8<≢req.Endpoint
+     :If 'recommended'≡8↓req.Endpoint
+         res←Recommended req
+     :Else
+         res←Single req
+     :EndIf
+ :Else
+     res←Query req
+ :EndIf

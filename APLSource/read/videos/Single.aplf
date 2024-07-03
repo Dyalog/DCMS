@@ -1,0 +1,18 @@
+ res←Single req;CACHE;ytid;idx;id
+ CACHE←##.##.CACHE
+
+ id←8↓req.Endpoint
+ :If 11≠≢id
+     res←req.Fail 400
+     :Return
+ :EndIf
+
+ ytid←CACHE.videos.index_cols⊃⍨CACHE.videos.fields⍳⊂'youtube_id'
+ idx←ytid⍳id
+
+ :If idx>≢ytid
+     ⍝'Video ',id,'not found'⎕SIGNAL 404
+     res←req.Fail 404
+ :Else
+     res←⊃##.Table2JSON CACHE.videos.fields⍪(CACHE.videos.values⍪⊂'')[,ytid⍳id;]
+ :EndIf

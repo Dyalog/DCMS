@@ -1,0 +1,24 @@
+ res←Get req
+ :If 0<GLOBAL.debug
+     ⎕←req.Endpoint
+     last←req
+ :EndIf
+ :Trap GLOBAL.debug↓0
+     res←req.Response
+     res.Headers←0 2⍴''
+     res.Headers⍪←'Access-Control-Allow-Origin'service.AcceptFrom
+     res.Headers⍪←'Access-Control-Allow-Headers' '*'
+
+     req.Endpoint←{⍵⌿⍨1(⊢∨⌽)'/'≠⍵}req.Endpoint   ⍝ Remove multiple slashes
+     :If req.Endpoint StartsWith'/videos'
+         res←read.videos.Handle req
+     :ElseIf (0∊⍴req.QueryParams)∧req.Endpoint StartsWith'/person' '/event' '/event_type' '/presentation'
+         res←read.Table 1↓req.Endpoint
+     :ElseIf (0∊⍴req.QueryParams)∧req.Endpoint StartsWith'/presenters' '/dtv_events'
+         res←CACHE⍎1↓req.Endpoint
+     :Else
+         req.Fail 404
+     :EndIf
+ :Else
+     req.Fail 500
+ :EndTrap

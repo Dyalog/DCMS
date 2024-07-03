@@ -1,8 +1,0 @@
- FilterDateTimes←{
-     (f t)←⍺
-     0∧.=∊⍴¨f t:1⍨¨⍵
-     (('-'=f)/f)←' ' ⋄ (('-'=t)/t)←' '
-     (f t)←Days¨(2⊃⎕VFI)¨f t
-     (f t)←(f t×0<f t)+0 1000000×0>f t   ⍝ {0<f:f⋄0} ∧ {0<t:t⋄1e6} from 0 days to 1e6 days if (f)rom or (t)o not specified respectively
-     f t(1=4 9⍸⍳+3×⍸)⍵                   ⍝ ←: Boolean mask of dates in range
- }

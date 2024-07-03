@@ -1,6 +1,0 @@
- ColumnInformation←{
-     t←#.GLOBAL.tables⍳⊆⍵
-     t⊃¨#.GLOBAL.(columns type_sqapl)
-⍝     id←(⊃i)⍳⊂'id'
-⍝     {⍵[id~⍨⍳≢⍵]}¨i
- }

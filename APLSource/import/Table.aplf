@@ -1,0 +1,25 @@
+ res←table Table req;opts;SQL;data;id;bulk_data;remove_cols;JSON2Table;cols;idx
+ table←table⌿⍨~<\'/'=table
+ res←req.Response
+ res.Status←201
+ res.StatusText←'Created'
+⍝ Update SQL database table from list of JSON objects
+ SQL←##.SQL
+ data←req.Payload
+ id←,SQL.Do'SELECT id FROM ',table
+ opts←⎕NS''
+ opts.table←table
+ opts.exists←(≢id)≥idx←id⍳data.id   ⍝ Existing IDs
+ opts.ids←opts.exists/(id,0)[idx]   ⍝ In correct order
+ opts.columns←(##.GLOBAL.(columns⊃⍨tables⍳⊆)table)
+ opts.types←##.GLOBAL.(type_sqapl⊃⍨tables⍳⊆)table
+ remove_cols←opts.columns(~∊)⊆'created_at' 'updated_at' 'early_bird' ⍝ TODO remove table-specific columns elsewhere
+ opts.columns⌿⍨←remove_cols
+ opts.types⌿⍨←remove_cols
+ JSON2Table←{m←0 ⎕JSON ⎕OPT'M'⊢1 ⎕JSON ⍵ ⋄ ⍉m[;2]⊂⍤,⌸m[;3]}   ⍝ Group data by fields (doesn't work with nested fields)
+ bulk_data←opts.columns⍪↑opts.columns∘{(c d)←⍺ ⍵ ⋄ d∘{6::'' ⋄ ⍺⍎⍵}¨c}¨data ⍝ ⍉↑1↓JSON2Table data
+ opts.values←,¨1↓(bulk_data,⊂'')[;bulk_data[1;]⍳opts.columns]
+ CreateUpdate opts
+⍝ Response payload is created/updated values as list of JSON objects
+ cols←(opts.columns∊'id' 'updated_by')⍱∨⌿0=≢¨opts.values
+ res←SQL.Do'SELECT * FROM ',opts.table,' WHERE ',⊃(⊣,' AND ',⊢)/(cols/opts.columns),¨' IN '∘,¨{'('@1⊢')'@(≢⍵)⊢⍵}¨1∘⎕JSON¨↓⍉cols/⍕¨opts.values

@@ -1,0 +1,7 @@
+ FilterDateTimes←{
+     (fm to)←⍺
+     ∧/dir←0>fm to:1⍨¨⍵
+     1 0≡dir:to≥⍵
+     0 1≡dir:fm≤⍵
+     (fm∘≤∧to∘≥)⍵
+ }

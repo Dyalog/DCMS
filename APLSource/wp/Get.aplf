@@ -1,0 +1,19 @@
+ Get←{
+⍝ ⍵: endpoint
+⍝ ⍺: page of results to get
+     ⍺←1
+⍝ ←: JSON object? list of JSON objects
+
+     h←##.##.HttpCommand.New'GET'
+     and←'?&'[1+'?'∊⍵]
+     wp←##.GLOBAL.secrets.wordpress
+     h.URL←wp.url,'wp/v2/',⍵,and,'page=',⍕⍺
+     name←wp.user ⋄ pass←wp.token~' '
+     h.Auth←name pass
+     h.TranslateData←1   ⍝ Automatically convert JSON response to namespace
+     r←h.Run
+     400=r.HttpStatus:''   ⍝ No more pages: return
+     200≠r.HttpStatus:r.HttpMessage ⎕SIGNAL r.HttpStatus   ⍝ ERROR
+     0=≢r.Data:''
+     r.Data,(⍺+1)∇ ⍵
+ }

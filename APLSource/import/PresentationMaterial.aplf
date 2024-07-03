@@ -1,0 +1,39 @@
+ r←PresentationMaterial req;SQL;data;opts;current;mg;mid;pid;req_data;sql;res_data
+ SQL←##.SQL
+ data←'text' 'url'⍪↑req.Payload.(text url)
+⍝ insert links into media_general
+ opts←⎕NS''
+ opts.table←'media_general'
+ opts.columns←'text' 'url'
+ opts.types←opts.columns ColumnInformation opts.table
+ opts.values←'text' 'url'⍪↑req.Payload.(text url)
+ current←SQL.Do'SELECT id,text,url FROM media_general'
+ opts.values⌿⍨←(≢current)<current[;2 3]⍳opts.values
+ opts.exists←⍬
+ CreateUpdate opts
+
+⍝ get IDs from media_general
+ mg←SQL.Do'SELECT id,text,url FROM media_general'
+ mid←mg[mg[;2 3]⍳1↓data;1]
+ pid←req.Payload.presentation_id
+⍝ insert presentation_media
+ opts←⎕NS''
+ opts.values←pid,(⊂'media_general'),⍪mid
+ opts.table←'presentation_media'
+ opts.columns←'presentation_id' 'type' 'media_id'
+ opts.types←opts.columns ColumnInformation opts.table
+ current←SQL.Do'SELECT presentation_id,type,media_id FROM presentation_media'
+ opts.values⌿⍨←(≢current)<current⍳opts.values
+ opts.exists←⍬
+ CreateUpdate opts
+
+⍝ return created/updated presentation_media
+ sql←'SELECT pm.id,presentation_id,text,url FROM presentation_media AS pm '
+ sql,←'LEFT JOIN media_general AS mg ON mg.id = pm.media_id '
+ req_data←'((','))',⍨⊃,/(⊣,'),(',⊢)/(⊣,',',⊢)/(⍕¨req.Payload.presentation_id),('"','"',⍨⊢)¨↑req.Payload.(text url)
+ sql,←'WHERE (pm.presentation_id,mg.text,mg.url) IN ',req_data
+ res_data←SQL.Do sql
+ r←##.read.Table2JSON'presentation_media_id' 'presentation_id' 'text' 'url'⍪res_data
+
+
+⍝

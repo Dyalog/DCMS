@@ -1,0 +1,25 @@
+ r←{override}ImportVideos ytid;url;key;video_data;names;remove_leading_names_blanks;GBL;opts;titles;pres
+ ytid←,⊆ytid
+⍝ TODO use eTags to prevent API request for data we already have
+ :If 0=⎕NC'override'
+     (titles pres)←⊂''
+ :Else
+     (titles pres)←override
+ :EndIf
+ GBL←##.##.GLOBAL
+ url←GBL.secrets.youtube
+ key←GBL.secrets.youtube_key
+ opts←⎕NS''
+ opts.table←'youtube_video'
+ opts.values←GetVideos ytid
+ opts.values[;2]←titles                                                           ⍝ Replace with our own titles
+ opts.values[;3]←(pres,¨¨⊂⊂'.*\n+'){0::⍵ ⋄ ⍺ ⎕R''⍠'Mode' 'D'⊢⍵}¨opts.values[;3]   ⍝ Remove presenter names from first line of description
+ opts.(exists ids)←ExistingVideoIDs opts.values[;1]
+ opts.values,←'/video-library/watch?v='∘,¨opts.values[;1]                         ⍝ Add video library URL
+ opts.columns←'youtube_id' 'title' 'description' 'channel_id' 'channel' 'category_id' 'published_at' 'thumbnail' 'url'
+ opts.types←opts.columns ##.ColumnInformation opts.table
+ opts.(columns types),←⊂¨'updated_by' '<C128'                                     ⍝ Add updated_by column
+ opts.values,←⊂'DCMS.import.youtube.ImportVideos'
+ opts.values[;7]←19∘↑¨opts.values[;7]                                             ⍝ Drop 'Z' from YT timestamp
+
+ ##.CreateUpdate opts

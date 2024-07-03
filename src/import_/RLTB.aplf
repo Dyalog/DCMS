@@ -1,3 +1,0 @@
- RLTB←{ ⍝ remove leading, trailing and duplicate blanks
-     ' '∘(1↓,⊢⍤/⍨1(⊢∨⌽)0,≠)⍵
- }

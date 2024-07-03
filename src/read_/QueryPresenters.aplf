@@ -1,2 +1,0 @@
- res←QueryPresenters qp
- res←#.CACHE.presenters

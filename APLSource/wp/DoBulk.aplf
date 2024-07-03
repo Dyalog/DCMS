@@ -1,0 +1,32 @@
+ DoBulk←{
+⍝ ⍺: Bulk query path
+⍝ ⍵: List of bulk request objects
+⍝ Query API to find max bulk requests
+     opt←Options'batch/v1'
+     n←opt.endpoints.args.requests.maxItems
+
+     p←⎕NS'' ⋄ p.endpoint←'batch/v1'
+     req←⎕NS'' ⋄ req.(method path)←'POST'⍺
+
+     Update←{
+    ⍝ Update posts with id by including id in path
+    ⍝ ⍺: List of request objects
+    ⍝ ⍵: List of request bodies 
+         ud←∊0≠⍺.⎕NC⊂'id'
+         ~∨/ud:⍵
+         _←(ud/⍵).path,←⍕¨(ud/⍺).id
+         ⍵
+     }
+
+     Do←{
+         0=≢⍵:⍬                           ⍝ No requests: do nothing
+         n<≢⍵:(∇ n↑⍵),∇ n↓⍵               ⍝ Too many requests: cut up and recurse
+         send←⎕NS p                       ⍝ Clone p or another thread might update before the HTTP request is sent, causing duplicate posts.
+         r←send.requests←⎕NS¨req⍨¨⍵       ⍝ Clone req for each request
+         r←⍵ Update r
+         send.requests.body←⍵             ⍝ Inject request data
+         Post&send                        ⍝ Send the request
+     }
+
+     ⎕TSYNC Do ⍵
+ }

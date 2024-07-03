@@ -1,9 +1,0 @@
- GetPlaylistItems←{
-     q←url,'playlistItems'
-     q,←'?playlistId=',⍵
-     q,←'&key=',key
-     q,←'&part=snippet'
-     q,←'&maxResults=100'
-     r←#.HttpCommand.GetJSON'Get'q
-     r.Data.items.snippet.(channelId channelTitle playlistId publishedAt resourceId.videoId title)
- }

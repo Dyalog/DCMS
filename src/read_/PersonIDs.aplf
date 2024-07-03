@@ -1,5 +1,0 @@
- PersonIDs←{
-     2 6::⍬
-     j←⎕JSON ⍵
-     j.id
- }

@@ -1,0 +1,65 @@
+ res←Presentation req;SQL;data;opts;current;idx;presentation;pid;vid;presenters;ytid;name;pres_key;pers_key;pres;pers_id;db_vid;titles;n_vid;has_vid;has_yt
+ res←req.Response
+ res.Status←201
+ res.StatusText←'Created and/or Updated'
+
+ SQL←##.SQL
+ data←req.Payload
+
+⍝ Insert into presentation: event, code, title, type, description, presented_at
+⍝ TODO: type, category
+ opts←⎕NS''
+ opts.table←'presentation'
+ current←SQL.Do'SELECT id,event_id,code FROM presentation'
+ opts.exists←(≢current)≥idx←current[;2 3]⍳pres_key←⍉⍕¨@2⍉↑data.(event code)   ⍝ Match event,code
+ opts.ids←opts.exists/(current[;1],0)[idx]                               ⍝ In order as found in data
+ opts.columns←'event_id' 'code' 'title' 'type_id' 'description' 'presented_at'
+ opts.types←opts.columns ColumnInformation opts.table
+ opts.values←↑data.(event code title type_id description presented_at)
+
+ CreateUpdate opts
+
+⍝ Insert into presenter: data.presenter.person; presentation.id; data.presenter.affiliation
+ opts←⎕NS''
+ opts.table←'presenter'
+ presentation←SQL.Do'SELECT id,event_id,code FROM presentation'
+ pid←(presentation[;1],0)[presentation[;2 3]⍳pres_key]
+ current←SQL.Do'SELECT id,presentation_id,person_id FROM presenter'
+ opts.exists←(≢current)≥idx←current[;2 3]⍳pers_key←↑⊃,/pid,¨¨data.presenter.person
+ opts.ids←opts.exists/(current[;1],0)[idx]
+ opts.columns←'presentation_id' 'person_id' 'affiliation'
+ opts.types←opts.columns ColumnInformation opts.table
+ opts.values←pers_key,⊃,/data.presenter.affiliation
+
+ CreateUpdate opts
+
+⍝ Import into youtube_videos using data.videos.youtube_id
+ vid←data⌿⍨has_yt←has_vid\∧/¨0<≢¨¨((has_vid←0<n_vid←≢¨data.videos)/data.videos).youtube_id
+ pres←(≢¨vid.videos.youtube_id)/vid.presenter.person
+ (pers_id name)←↓⍉SQL.Do'SELECT id,name FROM person WHERE id IN (',(⊃(⊣,', ',⊢)/⍕¨∪∊pres),')'
+ presenters←{name[pers_id⍳⍵]}¨pres
+ :If (⊢≢∪)presenters,⍪ytid←⊃,/vid.videos.youtube_id
+     res.Status←400
+     res.StatusText←'Duplicate entries: ',1 ⎕JSON,{⍵⌿⍨~≠⍵}presenters,⍪ytid
+     →0
+ :EndIf
+ titles←⊃,/vid.videos.title
+ (titles presenters)youtube.ImportVideos ytid
+
+⍝ Insert into presentation_media data.videos.title, youtube_videos.id, presentation.id
+⍝ id presentation_id type media_id
+ opts←⎕NS''
+⍝ Need to end up with presentation_id, media_id, type
+⍝ We never need to update records because this is simply a relation with no extra information
+ opts.table←'presentation_media'
+ opts.columns←'presentation_id' 'media_id' 'type'
+ opts.types←opts.columns ColumnInformation opts.table
+ opts.values←⍪(has_yt/n_vid)/has_yt/pid   ⍝ presentation_id
+ db_vid←SQL.Do'SELECT id,youtube_id FROM youtube_video'
+ opts.values,←db_vid[db_vid[;2]⍳ytid;1]                      ⍝ ID into youtube_video table
+ opts.values,←⊂'youtube_video'
+ current←SQL.Do'SELECT presentation_id,media_id,type FROM presentation_media'
+ opts.values⌿⍨←(≢current)<current⍳opts.values
+ opts.exists←⍬
+
+ CreateUpdate opts

@@ -1,0 +1,41 @@
+ r←CreateUpdate opts;nulls;WrapBackticks;WrapColons;table;exists;ids;columns;types;values;sql;updates;inserts;i_values;i_nulls;i_columns;i_types;u_values;u_nulls;ColumnEquals;here;remove_id;u_columns;u_types
+⍝ opts:
+⍝ -   table : table name                                  :: char vec
+⍝ -  exists : rows in values to update                    :: bool vec
+⍝ -     ids : IDs of rows in table to update              :: num vec
+⍝ - columns : column names                                :: nested char vec
+⍝ -   types : SQAPL type conversion codes for each column :: nested char vec
+⍝ -  values : matrix of values                            :: nested matrix
+ here←⎕THIS
+ 'here'⎕NS opts
+
+⍝ nulls is a Boolean matrix of shape (⍴values) where 1 indicates a null will be inserted
+ nulls←(0∊⍴)¨values
+ values[⍸(types∊⊂'<S')(∧⍤1)nulls]←⊂19⍴''
+ values[⍸(types∊⊂'<I')(∧⍤1)nulls]←0
+ WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
+ WrapColons←(1↓∊)(',:',':',⍨⊢)¨
+ :If ~∨/exists
+     columns←WrapBackticks columns
+     types←WrapColons types
+     sql←'INSERT INTO ',table,' (',columns,') VALUES (',types,')'
+     ##.SQL.DoBulk sql(values nulls)
+ :Else
+     (updates inserts)←(⊢,⍥⊂~),exists
+     i_values←inserts⌿values
+     i_nulls←inserts⌿nulls
+     i_columns←WrapBackticks columns
+     i_types←WrapColons types
+     sql←'INSERT INTO ',table,' (',i_columns,') VALUES (',i_types,')'
+     ##.SQL.DoBulk sql(i_values i_nulls)
+     u_values←updates⌿values
+     u_nulls←updates⌿nulls
+     ColumnEquals←',`',('`',⍨⊣),'=:',':',⍨⊢
+     remove_id←columns(~∊)⊂'id'
+     u_columns←remove_id⌿columns
+     u_types←remove_id⌿types
+     u_values←(remove_id/u_values),opts.ids
+     u_nulls←(remove_id/u_nulls),0
+     sql←'UPDATE ',table,' SET ',' WHERE id=:<I:',⍨1↓∊u_columns ColumnEquals¨u_types
+     ##.SQL.DoBulk sql(u_values u_nulls)
+ :EndIf

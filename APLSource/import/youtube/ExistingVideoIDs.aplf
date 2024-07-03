@@ -1,0 +1,10 @@
+ ExistingVideoIDs←{
+⍝ ←: (bitmask of existing records)(ids of existing records)
+⍝    (+/bitmask)=≢ids
+     sql←'SELECT id,youtube_id FROM youtube_video'
+     (id yt)←↓⍉##.##.SQL.Do sql
+     0∊⍴yt:⍬ ⍬
+     bitmask←⍵∊yt
+     ids←bitmask⌿(id,⊂'')[yt⍳⍵]
+     bitmask ids
+ }

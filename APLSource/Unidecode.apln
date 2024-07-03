@@ -1,0 +1,17 @@
+:Namespace Unidecode
+
+    ∇ MakeCharMap file
+      charmap←0 ⎕JSON⊃⎕NGET file
+      bkt←+\1,≢¨charmap
+      cm←∊charmap
+      let←cm[¯1↓bkt]
+    ∇
+
+      NormaliseText←{
+     ⍝ ⍵: simple char vec
+     ⍝ ←: characters normalised to lowercase ASCII alphabet
+          rng←bkt,(⊃⌽bkt)+⍳≢⍵
+          ⎕C(let,⍵)[rng⍸(cm,⍵)⍳⍵]
+      }
+
+:EndNamespace

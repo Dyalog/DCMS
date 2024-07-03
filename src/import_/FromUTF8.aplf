@@ -1,1 +1,0 @@
- FromUTF8←{11::⍵ ⋄ 'UTF-8'⎕UCS ⎕UCS ⍵}

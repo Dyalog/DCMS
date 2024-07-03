@@ -1,0 +1,43 @@
+ r←PushTeamDyalogVideos;JSONDemangle;person;exists;n;sql;vids;fields;posts;delete;create;p;req;SQL;EventURL;req
+ SQL←##.SQL
+⍝ Use WordPress API to get post IDs corresponding to Team Dyalog members via their DCMS ID custom field value
+ person←Get'team-dyalog?_fields=id,acf.dcms_id'
+⍝ Use WordPress API to get existing Team Dyalog Videos
+ exists←Get'team-dyalog-videos?_fields=id,acf.media_id'
+⍝ Get n most recent videos for each team member
+ n←10
+ sql←'SELECT r.media_id,r.ytid,r.title,r.thumbnail,r.description,r.presented_at,r.event_link,r.event_title,r.pers_id FROM '
+ sql,←'(SELECT yt.id AS media_id, yt.youtube_id AS ytid, yt.title AS title, yt.thumbnail AS thumbnail, yt.description AS description, pres.presented_at AS presented_at, event.url_slug AS event_link, event.title AS event_title, per.id AS pers_id, '
+ sql,←'ROW_NUMBER() OVER (PARTITION BY per.id ORDER BY pres.presented_at DESC) AS rank '
+ sql,←'FROM person AS per LEFT JOIN presenter ON per.id = presenter.person_id '
+ sql,←'LEFT JOIN presentation AS pres ON presenter.presentation_id = pres.id '
+ sql,←'LEFT JOIN event ON pres.event_id = event.id '
+ sql,←'LEFT JOIN presentation_media AS pm ON pres.id = pm.presentation_id '
+ sql,←'LEFT JOIN youtube_video AS yt ON pm.media_id = yt.id '
+ sql,←'WHERE pm.type = "youtube_video") r '
+ sql,←'WHERE r.rank <= ',⍕n
+
+ vids←SQL.Do sql
+
+ fields←'acf.media_id' 'acf.url' 'title' 'acf.thumbnail' 'acf.description' 'acf.presentation_date' 'acf.event_slug' 'acf.event_title' 'acf.person_id'
+ posts←Table2JSON fields⍪vids
+ posts.acf.post_id←(person.id,0)[person.acf.dcms_id⍳posts.acf.person_id]                               ⍝ Person ID → WordPress Team Dyalog post ID
+ posts⌿⍨←0≠posts.acf.post_id                                                                           ⍝ Remove videos with no Team Dyalog member post
+ EventURL←{'<a href="/video-library/search?event=',⍺,'">',⍵,'</a>'}
+ posts.acf.event←posts.acf.event_slug EventURL¨posts.acf.event_title                                   ⍝ event_link → HTML <a> tag
+ posts.acf.url←'/video-library/watch/?v='∘,¨posts.acf.url                                              ⍝ YouTube ID → video library URL
+ posts.acf.thumbnail←posts.title{'<img src="',⍵,' title="',⍺,'" alt="',⍺,'" />'}¨posts.acf.thumbnail   ⍝ Thumbnail as HTML <img> tag
+ posts.date←posts.acf.presentation_date                                                                ⍝ Presentation date → post date
+ posts.acf.readable_date←'Mmmm YYYY'FormatDateTime 1 ⎕DT 2⊃¨'- :'∘⎕VFI¨posts.acf.presentation_date     ⍝ Presentation date → human-readable datetime
+ posts.id←{0=≢⍵:0 ⋄ (⍵.id,0)[⍵.acf.media_id⍳posts.acf.media_id]}exists                                 ⍝ Set post ID to update existing posts.
+ {0=≢⍵:'' ⋄ ⍵.⎕EX⊂'id'}(0=posts.id)/posts                                                              ⍝ Remove post ID to create new posts.
+ posts.status←⊂'publish'
+
+⍝ Unpublish (or delete?) posts older than the 10th (post date is presented_at date)
+ delete←{0=≢⍵:⍬ ⋄ ⍵⌿⍨⍵.acf.media_id(~∊)posts.acf.media_id}exists
+ r←{0=≢⍵:'' ⋄ Delete¨'wp/v2/team-dyalog-videos/'∘,¨⍕¨⍵.id}delete
+
+⍝ Create or update latest 10 per videos person
+ create←{0=≢⍵:posts ⋄ posts⌿⍨posts.acf.media_id(~∊)⍵.acf.media_id}delete
+ 
+ r,←'/wp/v2/team-dyalog-videos/'DoBulk create

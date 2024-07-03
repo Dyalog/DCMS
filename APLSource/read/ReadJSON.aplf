@@ -1,0 +1,1 @@
+ ReadJSON←{0 ⎕JSON ⎕OPT'Dialect' 'JSON5'⊃⎕NGET ⍵}

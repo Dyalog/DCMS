@@ -1,0 +1,23 @@
+ T2J←{
+⍝ Table2JSON with nested fields using dot notation
+⍝ e.g. title.rendered is a field "rendered" within an object "title"
+⍝ returns a list of JSON objects with field names specified in the header row
+     ⍺←⍬
+     h←1⌷⍵
+
+     T2J2←{0 ⎕JSON 1 ⎕JSON⊂2,⊂⍵}
+
+     sub←'.'∊¨h
+     (p v)←↓⍉↑'.'((⌽≤\⍤⌽⍤≠)⊆⊢)¨sub/h
+     grp←p{⊂⍉⍵}⌸⍉v⍪1↓sub/⍵
+    ⍝ Create top level structure with length of top-level items
+     ns←⊃⍣(∧/sub)⎕NS¨(1⌈(¯1+≢⍵)×∨/~sub)⍴⊂''
+     _←(∪p)∘.{r←⍵ ⋄ ('r.',⍺)⎕NS'' ⋄ r}ns
+     ⍝_←('ns.'∘,¨∪p)⎕NS¨''⍨¨∪p ⍝?
+     _←⍎('ns.(',(⍕∪p),')'),'←⊃⍣(1=≢∪p)T2J2¨grp'
+    ⍝ If there are sub-level items, convert these to objects and inject into top-level structure
+
+     _←ns{r←⍺ ⋄ w←⍵ ⋄ 'r'⎕NS w ⋄ r}¨T2J2(~sub)/⍵
+     ns
+
+ }

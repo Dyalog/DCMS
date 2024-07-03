@@ -1,5 +1,0 @@
- JSONExtract←{
-     2 6::⍬
-     j←⎕JSON ⍵
-     ⍎∘⍺¨j
- }

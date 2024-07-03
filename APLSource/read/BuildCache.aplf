@@ -1,0 +1,35 @@
+ r←BuildCache opt;ep;CACHE;SQL;vids;vp;RLTB;dtcol;txtcol;norm
+⍝ Store pre-joined tables for API endpoints and query results
+⍝ Store simple character matrices for search
+⍝ Create term-frequency inverse-document-frequency index for search
+ ep←ReadJSON(##.GetEnv'app_dir'),'/APLSource/read/endpoints.json5'
+ '##.CACHE'⎕NS'' ⋄ CACHE←##.CACHE
+ SQL←##.SQL
+
+ CACHE.presenters←,SQL.Do ep.presenters.sql
+ CACHE.dtv_events←Table2JSON ep.dtv_events.fields⍪SQL.Do ep.dtv_events.sql
+
+ vids←CACHE.videos←⎕NS''
+ vids.fields←ep.videos.fields
+ vids.values←SQL.Do ep.videos.sql
+ vp←{⍵[;1],∘⊂⌸⍵[;2]}##.SQL.Do ep.videos.presenter.sql
+ vids.values,←⊃¨(⊣,', ',⊢)/¨(vp[;2]⍪⊂⊂'')[vp[;1]⍳vids.values[;vids.fields⍳⊂'youtube_id']]   ⍝ But should it be IDs? Or presenter_name, presenter_id?
+
+ :If (≢vids.fields)≠⊢/⍴vids.values
+     'Videos endpoint number of fields does not match number of columns'⎕SIGNAL 42
+ :EndIf
+
+ RLTB←{⍵⌿⍤1⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}   ⍝ Remove Leading and Trailing Blanks
+⍝ For indexing, normalise all except those with YouTube IDs and convert datetimes to Dyalog Day Number
+⍝ Leave presenter index_col, but normalise for index_all
+ vids.index_all←vids.values
+ (norm/vids.index_all)←##.Unidecode.NormaliseText¨(norm←vids.fields(~∊)⊆'youtube_id' 'url' 'presenter')/vids.index_all
+ (dtcol txtcol)←(⍸,⍥⊂⍸∘~)vids.fields∊⊆'presented_at' 'published_at'
+ vids.index_all[;dtcol]←TS2DDN vids.index_all[;dtcol]
+ vids.index_cols←↓⍉vids.index_all
+ vids.index_cols[txtcol]←RLTB¨⍕∘⍪¨vids.index_cols[txtcol]
+ vids.index_all[;norm]←##.Unidecode.NormaliseText¨vids.index_all[;norm←vids.fields⍳⊂'presenter']
+ vids.index_all←⍕vids.index_all
+
+ vids.recommended←videos.ComputeRecommended vids.index_cols⌷⍨⊂vids.fields⍳⊆'title' 'description'
+ r←'Computed video recommendations'

@@ -1,0 +1,37 @@
+ res←Query req;p;v;Q;CACHE;C;fm;to;ddn;in_range;i;data;pg;ppg;presenter;filter;event
+ (p v)←↓⍉req.QueryParams ⋄ v←RLTB¨v,⊂'' ⋄ v[⍸'null'∘≡¨v]←⊂'' ⋄ Q←(v⊃⍨p⍳⊆) ⍝ Q←{⊃⍣(1=≡⍵)⊢(p∊⊆⍵)⌿v}
+ CACHE←##.##.CACHE
+ C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
+
+ :If 0∊⍴p   ⍝ RETURN ALL VIDEOS
+     res←##.Table2JSON CACHE.videos.fields⍪CACHE.videos.values
+     :Return
+ :EndIf
+
+⍝ Filter by date range
+ (fm to)←DT2DDN∘Q¨'from' 'to'
+ in_range←(fm to)FilterDateTimes ddn←C'presented_at'
+
+⍝ Filter by columns: presenter, event
+ presenter←(Q FilterPresenter C)'presenter'
+ event←(Q⊣/⍤⍷C)'event_shortname'
+ filter←in_range∧presenter∧event
+
+⍝ Normalise query parameters
+ v←##.##.Unidecode.NormaliseText¨v
+⍝ Rank by search terms
+ i←(Q'search')Rank filter⌿CACHE.videos.index_all
+
+⍝ Sort
+ data←(filter⌿CACHE.videos.values)[i;]
+ :Select Q'sort'
+ :Case 'newest'
+     data←data[⍒ddn[i];]   ⍝ newest
+ :Case 'oldest'
+     data←data[⍋ddn[i];]   ⍝ oldest
+ :EndSelect
+
+⍝ Convert to JSON and paginate
+ res←##.Table2JSON CACHE.videos.fields⍪data
+ (pg ppg)←2⊃∘⎕VFI∘Q¨'page' 'per_page'
+ res←('videos'pg ppg)##.Paginate res

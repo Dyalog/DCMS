@@ -1,9 +1,0 @@
- GetUploadIDs←{
-     query←url,'channels'
-     query,←'?id=',⍵
-     query,←'&key=',key
-     query,←'&part=contentDetails'
-     query,←'&maxResults=50'
-     r←#.HttpCommand.GetJSON'Get'query
-     ⊃r.Data.items.contentDetails.relatedPlaylists.uploads
- }

@@ -1,0 +1,4 @@
+ GetEnv←{
+⍝ Get value of configuration paramater or environment variable
+     ⊢2 ⎕NQ #'GetEnvironment'⍵   ⍝ ⊢ ensures result of ⎕NQ is not shy
+ }

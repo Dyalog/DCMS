@@ -1,0 +1,17 @@
+ r←Delete post;url;name;pass;h;wp
+ :If 0≡post ⋄ r←'' ⋄ →0 ⋄ :EndIf   ⍝ info is a prototype if the list is empty
+ wp←##.GLOBAL.secrets.wordpress
+ url←wp.url
+ name←wp.user
+ pass←wp.token~' '
+ h←##.##.HttpCommand.New'DELETE'
+ h.URL←url,post
+ h.Auth←name pass
+ h.TranslateData←1  ⍝ Automatically convert JSON response to namespace
+ r←h.Run
+ :If 0≠r.rc
+     420 ⎕SIGNAL⍨r.msg
+ :ElseIf 200 410(~∨/⍤∊)r.HttpStatus
+     512 ⎕SIGNAL⍨'WordPress DELETE POST FAILED: ',r.(⍕HttpStatus),' ',r.HttpMessage
+ :EndIf
+ r←r.Data

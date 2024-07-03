@@ -1,0 +1,40 @@
+ r←PushPresentations;SQL;Join;_Group;et;id;sql;fields;posts;_;data;p;req;Publish;events;eid;epid
+
+ SQL←##.SQL
+ Join←⊃(⊣,',',⊢)/
+ _Group←{1↓¨(⍺⍺,⍺){⊂⍵}⌸(-⍺⍺+⍥≢⍵)↑⍵}
+
+⍝ Get info from WP
+ et←Get'event_type'
+ events←Get'pages?_fields=id,acf.dcms_id&event_type=',Join⍕¨et.id
+ (epid eid)←↓⍉↑((0≠∊events.⎕NC⊂'acf.dcms_id')/events).(id acf.dcms_id)
+ id←{0=≢⍵:0 2⍴⍬ ⋄ ↑⍵.(id acf.dcms_id)}Get'presentation?_fields=id,acf.dcms_id'
+
+⍝ Create post object for each presentation with some fields populated
+ sql←'SELECT pres.id,pres.presented_at,pres.title,event.id,pres.type_id,pres.abstract FROM presentation AS pres '
+ sql,←'LEFT JOIN event ON event_id = event.id '
+ sql,←'WHERE event.id IN (',(Join⍕¨eid),')'
+ fields←'acf.dcms_id' 'date' 'title' 'acf.event' 'presentation_type' 'acf.summary'
+ posts←Table2JSON fields⍪SQL.Do sql
+ posts.id←(id[;1],0)[id[;2]⍳posts.acf.dcms_id]
+ posts.acf.event←(epid,0)[eid⍳posts.acf.event]
+ _←{0=≢⍵:'' ⋄ ((0=⍵.id)/⍵).⎕EX⊂'id'}posts   ⍝ remove ID to create new posts
+ posts.type←⊂'presentation' ⋄ posts.status←⊂'publish'
+
+⍝ Collate and inject presenter information
+ sql←'SELECT presentation.id,person.name,presenter.affiliation FROM presentation '
+ sql,←'LEFT JOIN presenter ON presentation.id = presenter.presentation_id '
+ sql,←'LEFT JOIN person ON presenter.person_id = person.id '
+ sql,←'WHERE presentation.id IN (',(Join⍕¨posts.acf.dcms_id),')'
+ data←SQL.Do sql
+ posts{⍺.acf.presenter←⍵}¨Table2JSON¨'name' 'affiliation'∘⍪¨data[;1](posts.acf.dcms_id _Group)data[;2 3]
+
+⍝ Collate and inject presentation materials
+ sql←'SELECT presentation.id,mg.text,mg.url FROM presentation '
+ sql,←'LEFT JOIN presentation_media AS pm ON presentation.id = presentation_id '
+ sql,←'LEFT JOIN media_general AS mg ON pm.media_id = mg.id WHERE pm.type = "media_general" '
+ sql,←'AND presentation.id IN (',(Join⍕¨posts.acf.dcms_id),')'
+ data←SQL.Do sql
+ posts{⍺.acf.materials←⍵}¨Table2JSON¨'item.title' 'item.url'∘⍪¨data[;1](posts.acf.dcms_id _Group)data[;2 3]
+
+ r←'/wp/v2/presentation'DoBulk posts
