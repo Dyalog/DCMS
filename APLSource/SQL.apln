@@ -25,6 +25,7 @@
           Reconnect opt
       :EndIf
       :If 0≠⊃r←SQA.Connect db,⍥⊆datasource
+          ⎕←r
           ('Could not connect to ',⊃datasource)⎕SIGNAL⊃r
       :EndIf
       SQA.Do db'create database if not exists dyalog_cms'
