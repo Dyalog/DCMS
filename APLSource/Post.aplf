@@ -1,19 +1,24 @@
- res←Post req
+ res←Post req;msg
  :If 0<GLOBAL.debug ⋄ last←req ⋄ :EndIf
  res←auth.VerifyToken req
  :If ~∨/401 403∊res.Status
-     :Hold 'SQL.db'
-         :Select req.Endpoint
-         :CaseList '/person' '/event' '/event_type' '/presentation_type'
-             res←req.Endpoint import.Table req
-         :Case '/presentation'
-             res←import.Presentation req
-         :Case '/presentation_material'
-             res←import.PresentationMaterial req
-         :Case '/refresh'
-             res←read.BuildCache''
-         :Else
-             res←req.Fail 404
-         :EndSelect
-     :EndHold
+     :Trap GLOBAL.debug↓0
+         :Hold 'SQL.db'
+             :Select req.Endpoint
+             :CaseList '/person' '/event' '/event_type' '/presentation_type'
+                 res←req.Endpoint import.Table req
+             :Case '/presentation'
+                 res←import.Presentation req
+             :Case '/presentation_material'
+                 res←import.PresentationMaterial req
+             :Case '/refresh'
+                 res←read.BuildCache''
+             :Else
+                 res←req.Fail 404
+             :EndSelect
+         :EndHold
+     :Else
+         msg←(⎕EM ⎕EN),': ',{⍵⌿⍨∧\' '≠⍵}2⊃⎕DMX.DM
+         msg req.Fail 500
+     :EndTrap
  :EndIf
