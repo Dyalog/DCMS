@@ -1,3 +1,5 @@
+@Library('swarm-deploy') _
+
 def DockerApp
 def DockerAppDB
 def DockerDB
@@ -17,7 +19,7 @@ node ('Docker') {
 	}
 	stage ('Update MariaDB') {
 			withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
-			DockerDB=docker.image('mariadb')
+			DockerDB=docker.image('mariadb:10.8.2') // Until build machine is updated
 			DockerDB.pull()
 		}
 	}
@@ -111,17 +113,16 @@ node ('Docker') {
 
 			echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${WORKSPACE}/env
 		'''
+		stash includes: 'env,service.yml', name: 'swarmfiles'
+
 	}
-	stage('Deploying with Rancher') {
-		withCredentials([
-		usernamePassword(credentialsId: '02543ae7-7ed9-4448-ba20-6b367d302ecc', passwordVariable: 'SECRETKEY', usernameVariable: 'ACCESSKEY')]) {
-			if (env.BRANCH_NAME.contains('master')) {
-				sh ("sed -i 's%\${PWD}%/DockerVolumes/ftp/dcmsweb/${Branch}/%g' ./docker-compose.yml")
-				sh '/usr/local/bin/rancher-compose -f ./docker-compose.yml --access-key $ACCESSKEY --secret-key $SECRETKEY --url http://rancher.dyalog.com:8080/v2-beta/projects/1a5/stacks/1st60 -p DCMS up --force-upgrade --confirm-upgrade --pull -d'
-			} else if (env.BRANCH_NAME.contains('staging')) {
-				sh ("sed -i 's%\${PWD}%/DockerVolumes/ftp/dcmsweb/${Branch}/%g' ./docker-compose.yml")
-				sh '/usr/local/bin/rancher-compose -f ./docker-compose.yml --access-key $ACCESSKEY --secret-key $SECRETKEY --url http://rancher.dyalog.bramley:8080/v2-beta/projects/1a5/stacks/1st60 -p DCMS up --force-upgrade --confirm-upgrade --pull -d'
-			}
-		}
-	}
+}
+if (env.BRANCH_NAME.contains('master')) {
+	node (label: 'swarm && gosport') {
+		stage('Deploying with Docker Swarm') {
+            unstash 'swarmfiles'
+            res1 = stopServices 'DCMS'
+            res2 = swarm 'DCMS'
+        }
+    }
 }
