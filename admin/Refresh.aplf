@@ -1,0 +1,8 @@
+ Refresh←{
+     opt←⎕NS''
+     opt.url←(GetEnv'service_url'),'/refresh'
+     opt.token←Secrets'upload_token'
+     opt.data←''
+     h←upload.BuildRequest opt
+     h.Run
+ }

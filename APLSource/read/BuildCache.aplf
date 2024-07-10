@@ -32,4 +32,4 @@
  vids.index_all←⍕vids.index_all
 
  vids.recommended←videos.ComputeRecommended vids.index_cols⌷⍨⊂vids.fields⍳⊆'title' 'description'
- r←'Computed video recommendations'
+ r←'Updated cache and video recommendations'

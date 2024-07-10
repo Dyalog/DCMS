@@ -10,6 +10,8 @@
              res←import.Presentation req
          :Case '/presentation_material'
              res←import.PresentationMaterial req
+         :Case '/refresh'
+             res←read.BuildCache''
          :Else
              res←req.Fail 404
          :EndSelect
