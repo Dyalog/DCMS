@@ -2,7 +2,7 @@
 	Settings: {
 		MAXWS:          "2G",
 		PW:              3000,
-		app_dir:        "/g/DCMS3",
+		app_dir:        "/g/DCMS",
 		service_url:    "https://localhost",
 		service_port:    8081,
 		allow_from:     "*",
