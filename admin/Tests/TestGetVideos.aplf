@@ -3,25 +3,29 @@
      ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'videos'
      G←url∘HttpGet
      fields←'category' 'description' 'event' 'event_shortname' 'presented_at' 'presenter' 'published_at' 'thumbnail' 'title' 'url' 'youtube_id'
-     _←Assert∧/fields∊(G'')[1].⎕NL-⍳9            ⍝ all videos
-     vid←'AFvfBE19OFg'                           ⍝ ⍰ known existing video youtube ID
-     _←Assert∧/fields∊(G,'/',vid).⎕NL-⍳9         ⍝ single video
-     _←Assert∧/fields∊(G,'////',vid).⎕NL-⍳9      ⍝ ignore multiple consecutive slashes
-     q←'?search=rich%20rank'                     ⍝ ⍰ known valid search terms
-     _←Assert∧/fields∊(G q)[1].⎕NL-⍳9            ⍝ multiple search terms
-     p←'Morten Kromberg' ⋄ q←'?presenter=Morten%20Kromberg'                       ⍝ ⍰ known existing presenter
-     _←Assert∧/p∘(∨/⍷)¨(G q).presenter                  ⍝ by presenter
+     _←Assert∧/fields∊(G'')[1].⎕NL-⍳9   ⍝ all videos
+     vid←'AFvfBE19OFg'                  ⍝ ⍰ known existing video youtube ID
+     r←G,'/',vid                        ⍝ single video
+     _←Assert∧/fields∊r.⎕NL-⍳9
+     _←Assert vid≡r.youtube_id
+     r←G,'////',vid                 ⍝ ignore multiple consecutive slashes
+     _←Assert∧/fields∊r.⎕NL-⍳9
+     r←G'?search=rich%20rank'       ⍝ ⍰ known valid search terms
+     _←Assert∧/fields∊r[1].⎕NL-⍳9   ⍝ multiple search terms
+     _←Assert∨/∨/¨'rich' 'rank'⍷⍥⎕C¨⊂⍕r.(description event presenter title)
+     p←'Morten Kromberg' ⋄ q←'?presenter=Morten%20Kromberg'   ⍝ ⍰ known existing presenter
+     _←Assert∧/p∘(∨/⍷)¨(G q).presenter                        ⍝ by presenter
      p←'Gitte Christensen' 'Stine Kromberg'
-     q←'?presenter=Gitte+Christensen+Stine+Kromberg'   ⍝ multiple presenters
+     q←'?presenter=Gitte+Christensen+Stine+Kromberg'          ⍝ multiple presenters
      _←Assert∧/p(∨/⍷)¨(G q).presenter
      evt←'Dyalog ''21' ⋄ q←'?event_shortname=dyalog-21'
-     _←Assert∧/evt∘≡¨(G q).event                    ⍝ by event
+     _←Assert∧/evt∘≡¨(G q).event             ⍝ by event
      q←'?search=&presenter=&event='
-     _←Assert∧/fields∊(G q)[1].⎕NL-⍳9            ⍝ all parameters empty
+     _←Assert∧/fields∊(G q)[1].⎕NL-⍳9        ⍝ all parameters empty
      q←'?sort=newest'
-     _←Assert(⊢≡{⍵[⍒⍵]})(G q).presented_at       ⍝ sort by newest
+     _←Assert(⊢≡{⍵[⍒⍵]})(G q).presented_at   ⍝ sort by newest
      q←'?sort=oldest'
-     _←Assert(⊢≡{⍵[⍋⍵]})(G q).presented_at       ⍝ sort by newest
+     _←Assert(⊢≡{⍵[⍋⍵]})(G q).presented_at   ⍝ sort by newest
      q←'?from=2021-05-01'
      _←Assert'2021 5 1'(∧/≤)_DateTimeCompare(G q).presented_at   ⍝ datefrom
      q←'?to=2020-01-01'
@@ -29,7 +33,7 @@
      q←'?from=2016-01-01&to=2018-01-01'
      _←Assert('2016 1 1' '2018 1 1')RangeContains _DateTimeCompare(G q).presented_at
      q←'?per_page=10'
-     pf←⊆'current_page' 'last_page' 'per_page'   ⍝ fields for paginated responses
+     pf←⊆'current_page' 'last_page' 'first_page' 'per_page'   ⍝ fields for paginated responses
      pf,←⊆'first_page_url' 'last_page_url' 'prev_page_url' 'next_page_url'
      pf,←⊆'data' 'links' 'path'
      pf,←⊆'from' 'to' 'total'
