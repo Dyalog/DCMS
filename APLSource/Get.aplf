@@ -16,6 +16,8 @@
          res←read.Table 1↓req.Endpoint
      :ElseIf 1=+/req.Endpoint∘≡¨'/presenters' '/dtv_events'
          res←CACHE⍎1↓req.Endpoint
+     :ElseIf req.Endpoint≡'/version'
+         res←Version
      :Else
          req.Fail 404
      :EndIf
