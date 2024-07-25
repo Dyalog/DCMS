@@ -101,7 +101,37 @@ Returns a JSON object containing:
 - youtube_id (string)
 - youtube_url (string)
 
-#### /persons
+#### /person
+Returns a list of person objects.
+
+```JSON5
+[{
+    id: 0,
+    name: "",
+    organisation: "",
+    location: "",
+    description: "",
+    role: "",
+    role_summary: "",
+    url_slug: "",
+    updated_at: "",
+    updated_by: "",
+    created_at: "YYYY-MM-DD hh:mm:ss"
+}]
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 **Query:**
 
