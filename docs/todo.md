@@ -13,8 +13,8 @@ For each endpoint:
     - [x] event
     - [x] pagination
 - [x] [person](./api.md#person)
-- [ ] [event](./api.md#event)
-- [ ] [event_type](./api.md#event_type)
+- [x] [event](./api.md#event)
+- [x] [event_type](./api.md#event_type)
 - [ ] [presentation](./api.md#presentation)
 - [ ] [presentation_type](./api.md#presentation_type)
 - [ ] [presenters](./api.md#presenters)

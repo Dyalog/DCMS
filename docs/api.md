@@ -123,9 +123,40 @@ Returns a list of person objects.
 }]
 ```
 
+#### /event_type
+Returns a list of event_type objects.
+
+```JSON5
+[{
+    id: 0,
+    type: "",
+    description: "",
+    created_at: "YYYY-MM-DD hh:mm:ss",
+    updated_at: "YYYY-MM-DD hh:mm:ss",
+    updated_by: ""
+}]
+```
+
 #### /event
 Returns a list of event objects.
 
 ```JSON5
-
+[{
+    id: 0,
+    title: "",
+    location: "",
+    url_slug: "",  // AKA event_shortname
+    icon: "",      // URL of image file
+    logo: "",      // URL of image file
+    physical: 0,   // Boolean: physical in-person event?
+    digital: 0,    // Boolean: digital/online event?
+    type: 0,       // ID into event_type table
+    start: "YYYY-MM-DD hh:mm:ss",
+    end: "YYYY-MM-DD hh:mm:ss",
+    early_bird: "YYYY-MM-DD hh:mm:ss",   // Date and time end of early bird registration
+    signup_url: "",
+    created_at: "YYYY-MM-DD hh:mm:ss",
+    updated_at: "YYYY-MM-DD hh:mm:ss",
+    updated_by: ""
+}]
 ```

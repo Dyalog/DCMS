@@ -1,0 +1,8 @@
+ TestGetEventType←{
+     ⎕←'Test GET event_type'
+     ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'event_type'
+     G←url∘HttpGet
+     fields←'id' 'type' 'description' 'created_at' 'updated_at' 'updated_by'
+     _←Assert∧/fields∊(G'')[1].⎕NL-⍳9   ⍝ all event types
+     1
+ }
