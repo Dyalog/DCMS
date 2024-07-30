@@ -22,6 +22,10 @@ Endpoints:
 ### /version
 Returns a string of the running DCMS version.
 
+```JSON5
+""
+```
+
 ### /videos
 Returns a list of video objects
 
