@@ -1,9 +1,13 @@
- r←Run url
+ r←Run url;tests;fns;fn;F
  :If 0∊⍴url ⋄ url←'http://localhost:8081' ⋄ :EndIf
  ⎕←'Testing ',url
  :If 0=⎕NC'#.HttpCommand' ⋄ ⎕SE.SALT.Load'HttpCommand' ⋄ :EndIf
- url TestGetVideos ⍬
- url TestGetEvents ⍬
- url TestGetPresenters ⍬
- url TestGetPersons ⍬
- url TestGetTables ⍬
+ ⎕←'read.BuildCache...'
+ ##.Refresh''
+ ⎕←'Done'
+ tests←fns⌿⍨'Test'∘(⊃⍷)¨fns←⎕NL ¯3
+ r←⍬
+ :For fn :In tests
+     F←⍎fn
+     r,←url F''
+ :EndFor
