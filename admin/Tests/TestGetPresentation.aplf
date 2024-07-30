@@ -1,0 +1,8 @@
+ TestGetPresentation←{
+     ⎕←'Test GET presentation'
+     ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'presentation'
+     r←url HttpGet''
+     fields←'id' 'title' 'code' 'event_id' 'abstract' 'description' 'location' 'type_id' 'category_id' 'presented_at' 'created_at' 'updated_at' 'updated_by'
+     _←Assert∧/fields∊r[1].⎕NL-⍳9
+     1
+ }

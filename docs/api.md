@@ -163,3 +163,42 @@ Returns a list of event objects.
 
 ### /presenters
 Returns a list of strings. These are [persons](#person) who are in the presenter table.
+
+```JSON5
+[""]
+```
+
+### /presentation
+Returns a list of presentation objects.
+
+```JSON5
+[{
+    id:           0,
+    title:       "",
+    code:        "",   // Alphanumeric code for this presentation, unique within this event
+    event_id:     0,   // ID into event table
+    abstract:    "",   // Short summary found on Dyalog website
+    description: "",
+    location:    "",
+    type_id:      0,   // ID into presentation_type table
+    category_id:  0,   // ID into presentation_category table
+    presented_at: "YYYY-MM-DD hh:mm:ss",   // Year and month during which this was presented
+    created_at:   "YYYY-MM-DD hh:mm:ss",
+    updated_at:   "YYYY-MM-DD hh:mm:ss",
+    updated_by:   ""
+}]
+```
+
+### /presentation_type
+Returns a list of presentation type objects.
+
+```JSON5
+[{
+    id: 0,
+    type: "",
+    description: "",
+    created_at:   "YYYY-MM-DD hh:mm:ss",
+    updated_at:   "YYYY-MM-DD hh:mm:ss",
+    updated_by:   ""
+}]
+```
