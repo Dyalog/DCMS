@@ -1,6 +1,10 @@
  TestGetPresenters←{
      ⎕←'Test GET presenters'
      ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'presenters'
-     _←Assert 200=(#.HttpCommand.Get url).HttpStatus   ⍝ all presenters
+     r←##.HttpCommand.Get url                             ⍝ All presenters
+     _←Assert 200=r.HttpStatus
+     data←0 ⎕JSON r.Data
+     _←Assert{(1=≢⍴⍵)∧(2=≡⍵)}data   ⍝ Nested list
+     _←Assert∧/{' '≡⊃0⍴⍵}¨data      ⍝ List of strings
      1
  }

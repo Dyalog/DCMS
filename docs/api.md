@@ -160,3 +160,6 @@ Returns a list of event objects.
     updated_by: ""
 }]
 ```
+
+### /presenters
+Returns a list of strings. These are [persons](#person) who are in the presenter table.

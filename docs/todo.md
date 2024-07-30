@@ -17,7 +17,7 @@ For each endpoint:
 - [x] [event_type](./api.md#event_type)
 - [ ] [presentation](./api.md#presentation)
 - [ ] [presentation_type](./api.md#presentation_type)
-- [ ] [presenters](./api.md#presenters)
+- [x] [presenters](./api.md#presenters)
 - [ ] [dtv_events](./api.md#dtv_events)
 - [x] [version](./api.md#version)
 
