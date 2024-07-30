@@ -7,7 +7,7 @@ Programmatically, endpoint switches are explicit in `#.DCMS.Get` and `#.DCMS.Pos
 
 Most implement a REST-like scheme, in which /endpoint lists all available items, possilbly with querying available, and /endpoint/id lists a single specific item within that endpoint.
 
-### GET
+## GET
 
 Endpoints:
 - [videos](#videos)
@@ -19,10 +19,10 @@ Endpoints:
 - [presenters](#presenters)
 - [dtv_events](#dtv_events)
 
-#### /version
+### /version
 Returns a string of the running DCMS version.
 
-#### /videos
+### /videos
 Returns a list of video objects
 
 ```JSON5
@@ -41,19 +41,19 @@ Returns a list of video objects
 }]
 ```
 
-#### Query parameters
+### Query parameters
 
-##### search
+#### search
 `?search=q` where `q` is a list of search terms separated by URL-encoded space (`'%20'`), comma (`','`) or plus (`'+'`). Free text search of titles, descriptions, presenters and events.
 
-##### filter by date range
+#### filter by date range
 `?from=date` for videos no earlier than `date` of form `YYYY-MM-DD`
 `?to=date` for videos no more recent than `date` of form `YYYY-MM-DD`
 
-##### filter by event
+#### filter by event
 `?event=e` where `e` is the URL slug / short name of event (e.g. Dyalog '22 → dyalog-22)
 
-##### pagination
+#### pagination
 `?per_page=n` where n is a positive integer. Optionally, `?page=k` where k is a positive integer.
 
 Using the `per_page` and optional `page` parameters results in a paginated response which follows the template described in the next code block. The `data` item is a list of video results with the same structure described under [/videos](#videos).
@@ -87,7 +87,7 @@ For total query results n and current page p, the links provided in the response
 - `1 2 ... p(-,+)3 ... n-1 n        if 10<≢pages and this page is more than 10 from the end`
 - `1 2 ... n-9..n                   if 10<≢pages and this page is 10 or less from the end`
 
-#### Video by YouTube ID
+### Video by YouTube ID
 e.g. `/videos/_EcoRpYr3FE`
 
 Returns a JSON object containing:
@@ -104,7 +104,7 @@ Returns a JSON object containing:
 - youtube_id (string)
 - youtube_url (string)
 
-#### /person
+### /person
 Returns a list of person objects.
 
 ```JSON5
@@ -123,7 +123,7 @@ Returns a list of person objects.
 }]
 ```
 
-#### /event_type
+### /event_type
 Returns a list of event_type objects.
 
 ```JSON5
@@ -137,7 +137,7 @@ Returns a list of event_type objects.
 }]
 ```
 
-#### /event
+### /event
 Returns a list of event objects.
 
 ```JSON5
