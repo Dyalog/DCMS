@@ -206,3 +206,15 @@ Returns a list of presentation type objects.
     updated_by:   ""
 }]
 ```
+
+### /dtv_events
+Returns a list of objects. These are events which have at least one video associated with a presentation and therefore should be listed in the video library dropdown.
+
+```JSON5
+[{
+    id: 0,        // ID in event table
+    title: "",
+    type: "",     // Type from presentation_type table
+    url_slug: "", // AKA shortname, the URL friendly event name
+}]
+```

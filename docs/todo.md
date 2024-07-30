@@ -18,7 +18,7 @@ For each endpoint:
 - [x] [presentation](./api.md#presentation)
 - [x] [presentation_type](./api.md#presentation_type)
 - [x] [presenters](./api.md#presenters)
-- [ ] [dtv_events](./api.md#dtv_events)
+- [x] [dtv_events](./api.md#dtv_events)
 - [x] [version](./api.md#version)
 
 ## POST
