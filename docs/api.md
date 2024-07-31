@@ -94,6 +94,24 @@ For total query results n and current page p, the links provided in the response
 ### Video by YouTube ID
 e.g. `/videos/_EcoRpYr3FE`
 
+Returns a JSON object.
+
+```JSON5
+{
+    category: "",
+    description: "",
+    event: "",
+    event_shortname: "",
+    presented_at: "YYYY-MM-DD hh:mm:ss",
+    presenter: "",
+    published_at: "YYYY-MM-DD hh:mm:ss",
+    thumbnail: "",  // URL to image file
+    title: "",
+    url: "",
+    youtube_id: ""
+}
+```
+
 ### /videos/recommended
 Returns a list of video objects. 
 
