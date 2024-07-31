@@ -18,7 +18,8 @@
              :EndSelect
          :EndHold
      :Else
-         msg←(⎕EM ⎕EN),': ',{⍵⌿⍨∧\' '≠⍵}2⊃⎕DMX.DM
-         msg req.Fail 501
+         allowed←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -_.~!#$&''()*+,/:;=?@[]'
+         msg←(⍕⎕DMX.DM)∩allowed ⍝(⎕EM ⎕EN),': ',{⍵⌿⍨∧\' '≠⍵}2⊃⎕DMX.DM
+         msg req.Fail 500
      :EndTrap
  :EndIf
