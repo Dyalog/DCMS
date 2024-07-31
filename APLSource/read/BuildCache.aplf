@@ -1,4 +1,4 @@
- r←BuildCache opt;ep;CACHE;SQL;vids;vp;RLTB;dtcol;txtcol;norm
+ r←BuildCache opt;ep;CACHE;SQL;vids;vp;RLTB;dtcol;txtcol;norm;II;Values
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Store simple character matrices for search
 ⍝ Create term-frequency inverse-document-frequency index for search
@@ -9,7 +9,9 @@
  CACHE.presenters←,SQL.Do ep.presenters.sql
  CACHE.dtv_events←Table2JSON ep.dtv_events.fields⍪SQL.Do ep.dtv_events.sql
 
- vids←CACHE.videos←⎕NS''
+ :If 0=⎕NC'CACHE.videos' ⋄ CACHE.videos←⎕NS'' ⋄ :EndIf
+⍝ TODO these should be computed in a separate NS and then copied into CACHE.videos atomically at the end!
+ vids←CACHE.videos
  vids.fields←ep.videos.fields
  vids.values←SQL.Do ep.videos.sql
  vp←{⍵[;1],∘⊂⌸⍵[;2]}##.SQL.Do ep.videos.presenter.sql
@@ -30,6 +32,12 @@
  vids.index_cols[txtcol]←RLTB¨⍕∘⍪¨vids.index_cols[txtcol]
  vids.index_all[;norm]←##.Unidecode.NormaliseText¨vids.index_all[;norm←vids.fields⍳⊂'presenter']
  vids.index_all←⍕vids.index_all
-
- vids.recommended←videos.ComputeRecommended vids.index_cols⌷⍨⊂vids.fields⍳⊆'title' 'description'
+⍝ Similarity computation is expensive, so we perform it in an isolate
+⍝ See http://docs.dyalog.com/latest/Parallel%20Language%20Features.pdf
+⍝ The recommended variable (a future) is semi-global within the DCMS.read namespace
+⍝ so that the read.videos.Recommended function can access future values when they are available
+ II←##.##.II ⋄ Values←##.##.isolate.Values
+ recommended←videos.ComputeRecommended II vids.index_cols⌷⍨⊂vids.fields⍳⊆'title' 'description'
+ :If 0=⎕NC'vids.recommended' ⋄ vids.recommended←(1⍴⍨⊢,¯1∘+)≢vids.values ⋄ :EndIf
+ vids.recommended←⊃vids.recommended Values'recommended'
  r←'Updated cache and video recommendations'

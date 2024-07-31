@@ -1,11 +1,21 @@
- r←Recommended req;ytid;vids;this;fields;fid;rec;Q;n
-⍝ Recommended videos should come from a separate query
+ r←Recommended req;ytid;vids;this;fields;fid;rec;Q;n;Values;all_id
+⍝ List of video objects most related to video with youtube_id given by "v" query parameter
  Q←{⊃(req.QueryParams⍪⊂'')[req.QueryParams[;1]⍳⊂,⍵;2]}
  ytid←Q'v'
- n←2⊃⎕VFI Q'n'
+ n←{0∊⍴⍵:1 ⋄ 2⊃⎕VFI ⍵}Q'n'   ⍝ Number of results. Default 1.
  vids←##.##.CACHE.videos
- this←(vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id')⍳ytid
- fields←'title' 'event' 'event_shortname' 'presented_at' 'category' 'url' 'youtube_id' 'thumbnail' 'presenter'
- fid←vids.fields⍳fields
- rec←vids.recommended[this;⍳n]
- r←##.Table2JSON fields⍪##.##.CACHE.videos.values[rec;fid]
+ Values←#.isolate.Values
+ vids.recommended←⊃vids.recommended Values'##.recommended'   ⍝ Use existing values unless the ComputeRecommended isolate has finished processing
+ all_id←vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id'
+ :If 0∊⍴ytid
+     r←req.Fail 422
+ :ElseIf (≢ytid)=⊢/⍴all_id
+     this←all_id⍳ytid
+ :AndIf this≤≢vids.values
+     fields←'title' 'event' 'event_shortname' 'presented_at' 'category' 'url' 'youtube_id' 'thumbnail' 'presenter'
+     fid←vids.fields⍳fields
+     rec←vids.recommended[this;⍳n]
+     r←##.Table2JSON fields⍪##.##.CACHE.videos.values[rec;fid]
+ :Else
+     r←req.Fail 404   ⍝ Video not found
+ :EndIf

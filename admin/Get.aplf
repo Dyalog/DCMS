@@ -1,7 +1,7 @@
  Get←{
 ⍝ Retrieve resource from DCMS
      ⍺←Secrets'upload_token'
-     url←(GetEnv'service_url'),'/',¯1 ⎕C ⍵
+     url←(GetEnv'service_url'),'/',⍵
      h←⎕NEW HttpCommand
      h.Command←'GET'
      h.TranslateData←1

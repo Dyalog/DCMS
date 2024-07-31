@@ -20,5 +20,7 @@ For each endpoint:
 - [x] [presenters](./api.md#presenters)
 - [x] [dtv_events](./api.md#dtv_events)
 - [x] [version](./api.md#version)
+- [x] [recommended](./api.md#recommended)
 
 ## POST
+- [x] [refresh](./api.md#refresh)

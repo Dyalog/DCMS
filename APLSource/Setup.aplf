@@ -8,6 +8,7 @@
  :EndIf
  ⎕←'Loading dependencies...'
  'SQA'SQL.⎕CY'sqapl'
+ #.⎕CY'isolate'
  LoadDependency←{0=##.⎕NC ⍵:⎕SE.Link.Import ##,⍥⊂GetEnv ⍵}
  LoadDependency¨'Jarvis' 'HttpCommand'
  ⎕←'Setting app_dir'

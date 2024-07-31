@@ -94,19 +94,30 @@ For total query results n and current page p, the links provided in the response
 ### Video by YouTube ID
 e.g. `/videos/_EcoRpYr3FE`
 
-Returns a JSON object containing:
+### /videos/recommended
+Returns a list of video objects. 
 
-- category (string)
-- description (string)
-- event (string)
-- event_shortname (string)
-- presenter (string)
-- published_at (datetime)
-- thumbnail (string)   # URL
-- title (string)
-- url (string)
-- youtube_id (string)
-- youtube_url (string)
+```JSON5
+[{
+    category: "",
+    event: "",
+    event_shortname: "",
+    presented_at: "YYYY-MM-DD hh:mm:ss",
+    presenter: "",
+    thumbnail: "",  // URL to image file
+    title: "",
+    url: "",
+    youtube_id: ""
+}]
+```
+
+#### Query parameters
+
+##### v
+`?v=youtube_id` get video recommendations based on the video with this YouTube ID.
+
+##### n
+`?n=` where `n` is a positive integer. Return `n` results.
 
 ### /person
 Returns a list of person objects.
@@ -218,3 +229,11 @@ Returns a list of objects. These are events which have at least one video associ
     url_slug: "", // AKA shortname, the URL friendly event name
 }]
 ```
+
+## POST
+All POST requests require authentication.
+
+### /refresh
+Trigger the building of CACHE items and re-compute [recommended videos](#videosrecommended).
+
+Some [GET](#get) endpoints do a simple SQL SELECT query. Others involve more complex joins or free text search over multiple columns. For performance, these joins are performed and the result stored in the cache namespace. GET requests then retrieve data from this cache rather than performing joins each time.

@@ -1,0 +1,12 @@
+ TestGetRecommendedVideos←{
+     ⎕←'Test GET videos/recommended'
+     ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'videos/recommended'
+     G←url∘HttpGet
+     _←Assert((⊢≡∪)∧(1=≢))(G'?v=Mj4wyLKrBho')
+     _←Assert((⊢≡∪)∧(2=≢))(G'?v=Mj4wyLKrBho&n=2')
+     _←Assert((⊢≡∪)∧(6=≢))(G'?v=itGiA56NSl8&n=6')
+     _←Assert 422=(##.HttpCommand.Get url).HttpStatus
+     _←Assert 404=(##.HttpCommand.Get url,'?v=VIDNOTFOUND').HttpStatus
+     _←Assert 404=(##.HttpCommand.Get url,'?v=BADID').HttpStatus
+     1
+ }
