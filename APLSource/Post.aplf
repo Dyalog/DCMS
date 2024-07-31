@@ -19,6 +19,6 @@
          :EndHold
      :Else
          msg←(⎕EM ⎕EN),': ',{⍵⌿⍨∧\' '≠⍵}2⊃⎕DMX.DM
-         msg req.Fail 500
+         msg req.Fail 501
      :EndTrap
  :EndIf
