@@ -25,7 +25,7 @@
      service.Paradigm←'REST'
      service.Port←2⊃⎕VFI GetEnv'service_port'
      service.url←(GetEnv'service_url'),':',⍕service.Port
-     service.Debug←debug
      service.AcceptFrom←GetEnv'allow_from'
      service.Start
  :EndIf
+ service.Debug←debug
