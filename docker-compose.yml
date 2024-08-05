@@ -2,7 +2,8 @@ version: "2"
 
 services:
     web:
-        image: dyalog/dyalog:18.2
+        #image: dyalog/dyalog:19.0
+        build: .
         volumes:
         - ${PWD}:/app
         - ${PWD}/data:/data
