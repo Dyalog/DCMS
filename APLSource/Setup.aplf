@@ -1,4 +1,6 @@
  Setup debug;app_dir;LoadDependency
+ 'DRC'#.⎕CY'conga'
+ #.DRC.Init''
  ⎕←'Setting up...'
  'GLOBAL'⎕NS''
  :If 0∊⍴debug
