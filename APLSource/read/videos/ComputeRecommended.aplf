@@ -3,6 +3,7 @@
 ⍝ ←: integer matrix
 ⍝    each row corresponds to one video in CACHE.videos
 ⍝    the numbers are indices into CACHE.videos of those with closest cosine similarity based on alphabet words found in titles and descriptions
+     ÷0
      0∊⍴⍵:0 0⍴''
      tok←∪(⎕C ⎕A)(∊⍨⊆⊢)⊃,/,¨' ',¨⍵
      tok⌿⍨←1<≢¨tok
