@@ -11,7 +11,7 @@
 ⍝ Filter by date range
  (fm to)←DT2DDN∘Q¨'from' 'to'
  in_range←(fm to)FilterDateTimes ddn←C'presented_at'
- ÷0
+
 ⍝ Filter by columns: presenter, event
  presenter←(Q FilterPresenter C)'presenter'
  event←(Q⊣/⍤⍷C)'event_shortname'
