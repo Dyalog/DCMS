@@ -1,6 +1,8 @@
  Setup debug;app_dir;LoadDependency
- 'DRC'#.⎕CY'conga'
- #.DRC.Init''
+ :If 0=#.⎕NC'Conga'
+     'Conga'#.⎕CY'conga'
+     #.DRC←#.Conga.Init''
+ :EndIf
  ⎕←'Setting up...'
  'GLOBAL'⎕NS''
  :If 0∊⍴debug
@@ -23,6 +25,7 @@
  ⎕←SQL.ProcessTableInformation ⍬
  :If 0=⎕NC'service'
      service←⎕NEW ##.Jarvis
+     service.ErrorInfoLevel←2
      service.CodeLocation←⎕THIS
      service.Paradigm←'REST'
      service.Port←2⊃⎕VFI GetEnv'service_port'
