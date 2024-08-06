@@ -32,7 +32,7 @@ services:
           cpus: "0.50"
           memory: "1073741824"
     env_file: env
-    image: dyalog/dyalog:18.2
+    image: dyalog/dyalog:19.0
     networks:
       dcms: null
       traefik-public: null
