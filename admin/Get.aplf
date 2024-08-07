@@ -1,12 +1,13 @@
  Get←{
 ⍝ Retrieve resource from DCMS
-     ⍺←Secrets'upload_token'
-     url←(GetEnv'service_url'),'/',⍵
+     ⍺←GetEnv'service_url' ⋄ url←⍺
+     url,←'/',⍵
      h←⎕NEW HttpCommand
      h.Command←'GET'
      h.TranslateData←1
      h.Headers←0 2⍴''
-     h.Headers⍪←'Authorization'('Bearer ',⍺)
+     token←Secrets'upload_token'
+     h.Headers⍪←'Authorization'('Bearer 'token)
      h.URL←url
      h.Run
  }
