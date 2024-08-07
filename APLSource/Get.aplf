@@ -18,6 +18,10 @@
          res←CACHE⍎1↓req.Endpoint
      :ElseIf req.Endpoint≡'/version'
          res←Version
+     :ElseIf req.Endpoint≡'/teapot'
+         'I am definitely a tea pot'req.Fail 418
+     :ElseIf req.Endpoint≡'/fail'
+         'This is a special failure message. Congratulations'req.Fail 500
      :Else
          req.Fail 404
      :EndIf
