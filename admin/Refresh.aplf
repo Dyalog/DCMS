@@ -1,6 +1,7 @@
  Refresh←{
      opt←⎕NS''
-     opt.url←(GetEnv'service_url'),'/refresh'
+     0∊⍴⍵:∇ GetEnv'service_url'
+     opt.url←⍵,'/refresh'
      opt.token←Secrets'upload_token'
      opt.data←''
      h←upload.BuildRequest opt
