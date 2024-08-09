@@ -1,8 +1,8 @@
- res←Post req;msg
+ res←Post req;msg;nl;allowed
  :If 0<GLOBAL.debug ⋄ last←req ⋄ :EndIf
  res←auth.VerifyToken req
  :If ~∨/401 403∊res.Status
-     :Trap GLOBAL.debug↓0
+     :Trap GLOBAL.debug↓0 0
          :Hold 'SQL.db'
              :Select req.Endpoint
              :CaseList '/person' '/event' '/event_type' '/presentation_type'
@@ -13,13 +13,16 @@
                  res←import.PresentationMaterial req
              :Case '/refresh'
                  res←read.BuildCache''
+             :Case '/fail'
+                 {'Failed on purpose.'⎕SIGNAL 42}''
              :Else
-                 res←req.Fail 404
+                 req.Fail 404
              :EndSelect
          :EndHold
      :Else
-         allowed←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -_.~!#$&''()*+,/:;=?@[]'
-         msg←(⍕⎕DMX.DM)∩allowed ⍝(⎕EM ⎕EN),': ',{⍵⌿⍨∧\' '≠⍵}2⊃⎕DMX.DM
-         msg req.Fail 500
+         ''req.Fail 500   ⍝ Fail with no HTTP "reason phrase"
+         nl←⎕UCS 10
+         allowed←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -_.~!#$&''()*+,/:;=?@[]',nl
+         req.Response.Payload←allowed∩⍨⊃(⊣,nl,⊢)/(⎕EM ⎕DMX.EN),⍥⊆⎕DMX.DM
      :EndTrap
  :EndIf

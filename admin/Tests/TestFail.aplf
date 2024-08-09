@@ -1,0 +1,13 @@
+ TestFail←{
+     ⎕←'Test error reporting'
+     ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'fail'
+     _←'opt'⎕NS''
+     opt.url←url
+     opt.token←##.Secrets'upload_token'
+     opt.data←''
+     h←##.upload.BuildRequest opt
+     r←h.Run
+     _←Assert 500=r.HttpStatus
+     _←Assert'ERROR 42'≡8↑r.Data
+     1
+ }

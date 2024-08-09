@@ -25,7 +25,7 @@
  ⎕←SQL.ProcessTableInformation ⍬
  :If 0=⎕NC'service'
      service←⎕NEW ##.Jarvis
-     service.ErrorInfoLevel←2
+     service.ErrorInfoLevel←0
      service.CodeLocation←⎕THIS
      service.Paradigm←'REST'
      service.Port←2⊃⎕VFI GetEnv'service_port'
