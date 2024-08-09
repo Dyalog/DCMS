@@ -5,7 +5,6 @@
      t←##.GLOBAL.tables⍳⊂⍵
      (col typ)←t⊃¨##.GLOBAL.(columns type_sqapl)
      ⍺←''
-     ÷0
      0∊⍴⍺:col typ
      typ[col⍳⍺]
  }
