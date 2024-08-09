@@ -1,4 +1,4 @@
- res←Get req
+ res←Get req;allowed;nl
  :If 0<GLOBAL.debug
      ⎕←req.Endpoint
      last←req
@@ -19,12 +19,10 @@
      :ElseIf req.Endpoint≡'/version'
          res←Version
      :ElseIf req.Endpoint≡'/teapot'
-         'I am definitely a tea pot'req.Fail 418
-     :ElseIf req.Endpoint≡'/fail'
-         'This is a special failure message. Congratulations'req.Fail 500
+         req.Fail 418
      :Else
          req.Fail 404
      :EndIf
  :Else
-     req.Fail 500
+     'Internal Server Error'req.Fail 500
  :EndTrap
