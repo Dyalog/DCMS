@@ -11,10 +11,10 @@
      Update←{
     ⍝ Update posts with id by including id in path
     ⍝ ⍺: List of request objects
-    ⍝ ⍵: List of request bodies 
+    ⍝ ⍵: List of request bodies
          ud←∊0≠⍺.⎕NC⊂'id'
          ~∨/ud:⍵
-         _←(ud/⍵).path,←⍕¨(ud/⍺).id
+         _←(ud/⍵).path,←'/',∘⍕¨(ud/⍺).id
          ⍵
      }
 

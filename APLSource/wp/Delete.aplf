@@ -5,7 +5,7 @@
  name←wp.user
  pass←wp.token~' '
  h←##.##.HttpCommand.New'DELETE'
- h.URL←url,post
+ h.URL←RemoveDuplicateSlashes url,post
  h.Auth←name pass
  h.TranslateData←1  ⍝ Automatically convert JSON response to namespace
  r←h.Run

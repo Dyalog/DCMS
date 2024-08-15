@@ -1,0 +1,5 @@
+ RemoveDuplicateSlashes←{
+ ⍝ ⍵: URL simple char vec
+ ⍝ ←: Remove duplicate forward slash / except first (http[s]://)
+     ⍵⌿⍨(~⊢><\)1(⊢∧⌽)'/'=⍵
+ }

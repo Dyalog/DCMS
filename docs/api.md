@@ -254,4 +254,11 @@ All POST requests require authentication.
 ### /refresh
 Trigger the building of CACHE items and re-compute [recommended videos](#videosrecommended).
 
-Some [GET](#get) endpoints do a simple SQL SELECT query. Others involve more complex joins or free text search over multiple columns. For performance, these joins are performed and the result stored in the cache namespace. GET requests then retrieve data from this cache rather than performing joins each time.
+Some [GET](#get) endpoints do a simple SQL SELECT query. Others involve more complex joins and recommendations are computed using cosine similarity over large amounts of text. For performance, these computations are performed and the result stored in the cache namespace. GET requests then retrieve data from this cache rather than computing each time.
+
+### /wp_update_team_dyalog_videos
+Trigger pushing Team Dyalog Videos custom posts to website.
+
+`?n=` where `n` is a positive integer (default 10). Push up to `n` latest videos per person.
+
+This will get up to the `n` latest videos for each Team Dyalog member and list them on their team pages.

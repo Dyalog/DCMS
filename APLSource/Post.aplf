@@ -13,6 +13,8 @@
                  res←import.PresentationMaterial req
              :Case '/refresh'
                  res←read.BuildCache''
+             :Case '/wp_update_team_dyalog_videos'
+                 res←wp.PushTeamDyalogVideos req
              :Case '/fail'
                  {'Failed on purpose.'⎕SIGNAL 42}''
              :Else

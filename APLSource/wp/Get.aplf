@@ -7,7 +7,7 @@
      h←##.##.HttpCommand.New'GET'
      and←'?&'[1+'?'∊⍵]
      wp←##.GLOBAL.secrets.wordpress
-     h.URL←wp.url,'wp/v2/',⍵,and,'page=',⍕⍺
+     h.URL←RemoveDuplicateSlashes wp.url,'wp/v2/',⍵,and,'page=',⍕⍺
      name←wp.user ⋄ pass←wp.token~' '
      h.Auth←name pass
      h.TranslateData←1   ⍝ Automatically convert JSON response to namespace
