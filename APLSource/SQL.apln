@@ -3,8 +3,9 @@
     Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
     FromUTF8←'UTF-8'∘(⊣⎕UCS ⎕UCS)
 
-    db←'db'   ⍝ SQAPL connector identifier
-    SQA←⍬     ⍝ SQAPL API reference set on Connect
+    db←'db'      ⍝ SQAPL connector identifier
+    cur←'db.i'   ⍝ Cursor for bulk operations
+    SQA←⍬        ⍝ SQAPL API reference set on Connect
 
     :section SQAPL
 
@@ -50,7 +51,6 @@
     ∇
 
     ∇ r←DoBulk(sql values);bulk;nulls;n
-      cur←db,'.i'
       n←≢⊃⍣(1=≢⍴values)⊢values
       r←Catch SQA.Prepare cur sql('Bulk'n)
       r←Catch SQA.X cur,⍥⊆values
