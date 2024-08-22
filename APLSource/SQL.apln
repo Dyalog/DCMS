@@ -34,9 +34,7 @@
           ⎕←r
           ('Could not connect to ',⊃datasource)⎕SIGNAL⊃r
       :EndIf
-      SQA.Do db'create database if not exists dyalog_cms'
-      Use'dyalog_cms'
-      ⎕←'Connected to SQL database'
+      ⎕←'Connected to SQL database: ',⊃datasource
     ∇
 
     ∇ r←Reconnect opt;src;timeout;found
