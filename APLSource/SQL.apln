@@ -21,7 +21,11 @@
 
     ∇ r←Connect datasource;src;opt
       SQA.Init''
-      src←SQA.DSN'' ⋄ src←2⊃src
+      :If 0=⊃src←SQA.DSN''
+          src←2⊃src          ⍝ List of available ODBC data sources
+      :Else
+          (2⊃src)⎕SIGNAL 500 ⍝ Error getting ODBC data sources
+      :EndIf
       :If ~(1⌷datasource)∊⍥⎕C⊣/src
           'opt'⎕NS ⍬ ⋄ opt.(wait timeout)←3 5 ⋄ opt.datasource←⊃datasource
           Reconnect opt
