@@ -21,6 +21,8 @@
  GLOBAL.secrets←ReadJSON GetEnv'SECRETS'
  ⎕←'Initialising SQAPL...'
  ⎕←SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
+ ⎕←SQL.Do'create database if not exists dyalog_cms'
+ ⎕←SQL.Use'dyalog_cms'
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
  :If 0=⎕NC'service'
