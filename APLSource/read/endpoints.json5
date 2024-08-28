@@ -32,7 +32,8 @@
 
     dtv_events: {
         fields: ["id", "title", "type", "url_slug"],
-        sql: "SELECT DISTINCT e.id,e.title,pt.type,e.url_slug FROM event AS e\
+        sql: "SELECT DISTINCT e.id,e.title,etype.type,e.url_slug FROM event AS e\
+                INNER JOIN event_type AS etype ON e.type = etype.id\
                 INNER JOIN presentation ON presentation.event_id = e.id\
                 INNER JOIN presentation_media AS pm ON pm.presentation_id = presentation.id\
                 INNER JOIN presentation_type AS pt ON presentation.type_id = pt.id\
