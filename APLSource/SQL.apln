@@ -13,7 +13,12 @@
       en←⊃msg
       :If 0<en       ⍝ Server error if database operation fails
           SQA.Close cur
-          (3⊃msg)⎕SIGNAL 500
+          :If 2006=2 2⊃msg   ⍝ SQL server has gone away
+              SQA.Close db
+              Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
+          :Else
+              (3⊃msg)⎕SIGNAL 500
+          :EndIf
       :ElseIf 0>en   ⍝ Print warnings to session and continue
           ⎕←msg
       :EndIf
@@ -34,6 +39,8 @@
           ⎕←r
           ('Could not connect to ',⊃datasource)⎕SIGNAL⊃r
       :EndIf
+      ⎕←Do'create database if not exists dyalog_cms'
+      ⎕←Use'dyalog_cms'
       ⎕←'Connected to SQL database: ',⊃datasource
     ∇
 
