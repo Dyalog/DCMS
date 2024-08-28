@@ -23,6 +23,7 @@
  ⎕←SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
+ ⎕←read.BuildCache''
  :If 0=⎕NC'service'
      service←⎕NEW ##.Jarvis
      service.ErrorInfoLevel←0
