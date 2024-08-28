@@ -4,7 +4,7 @@
      sql←'SELECT id,youtube_id FROM youtube_video'
      (id yt)←↓⍉##.##.SQL.Do sql
      0∊⍴yt:⍬ ⍬
-     bitmask←⍵∊yt
-     ids←bitmask⌿(id,⊂'')[yt⍳⍵]
-     bitmask ids
+     exists←⍵∊yt
+     ids←exists⌿(id,⊂'')[yt⍳⍵]
+     exists ids
  }
