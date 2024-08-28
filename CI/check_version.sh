@@ -14,7 +14,7 @@ fi
 
 REPO_DIR="$(dirname $0)/../"
 
-VERSION_SOURCE="${D}/src/Version.aplf"
+VERSION_SOURCE="${D}/APLSource/Version.aplf"
 
 FILES="$VERSION_SOURCE"
 MISSING=""
