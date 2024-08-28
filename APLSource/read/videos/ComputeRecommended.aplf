@@ -1,13 +1,17 @@
  ComputeRecommended←{
-⍝ ⍵: vector of character matrices of video titles
+⍝ ⍵: vector of character matrices of video titles, descriptions and presenters
 ⍝ ←: integer matrix
 ⍝    each row corresponds to one video in CACHE.videos
-⍝    the numbers are indices into CACHE.videos of those with closest cosine similarity based on alphabet words found in titles and descriptions
+⍝    the numbers are indices into CACHE.videos of those with closest cosine similarity based on alphabet words found in fields ⍵
      0∊⍴⍵:0 0⍴''
-     tok←∪(⎕C ⎕A)(∊⍨⊆⊢)⊃,/,¨' ',¨⍵
-     tok⌿⍨←1<≢¨tok
-     trm←⍉↑tok(+/⍷)¨⊂⍕⍵
-     Abs←{0.5*⍨+/⍵*2}                   ⍝ vector magnitude
-     sim←{(+.×⍤1⍤1 2⍨⍵)÷∘.×⍨Abs ⍵}trm   ⍝ cosine similarity based on terms found
+     tok←(⎕C ⎕A)(⊂∘↑∊⍨⊆⊢)⍤1⊃,/' ',¨⍵   ⍝ tokenised records as character matrices
+     tok↑⍤1¨⍨←⌈/⊢/¨⍴¨tok               ⍝ normalise character matrix to same widths
+     trm←∪⊃⍪⌿tok                       ⍝ unique terms
+     occ←trm∘⍳¨tok                     ⍝ unique terms found in tokenised records
+     cnt←0(≢trm)⍴0
+     _←{o←0⍴⍨≢trm ⋄ o[⍵]+←1 ⋄ cnt⍪←o}¨occ   ⍝ count of terms found in each record
+
+     Abs←{0.5*⍨+/⍵*2}                  ⍝ vector magnitude
+     sim←(cnt+.×⍉cnt)÷∘.×⍨Abs cnt      ⍝ cosine similarity based on occurance count of terms
      1(↓⍤1)(⍒⍤1)sim
  }
