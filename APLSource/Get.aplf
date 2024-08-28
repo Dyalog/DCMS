@@ -10,7 +10,7 @@
      res.Headers⍪←'Access-Control-Allow-Headers' '*'
 
      req.Endpoint←{⍵⌿⍨1(⊢∨⌽)'/'≠⍵}req.Endpoint   ⍝ Remove multiple slashes
-     :If req.Endpoint StartsWith'/videos'
+     :If req.Endpoint(⊃⍷⍨)'/videos'
          res←read.videos.Handle req
      :ElseIf 1=+/req.Endpoint∘≡¨'/person' '/event' '/event_type' '/presentation' '/presentation_type'
          res←read.Table 1↓req.Endpoint

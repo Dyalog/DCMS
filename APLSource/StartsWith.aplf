@@ -1,7 +1,0 @@
- StartsWith←{
-⍝ ⍺: simple char vec
-⍝ ⍵: 1 or more char vec prefixes
-⍝ ←: 1 if ⍺ starts with any of ⍵
-     pref←,⊆⍵
-     ∨/pref≡¨(≢¨pref)↑¨⊂⍺
- }

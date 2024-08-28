@@ -1,0 +1,10 @@
+ Post←{
+⍝ Retrieve resource from DCMS
+     opt←⎕NS''
+     ⍺←GetEnv'service_url'
+     opt.url←⍺,'/',⍵
+     opt.token←Secrets'upload_token'
+     opt.data←''
+     h←upload.BuildRequest opt
+     h.Run
+ }
