@@ -45,7 +45,7 @@
  :If ~0∊⍴exists
      delete←exists⌿⍨(≢posts)<posts.acf.(media_id person_id)⍳exists.acf.(media_id person_id)
  :AndIf ~0∊⍴delete
-     r,←⎕TSYNC Delete&¨'/wp/v2/team-dyalog-videos/'∘,¨⍕¨delete.id
+     r,←Delete¨'/wp/v2/team-dyalog-videos/'∘,¨⍕¨delete.id
  :EndIf
  create←posts
 
