@@ -55,7 +55,7 @@ Returns a list of video objects
 `?to=date` for videos no more recent than `date` of form `YYYY-MM-DD`
 
 #### filter by event
-`?event=e` where `e` is the URL slug / short name of event (e.g. Dyalog '22 → dyalog-22)
+`?event_shortname=e` where `e` is the URL slug / short name of event (e.g. Dyalog '22 → dyalog-22)
 
 #### pagination
 `?per_page=n` where n is a positive integer. Optionally, `?page=k` where k is a positive integer.

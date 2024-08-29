@@ -26,9 +26,9 @@
  data←(filter⌿CACHE.videos.values)[i;]
  :Select Q'sort'
  :Case 'newest'
-     data←data[⍒ddn[i];]   ⍝ newest
+     data←data[⍒(filter⌿ddn)[i];]   ⍝ newest
  :Case 'oldest'
-     data←data[⍋ddn[i];]   ⍝ oldest
+     data←data[⍋(filter⌿ddn)[i];]   ⍝ oldest
  :EndSelect
 
 ⍝ Convert to JSON and paginate

@@ -20,6 +20,10 @@
      _←Assert∧/p(∨/⍷)¨(G q).presenter
      evt←'Dyalog ''21' ⋄ q←'?event_shortname=dyalog-21'
      _←Assert∧/evt∘≡¨(G q).event             ⍝ by event
+     q←'?event_shortname=webinar&sort=newest'
+     _←Assert(⊢≡{⍵[⍒⍵]})(G q).presented_at
+     q←'?event_shortname=webinar&sort=oldest'
+     _←Assert(⊢≡{⍵[⍋⍵]})(G q).presented_at
      q←'?search=&presenter=&event='
      _←Assert∧/fields∊(G q)[1].⎕NL-⍳9        ⍝ all parameters empty
      q←'?sort=newest'
