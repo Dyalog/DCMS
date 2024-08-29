@@ -34,3 +34,5 @@
      service.Start
  :EndIf
  service.Debug←debug
+ ⎕←read.BuildCache''
+ 
