@@ -1,17 +1,16 @@
  Run debug;app_dir;LoadDependency
-⍝ Set up dependencies 
+ ⎕←'Setting up...'
+ ⎕←'Loading dependencies...'
  :If 0=#.⎕NC'Conga'
      'Conga'#.⎕CY'conga'
      #.DRC←#.Conga.Init''
  :EndIf
- ⎕←'Setting up...'
  'GLOBAL'⎕NS''
  :If 0∊⍴debug
      GLOBAL.debug←⍬⍴GetEnv'debug'
  :Else
      GLOBAL.debug←debug
  :EndIf
- ⎕←'Loading dependencies...'
  'SQA'SQL.⎕CY'sqapl'
  #.⎕CY'isolate'
  LoadDependency←{0=##.⎕NC ⍵:⎕SE.Link.Import ##,⍥⊂GetEnv ⍵}
@@ -19,13 +18,13 @@
  ⎕←'Setting app_dir'
  GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
  Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
-⍝ Initialise SQL schema 
+⍝ Initialise SQL schema
  GLOBAL.secrets←ReadJSON GetEnv'SECRETS'
  ⎕←'Initialising SQAPL...'
  ⎕←SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
-⍝ Set up web service 
+⍝ Set up web service
  :If 0=⎕NC'service'
      service←⎕NEW ##.Jarvis
      service.ErrorInfoLevel←0
@@ -37,5 +36,11 @@
      service.Start
  :EndIf
  service.Debug←debug
- import.YouTube.CheckCacheExpiry ⍬
+ ⎕←'Setting up YouTube data timer...'
+ :If 0=GLOBAL.⎕NC'youtube_api_timer'
+     'youtube_api_timer'GLOBAL.⎕WC'Timer'
+     GLOBAL.youtube_api_timer.onTimer←'import.youtube.CheckCacheExpiry'
+     GLOBAL.youtube_api_timer.Interval←×/24 60 60 1000
+ :EndIf 
+ import.youtube.CheckCacheExpiry''
  ⎕←read.BuildCache ⍬

@@ -19,7 +19,7 @@
                 LEFT JOIN presentation_category AS c ON c.id = p.category_id\
                 WHERE m.type = \"youtube_video\"",
         presenter: {
-            sql: "SELECT yt.youtube_id,per.name\
+            sql: "SELECT yt.title,yt.youtube_id,per.name\
                     FROM presentation AS p\
                     RIGHT JOIN event AS e ON e.id = p.event_id\
                     INNER JOIN presentation_media AS m ON m.presentation_id = p.id\

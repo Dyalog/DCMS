@@ -2,10 +2,12 @@
  ytid←,⊆ytid
 ⍝ TODO use eTags to prevent API request for data we already have
  :If 0=⎕NC'override'
-     (titles pres)←⊂''
+     (titles pres)←⊂⊂''
  :Else
      (titles pres)←override
  :EndIf
+⍝ titles :: nested list of character vectors 2=≡titles
+⍝ pres   :: doubly nested list of character vectors 3=≡pres
  GBL←##.##.GLOBAL
  url←GBL.secrets.youtube
  key←GBL.secrets.youtube_key
@@ -23,3 +25,4 @@
  opts.values[;7]←19∘↑¨opts.values[;7]                                             ⍝ Drop 'Z' from YT timestamp
 
  ##.CreateUpdate opts
+ r←##.##.CACHE LastFetch ytid

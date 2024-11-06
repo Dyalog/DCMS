@@ -1,0 +1,15 @@
+ now←GBL LastFetch ytid;idx;new
+⍝ ytid: YouTube IDs      :: nested vector of character vectors
+⍝  GBL: global namespace :: reference
+⍝  now: Dyalog Date Number of current time and date
+⍝ Store last update of YouTube API data for each video ID
+ now←1 ⎕DT⊂⎕TS
+ :If 0=GBL.⎕NC'youtube_last_fetch'
+     GBL.youtube_last_fetch←(⍪ytid),now
+ :Else
+     idx←GBL.youtube_last_fetch[;1]⍳ytid
+     new←⍪(idx>≢GBL.youtube_last_fetch)⌿ytid
+     GBL.youtube_last_fetch[idx;2]←now
+     GBL.youtube_last_fetch⍪←new,now
+ :EndIf
+ ⎕←'Fetched ',(⍕≢ytid),' YouTube videos at ',¯1⎕DT now
