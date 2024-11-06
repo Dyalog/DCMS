@@ -18,8 +18,8 @@
 		DYALOG_VERSION:  18.2,
 		SECRETS:        "[app_dir]/secrets/secrets.json5",
 
-		Jarvis:      "/d/APL/packages/Jarvis.dyalog",
-		HttpCommand: "/d/APL/packages/HttpCommand.dyalog",
+		Jarvis:      "[app_dir]/packages/Jarvis.dyalog",
+		HttpCommand: "[app_dir]/packages/HttpCommand.dyalog",
 
 		CodeLocation: "#.DMCS",
 		Paradigm:     "REST",
