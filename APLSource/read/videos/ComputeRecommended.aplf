@@ -10,8 +10,6 @@
      occ←trm∘⍳¨tok                     ⍝ unique terms found in tokenised records
      cnt←0(≢trm)⍴0
      _←{o←0⍴⍨≢trm ⋄ o[⍵]+←1 ⋄ cnt⍪←o}¨occ   ⍝ count of terms found in each record
-
-     Abs←{0.5*⍨+/⍵*2}                  ⍝ vector magnitude
-     sim←(cnt+.×⍉cnt)÷∘.×⍨Abs cnt      ⍝ cosine similarity based on occurance count of terms
+     sim←(cnt+.×⍉cnt)÷∘.×⍨0.5*⍨+/cnt*2   ⍝ cosine similarity based on occurance count of terms
      1(↓⍤1)(⍒⍤1)sim
  }
