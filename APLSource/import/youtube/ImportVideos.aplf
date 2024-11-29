@@ -24,5 +24,4 @@
  opts.values,←⊂'DCMS.import.youtube.ImportVideos'
  opts.values[;7]←19∘↑¨opts.values[;7]                                             ⍝ Drop 'Z' from YT timestamp
 
- ##.CreateUpdate opts
- r←##.##.CACHE LastFetch ytid
+ r←##.CreateUpdate opts

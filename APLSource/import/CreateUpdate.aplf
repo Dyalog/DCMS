@@ -19,7 +19,7 @@
      columns←WrapBackticks columns
      types←WrapColons types
      sql←'INSERT INTO ',table,' (',columns,') VALUES (',types,')'
-     ##.SQL.DoBulk sql(values nulls)
+     r←##.SQL.DoBulk sql(values nulls)
  :Else
      (updates inserts)←(⊢,⍥⊂~),exists
      i_values←inserts⌿values
@@ -37,5 +37,5 @@
      u_values←(remove_id/u_values),opts.ids
      u_nulls←(remove_id/u_nulls),0
      sql←'UPDATE ',table,' SET ',' WHERE id=:<I:',⍨1↓∊u_columns ColumnEquals¨u_types
-     ##.SQL.DoBulk sql(u_values u_nulls)
+     r←##.SQL.DoBulk sql(u_values u_nulls)
  :EndIf

@@ -1,0 +1,4 @@
+r←RefreshData timer
+⎕←r←'Refreshed data at ',⍕⎕TS
+import.youtube.RefreshData''
+read.BuildCache''

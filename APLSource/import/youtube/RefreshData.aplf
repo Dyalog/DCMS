@@ -1,0 +1,8 @@
+ {r}←RefreshData timer;CACHE;ReadJSON;GetEnv;ep;ytid;title;pres;SQL;allid;old
+⍝ Periodically refresh data from YouTube API
+ :If 0=##.##.⎕NC'CACHE'
+     ##.##.read.BuildCache''
+ :EndIf
+ CACHE←##.##.CACHE
+ (title pres ytid)←↓⍉CACHE.videos.values[;CACHE.videos.fields⍳⊆'title' 'presenter' 'youtube_id']
+ r←(title pres)ImportVideos ytid

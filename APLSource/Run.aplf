@@ -36,11 +36,10 @@
      service.Start
  :EndIf
  service.Debug←debug
- ⎕←'Setting up YouTube data timer...'
- :If 0=GLOBAL.⎕NC'youtube_api_timer'
-     'youtube_api_timer'GLOBAL.⎕WC'Timer'
-     GLOBAL.youtube_api_timer.onTimer←'import.youtube.CheckCacheExpiry'
-     GLOBAL.youtube_api_timer.Interval←×/24 60 60 1000
- :EndIf 
- import.youtube.CheckCacheExpiry''
- ⎕←read.BuildCache ⍬
+ ⎕←'Setting up data refresh timer...'
+ :If 0=GLOBAL.⎕NC'data_refresh_timer'
+     'data_refresh_timer'GLOBAL.⎕WC'Timer'
+     GLOBAL.data_refresh_timer.Interval←×/2 60 1000
+     GLOBAL.data_refresh_timer.onTimer←'RefreshData'
+ :EndIf
+ ⎕←RefreshData''
