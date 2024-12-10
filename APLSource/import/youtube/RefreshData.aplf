@@ -5,4 +5,5 @@
  :EndIf
  CACHE←##.##.CACHE
  (title pres ytid)←↓⍉CACHE.videos.values[;CACHE.videos.fields⍳⊆'title' 'presenter' 'youtube_id']
+ pres←','∘(≠⊆⊢)¨pres
  r←(title pres)ImportVideos ytid
