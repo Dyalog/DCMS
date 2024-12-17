@@ -1,7 +1,7 @@
 {
 	Settings: {
 		MAXWS:          "2G",
-		DYALOG_VERSION:  18.2,
+		DYALOG_VERSION:  20.0,
 
 		service_url:    "http://localhost:8081",
 		dcms_dir:       "/g/DCMS3",

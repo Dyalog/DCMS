@@ -15,7 +15,7 @@
 		SQL_USER:       "dcms",
 		SQL_PASSWORD:   "dyalog",
 		SQL_PORT:        3306,
-		DYALOG_VERSION:  18.2,
+		DYALOG_VERSION:  20.0,
 		SECRETS:        "[app_dir]/secrets/secrets.json5",
 
 		Jarvis:      "[app_dir]/packages/Jarvis.dyalog",
