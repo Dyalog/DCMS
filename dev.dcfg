@@ -23,6 +23,6 @@
 
 		CodeLocation: "#.DMCS",
 		Paradigm:     "REST",
-		LX:           "⎕←⎕SE.Link.Create 'DCMS',⍥⊂⎕SE.Link.LaunchDir,'/APLSource' ⋄ ⎕CS DCMS ⋄ Run 2⊃∘⎕VFI GetEnv'debug'",
+		LX:           "⎕←(watch:'ns')⎕SE.Link.Create 'DCMS',⍥⊂⎕SE.Link.LaunchDir,'/APLSource' ⋄ ⎕CS DCMS ⋄ Run 2⊃∘⎕VFI GetEnv'debug'",
 	}
 }
