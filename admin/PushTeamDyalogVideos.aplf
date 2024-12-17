@@ -1,7 +1,9 @@
  PushTeamDyalogVideos←{
+ ⍝ ⍵: Number of latest videos per presenter to push (default: 10)
      opt←⎕NS''
      ⍺←GetEnv'service_url'
-     opt.url←⍺,'/wp_update_team_dyalog_videos?n=',⍕⍵
+     n←(⍵ 10)[1+0∊⍴⍵]
+     opt.url←⍺,'/wp_update_team_dyalog_videos?n=',⍕n
      opt.token←Secrets'upload_token'
      opt.data←''
      h←upload.BuildRequest opt
