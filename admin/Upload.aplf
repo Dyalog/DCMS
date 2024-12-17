@@ -1,40 +1,34 @@
- {r}←{workbook}Upload sheets;xl;idx;data;pres;nulls;type;etype;sheet
+ {r}←{workbook}Upload sheet_names;xl;idx;data;pres;nulls;type;etype;sheet;table;sheets;presentation_sheets
  :If 0=⎕NC'workbook'
      workbook←GetEnv'WORKBOOK'
  :EndIf
  'xl'⎕WC'OLEClient' 'Excel.Application'
  xl.Workbooks.Open⊂workbook
  xl.Visible←1
-⍝ If no sheet specified, upload all in order:
-⍝ - Person (independent)
-⍝ - Event (independent)
-⍝ - Presentation (depends Person and Event)
-⍝ - Presentation Material (depends Presentation)
-⍝ - Video
- :If ''≡sheets
-     sheets←xl.ActiveWorkbook.Sheets ⍝[⍳xl.ActiveWorkbook.Sheets.Count].Name
+
+ :If ''≡sheet_names
+     sheets←xl.ActiveWorkbook.Sheets
  :Else
-     sheets←xl.ActiveWorkbook.Sheets[⊆sheets]
+     sheets←xl.ActiveWorkbook.Sheets[⊆sheet_names]
  :EndIf
+
  r←⍬
  :For sheet :In sheets
      ⎕←'Updating ',sheet.Name,' data'
      data←sheet.UsedRange.Value2
      data←(⊂'')@(⎕NULL∘≡¨)data   ⍝ CSV can't have nulls
      data⌿⍨←~∧/0=≢¨data
-     :Select sheet.Name
-     :Case 'person'
-         ⎕←r,←⊂'person'upload.Table data
+     :Select table←⎕C sheet.Name
+     :CaseList 'person' 'organisation'
+         ⎕←r,←⊂table upload.Table data
+     :CaseList 'event_type' 'presentation_type' 'category'
+         ⎕←r,←⊂table upload.Table ¯1↓data   ⍝ Excel tables include a "Total" row that must be removed
      :Case 'event'
          ⎕←r,←⊂upload.Event data
-     :Case 'event_type'
-         ⎕←r,←⊂upload.EType data
-     :Case 'presentation'
-         ⎕←r,←⊂upload.Presentation data
-     :Case 'presentation_type'
-         ⎕←r,←⊂upload.PresentationType data
-     :Case 'presentation_material'
-         ⎕←r,←⊂upload.PresentationMaterial data
      :EndSelect
 
  :EndFor
+ presentation_sheets←'presentation' 'presenter' 'video'
+ :If ∨/presentation_sheets∊⊆sheet_names
+     r,←upload.PresentationInfo xl.ActiveWorkbook.Sheets[presentation_sheets]
+ :EndIf

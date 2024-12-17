@@ -1,0 +1,37 @@
+ PresentationInfo←{
+⍝ Combine data from `presentation`, `presenter` and `video` tables to update DCMS via /presentation endpoint
+     (prt prs vid)←⍵.UsedRange.Value2
+     0=≢evt←(Get'event').Data:'No events in database'⎕SIGNAL 6
+     0=≢ptype←(Get'presentation_type').Data:'No presentation types in database'⎕SIGNAL 6
+     (id ename code title type date cat)←↓⍉1↓prt
+     (pid _ _ _ pres aff _ _)←↓⍉1↓prs
+     json←0 ⎕JSON¨'{}'⍨¨id
+     json.id←id
+     json.title←title
+     json.event←(evt.id,0)[evt.title⍳ename]
+     json.code←code
+     json.type_id←(ptype.id,0)[ptype.type⍳type]
+     json.presented_at←'YYYY-MM-DD hh:mm:ss'∘FormatDateTime 1 ⎕DT 2⊃∘⎕VFI¨' '@('-'∘=)¨date
+     json.description←⊂''   ⍝ DCMS retrieves from YouTube
+     0=≢org←(Get'organisation').Data:'No organisations in database'⎕SIGNAL 6
+     0=≢per←(Get'person').Data:'No persons in database'⎕SIGNAL 6
+     per_id←(per.id,0)[per.name⍳pres]
+     org_id←(org.id,0)[org.name⍳aff]
+     presenters←##.Table2JSON'presenter' 'affiliation'⍪per_id,⍪org_id
+     (gid presenters)←↓⍉pid{⍺ ⍵}⌸presenters
+     json.presenter←presenters[gid⍳id]
+     vid⌿⍨←~∨/⎕NULL∘≡¨vid
+     (vpid _ _ _ vtitle vurl _ _ _)←↓⍉1↓vid
+     ytid←ExtractYouTubeID vurl
+     videos←##.Table2JSON'title' 'youtube_id'⍪vtitle,⍪ytid
+     (vpid videos)←↓⍉vpid{⍺ ⍵}⌸videos
+     json.videos←(videos,⊂⍬)[vpid⍳id]
+
+     opt←⎕NS''
+     opt.url←(##.GetEnv'service_url'),'/presentation'
+     opt.token←##.Secrets'upload_token'
+     opt.data←json
+
+     req←BuildRequest opt
+     req.Run
+ }

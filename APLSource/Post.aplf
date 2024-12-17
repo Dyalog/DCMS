@@ -5,7 +5,7 @@
      :Trap GLOBAL.debug↓0 0
          :Hold 'SQL.db'
              :Select req.Endpoint
-             :CaseList '/person' '/event' '/event_type' '/presentation_type'
+             :CaseList '/person' '/organisation' '/event' '/event_type' '/presentation_type' '/category'
                  res←req.Endpoint import.Table req
              :Case '/presentation'
                  res←import.Presentation req

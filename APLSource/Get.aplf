@@ -12,7 +12,7 @@
      req.Endpoint←{⍵⌿⍨1(⊢∨⌽)'/'≠⍵}req.Endpoint   ⍝ Remove multiple slashes
      :If req.Endpoint(⊃⍷⍨)'/videos'
          res←read.videos.Handle req
-     :ElseIf 1=+/req.Endpoint∘≡¨'/person' '/event' '/event_type' '/presentation' '/presentation_type'
+     :ElseIf 1=+/req.Endpoint∘≡¨'/person' '/organisation' '/event' '/event_type' '/presentation' '/presentation_type'
          res←read.Table 1↓req.Endpoint
      :ElseIf 1=+/req.Endpoint∘≡¨'/presenters' '/dtv_events'
          res←CACHE⍎1↓req.Endpoint
