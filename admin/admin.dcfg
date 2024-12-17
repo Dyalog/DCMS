@@ -4,7 +4,7 @@
 		DYALOG_VERSION:  20.0,
 
 		service_url:    "http://localhost:8081",
-		dcms_dir:       "/g/DCMS3",
+		dcms_dir:       "/g/DCMS",
 		admin_dir:      "[dcms_dir]/admin",
 		SECRETS:        "[dcms_dir]/secrets/secrets.json5",
 		WORKBOOK:       "/d/website/DCMS.xlsx",
