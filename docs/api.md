@@ -251,6 +251,88 @@ Returns a list of objects. These are events which have at least one video associ
 ## POST
 All POST requests require authentication.
 
+### /person
+Payload is a JSON list of objects for each person.
+
+```JSON5
+[{
+    id:    0,
+    name: "",
+}]
+```
+
+### /organisation
+
+```JSON5
+[{
+    id:    0,
+    name: "",
+    url:  "",
+}]
+```
+
+### /event_type
+
+```JSON5
+[{
+    id:        0,
+    type:     "",
+    url_slug: "",
+}]
+```
+
+### /event
+
+```JSON5
+[{
+    id:        0,
+    title:    "",
+    type:      0,
+    url_slug: "",
+}]
+```
+
+### /presentation_type
+
+```JSON5
+[{
+    id:    0,
+    type: "",
+}]
+```
+
+### /category
+
+
+```JSON5
+[{
+    id:        0,
+    category: "",
+}]
+```
+
+### /presentation
+
+```JSON5
+[{
+    id:        0,
+    title:    "",
+    event:     0,
+    code:     "",
+    type_id:   0,
+    presented_at: "YYYY-MM-DD hh:mm:ss",
+    presenter: [{
+        person:      0,
+        affiliation: 0,
+    }],
+    description: "",
+    videos: [{
+        title:      "",
+        youtube_id: "",
+    }]
+}]
+```
+
 ### /refresh
 Trigger the building of CACHE items and re-compute [recommended videos](#videosrecommended).
 
