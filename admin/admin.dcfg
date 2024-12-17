@@ -11,6 +11,6 @@
 
 		HttpCommand:    "/d/APL/packages/HttpCommand.dyalog",
 
-		LX:           "⎕←⎕SE.Link.Create 'DCMS_ADMIN',⍥⊂⎕SE.Link.LaunchDir ⋄ DCMS_ADMIN.Setup ⋄ ⎕CS DCMS_ADMIN",
+		LX:           "⎕←(watch:'ns')⎕SE.Link.Create 'DCMS_ADMIN',⍥⊂⎕SE.Link.LaunchDir ⋄ DCMS_ADMIN.Setup ⋄ ⎕CS DCMS_ADMIN",
 	}
 }
