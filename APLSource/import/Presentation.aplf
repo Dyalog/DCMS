@@ -2,7 +2,6 @@
  res←req.Response
  res.Status←201
  res.StatusText←'Created and/or Updated'
-
  SQL←##.SQL
  data←req.Payload
 
@@ -18,6 +17,7 @@
  opts.values←↑data.(event code title type_id description presented_at)
 
  CreateUpdate opts
+ res←opts.ids
 
 ⍝ Insert into presenter: data.presenter.person; presentation.id; data.presenter.affiliation
  opts←⎕NS''

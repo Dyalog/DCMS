@@ -29,6 +29,6 @@
 
  :EndFor
  presentation_sheets←'presentation' 'presenter' 'video'
- :If ∨/presentation_sheets∊⊆sheet_names
-     r,←upload.PresentationInfo xl.ActiveWorkbook.Sheets[presentation_sheets]
+ :If (0∊⍴sheet_names)∨∨/presentation_sheets∊⊆sheet_names
+     ⎕←r,←upload.PresentationInfo xl.ActiveWorkbook.Sheets[presentation_sheets]
  :EndIf

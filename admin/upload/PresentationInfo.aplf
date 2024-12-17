@@ -17,12 +17,13 @@
      0=≢per←(Get'person').Data:'No persons in database'⎕SIGNAL 6
      per_id←(per.id,0)[per.name⍳pres]
      org_id←(org.id,0)[org.name⍳aff]
-     presenters←##.Table2JSON'presenter' 'affiliation'⍪per_id,⍪org_id
+     presenters←##.Table2JSON'person' 'affiliation'⍪per_id,⍪org_id
      (gid presenters)←↓⍉pid{⍺ ⍵}⌸presenters
      json.presenter←presenters[gid⍳id]
-     vid⌿⍨←~∨/⎕NULL∘≡¨vid
      (vpid _ _ _ vtitle vurl _ _ _)←↓⍉1↓vid
+     (vpid vtitle vurl)⌿⍨←⊂~vurl∊⎕NULL
      ytid←ExtractYouTubeID vurl
+     (vpid vtitle vurl ytid)⌿⍨←⊂~∨/¨' '=ytid   ⍝ Exclude non-YouTube videos
      videos←##.Table2JSON'title' 'youtube_id'⍪vtitle,⍪ytid
      (vpid videos)←↓⍉vpid{⍺ ⍵}⌸videos
      json.videos←(videos,⊂⍬)[vpid⍳id]

@@ -13,6 +13,9 @@
  key←GBL.secrets.youtube_key
  opts←⎕NS''
  opts.table←'youtube_video'
+ :If ∨/∨/¨' '=ytid
+     'Missing YouTube IDs'⎕SIGNAL 6
+ :EndIf
  opts.values←GetVideos ytid
  opts.values[;2]←titles                                                           ⍝ Replace with our own titles
  opts.values[;3]←(pres,¨¨⊂⊂'.*\n+'){0::⍵ ⋄ ⍺ ⎕R''⍠'Mode' 'D'⊢⍵}¨opts.values[;3]   ⍝ Remove presenter names from first line of description
