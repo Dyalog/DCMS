@@ -27,7 +27,7 @@
      i_columns←WrapBackticks columns
      i_types←WrapColons types
      sql←'INSERT INTO ',table,' (',i_columns,') VALUES (',i_types,')'
-     ##.SQL.DoBulk sql(i_values i_nulls)
+     r←##.SQL.DoBulk sql(i_values i_nulls)
      u_values←updates⌿values
      u_nulls←updates⌿nulls
      ColumnEquals←',`',('`',⍨⊣),'=:',':',⍨⊢
