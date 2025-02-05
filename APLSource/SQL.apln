@@ -6,14 +6,23 @@
     db←'db'      ⍝ SQAPL connector identifier
     cur←'db.i'   ⍝ Cursor for bulk operations
     SQA←⍬        ⍝ SQAPL API reference set on Connect
+    debug←0      ⍝ debug flag
 
     :section SQAPL
+
+    ∇ Debug
+    ⍝ Optionally output debug messages
+      :If debug
+          ⎕←msg
+      :EndIf
+    ∇
 
     ∇ msg←Catch msg;en
       en←⊃msg
       :If 0<en       ⍝ Server error if database operation fails
           SQA.Close cur
           :If 2006=2 2⊃msg   ⍝ SQL server has gone away
+              Debug'> SQL SERVER WAS AWAY FOR QUERY: ',⍕⎕TS
               SQA.Close db
               Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
           :Else

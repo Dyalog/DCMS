@@ -24,6 +24,7 @@
  ⎕←SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
+ SQL.debug←debug
 ⍝ Set up web service
  :If 0=⎕NC'service'
      service←⎕NEW ##.Jarvis
