@@ -6,7 +6,7 @@
 
     ∇ r←Version
       :Access public shared
-      r←'Jarvis' '1.18.3' '2024-09-11'
+      r←'Jarvis' '1.18.5' '2025-02-05'
     ∇
 
     ∇ Documentation
@@ -631,7 +631,7 @@
           →0⊣(rc msg)←5 'CodeLocation is not valid, it should be either a namespace/class reference or a file path'
       :EndSelect
      
-      :For fn :In AppInitFn AppCloseFn ValidateRequestFn AuthenticateFn SessionInitFn~⊂''
+      :For fn :In AppInitFn AppCloseFn ValidateRequestFn AuthenticateFn SessionInitFn _htmlRootFn~⊂''
           :If 3≠CodeLocation.⎕NC fn
               msg,←(0∊⍴msg)↓',"CodeLocation.',fn,'" was not found '
           :EndIf
@@ -1185,7 +1185,7 @@
      
       :If ParsePayload
           :Trap 0 DebugLevel 1
-              :Select ns.Req.ContentType
+              :Select ct←ns.Req.ContentType
               :Case 'application/json'
                   ns.Req.Payload←JSONin ns.Req.Body
               :Case 'application/xml'
@@ -1348,7 +1348,7 @@
           r←CheckFunctionName¨fn
       :Else
           fn←⊆,fn
-          →0 If r←404×fn∊AppInitFn AppCloseFn ValidateRequestFn AuthenticateFn SessionInitFn
+          →0 If r←404×fn∊AppInitFn AppCloseFn ValidateRequestFn AuthenticateFn SessionInitFn _htmlRootFn
           :If ~0∊⍴_includeRegex
               →0 If r←404×0∊⍴(_includeRegex ⎕S'%')fn
           :EndIf
