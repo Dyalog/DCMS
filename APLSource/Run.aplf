@@ -6,11 +6,7 @@
      #.DRC←#.Conga.Init''
  :EndIf
  'GLOBAL'⎕NS''
- :If 0∊⍴debug
-     GLOBAL.debug←⍬⍴GetEnv'debug'
- :Else
-     GLOBAL.debug←debug
- :EndIf
+  GLOBAL.debug←debug
  'SQA'SQL.⎕CY'sqapl'
  #.⎕CY'isolate'
  LoadDependency←{0=##.⎕NC ⍵:⎕SE.Link.Import ##,⍥⊂GetEnv ⍵}

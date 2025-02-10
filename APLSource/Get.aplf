@@ -1,10 +1,7 @@
  res←Get req;allowed;nl
- :If 0<GLOBAL.debug
-     ⎕←req.Endpoint
-     last←req
- :EndIf
+ Debug '> GET REQUEST at ',⍕⎕TS
+ Debug req.Endpoing
  :Trap GLOBAL.debug↓0
-     ⎕←'> GET REQUEST at ',⍕⎕TS
      res←req.Response
      res.Headers←0 2⍴''
      res.Headers⍪←'Access-Control-Allow-Origin'service.AcceptFrom
