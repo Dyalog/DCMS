@@ -1,6 +1,8 @@
  res←Get req;allowed;nl
- Debug '> GET REQUEST at ',⍕⎕TS
- Debug req.Endpoing
+ :If GLOBAL.debug   ⍝ :If here because prefer not to compute ⍕⎕TS for every request
+     ⎕←'> GET REQUEST at ',⍕⎕TS
+     ⎕←req.Endpoint
+ :EndIf
  :Trap GLOBAL.debug↓0
      res←req.Response
      res.Headers←0 2⍴''
