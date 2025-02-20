@@ -10,7 +10,7 @@
 
     :section SQAPL
 
-    ∇ Debug
+    ∇ Debug msg
     ⍝ Optionally output debug messages
       :If debug
           ⎕←msg
