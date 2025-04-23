@@ -28,9 +28,9 @@ do
 done
 
 # Previous version
-V0=`git show HEAD~1:src/Version.aplf | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+'" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+"`
+V0=`git show HEAD~1:${VERSION_SOURCE} | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+'" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+"`
 # New version
-V1=`cat src/Version.aplf | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+'" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+"`
+V1=`cat ${VERSION_SOURCE} | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+'" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+"`
 
 function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
 
