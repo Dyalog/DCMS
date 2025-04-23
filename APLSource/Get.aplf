@@ -2,6 +2,7 @@
  :If GLOBAL.debug   ⍝ :If here because prefer not to compute ⍕⎕TS for every request
      ⎕←'> GET REQUEST at ',⍕⎕TS
      ⎕←req.Endpoint
+     last←req
  :EndIf
  :Trap GLOBAL.debug↓0
      res←req.Response
