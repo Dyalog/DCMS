@@ -13,16 +13,19 @@
      r←G'?search=rich%20rank'       ⍝ ⍰ known valid search terms
      _←Assert∧/fields∊r[1].⎕NL-⍳9   ⍝ multiple search terms
      _←Assert∨/∨/¨'rich' 'rank'⍷⍥⎕C¨⊂⍕r.(description event presenter title)
+     p←'Adám Brudzewsky' ⋄ q1←'?search=Adam+Brudzewsky' ⋄ q2←'?search=adam+brudzewsky' ⍝ case-insensitive searching
+     _←Assert(G q1)≡⍥{⍵.youtube_id}(G q2)
+     _←Assert∨/p∘(⊃⍷)¨(G q1).presenter
      p←'Morten Kromberg' ⋄ q←'?presenter=Morten%20Kromberg'   ⍝ ⍰ known existing presenter
-     _←Assert∧/p∘(∨/⍷)¨(G q).presenter                        ⍝ by presenter
+     _←Assert∧/p∘(⊃⍷)¨(G q).presenter                        ⍝ by presenter
      p←'Gitte Christensen' 'Stine Kromberg'
      q←'?presenter=Gitte+Christensen+Stine+Kromberg'          ⍝ multiple presenters
-     _←Assert∧/p(∨/⍷)¨(G q).presenter
+     _←Assert∧/,p∘.(∨/⍷)(G q).presenter
      evt←'Dyalog ''21' ⋄ q←'?event_shortname=dyalog-21'
      _←Assert∧/evt∘≡¨(G q).event             ⍝ by event
-     q←'?event_shortname=webinar&sort=newest'
+     q←'?event_shortname=dyalog-webinar&sort=newest'
      _←Assert(⊢≡{⍵[⍒⍵]})(G q).presented_at
-     q←'?event_shortname=webinar&sort=oldest'
+     q←'?event_shortname=dyalog-webinar&sort=oldest'
      _←Assert(⊢≡{⍵[⍋⍵]})(G q).presented_at
      q←'?search=&presenter=&event='
      _←Assert∧/fields∊(G q)[1].⎕NL-⍳9        ⍝ all parameters empty
