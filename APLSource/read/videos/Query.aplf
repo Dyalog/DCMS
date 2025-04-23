@@ -1,5 +1,5 @@
- res←Query req;p;v;Q;CACHE;C;fm;to;ddn;in_range;i;data;pg;ppg;presenter;filter;event
- (p v)←↓⍉req.QueryParams ⋄ v←RLTB¨v,⊂'' ⋄ v[⍸'null'∘≡¨v]←⊂'' ⋄ Q←(v⊃⍨p⍳⊆) ⍝ Q←{⊃⍣(1=≡⍵)⊢(p∊⊆⍵)⌿v}
+ res←Query req;p;v;Q;CACHE;C;fm;to;ddn;in_range;i;data;pg;ppg;presenter;filter;event;Norm
+ (p v)←↓⍉req.QueryParams ⋄ v←RLTB¨v,⊂'' ⋄ v[⍸'null'∘≡¨v]←⊂'' ⋄ Q←{v⊃⍨p⍳⊆⍵}
  CACHE←##.##.CACHE
  C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
 
@@ -17,10 +17,9 @@
  event←(Q⊣/⍤⍷C)'event_shortname'
  filter←in_range∧presenter∧event
 
-⍝ Normalise query parameters
- v←##.##.Unidecode.NormaliseText¨v
+ Norm←##.##.Unidecode.NormaliseText
 ⍝ Rank by search terms
- i←(Q'search')Rank filter⌿CACHE.videos.index_all
+ i←(Norm Q'search')Rank filter⌿CACHE.videos.index_all
 
 ⍝ Sort
  data←(filter⌿CACHE.videos.values)[i;]
