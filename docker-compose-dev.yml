@@ -1,0 +1,19 @@
+services:
+    web:
+        image: dyalog/dyalog:19.0
+        build: .
+        volumes:
+        - ${PWD}:/app
+        - ${PWD}/data:/data
+        - ${PWD}/secrets:/secrets
+        tty: true
+        env_file: env
+        ports:
+        - 8081:8081
+        - 4502:4502
+    db:
+        image: mariadb:10.8.2   # https://serverfault.com/questions/1103333/mariadb-10-8-3-in-docker-cant-initialize-timers
+        volumes:
+            - ${PWD}/dcms_db:/var/lib/mysql
+        env_file: env
+        tty: true
