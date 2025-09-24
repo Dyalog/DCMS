@@ -18,15 +18,12 @@ echo MYSQL_USER=dcms >> ${PWD}/env
 echo MYSQL_PASSWORD=apl >> ${PWD}/env
 echo MYSQL_PORT=3306 >> ${PWD}/env
 echo SECRETS=/app/secrets/secrets.json5 >> ${PWD}/env
-echo RIDE_INIT=http:*:4502 >> ${PWD}/env
-echo CONFIGFILE=/app/run.dcfg >> ${PWD}/env
-
+echo RIDE_INIT=HTTP:*:4502 >> ${PWD}/env
+echo CONFIGFILE=/app/dev.dcfg >> ${PWD}/env
 echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${PWD}/env
-#echo MYSQL_ROOT_PASSWORD=changeme >> ${WORKSPACE}/env
 
 echo COMPOSE IS: $COMPOSE
-
-
 echo "Use docker inspect to get the IP of the running container"
+
 $COMPOSE pull
 $COMPOSE -f docker-compose.yml up
