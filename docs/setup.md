@@ -1,48 +1,36 @@
 # Installation and Configuration
-Development config in **dev.dcfg**. Runtime config in **run.dcfg**. The system is developed on a raw system (currently Windows) and deployed in docker on Linux.
+Development is now in Docker
 
-## Install ODBC drivers on the host system
-!!!Warning
-	You **MUST** use the [**MySQL ODBC Driver**](https://dev.mysql.com/downloads/connector/odbc/), as the type conversions in `src/sql/type_conversions.csv` and consequently `#.GLOBAL.type_conversions` and `#.GLOBAL.type_sqapl` (set in `#.DCMS.SQL.ProcessTableInformation`) rely on the numbers in the `DATA_TYPE` column of `#.(SQA.Columns DCMS.SQL.db)`.
+## Run application for development
+1. Install [Docker Compose](https://docs.docker.com/compose/)
+1. Open a terminal and change to the **DCMS** directory  
+    `cd /path/to/DCMS`
+1. Set environment variables
+    ```
+    SQL_SERVER=db
+    SQL_DATABASE=dyalog_cms
+    SQL_USER=dcms
+    SQL_PASSWORD=apl
+    SQL_PORT=3306
+    MYSQL_SERVER=db
+    MYSQL_DATABASE=dyalog_cms
+    MYSQL_USER=dcms
+    MYSQL_PASSWORD=apl
+    MYSQL_PORT=3306
+    SECRETS=/app/secrets/secrets.json5
+    RIDE_INIT=HTTP:*:4502
+    CONFIGFILE=/app/dev.dcfg
+    MYSQL_RANDOM_ROOT_PASSWORD=1
+    ```
+1. Run the service
+    - On Linux/macOS, run **dev** (this sets environment variables as above)
+    - On Windows, run **docker compose up**
 
-!!!Failure
-	If a type which has no conversion defined in `src/sql/type_conversions.csv` is present in the database, setup will fail with an error 106 "Uknown column type in rows: ", listing the row numbers in `1↓2⊃#.SQA.Columns #.DCMS.SQL.db` (`d` in ProcessTableInformation) with the problem data types.
+You can connect to Ride in a web browser using the above configuration, or set `RIDE_INIT=SERVE:*:4502` to be able to connect with standalone Ride.
 
-If you use a different driver, check the output of `#.SQA.Columns #.DCMS.SQL.db` and change the numeric values in the 3rd column of `src/sql/type_conversions.csv`.
+## Secrets
+Secrets are stored in a JSON file. In production these are obtained separately by the Continuous Integration (CI) framework.
 
-You can find out which `DATA_TYPE` numbers should be used with:
-
-```APL
-      ]view 2(↑⍤1)2⊃#.SQA.TypeInfo #.DCMS.SQL.db
-```
-
-and relating the `TYPE_NAME` column to those specified in `src/sql/type_conversions.csv`.
-
-To see only types used in the database, try:
-
-```APL
-      {∪1↓⍵[;(1⌷⍵)⍳⊆'DATA_TYPE' 'TYPE_NAME']}2⊃#.SQA.Columns db
-```
-
-## Install and configure MariaDB on the host system
-Install mariadb and set your database root user passowrd:
-
-```bash
-sudo apt install mariadb-server
-sudo mysql_secure_installation
-```
-
-Next create the database `dyalog_cms`, create user `dcms` and grant privileges.
-
-You'll want to generate a secure password some how. That password should be used in the next step when creating the user `dcms`, and also pasted into **secrets/secrets.json5** which is shown below.
-
-```bash
-sudo mariadb -u root -p
-create database dyalog_cms
-create user dcms identified by **MARIADB_PASSWORD**
-grant all privileges on dyalog_cms to user dcms 
-```
- 
 **secrets/secrets.json5**
 ```
 {
@@ -52,38 +40,23 @@ grant all privileges on dyalog_cms to user dcms
 		{ name: "Dyalog Usermeeting", id: "UC89lIdGnKlEozb1WcYQprNw" },
 		{ name: "DyalogLtd", id: "UCRFAE1uHnrhXlSkoaAgKsIQ" },
 	],
-	elastic: {
-		user: "elastic",
-		pass: "ELASTICSEARCH_PASSWORD"
+	upload_token: "",   // DCMS API token, only authorised POST requests allowed
+	wordpress: {   // For updating website content
+		url: "WP_JSON URL",
+		user: "WordPress User",
+		token: "User's API token",
 	},
-	mariadb: ["Mariadb", "MARIADB_PASSWORD", "dcms"]
 }
 ```
 
-1. Set data sources location in **data_sources.json5**
-2. Put API keys into a file **on the server only** in **secrets.json5**
-    - You might want to store it somewhere else. In which case, update the file for **dcms_secrets** in **docker-compose.yml**
-3. Set application directory, dependencies etc. in **run.dcfg**
-    - app_dir
-    - service_url
+## Debug flag
+Global debug flag stored in `#.GLOBAL.debug`.
 
-## secrets
-Docker secrets are used to store:
-- External API keys (e.g. YouTube)
-
-## data sources
-Most manually updated source data is specified in **data_sources.json5**.
-
-Some data is fetched from external APIs. API keys are specified
-
-## debug
-Global debug flag. Used as `#.GLOBAL.debug` in order to not have to re-read environment.
-
-This controls behaviour of errors (error number > 0) and warnings (error number < 0) in terms of resignalling and logging.
+This controls behaviour when errors occur.
 
 |Value|Behaviour|
 |---|---|
-|0|Catch all errors, print errors and warnings to the session log and attempt to carry on.
-|1|Stop on errors but just print warnings to the session log|
-|2|Stop on errors and warnings|
-
+|0|All errors are trapped and the server responds 500.|
+|1|Expected errors are trapped and respond 500. Unexpected errors suspend execution.|
+|2|All errors suspend execution|
+|>2|The APL system throws DOMAIN ERROR and the server does not start.|
