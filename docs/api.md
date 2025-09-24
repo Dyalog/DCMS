@@ -50,6 +50,15 @@ Returns a list of video objects
 #### search
 `?search=q` where `q` is a list of search terms separated by URL-encoded space (`'%20'`), comma (`','`) or plus (`'+'`). Free text search of titles, descriptions, presenters and events.
 
+#### sort
+`?sort=o` where `o` is one of:  
+- `relevance`
+    Use the `Rank` function to sort by relevance to query
+- `newest`
+    Sort results most recent first
+- `oldest`
+    Sort results oldest first
+
 #### filter by date range
 `?from=date` for videos no earlier than `date` of form `YYYY-MM-DD`
 `?to=date` for videos no more recent than `date` of form `YYYY-MM-DD`
