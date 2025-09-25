@@ -1,11 +1,11 @@
- r←Run url;tests;fns;fn;F
- :If 0∊⍴url ⋄ url←'http://localhost:8081' ⋄ :EndIf
+ r←Run url;F;fn;tests
  ⎕←'Testing ',url
- :If 0=⎕NC'#.HttpCommand' ⋄ ⎕SE.SALT.Load'HttpCommand' ⋄ :EndIf
+ LoadDependency←{0=##.⎕NC ⍵:⎕SE.Link.Import ##,⍥⊂##.GetEnv ⍵}
+ LoadDependency¨'Jarvis' 'HttpCommand'
  ⎕←'read.BuildCache...'
  ##.Refresh''
  ⎕←'Done'
- tests←fns⌿⍨'Test'∘(⊃⍷)¨fns←⎕NL ¯3
+ tests←'Test'⎕NL ¯3
  r←⍬
  :For fn :In tests
      F←⍎fn
