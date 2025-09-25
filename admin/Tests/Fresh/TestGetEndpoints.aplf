@@ -1,0 +1,21 @@
+ r←TestGetEndpoints dum;JSONName;api;app;get;http_status;json_paths;paths;responses
+⍝ Normally dfn, using tradfn due to bug in Ride
+⍝ Test GET endpoints from a fresh system with no data in the database. Endpoints should return empty prototypes of expected type as described in openapi doc.
+ app←##.##.GetEnv'app_dir'
+ api←0 ⎕JSON⊃⎕NGET app,'/docs/openapi.json'
+ json_paths←api.paths.⎕NL ¯9
+ get←api.paths ⎕VGET json_paths,¨⊂'.get'
+ JSONName←{1(7162⌶)⍵}
+ paths←JSONName json_paths
+ responses←⎕NS¨''⍨¨get.responses.⎕NL ¯9
+ http_status←get.responses.⎕NL ¯9
+ responses.type←get.responses ⎕VGET¨http_status
+ responses.code←JSONName¨http_status
+
+ ∘∘∘
+ SEE responses.type.content.⎕NL-⍳9 ⍝ honestly JSON matrix format might work better for this...
+ r←responses DoGet¨paths
+
+
+
+ ⍝

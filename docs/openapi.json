@@ -1,0 +1,23 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Dyalog Content Management System",
+        "version": "##VERSION##"
+    },
+    "paths": {
+        "/version": {
+            "get": {
+                "summary": "Get the version number",
+                "operationId": "getVersionNumber",
+                "responses": {
+                    "200": {
+                        "description": "A string containing the current version number.",
+                        "content": {
+                            "application/json": ""
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
