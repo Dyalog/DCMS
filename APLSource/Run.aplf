@@ -32,7 +32,7 @@
      service.AcceptFrom←GetEnv'allow_from'
      service.Start
  :EndIf
- service.Debug←debug
+ service.Debug←1⌊debug   ⍝ Only prevent Jarvis error trapping (1), do not pause on request when 1<DCMS.GLOBAL.debug
  ⎕←'Setting up data refresh timer...'
  :If 0=GLOBAL.⎕NC'data_refresh_timer'
      'data_refresh_timer'GLOBAL.⎕WC'Timer'
