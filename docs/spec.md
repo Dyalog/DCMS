@@ -31,11 +31,11 @@ The Jarvis server starts when the Run function is called. The server debug flag 
 ## Data Refresh
 The system may start from an empty database or a pre-existing one. Either way, the data refresh occurs at startup. Data refresh can also be triggered from a Jarvis endpoint once the server is running.
 
-1. Build Cache from Database
-Data from the database is joined into an index for querying and objects for quickly responding to requests made to the server.
-
 1. YouTube Fetch
 If there are videos in the videos table, requests are made to the YouTube API to retrieve up to date descriptions and thumbnails for those videos.
+
+1. Build Cache from Database
+Data from the database is joined into an index for querying and objects for quickly responding to requests made to the server.
 
 1. Push Custom Posts to WordPress
 The system updates video listings for Team Dyalog member pages on the WordPress site.
