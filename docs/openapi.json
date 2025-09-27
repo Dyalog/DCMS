@@ -18,6 +18,116 @@
                     }
                 }
             }
+        },
+        "/person": {
+            "get": {
+                "summary": "Get the list of persons",
+                "operationId": "getPersons",
+                "responses": {
+                    "200": {
+                        "description": "A list of objects, one for each person.",
+                        "content": {
+                            "application/json": [{
+                                "created_at": "",
+                                "description": "",
+                                "id": 0,
+                                "location": "",
+                                "name": "",
+                                "organisation": "",
+                                "role": "",
+                                "role_summary": "",
+                                "updated_at": "",
+                                "updated_by": "",
+                                "url_slug": ""
+                            }]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Insert a JSON list of objects into the persons table.",
+                "operationId": "postPersons",
+                "requestBody": {
+                    "content": {
+                        "application/json": [{
+                            "description": "",
+                            "id": 0,
+                            "location": "",
+                            "name": "",
+                            "organisation": "",
+                            "role": "",
+                            "role_summary": "",
+                            "updated_by": "",
+                            "url_slug": ""
+                        }]
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "A list of the records that were created or updated.",
+                        "content": {
+                            "application/json": [{
+                                "created_at": "",
+                                "description": "",
+                                "id": 0,
+                                "location": "",
+                                "name": "",
+                                "organisation": "",
+                                "role": "",
+                                "role_summary": "",
+                                "updated_at": "",
+                                "updated_by": "",
+                                "url_slug": ""
+                            }]
+                        }
+                    }
+                }
+            }
+        },
+        "/event": {
+            "get": {
+                "summary": "Get the list of events",
+                "operationId": "getEvents",
+                "responses": {
+                    "200": {
+                        "description": "A list of objects, one for each event.",
+                        "content": {
+                            "application/json": [{
+                                "created_at": "",
+                                "digital": 0,
+                                "early_bird": "",
+                                "end": "",
+                                "icon": "",
+                                "id": 0,
+                                "location": "",
+                                "logo": "",
+                                "physical": 0,
+                                "signup_url": "",
+                                "start": "",
+                                "title": "",
+                                "type": 0,
+                                "updated_at": "",
+                                "updated_by": "",
+                                "url_slug": ""
+                            }]
+                        }
+                    }
+                }
+            }
+        },
+        "/refresh": {
+            "post": {
+                "summary": "Trigger refresh of information in database and cache from data sources.",
+                "operationId": "refresh",
+                "responses": {
+                    "200": {
+                        "description": "Success. Cache refreshed.",
+                        "content": {
+                            "application/json": ""
+                        }
+                    }
+                }
+            }
         }
     }
 }
