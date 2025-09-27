@@ -2,7 +2,20 @@
 ⍝ Normally dfn, using tradfn due to bug in Ride
 ⍝ Test GET endpoints from a fresh system with no data in the database. Endpoints should return empty prototypes of expected type as described in openapi doc.
  app←##.##.GetEnv'app_dir'
- api←0 ⎕JSON⊃⎕NGET app,'/docs/openapi.json'
+ (d n c t)←↓⍉0(⎕JSON ⎕OPT'Format' 'M')⊃⎕NGET app,'/docs/openapi.json'   ⍝ Depth Node Content Type
+ 2{p[⍵]←⍺[⍺⍸⍵]}⌿⊂⍤⊢⌸d⊣p←⍳≢d   ⍝ Parent vector from depth
+ ep←n[p⌿⍨n∊⊂'get']
+ type←t⊆⍨{⍵∨p∊⍸⍵}⍣≡n∊⊂'get'
+
+ h←##.##.##.HttpCommand.New'GET'
+ url←⊃(⊣,':',⊢)/##.##.GetEnv'service_url' 'service_port'
+ h.URL←url,⊃ep
+ content_type←';'(⊃≠⊆⊢)⊃(r.Headers⍪⊂'')[r.Headers[;1]⍳⊂'content-type';2]
+ (_ _ _ content_type)←↓⍉0(⎕JSON⍠'M')r.Data
+ expected_type←t⌿⍨(p∊⍸n∊⊂'content')∧{⍵∨p∊⍸⍵}⍣≡n∊⊂e
+ ⎕←'Type match: ',⍕content_type≡expected_type
+
+
  json_paths←api.paths.⎕NL ¯9
  get←api.paths ⎕VGET json_paths,¨⊂'.get'
  JSONName←{1(7162⌶)⍵}
