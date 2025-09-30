@@ -1,2 +1,2 @@
 Setup
-⎕SE.Link.Import ⎕THIS (GetEnv'HttpCommand')
+⎕SE.Link.Import ## (GetEnv'HttpCommand')

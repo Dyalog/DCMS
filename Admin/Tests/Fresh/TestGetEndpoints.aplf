@@ -9,7 +9,7 @@
  ep←n[p⌿⍨n∊⊂'get']
  responses←⍎¨¨1↓n⊢∘⊂⌸⍨(+\e)×(p∊⍸n∊⊂'responses')∧(⊢∨p∊⍸)⍣≡e←n∊ep
 
- h←##.##.HttpCommand.New¨'GET'⍨¨ep
+ h←##.##.##.HttpCommand.New¨'GET'⍨¨ep
  url←⊃(⊣,':',⊢)/##.##.GetEnv'service_url' 'service_port'
  h.URL←url∘,¨ep
  r←h.Run
