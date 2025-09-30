@@ -97,6 +97,25 @@
                 }
             }
         },
+        "/presenters": {
+            "get": {
+                "summary": "Get a list of presenters.",
+                "operationId": "getPresenters",
+                "responses": {
+                    "200": {
+                        "description": "A list of strings, one for each presenter.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/event": {
             "get": {
                 "summary": "Get the list of events",
