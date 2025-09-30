@@ -1,4 +1,4 @@
- r←TestGetEndpoints dum;ChildOf;app;c;content_type;d;ep;expected_type;h;n;p;t;url
+ r←TestGetEndpoints dum;app;c;d;e;ep;h;n;p;responses;t;url
 ⍝ Normally dfn, using tradfn due to bug in Ride
 ⍝ Test GET endpoints from a fresh system with no data in the database. Endpoints should return empty prototypes described in openapi doc.
 ⍝      For example, a list, string, or number etc. An empty list has no prototype in JSON, so empty list is fine.
@@ -7,13 +7,12 @@
  (d n c t)←↓⍉0(⎕JSON ⎕OPT'Format' 'M')⊃⎕NGET app,'/docs/openapi.json'   ⍝ Depth Node Content Type
  2{p[⍵]←⍺[⍺⍸⍵]}⌿⊂⍤⊢⌸d⊣p←⍳≢d   ⍝ Parent vector from depth
  ep←n[p⌿⍨n∊⊂'get']
+ responses←⍎¨¨1↓n⊢∘⊂⌸⍨(+\e)×(p∊⍸n∊⊂'responses')∧(⊢∨p∊⍸)⍣≡e←n∊ep
 
- h←##.##.##.HttpCommand.New¨'GET'⍨¨ep
+ h←##.##.HttpCommand.New¨'GET'⍨¨ep
  url←⊃(⊣,':',⊢)/##.##.GetEnv'service_url' 'service_port'
  h.URL←url∘,¨ep
  r←h.Run
 
- content_type←{(_ _ _ ct)←↓⍉0(⎕JSON⍠'M')⍵ ⋄ ct}¨r.Data
- ChildOf←{⍵∨p∊⍸⍵}⍣≡
- expected_type←,t⌿⍤1⍨0,2</¯1(⊢∧⌽)((ChildOf n∊⊂'content')∧ChildOf n∊⊂'get')(∧⍤1)(ChildOf⍤1)n(∊⍤1 0)ep
- r←∧/expected_type=∊content_type
+ r←∧/r.HttpStatus∊¨responses
+ ⍝

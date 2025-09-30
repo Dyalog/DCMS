@@ -13,12 +13,17 @@
                     "200": {
                         "description": "A string containing the current version number.",
                         "content": {
-                            "application/json": " "
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
                         }
                     }
                 }
             }
-        },
+        }
+        ,
         "/person": {
             "get": {
                 "summary": "Get the list of persons",
@@ -27,19 +32,27 @@
                     "200": {
                         "description": "A list of objects, one for each person.",
                         "content": {
-                            "application/json": [{
-                                "created_at": " ",
-                                "description": " ",
-                                "id": 0,
-                                "location": " ",
-                                "name": " ",
-                                "organisation": " ",
-                                "role": " ",
-                                "role_summary": " ",
-                                "updated_at": " ",
-                                "updated_by": " ",
-                                "url_slug": " "
-                            }]
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": { "type": "integer" },
+                                            "name": { "type": "string" },
+                                            "description": { "type": "string" },
+                                            "location": { "type": "string" },
+                                            "organisation": { "type": "string" },
+                                            "role": { "type": "string" },
+                                            "role_summary": { "type": "string" },
+                                            "url_slug": { "type": "string" },
+                                            "created_at": { "type": "string" },
+                                            "updated_at": { "type": "string" },
+                                            "updated_by": { "type": "string" }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -92,24 +105,32 @@
                     "200": {
                         "description": "A list of objects, one for each event.",
                         "content": {
-                            "application/json": [{
-                                "created_at": " ",
-                                "digital": 0,
-                                "early_bird": " ",
-                                "end": " ",
-                                "icon": " ",
-                                "id": 0,
-                                "location": " ",
-                                "logo": " ",
-                                "physical": 0,
-                                "signup_url": " ",
-                                "start": " ",
-                                "title": " ",
-                                "type": 0,
-                                "updated_at": " ",
-                                "updated_by": " ",
-                                "url_slug": " "
-                            }]
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": { "type": "integer" },
+                                            "title": { "type": "string" },
+                                            "location": { "type": "string" },
+                                            "type": { "type": "integer" },
+                                            "physical": { "type": "integer" },
+                                            "digital": { "type": "integer" },
+                                            "start": { "type": "string" },
+                                            "end": { "type": "string" },
+                                            "logo": { "type": "string" },
+                                            "icon": { "type": "string" },
+                                            "early_bird": { "type": "string" },
+                                            "signup_url": { "type": "string" },
+                                            "url_slug": { "type": "string" },
+                                            "created_at": { "type": "string" },
+                                            "updated_at": { "type": "string" },
+                                            "updated_by": { "type": "string" }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -125,6 +146,148 @@
                         "content": {
                             "application/json": ""
                         }
+                    }
+                }
+            }
+        },
+        "/videos": {
+            "get": {
+                "summary": "Get a list of video objects.",
+                "operationId": "getVideos",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "presenter",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    }
+                    ,{
+                        "name": "from",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    }
+                    ,{
+                        "name": "to",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    }
+                    ,{
+                        "name": "event_shortname",
+                        "in": "query",
+                        "schema": { "type": "string" }
+                    }
+                    ,{
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": { "type": "integer" }
+                    }
+                    ,{
+                        "name": "page",
+                        "in": "query",
+                        "schema": { "type": "integer" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of video objects, possibly paginated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/paths/videos/schemas/videoObject"
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type":  "array",
+                                                    "items": {
+                                                        "$ref": "#/paths/videos/schemas/videoObject"
+                                                    }
+                                                },
+                                                "from": { "type": "integer" },
+                                                "to": { "type": "integer" },
+                                                "total": { "type": "integer" },
+                                                "per_page": { "type": "integer" },
+                                                "current_page": { "type": "integer" },
+                                                "first_page": { "type": "integer" },
+                                                "last_page": { "type": "integer" },
+                                                "path": { "type": "string" },
+                                                "first_page_url": { "type": "string" },
+                                                "last_page_url": { "type": "string" },
+                                                "next_page_url": { "type": "string" },
+                                                "prev_page_url": { "type": "string" },
+                                                "links": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "active": { "type": "string", "enum": ["true", "false"] },
+                                                            "label": { "type": "string" },
+                                                            "url": { "type": "string" }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "schemas": {
+                "videoObject": {
+                    "type": "object",
+                    "properties": {
+                        "youtube_id": { "type": "string" },
+                        "title": { "type": "string" },
+                        "description": { "type": "string" },
+                        "presenter": { "type": "string" },
+                        "event": { "type": "string" },
+                        "event_shortname": { "type": "string" },
+                        "thumbnail": { "type": "string" },
+                        "category": { "type": "string" },
+                        "presented_at": { "type": "string" },
+                        "published_at": { "type": "string" },
+                        "url": { "type": "string" }
+                    }
+                }
+            }
+        },
+        "/videos/{youtube_id}": {
+            "get": {
+                "summary": "Get a single video",
+                "operationId": "getVideoSingle",
+                "parameters": [{
+                    "name": "youtube_id",
+                    "in": "path"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Return a video object for this video.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/paths/videos/schemas/videoObject"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Video not found."
+                    },
+                    "400": {
+                        "description": "Bad request (ID wrong length)."
                     }
                 }
             }
