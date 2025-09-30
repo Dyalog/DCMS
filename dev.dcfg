@@ -3,7 +3,7 @@
 		MAXWS:        "2G",
 		PW:            300,
 		app_dir:      "/app",
-		service_url:  "https://localhost",
+		service_url:  "http://localhost",
 		service_port:  8081,
 		allow_from:   "*",
 		debug:         1,
@@ -15,6 +15,6 @@
 
 		CodeLocation: "#.DMCS",
 		Paradigm:     "REST",
-		LX:           "⎕←⎕SE.Link.Create 'DCMS',⍥⊂⎕SE.Link.LaunchDir,'/APLSource' ⋄ ⎕CS DCMS ⋄ Run 2⊃∘⎕VFI GetEnv'debug'",
+		LX:           "⎕←⎕SE.Link.Create 'DCMS',⍥⊂⎕SE.Link.LaunchDir,'/APLSource' ⋄ ⎕←⎕SE.Link.Create 'Admin' '[app_dir]/Admin' ⋄ ⎕CS DCMS ⋄ Run 2⊃∘⎕VFI GetEnv'debug'",
 	}
 }

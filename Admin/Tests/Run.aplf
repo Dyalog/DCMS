@@ -1,0 +1,13 @@
+ r←Run url;F;fn;tests
+ ⎕←'Testing ',url
+ LoadDependency←{0=##.⎕NC ⍵:⎕SE.Link.Import ##,⍥⊂##.GetEnv ⍵}
+ LoadDependency¨'Jarvis' 'HttpCommand'
+ ⎕←'read.BuildCache...'
+ ##.Refresh''
+ ⎕←'Done'
+ tests←'Test'⎕NL ¯3
+ r←⍬
+ :For fn :In tests
+     F←⍎fn
+     r,←url F''
+ :EndFor

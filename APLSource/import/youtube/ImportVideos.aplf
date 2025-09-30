@@ -1,4 +1,5 @@
  r←{override}ImportVideos ytid;url;key;video_data;names;remove_leading_names_blanks;GBL;opts;titles;pres
+ :If 0=≢ytid ⋄ r←2⍴⊂⊂'' ⋄ :Return ⋄ :EndIf
  ytid←,⊆ytid
 ⍝ TODO use eTags to prevent API request for data we already have
  :If 0=⎕NC'override'
