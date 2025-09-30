@@ -1,34 +1,19 @@
- r←TestGetEndpoints dum;JSONName;api;app;get;http_status;json_paths;paths;responses
+ r←TestGetEndpoints dum;ChildOf;app;c;content_type;d;ep;expected_type;h;n;p;t;url
 ⍝ Normally dfn, using tradfn due to bug in Ride
-⍝ Test GET endpoints from a fresh system with no data in the database. Endpoints should return empty prototypes of expected type as described in openapi doc.
+⍝ Test GET endpoints from a fresh system with no data in the database. Endpoints should return empty prototypes described in openapi doc.
+⍝      For example, a list, string, or number etc. An empty list has no prototype in JSON, so empty list is fine.
+
  app←##.##.GetEnv'app_dir'
  (d n c t)←↓⍉0(⎕JSON ⎕OPT'Format' 'M')⊃⎕NGET app,'/docs/openapi.json'   ⍝ Depth Node Content Type
  2{p[⍵]←⍺[⍺⍸⍵]}⌿⊂⍤⊢⌸d⊣p←⍳≢d   ⍝ Parent vector from depth
  ep←n[p⌿⍨n∊⊂'get']
- type←t⊆⍨{⍵∨p∊⍸⍵}⍣≡n∊⊂'get'
 
- h←##.##.##.HttpCommand.New'GET'
+ h←##.##.##.HttpCommand.New¨'GET'⍨¨ep
  url←⊃(⊣,':',⊢)/##.##.GetEnv'service_url' 'service_port'
- h.URL←url,⊃ep
- content_type←';'(⊃≠⊆⊢)⊃(r.Headers⍪⊂'')[r.Headers[;1]⍳⊂'content-type';2]
- (_ _ _ content_type)←↓⍉0(⎕JSON⍠'M')r.Data
- expected_type←t⌿⍨(p∊⍸n∊⊂'content')∧{⍵∨p∊⍸⍵}⍣≡n∊⊂e
- ⎕←'Type match: ',⍕content_type≡expected_type
+ h.URL←url∘,¨ep
+ r←h.Run
 
-
- json_paths←api.paths.⎕NL ¯9
- get←api.paths ⎕VGET json_paths,¨⊂'.get'
- JSONName←{1(7162⌶)⍵}
- paths←JSONName json_paths
- responses←⎕NS¨''⍨¨get.responses.⎕NL ¯9
- http_status←get.responses.⎕NL ¯9
- responses.type←get.responses ⎕VGET¨http_status
- responses.code←JSONName¨http_status
-
- ∘∘∘
- SEE responses.type.content.⎕NL-⍳9 ⍝ honestly JSON matrix format might work better for this...
- r←responses DoGet¨paths
-
-
-
- ⍝
+ content_type←{(_ _ _ ct)←↓⍉0(⎕JSON⍠'M')⍵ ⋄ ct}¨r.Data
+ ChildOf←{⍵∨p∊⍸⍵}⍣≡
+ expected_type←,t⌿⍤1⍨0,2</¯1(⊢∧⌽)((ChildOf n∊⊂'content')∧ChildOf n∊⊂'get')(∧⍤1)(ChildOf⍤1)n(∊⍤1 0)ep
+ r←∧/expected_type=∊content_type

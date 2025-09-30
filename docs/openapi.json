@@ -13,7 +13,7 @@
                     "200": {
                         "description": "A string containing the current version number.",
                         "content": {
-                            "application/json": ""
+                            "application/json": " "
                         }
                     }
                 }
@@ -28,17 +28,17 @@
                         "description": "A list of objects, one for each person.",
                         "content": {
                             "application/json": [{
-                                "created_at": "",
-                                "description": "",
+                                "created_at": " ",
+                                "description": " ",
                                 "id": 0,
-                                "location": "",
-                                "name": "",
-                                "organisation": "",
-                                "role": "",
-                                "role_summary": "",
-                                "updated_at": "",
-                                "updated_by": "",
-                                "url_slug": ""
+                                "location": " ",
+                                "name": " ",
+                                "organisation": " ",
+                                "role": " ",
+                                "role_summary": " ",
+                                "updated_at": " ",
+                                "updated_by": " ",
+                                "url_slug": " "
                             }]
                         }
                     }
@@ -93,22 +93,22 @@
                         "description": "A list of objects, one for each event.",
                         "content": {
                             "application/json": [{
-                                "created_at": "",
+                                "created_at": " ",
                                 "digital": 0,
-                                "early_bird": "",
-                                "end": "",
-                                "icon": "",
+                                "early_bird": " ",
+                                "end": " ",
+                                "icon": " ",
                                 "id": 0,
-                                "location": "",
-                                "logo": "",
+                                "location": " ",
+                                "logo": " ",
                                 "physical": 0,
-                                "signup_url": "",
-                                "start": "",
-                                "title": "",
+                                "signup_url": " ",
+                                "start": " ",
+                                "title": " ",
                                 "type": 0,
-                                "updated_at": "",
-                                "updated_by": "",
-                                "url_slug": ""
+                                "updated_at": " ",
+                                "updated_by": " ",
+                                "url_slug": " "
                             }]
                         }
                     }
