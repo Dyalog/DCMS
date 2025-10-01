@@ -1,4 +1,4 @@
- res←Post req;msg;nl;allowed
+ res←Post req;allowed;dmx;msg;nl
  :If 0<GLOBAL.debug ⋄ last←req ⋄ :EndIf
  res←auth.VerifyToken req
  :If ~∨/401 403∊res.Status
@@ -23,9 +23,10 @@
              :EndSelect
          :EndHold
      :Else
+         ⎕←1 ⎕JSON ⎕OPT'Compact' 0⊢dmx←⎕DMX
          ''req.Fail 500   ⍝ Fail with no HTTP "reason phrase"
          nl←⎕UCS 10
          allowed←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -_.~!#$&''()*+,/:;=?@[]',nl
-         req.Response.Payload←allowed∩⍨⊃(⊣,nl,⊢)/(⎕EM ⎕DMX.EN)(⎕DMX.DM)(⎕DMX.Message)
+         req.Response.Payload←allowed∩⍨⊃(⊣,nl,⊢)/(⎕EM dmx.EN)(⊃(⊣,nl,⊢)/dmx.DM)(dmx.Message)
      :EndTrap
  :EndIf

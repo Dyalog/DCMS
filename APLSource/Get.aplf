@@ -27,5 +27,6 @@
  :CaseList 511
      (⎕DMX.Message)req.Fail 400
  :Else
+     ⎕←1 ⎕JSON ⎕OPT'Compact' 0⊢dmx←⎕DMX
      'Internal Server Error'req.Fail 500
  :EndTrap
