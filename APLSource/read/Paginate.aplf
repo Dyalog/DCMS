@@ -1,11 +1,12 @@
  Paginate←{
      (ep pg ppg)←⍺   ⍝ (URL endpoint)(current_page)(per_page)
      0∊⍴ppg:⍵        ⍝ No pagination, return response unchanged
-     pg←⊃pg,1        ⍝ Current page
+     (1>pg)∨pg≠⌊pg:⎕SIGNAL⊂('EN' 511)('Message' 'Page number must be a positive integer.')('Vendor'(##.GetEnv'service_url'))
      (pg ppg)←⍬∘⍴¨pg ppg
      n←≢⍵            ⍝ Total results count
      ppg←n⌊ppg       ⍝ Results per page
      lp←⌈n÷ppg       ⍝ Last page number
+     pg←lp⌊⊃pg,1     ⍝ Current page capped at last page number
 
 ⍝ Return a subset of results as a page
 ⍝ Including URL links to previous and next pages
