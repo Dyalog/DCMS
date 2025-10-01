@@ -26,6 +26,6 @@
          ''req.Fail 500   ⍝ Fail with no HTTP "reason phrase"
          nl←⎕UCS 10
          allowed←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -_.~!#$&''()*+,/:;=?@[]',nl
-         req.Response.Payload←allowed∩⍨⊃(⊣,nl,⊢)/(⎕EM ⎕DMX.EN),⍥⊆⎕DMX.DM
+         req.Response.Payload←allowed∩⍨⊃(⊣,nl,⊢)/(⎕EM ⎕DMX.EN)(⎕DMX.DM)(⎕DMX.Message)
      :EndTrap
  :EndIf
