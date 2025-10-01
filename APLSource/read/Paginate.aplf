@@ -19,7 +19,7 @@
          (pg lp)←⍵
          10≥lp:(⍳lp)⍬ ⍬
          10>pg:(⍳10)⍬(¯2+lp+⍳2)
-         10<lp-p:(1 2)((¯4+p⌈6)+⍳6⌊p)(¯2+lp+⍳2)
+         10<lp-pg:(1 2)((¯4+pg⌈6)+⍳6⌊pg)(¯2+lp+⍳2)
          (1 2)⍬(¯10+lp+⍳10)
      }
      (ip cp fp)←ComputeLinksPageNumbers(pg lp)   ⍝ initial pages, current pages, final pages
