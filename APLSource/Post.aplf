@@ -2,7 +2,7 @@
  :If 0<GLOBAL.debug ⋄ last←req ⋄ :EndIf
  res←auth.VerifyToken req
  :If ~∨/401 403∊res.Status
-     Debug'> POST REQUEST AT ',⍕⎕TS
+     ⎕←'> POST REQUEST AT ',⍕⎕TS
      :Trap GLOBAL.debug↓0 0
          :Hold 'SQL.db'
              :Select req.Endpoint
@@ -13,7 +13,7 @@
              :Case '/presentation_material'
                  res←import.PresentationMaterial req
              :Case '/refresh'
-                 res←read.BuildCache''
+                 res←RefreshData''
              :Case '/wp_update_team_dyalog_videos'
                  res←wp.PushTeamDyalogVideos req
              :Case '/fail'
