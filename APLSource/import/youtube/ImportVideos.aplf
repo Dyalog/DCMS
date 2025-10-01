@@ -7,6 +7,9 @@
  :Else
      (titles pres)←override
  :EndIf
+ :If ytid≢⍥≢titles
+     ⎕SIGNAL⊂('EN' 500)('Message' 'youtube.ImportVideos overrides do not match IDs')('Vendor'(##.##.GetEnv'service_url'))
+ :EndIf
 ⍝ titles :: nested list of character vectors 2=≡titles
 ⍝ pres   :: doubly nested list of character vectors 3=≡pres
  GBL←##.##.GLOBAL
@@ -18,6 +21,9 @@
      'Missing YouTube IDs'⎕SIGNAL 6
  :EndIf
  opts.values←GetVideos ytid
+ :If opts.values≢⍥≢titles
+     ⎕SIGNAL⊂('EN' 500)('Message' 'youtube.ImportVideos overrides do not match fetched values')('Vendor'(##.##.GetEnv'service_url'))
+ :EndIf
  opts.values[;2]←titles                                                           ⍝ Replace with our own titles
  opts.values[;3]←(pres,¨¨⊂⊂'.*\n+'){0::⍵ ⋄ ⍺ ⎕R''⍠'Mode' 'D'⊢⍵}¨opts.values[;3]   ⍝ Remove presenter names from first line of description
  opts.(exists ids)←ExistingVideoIDs opts.values[;1]
