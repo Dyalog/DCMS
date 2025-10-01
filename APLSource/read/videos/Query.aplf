@@ -9,7 +9,11 @@
  :EndIf
 
 ⍝ Filter by date range
- (fm to)←DT2DDN∘Q¨'from' 'to'
+ :Trap 11
+     (fm to)←DT2DDN∘Q¨'from' 'to'
+ :Else
+     ⎕SIGNAL⊂('EN' 511)('Message' 'Invalid date-time')('Vendor' 'https://dcms.dyalog.com')
+ :EndTrap
  in_range←(fm to)FilterDateTimes ddn←C'presented_at'
 
 ⍝ Filter by columns: presenter, event

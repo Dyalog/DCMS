@@ -4,7 +4,7 @@
      ⎕←req.Endpoint
      last←req
  :EndIf
- :Trap GLOBAL.debug↓0
+ :Trap GLOBAL.debug↓0 511
      res←req.Response
      res.Headers←0 2⍴''
      res.Headers⍪←'Access-Control-Allow-Origin'service.AcceptFrom
@@ -24,6 +24,8 @@
      :Else
          req.Fail 404
      :EndIf
+ :CaseList 511
+     (⎕DMX.Message)req.Fail 400
  :Else
      'Internal Server Error'req.Fail 500
  :EndTrap
