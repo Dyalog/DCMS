@@ -60,3 +60,19 @@ This controls behaviour when errors occur.
 |1|Expected errors are trapped and respond 500. Unexpected errors suspend execution.|
 |2|All errors suspend execution|
 |>2|The APL system throws DOMAIN ERROR and the server does not start.|
+
+## Testing
+The tests suite performs the following tests:  
+1. Call GET endpoints and check results have correct type.
+2. Call POST endpoints and check results have correct content.
+3. Call GET endpoints and check results have correct content.
+
+Test scripts enable testing in 2 configurations:  
+1. Launch application with a clean database.
+2. Launch application with dummy data in the database.
+
+Testing is set up for 2 scenarios:  
+1. Development in APL  
+    The `Admin` namespace is linked alongside `DCMS` when Dyalog is launched from **dev.dcfg**. `Admin.Tests.Run` to run the test suite. Returns `1` for success or `0` for failure. 
+2. Command line  
+    Use **CI/run-tests.sh** to run the full test suite locally. These scripts are also used by Jenkins to run tests during deployment.

@@ -1,0 +1,16 @@
+ r←TestGetEndpoints url;GetEnv;app;c;d;e;ep;h;n;p;responses;t;url
+⍝ Test GET endpoints from a fresh system with no data in the database. Endpoints should return empty prototypes described in openapi doc.
+⍝      For example, a list, string, or number etc. An empty list has no prototype in JSON, so empty list is fine.
+ GetEnv←##.GetEnv
+ app←GetEnv'APP_DIR'
+ (d n c t)←↓⍉0(⎕JSON ⎕OPT'Format' 'M')⊃⎕NGET app,'/docs/openapi.json'   ⍝ Depth Node Content Type
+ 2{p[⍵]←⍺[⍺⍸⍵]}⌿⊂⍤⊢⌸d⊣p←⍳≢d   ⍝ Parent vector from depth
+ ep←n[p⌿⍨n∊⊂'get']
+ responses←⍎¨¨1↓n⊢∘⊂⌸⍨(+\e)×(p∊⍸n∊⊂'responses')∧(⊢∨p∊⍸)⍣≡e←n∊ep
+
+ h←##.##.HttpCommand.New¨'GET'⍨¨ep
+ h.URL←url∘,¨ep
+ r←{⎕←'Testing ',⍵.URL ⋄ ⍵.Run}¨h
+
+ r←∧/r.HttpStatus∊¨responses
+ ⍝

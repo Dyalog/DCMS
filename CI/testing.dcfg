@@ -1,0 +1,19 @@
+{
+	Settings: {
+		MAXWS:         "2G",
+
+		ADMIN_DIR:     "[APP_DIR]/Admin",
+		SECRETS:       "[APP_DIR]/secrets/secrets.json5",
+		URL:           "[SERVICE_URL]:[SERVICE_PORT]",
+
+		Jarvis:        "[APP_DIR]/packages/Jarvis.dyalog",
+		HttpCommand:   "[APP_DIR]/packages/HttpCommand.dyalog",
+
+		RIDE_INIT:     "HTTP:*:4503",
+
+		LX:            "⎕←⎕SE.Link.Import 'Admin',⍥⊂'[ADMIN_DIR]' ⋄\
+		                ⎕←⎕SE.Link.Import ⎕THIS '[HttpCommand]' ⋄\
+						result←Admin.Tests.Run Admin.GetEnv'URL' ⋄\
+						:If 1≡result ⋄ ⎕OFF 0 ⋄ :Else ⋄ ⎕OFF 1 ⋄ :EndIf"
+	}
+}
