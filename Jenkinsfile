@@ -45,7 +45,7 @@ node ('Docker') {
 			
 			try {
 				sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile}"
-				DockerTestApp = DockerDyalog.run("-t -u 6203 -e TEST_FILE=${Testfile} APP_DIR=${WORKSPACE} SERVICE_URL=${DOCKER_IP} SERVICE_PORT=8080 CONFIGFILE=${WORKSPACE}/CI/testing.dcfg")
+				DockerTestApp = DockerDyalog.run("-t -u 6203 -e TEST_FILE=${Testfile} -e APP_DIR=${WORKSPACE} -e SERVICE_URL=${DOCKER_IP} -e SERVICE_PORT=8080 -e CONFIGFILE=${WORKSPACE}/CI/testing.dcfg")
 			}
 			catch (e) {
 				DockerAppDB.stop()
