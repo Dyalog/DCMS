@@ -44,8 +44,11 @@ node ('Docker') {
 			).trim()
 			
 			try {
-				sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile}"
+				sh "sleep 10 && rm -f ${Testfile} && touch ${Testfile}"
 				DockerTestApp = DockerDyalog.run("-t -u 6203 -e TEST_FILE=${Testfile} -e APP_DIR=${WORKSPACE} -e SERVICE_URL=${DOCKER_IP} -e SERVICE_PORT=8080 -e CONFIGFILE=${WORKSPACE}/CI/testing.dcfg")
+				sh "docker logs -f ${DockerTestApp.id}"
+				def out = sh script: "docker inspect ${DockerTestApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
+				sh "exit ${out}"
 			}
 			catch (e) {
 				DockerAppDB.stop()
