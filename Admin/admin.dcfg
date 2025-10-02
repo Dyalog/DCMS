@@ -1,17 +1,17 @@
 {
 	Settings: {
 		MAXWS:          "2G",
-		DYALOG_VERSION:  20.0,
 
-		service_url:    "http://localhost",
-		service_port:   "8081",
-		app_dir:        "/g/DCMS",
-		admin_dir:      "[dcms_dir]/admin",
-		SECRETS:        "[dcms_dir]/secrets/secrets.json5",
+		APP_DIR:        "/g/DCMS",
+		SERVICE_URL:    "http://localhost",
+		SERVICE_PORT:   "8081",
+		URL:            "[SERVICE_URL]:[SERVICE_PORT]",
+		admin_dir:      "[APP_DIR]/admin",
+		SECRETS:        "[APP_DIR]/secrets/secrets.json5",
 		WORKBOOK:       "/d/website/DCMS.xlsx",
 
-		HttpCommand:    "/g/DCMS/packages/HttpCommand.dyalog",
+		HttpCommand:    "[APP_DIR]/packages/HttpCommand.dyalog",
 
-		LX:           "⎕←(watch:'ns')⎕SE.Link.Create 'DCMS_ADMIN',⍥⊂⎕SE.Link.LaunchDir ⋄ DCMS_ADMIN.Setup ⋄ ⎕CS DCMS_ADMIN",
+		LX:             "⎕←(watch:'ns')⎕SE.Link.Create 'Admin',⍥⊂'[APP_DIR]/Admin' ⋄ Admin.Setup ⋄ ⎕CS Admin",
 	}
 }

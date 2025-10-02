@@ -2,9 +2,10 @@
 	Settings: {
 		MAXWS:        "2G",
 		PW:            300,
-		app_dir:      "/app",
-		service_url:  "http://localhost",
-		service_port:  8081,
+		APP_DIR:      "/app",
+		SERVICE_URL:  "http://localhost",
+		SERVICE_PORT:  8081,
+		URL:          "[SERVICE_URL]:[SERVICE_PORT]",
 		allow_from:   "*",
 		debug:         1,
 		log_file:     "[app_dir]/dyalog_log_file.dlf",
