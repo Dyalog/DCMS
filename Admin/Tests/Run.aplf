@@ -1,8 +1,11 @@
- r←Run url;F;LoadDependency;fn;tests
+ result←Run url;F;LoadDependency;fn;tests;r
  ⎕←'Testing ',url
  tests←'Test'⎕NL ¯3
- r←1
- :For fn :In tests
-     F←⍎fn
-     r∧←F url
- :EndFor
+ result←1
+ DoTest←{
+    F←⍎⍵
+    0::0⊣⎕←'**TEST ERROR** ',⍵
+    0=F url:0⊣⎕←'**TEST FAIL** ',⍵
+    1
+ }
+ result←∧/DoTest¨tests

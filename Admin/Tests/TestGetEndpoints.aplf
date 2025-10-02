@@ -11,6 +11,9 @@
  h←##.##.HttpCommand.New¨'GET'⍨¨ep
  h.URL←url∘,¨ep
  r←{⎕←'Testing ',⍵.URL ⋄ ⍵.Run}¨h
-
- r←∧/r.HttpStatus∊¨responses
+ r←r.HttpStatus∊¨responses
+ :If ∨/0=r
+     ⎕←(0=r)/'**TEST FAIL** '∘,¨ep
+ :EndIf
+ r←∧/r
  ⍝
