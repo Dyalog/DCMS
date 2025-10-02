@@ -44,7 +44,7 @@ node ('Docker') {
 			).trim()
 			
 			try {
-				sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile} && ${WORKSPACE}/CI/runtests.sh ${Testfile} ${DOCKER_IP}"
+				sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile} && TEST_FILE=${Testfile} APP_DIR=${WORKSPACE} SERVICE_URL=${DOCKER_IP} SERVICE_PORT=8080 CONFIGFILE=${WORKSPACE}/CI/testing.dcfg dyalog"
 			}
 			catch (e) {
 				DockerAppDB.stop()
