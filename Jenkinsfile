@@ -45,7 +45,7 @@ node ('Docker') {
 			
 			try {
 				sh "sleep 10 && rm -f ${Testfile} && touch ${Testfile}"
-				DockerTestApp = DockerDyalog.run("-t -u 6203 -e TEST_FILE=${Testfile} -e APP_DIR=/app -e SERVICE_URL=${DOCKER_IP} -e SERVICE_PORT=8080 -e CONFIGFILE=/app/CI/testing.dcfg")
+				DockerTestApp = DockerDyalog.run("-t -u 6203 -e TEST_FILE=${Testfile} -e APP_DIR=/app -e SERVICE_URL=${DOCKER_IP} -e SERVICE_PORT=8080 -e CONFIGFILE=/app/CI/testing.dcfg -v $WORKSPACE:/app")
 				sh "docker logs -f ${DockerTestApp.id}"
 				def out = sh script: "docker inspect ${DockerTestApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
 				sh "exit ${out}"
