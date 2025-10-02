@@ -44,11 +44,13 @@ node ('Docker') {
 			).trim()
 			
 			try {
-				sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile} && TEST_FILE=${Testfile} APP_DIR=${WORKSPACE} SERVICE_URL=${DOCKER_IP} SERVICE_PORT=8080 CONFIGFILE=${WORKSPACE}/CI/testing.dcfg dyalog"
+				sh "sleep 1 && rm -f ${Testfile} && touch ${Testfile}"
+				DockerTestApp = DockerDyalog.run("-t -u 6203 -e TEST_FILE=${Testfile} APP_DIR=${WORKSPACE} SERVICE_URL=${DOCKER_IP} SERVICE_PORT=8080 CONFIGFILE=${WORKSPACE}/CI/testing.dcfg")
 			}
 			catch (e) {
 				DockerAppDB.stop()
 				println 'Failed to start DCMS service correctly - cleaning up.'
+				sh ("docker logs ${DockerTestApp.id}")
 				sh ("docker logs ${DockerApp.id}")
 				sh ('git rev-parse --short HEAD > .git/commit-id')
 				withCredentials([string(credentialsId: '250bdc45-ee69-451a-8783-30701df16935', variable: 'GHTOKEN')]) {
