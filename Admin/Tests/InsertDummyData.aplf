@@ -6,9 +6,9 @@
  ⍝ - /videos?search=p_name should prioritise videos by presenter p_name
  keywords←'dolor' 'commodo' 'aute' 'fugiat' 'consectetur' 'Excepteur' 'minim' 'Lorem'
  names←'Geoff Streeter' 'John Scholes' 'Dolor Orange' 'Rich Park' 'Jada Andrade'
- ⍝ Small problem, we're not necessarily in DCMS when we run Admin
- ⍝ For now, can write the dummy data generator and insert it with POST
- ⍝ Can also test POST endpoints in mean time
+ types←'integer unsigned' 'varchar' 'datetime'
+
+
  D←#.DCMS
  table_information←2⊃D.SQL.SQA.Columns'db'
  (tn cn type length)←↓⍉table_information[;3 4 6 7]
