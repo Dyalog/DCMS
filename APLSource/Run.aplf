@@ -6,7 +6,7 @@
      #.DRC←#.Conga.Init''
  :EndIf
  'GLOBAL'⎕NS''
-  GLOBAL.debug←debug
+ GLOBAL.debug←debug
  'SQA'SQL.⎕CY'sqapl'
  #.⎕CY'isolate'
  LoadDependency←{0=##.⎕NC ⍵:⎕SE.Link.Import ##,⍥⊂GetEnv ⍵}
@@ -24,11 +24,14 @@
 ⍝ Set up web service
  :If 0=⎕NC'service'
      service←⎕NEW ##.Jarvis
-     service.ErrorInfoLevel←0
      service.CodeLocation←⎕THIS
      service.Paradigm←'REST'
      service.Port←2⊃⎕VFI GetEnv'service_port'
      service.url←(GetEnv'service_url'),':',⍕service.Port
+     service.ErrorInfoLevel←2⌊debug
+     service.EnableCORS←1
+     service.CORS_Headers←'*'
+     service.CORS_Origin←GetEnv'allow_from'
      service.AcceptFrom←GetEnv'allow_from'
      service.Start
  :EndIf
