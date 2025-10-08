@@ -6,6 +6,10 @@
  :EndIf
  :Trap GLOBAL.debug↓0 511
      res←req.Response
+     res.Headers←0 2⍴''
+     res.Headers⍪←'Access-Control-Allow-Origin'service.AcceptFrom
+     res.Headers⍪←'Access-Control-Allow-Headers' '*'
+
      req.Endpoint←{⍵⌿⍨1(⊢∨⌽)'/'≠⍵}req.Endpoint   ⍝ Remove multiple slashes
      :If req.Endpoint(⊃⍷⍨)'/videos'
          res←read.videos.Handle req
