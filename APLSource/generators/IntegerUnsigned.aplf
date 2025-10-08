@@ -1,0 +1,2 @@
+ r←IntegerUnsigned n
+ r←?n⍴4294967295
