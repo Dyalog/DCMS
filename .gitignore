@@ -7,3 +7,4 @@ secrets/
 dcms_db/
 env
 DCMS.code-workspace
+CI/run-tests-in-docker.sh
