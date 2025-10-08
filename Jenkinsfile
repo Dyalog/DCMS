@@ -24,7 +24,7 @@ node ('Docker') {
 		}
 	}
 	stage ('Test service') {
-		DockerAppDB = DockerDB.run ("--rm -e MYSQL_RANDOM_ROOT_PASSWORD=true -e MYSQL_DATABASE=dyalog_cms -e MYSQL_USER=dcms -e MYSQL_PASSWORD=apl --name dcmsdb")
+		DockerAppDB = DockerDB.run ("-e MYSQL_RANDOM_ROOT_PASSWORD=true -e MYSQL_DATABASE=dyalog_cms -e MYSQL_USER=dcms -e MYSQL_PASSWORD=apl --name dcmsdb")
 		
 		def DBIP = sh (
 			script: "docker inspect ${DockerAppDB.id} | jq .[0].NetworkSettings.IPAddress | sed 's/\"//g'",
