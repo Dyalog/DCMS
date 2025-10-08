@@ -61,12 +61,14 @@ node ('Docker') {
 					sh "${WORKSPACE}/CI/githubComment.sh ${DockerApp.id} ${commit_id}"
 				}
 				DockerApp.stop()
+				DockerTestApp.stop()
 				echo "Throwing Exception..."
 				echo "Exception is: ${e}"
 				throw new Exception("${e}");
 			}
 		}
 		DockerApp.stop()
+		DockerTestApp.stop()
 		DockerAppDB.stop()
 	}
 
