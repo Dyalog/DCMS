@@ -71,8 +71,7 @@
     ∇ r←DoBulk(sql values);bulk;nulls;n
       n←≢⊃⍣(1=≢⍴values)⊢values
       r←Catch SQA.Prepare cur sql('Bulk'n)
-      r←Catch SQA.X cur,⍥⊆values
-     ⍝ ,⍥⊆ above allows SQAPL nulls matrix to be provided stranded with values
+      r←Catch SQA.X cur{2=≢⍴⍵:⍺ ⍵ ⋄ ⍺⊂⍛,⍵}values   ⍝ Allows SQAPL nulls matrix to be optionally provided stranded with values
       r←Catch SQA.Close cur
     ∇
 
@@ -139,14 +138,17 @@
           ##.GLOBAL.tables←∪d[;h⍳⊂'TABLE_NAME']
           tc←⎕CSV(##.GLOBAL.app_dir,'/sql/type_conversions.csv')⍬ 4  ⍝ Type conversions matrix
           cz←d[;h⍳⊂'COLUMN_SIZE']
-          ti←(⊢/tc)⍳d[;h⍳⊂'DATA_TYPE']
+          tp←d[;h⍳⊂'DATA_TYPE']
+          ti←(⊢/tc)⍳tp
           ∨/ti>≢tc:('Unknown column types in rows ',⍕⍸ti>≢tc)⎕SIGNAL 101
           tn←tc[ti;2]
           sqat←('<'∘=⊂⊢)∊(⍕¨cz/⍨'⎕'∘∊¨tn)@('⎕'∘=)∊tn   ⍝ Replace ⎕ with numeric field widths (COLUMN_SIZE) in SQAPL type definitions
           t←d[;h⍳⊂'TABLE_NAME']
           ##.GLOBAL.tables←∪t
+          ##.GLOBAL.types←t⊢∘⊂⌸tp
           ##.GLOBAL.type_sqapl←t⊢∘⊂⌸sqat
           ##.GLOBAL.columns←t⊢∘⊂⌸d[;h⍳⊂'COLUMN_NAME']
+          ##.GLOBAL.lengths←t⊢∘⊂⌸cz
           'Processed table information'
       }
 
