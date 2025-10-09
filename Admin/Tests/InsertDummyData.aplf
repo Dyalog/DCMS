@@ -1,26 +1,69 @@
- InsertDummyData
- ⍝ Insert dummy data into the database for testing
- ⍝ First tests considered:
- ⍝ - /videos?search= should return all videos with matching terms
- ⍝ - /videos?presenter= should return all videos by that presenter
- ⍝ - /videos?search=p_name should prioritise videos by presenter p_name
+ InsertDummyData;D;GEN;WrapBackticks;WrapColons;col_spec;column;data;fn_cols;gen;idx;keywords;length;n;names;opt;opt_cols;remove_columns;spec_fns;spec_opts;sql;table;type;type_spec;type_sql;types
+⍝ Insert dummy data into the database for testing
+⍝ First tests considered:
+⍝ - /videos?search= should return all videos with matching terms
+⍝ - /videos?presenter=p_name should return all videos by presenter p_name
+⍝ - /videos?search=p_name       should include videos by presenter p_name
+
+⍝ CONFIG
  keywords←'dolor' 'commodo' 'aute' 'fugiat' 'consectetur' 'Excepteur' 'minim' 'Lorem'
- names←'Geoff Streeter' 'John Scholes' 'Dolor Orange' 'Rich Park' 'Jada Andrade'
- types←'integer unsigned' 'varchar' 'datetime'
+ names←'Geoff' 'Streeter' 'John' 'Scholes' 'Dolor' 'Orange' 'Rich' 'Park' 'Jada' 'Andrade'
+ types←4 ¯9 93 ¯10 ¯6
 
-
+⍝ SETUP
  D←#.DCMS
- table_information←2⊃D.SQL.SQA.Columns'db'
- (tn cn type length)←↓⍉table_information[;3 4 6 7]
- Text←{⊃(⊣,' ',⊢)/lipsum[?⍵⍴≢lipsum]}
- tables←1↓3⌷⍤1⊢2⊃D.SQL.(SQA.Tables db)
+ D.SQL.ProcessTableInformation ⍬
 
- ⍝ For each table
- :For t :In tables
- ⍝ Get column types and size
-    (c ct cl)←(tn∊⊂t)∘⌿¨cn type length
- ⍝ Generate random data
+⍝ We use the column type to select the random data generator function from the list of namespaces GEN
+ gen←'Integer' 'Text' 'DateTime' 'Text' 'Boolean' 'Name'
+ GEN←⎕NS¨''⍨¨gen
+ GEN{⍺.F←generators⍎⍵}¨gen
+
+⍝ All generator functions take a right arg of number of records to generate
+⍝ Left argument is max size of data (length in bits), OR a special left argument for specific columns
+
+ WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
+ WrapColons←(1↓∊)(',:',':',⍨⊢)¨
+
+ n←10
+ opt_cols←'name' 'presentation_id' 'person_id' 'event_id' 'category_id' 'type_id' 'presentation_id' 'media_id' 'youtube_id'
+ spec_opts←names n n n n n n n 11
+ fn_cols←⊂'name'
+ spec_fns←gen⍳⊂'Name'
+ remove_columns←'created_at' 'updated_at'
+ ⎕RL←42
+ :For (table column type type_sql length) :InEach D.GLOBAL.(tables columns types type_sqapl lengths)
+     (column type type_sql length)⌿⍨←⊂~column∊'id'⊂⍛,remove_columns   ⍝ ID always ascending ints
+     opt←2*@(⍸type=4)⊢length   ⍝ Integers up to 2*length
+     opt←()@(⍸type=93)⊢opt   ⍝ DateTime generator has namespace left arg
+     :Select table   ⍝ Some need special case
+     :Case 'presenter'
+         data←{?n 2⍴n}⍣{⍵≡∪⍵}⍬                 ⍝ presentation_id, person_id
+         data,←⍉↑(2↓length)generators.Text¨n   ⍝ affiliation, updated_by
+     :Case 'event'
+         ⍝ type is an ID - must be ≤n; phy, dig are Bool
+         idx←types⍳type
+         data←⍉↑opt(GEN[idx]).F n
+         data[;column⍳'type' 'physical' 'digital']←⍉↑n 0 0(GEN[gen⍳'Integer' 'Boolean' 'Boolean']).F n
+     :Case 'youtube_video'
+         idx←types⍳type
+         data←⍪↓(⎕A,⎕C ⎕A)[?n 11⍴2×26]
+         data,←⍉↑(1↓opt)(GEN[1↓idx]).F n
+     :Else
+ ⍝ Use column type to select generator function
+ ⍝     column length is left argument, except for special columns
+         idx←types⍳type
+         idx←(spec_fns,idx)[(fn_cols,column)⍳column]
+         opt←(spec_opts,opt)[(opt_cols,column)⍳column]   ⍝ Substitute values for special columns (e.g. used to ensure foreign keys are within range of generated data)
+         data←⍉↑opt(GEN[idx].F)n
+ ⍝ For description columns, include keywords to test that they are correctly found
+ ⍝ For presenter columns, use the names provided
+     :EndSelect
  ⍝ Bulk insert
+     col_spec←WrapBackticks column
+     type_spec←WrapColons type_sql
+     sql←'INSERT INTO ',table,' (',col_spec,') VALUES (',type_spec,')'
+     D.SQL.DoBulk sql data
  :EndFor
 
 

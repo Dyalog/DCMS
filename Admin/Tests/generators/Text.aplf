@@ -1,0 +1,8 @@
+ r←{len}Text n;k;mlen
+⍝ FIXME: is Text just a maxed out VarChar?
+⍝ r: nested vector of n character vectors of random lengths up to len
+ len←⎕VGET⊂('len' 65535)
+⍝ FIXME investigate Wald's equation or Dirichlet Multinomial distribution
+ mlen←(+⌿÷≢)≢¨lipsum
+ k←⌈len÷mlen
+ r←len(⌊∘≢↑⊢)¨(⊃(⊣,' ',⊢)/)¨{lipsum[?⍵⍴≢lipsum]}¨?n⍴k

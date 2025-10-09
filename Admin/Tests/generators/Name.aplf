@@ -1,0 +1,7 @@
+ Name←{
+⍝ ⍺: Names
+⍝ ⍵: How many
+⍝ ←: Nested vec of char vecs
+     names←⍺
+     (⊃(⊣,' ',⊢)/)¨{names[?⍵⍴≢names]}¨?⍵⍴3
+ }
