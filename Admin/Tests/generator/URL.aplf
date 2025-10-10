@@ -1,0 +1,7 @@
+ URL←{
+⍝ ⍵: How many
+⍝ ←: Nested list of URLs
+     tld←'.org' '.com' '.biz'
+     domain←{(⎕C ⎕A)[?⍵⍴26]}¨?⍵⍴12
+     'http://'∘,¨domain,¨tld[?⍵⍴≢tld]
+ }

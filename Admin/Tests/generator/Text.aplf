@@ -1,0 +1,11 @@
+ Text←{
+⍝ ⍺: Options namespace
+⍝    vocab: nested list of words
+⍝      max: maximum number of characters per text
+⍝ ⍵: How many texts to generator
+⍝ ←: Nested list of texts
+     (vocab max)←⍺ ⎕VGET('vocab'lipsum)('max')
+     mean←(+⌿÷≢)≢¨vocab
+     k←⌈max÷mean
+     max(⌊∘≢↑⊢)¨(⊃(⊣,' ',⊢)/)¨{vocab[?⍵⍴≢vocab]}¨?⍵⍴k
+ }
