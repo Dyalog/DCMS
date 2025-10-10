@@ -1,18 +1,90 @@
- InsertDummyData;D;GEN;WrapBackticks;WrapColons;col_spec;column;data;fn_cols;gen;idx;keywords;length;n;names;opt;opt_cols;remove_columns;spec_fns;spec_opts;sql;table;type;type_spec;type_sql;types
+ InsertDummyData;D;GEN;WrapBackticks;WrapColons;col_spec;column;data;fn_cols;gen;idx;keywords;length;lipsum;n;opt;opt_cols;person_names;remove_columns;spec_fns;spec_opts;sql;table;thing_names;type;type_spec;type_sql;types
 ⍝ Insert dummy data into the database for testing
 ⍝ First tests considered:
 ⍝ - /videos?search= should return all videos with matching terms
 ⍝ - /videos?presenter=p_name should return all videos by presenter p_name
 ⍝ - /videos?search=p_name       should include videos by presenter p_name
+⍝ FIXME this is not comprehensive. Fields essential to the video library are used, but many are not.
+
+⍝ Start by generating joined data and deconstructing it into the normalised database, then loop over each table and insert.
+
 
 ⍝ CONFIG
  keywords←'dolor' 'commodo' 'aute' 'fugiat' 'consectetur' 'Excepteur' 'minim' 'Lorem'
- names←'Geoff' 'Streeter' 'John' 'Scholes' 'Dolor' 'Orange' 'Rich' 'Park' 'Jada' 'Andrade'
+ person_names←'Geoff' 'Streeter' 'John' 'Scholes' 'Iverson' 'Dolor' 'Fugiat' 'Orange' 'Rich' 'Park' 'Jada' 'Andrade' 'Andy' 'Karen' 'Fiona' 'Jason' 'Peter' 'Silas'
+ thing_names←'APL' 'Meeting' 'Seeds' 'Conference' 'Dyalog' 'Alpha' 'Omega'
+ lipsum←generator.lipsum
+
  types←4 ¯9 93 ¯10 ¯6
 
 ⍝ SETUP
  D←#.DCMS
  D.SQL.ProcessTableInformation ⍬
+
+⍝ GENERATE
+ n←10
+ ⎕RL←42
+
+⍝ event_type
+⍝ type description url_slug
+ event_type←(
+     type:(vocab:keywords ⋄ max:1)generator.Name n
+     description:(vocab:lipsum ⋄ max:65535)generator.Text n
+     url_slug:generator.URL n
+ )
+
+⍝ event
+⍝ title start end type
+ event←()
+ event.title←(vocab:thing_names ⋄ max:2)generator.Name n
+ event.(start end)←generator.DateTime¨2⍴n
+ event.type←?n⍴n
+
+⍝ organisation
+⍝ name
+ organisation←()
+ organisation.name←(vocab:thing_names ⋄ max:1)generator.Name n
+
+⍝ person
+⍝ name organisation
+ person←()
+ person.name←(vocab:person_names ⋄ max:3)generator.Name n
+ person.organisation←?n⍴n
+
+ category←(category:(⊂?n⍴≢keywords)⌷keywords)
+
+ presentation_type←(type:(⊂?n⍴≢keywords)⌷keywords)
+
+⍝ presentation_info
+⍝ event code title type description presenter presented_at
+ presentation←()
+ presentation.event←?n⍴n
+ presentation.code←(vocab:⎕A,⎕D ⋄ max:2 ⋄ unique:1)generator.Name n
+ presentation.title←(vocab:lipsum ⋄ max:30)generator.Text n
+ presentation.type←?n⍴n
+ presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
+ presentation.presented_at←generator.DateTime n
+ presentation.category←?n⍴n
+
+⍝ presenter
+⍝ pres_id per_id
+ presenter←()
+ presenter.(presentation_id person_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0
+
+⍝ videos
+⍝ pres_id youtube_id title
+ videos←()
+ videos.presentation_id←?n⍴n
+ videos.youtube_id←⍪↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍵}n 11⍴0
+ videos.title←(vocab:keywords ⋄ max:50)generator.Text n
+
+ presentation_media←(type:'youtube_video')
+ presentation_media.(presentation_id media_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0
+ presentation.(media_id←(∪##.videos.youtube_id)[media_id])
+
+⍝ youtube_video
+⍝ youtube_id from videos
+ youtube_video←(youtube_id:∪videos.youtube_id)
 
 ⍝ We use the column type to select the random data generator function from the list of namespaces GEN
  gen←'Integer' 'Text' 'DateTime' 'Text' 'Boolean' 'Name'
