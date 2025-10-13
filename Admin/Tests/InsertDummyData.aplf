@@ -1,4 +1,4 @@
- InsertDummyData;D;GEN;WrapBackticks;WrapColons;col_spec;column;data;fn_cols;gen;idx;keywords;length;lipsum;n;opt;opt_cols;person_names;remove_columns;spec_fns;spec_opts;sql;table;thing_names;type;type_spec;type_sql;types
+ InsertDummyData;D;GEN;WrapBackticks;WrapColons;cid;col_spec;column;data;fn_cols;gen;idx;keywords;length;lipsum;n;name;opt;opt_cols;person_names;remove_columns;spec_fns;spec_opts;sql;table;thing_names;tid;type;type_spec;type_sql;types
 ⍝ Insert dummy data into the database for testing
 ⍝ First tests considered:
 ⍝ - /videos?search= should return all videos with matching terms
@@ -25,71 +25,62 @@
  n←10
  ⎕RL←42
 
-⍝ event_type
-⍝ type description url_slug
+⍝ Use ⎕DF to give each namespace a name that can be used to look up into SQL table metadata
  event_type←(
      type:(vocab:keywords ⋄ max:1)generator.Name n
      description:(vocab:lipsum ⋄ max:65535)generator.Text n
      url_slug:generator.URL n
  )
+ event_type.⎕DF'event_type'
 
-⍝ event
-⍝ title start end type
  event←()
  event.title←(vocab:thing_names ⋄ max:2)generator.Name n
  event.(start end)←generator.DateTime¨2⍴n
  event.type←?n⍴n
+ event.⎕DF'event'
 
-⍝ organisation
-⍝ name
  organisation←()
  organisation.name←(vocab:thing_names ⋄ max:1)generator.Name n
+ organisation.⎕DF'organisation'
 
-⍝ person
-⍝ name organisation
  person←()
  person.name←(vocab:person_names ⋄ max:3)generator.Name n
  person.organisation←?n⍴n
+ person.⎕DF'person'
 
  category←(category:(⊂?n⍴≢keywords)⌷keywords)
+ category.⎕DF'category'
 
  presentation_type←(type:(⊂?n⍴≢keywords)⌷keywords)
+ presentation_type.⎕DF'presentation_type'
 
-⍝ presentation_info
-⍝ event code title type description presenter presented_at
  presentation←()
- presentation.event←?n⍴n
+ presentation.event_id←?n⍴n
  presentation.code←(vocab:⎕A,⎕D ⋄ max:2 ⋄ unique:1)generator.Name n
  presentation.title←(vocab:lipsum ⋄ max:30)generator.Text n
- presentation.type←?n⍴n
+ presentation.type_id←?n⍴n
  presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
  presentation.presented_at←generator.DateTime n
- presentation.category←?n⍴n
+ presentation.category_id←?n⍴n
+ presentation.⎕DF'presentation'
 
-⍝ presenter
-⍝ pres_id per_id
  presenter←()
  presenter.(presentation_id person_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0
+ presenter.⎕DF'presenter'
 
-⍝ videos
-⍝ pres_id youtube_id title
+ ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
  videos←()
  videos.presentation_id←?n⍴n
- videos.youtube_id←⍪↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍵}n 11⍴0
- videos.title←(vocab:keywords ⋄ max:50)generator.Text n
+ videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍵}n 11⍴0
 
- presentation_media←(type:'youtube_video')
- presentation_media.(presentation_id media_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0
- presentation.(media_id←(∪##.videos.youtube_id)[media_id])
+ presentation_media←(type:n⍴⊂'youtube_video')
+ presentation_media.(presentation_id media_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0   ⍝ Random unique pairs of numbers
+ presentation_media.⎕DF'presentation_media'
 
-⍝ youtube_video
-⍝ youtube_id from videos
- youtube_video←(youtube_id:∪videos.youtube_id)
-
-⍝ We use the column type to select the random data generator function from the list of namespaces GEN
- gen←'Integer' 'Text' 'DateTime' 'Text' 'Boolean' 'Name'
- GEN←⎕NS¨''⍨¨gen
- GEN{⍺.F←generators⍎⍵}¨gen
+ youtube_video←(
+     youtube_id:∪videos.youtube_id
+     )
+ youtube_video.⎕DF'youtube_video'
 
 ⍝ All generator functions take a right arg of number of records to generate
 ⍝ Left argument is max size of data (length in bits), OR a special left argument for specific columns
@@ -97,44 +88,18 @@
  WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
  WrapColons←(1↓∊)(',:',':',⍨⊢)¨
 
- n←10
- opt_cols←'name' 'presentation_id' 'person_id' 'event_id' 'category_id' 'type_id' 'presentation_id' 'media_id' 'youtube_id'
- spec_opts←names n n n n n n n 11
- fn_cols←⊂'name'
- spec_fns←gen⍳⊂'Name'
- remove_columns←'created_at' 'updated_at'
- ⎕RL←42
- :For (table column type type_sql length) :InEach D.GLOBAL.(tables columns types type_sqapl lengths)
-     (column type type_sql length)⌿⍨←⊂~column∊'id'⊂⍛,remove_columns   ⍝ ID always ascending ints
-     opt←2*@(⍸type=4)⊢length   ⍝ Integers up to 2*length
-     opt←()@(⍸type=93)⊢opt   ⍝ DateTime generator has namespace left arg
-     :Select table   ⍝ Some need special case
-     :Case 'presenter'
-         data←{?n 2⍴n}⍣{⍵≡∪⍵}⍬                 ⍝ presentation_id, person_id
-         data,←⍉↑(2↓length)generators.Text¨n   ⍝ affiliation, updated_by
-     :Case 'event'
-         ⍝ type is an ID - must be ≤n; phy, dig are Bool
-         idx←types⍳type
-         data←⍉↑opt(GEN[idx]).F n
-         data[;column⍳'type' 'physical' 'digital']←⍉↑n 0 0(GEN[gen⍳'Integer' 'Boolean' 'Boolean']).F n
-     :Case 'youtube_video'
-         idx←types⍳type
-         data←⍪↓(⎕A,⎕C ⎕A)[?n 11⍴2×26]
-         data,←⍉↑(1↓opt)(GEN[1↓idx]).F n
-     :Else
- ⍝ Use column type to select generator function
- ⍝     column length is left argument, except for special columns
-         idx←types⍳type
-         idx←(spec_fns,idx)[(fn_cols,column)⍳column]
-         opt←(spec_opts,opt)[(opt_cols,column)⍳column]   ⍝ Substitute values for special columns (e.g. used to ensure foreign keys are within range of generated data)
-         data←⍉↑opt(GEN[idx].F)n
- ⍝ For description columns, include keywords to test that they are correctly found
- ⍝ For presenter columns, use the names provided
-     :EndSelect
- ⍝ Bulk insert
+ :For table :In event_type event organisation person category presentation presentation_type presenter presentation_media youtube_video
+     ⎕←name←⍕table
+     table.id←⍳n
+     tid←D.GLOBAL.tables⍳⊂name
+     cid←(column←tid⊃D.GLOBAL.columns)⍳table.⎕NL ¯2
+     type←cid⊂⍛⌷tid⊃D.GLOBAL.type_sqapl
+     column←cid⊂⍛⌷column
      col_spec←WrapBackticks column
-     type_spec←WrapColons type_sql
-     sql←'INSERT INTO ',table,' (',col_spec,') VALUES (',type_spec,')'
+     type_spec←WrapColons type
+     sql←'INSERT INTO ',name,' (',col_spec,') VALUES (',type_spec,')'
+     data←⍉↑table ⎕VGET table.⎕NL ¯2
+     D.SQL.Do'DELETE from ',name
      D.SQL.DoBulk sql data
  :EndFor
 
