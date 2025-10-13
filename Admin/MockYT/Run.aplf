@@ -1,0 +1,12 @@
+ Run
+ ⍝ Mock YouTube service for testing
+ ##.##.DCMS.GLOBAL.secrets.youtube←##.GetEnv'MOCKYT'
+ ##.##.DCMS.GLOBAL.secrets.youtube_key←'abc123'
+ ⍝ videos endpoint w/ pagination? ew....
+
+ ⍝ create Jarvis
+ j←⎕NEW ##.##.##.Jarvis
+ j.CodeLocation←⎕THIS
+ j.Port←8088
+ j.Paradigm←'REST'
+ j.Start

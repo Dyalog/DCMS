@@ -7,6 +7,8 @@
 		SECRETS:       "[APP_DIR]/secrets/secrets.json5",
 		URL:           "[SERVICE_URL]:[SERVICE_PORT]",
 
+		MOCKYT:        "http://localhost:8088/",
+
 		Jarvis:        "[APP_DIR]/packages/Jarvis.dyalog",
 		HttpCommand:   "[APP_DIR]/packages/HttpCommand.dyalog",
 
