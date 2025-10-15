@@ -18,7 +18,7 @@
 
 ⍝ Filter by columns: presenter, event
  presenter←(Q FilterPresenter C)'presenter'
- event←⊃⍤1(Q⍷C)'event_shortname'
+ event←⊣/{1,⍣(0∊⍴⍵)⊢⍵}(Q⍷C)'event_shortname'
  filter←in_range∧presenter∧event
 
  Norm←##.##.Unidecode.NormaliseText
