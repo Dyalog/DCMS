@@ -4,8 +4,14 @@ DCMS is developed using Dyalog in Docker. This allows us to develop and deploy w
 ## Development, Testing and Deployment
 Three [configuration files](https://docs.dyalog.com/20.0/unix-installation-and-configuration-guide/configuration-parameters/configuration-files/) are used to launch the system for the purposes of development, testing and deployment.
 
-1. The [**dev.dcfg**](../dev.dcfg) configuration is used for development. The script [**dev**](../dev) can be used on Linux to set required environment variables and launch Dyalog from this configuration file.
-2. The [**CI/testing.dcfg**](../CI/testing.dcfg) is used to launch the application and execute the test suite. The script [**CI/run-tests-in-docker.sh**](../CI/run-tests-in-docker.sh) can be used on Linux to run these tests using Docker.
+1. The [**dev.dcfg**](../dev.dcfg) configuration is used for development. The script [**dev**](../dev) can be used on Linux to set required environment variables and launch Dyalog from this configuration file.  
+    ```sh
+    ./dev
+    ```
+2. The [**CI/testing.dcfg**](../CI/testing.dcfg) is used to launch the application and execute the test suite. The script [**CI/run-tests-in-docker.sh**](../CI/run-tests-in-docker.sh) can be used on Linux to run these tests using Docker.  
+    ```sh
+    ./CI/run-tests-in-docker.sh
+    ```
 3. The [**run.dcfg**](../run.dcfg) configuration is used to launch the application in production.
 
 ## Test scenarios and the Mock YouTube service

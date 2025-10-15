@@ -19,7 +19,6 @@
 
 ⍝ SETUP
  D←#.DCMS
- D.SQL.ProcessTableInformation ⍬
 
 ⍝ GENERATE
  n←10

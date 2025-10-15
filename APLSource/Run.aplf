@@ -31,8 +31,7 @@
      service.ErrorInfoLevel←2⌊debug
      service.EnableCORS←1
      service.CORS_Headers←'*'
-     service.CORS_Origin←GetEnv'allow_from'
-     service.AcceptFrom←GetEnv'allow_from'
+     service.CORS_Origin←'*'
      service.Start
  :EndIf
  service.Debug←1⌊debug   ⍝ Only prevent Jarvis error trapping (1), do not pause on request when 1<DCMS.GLOBAL.debug

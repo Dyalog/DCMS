@@ -1,9 +1,29 @@
 #!/bin/bash
-docker run -it --rm \
--e TEST_FILE=/tmp/dcms-test-results \
--e APP_DIR=/app \
--e SERVICE_URL=localhost \
--e SERVICE_PORT=8080 \
--e CONFIGFILE=/app/CI/testing.dcfg \
--v $PWD:/app \
-dyalog/techpreview:latest
+
+if which docker-compose 2>/dev/null ;then
+    COMPOSE=$(which docker-compose)
+else
+    COMPOSE="$(which docker) compose"
+fi
+
+## Populate env file
+echo CONFIGFILE=/app/CI/testing.dcfg >> ${PWD}/env
+echo RIDE_INIT=HTTP:*:4502 >> ${PWD}/env
+echo SQL_SERVER=db >> ${PWD}/env
+echo SQL_DATABASE=dyalog_cms >> ${PWD}/env
+echo SQL_USER=dcms >> ${PWD}/env
+echo SQL_PASSWORD=apl >> ${PWD}/env
+echo SQL_PORT=3306 >> ${PWD}/env
+echo MYSQL_SERVER=db >> ${PWD}/env
+echo MYSQL_DATABASE=dyalog_cms >> ${PWD}/env
+echo MYSQL_USER=dcms >> ${PWD}/env
+echo MYSQL_PASSWORD=apl >> ${PWD}/env
+echo MYSQL_PORT=3306 >> ${PWD}/env
+echo SECRETS=/app/secrets/secrets.json5 >> ${PWD}/env
+echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${PWD}/env
+
+echo COMPOSE IS: $COMPOSE
+echo "Use docker inspect to get the IP of the running container"
+
+$COMPOSE pull
+$COMPOSE -f docker-compose.yml up

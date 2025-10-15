@@ -115,7 +115,7 @@
       create_migrations←⊃⎕NGET ##.GLOBAL.app_dir,'/sql/migrations.sql'
       Do create_migrations
      
-      folder←##.GetEnv'schema_defs'
+      folder←##.GetEnv'SCHEMA_DEFS'
       schema_definitions←(⊂∘⍋⌷⊢)'.*\d+-.*.sql'⎕S'&'⊃0(⎕NINFO⍠'Wildcard' 1)folder
       sequence←∊2⊃¨⎕VFI¨⊃¨'-'(≠⊆⊢)¨2⊃¨⎕NPARTS¨schema_definitions
      

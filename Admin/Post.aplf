@@ -1,5 +1,5 @@
  Post←{
-⍝ Retrieve resource from DCMS
+⍝ Send resource to DCMS
      opt←⎕NS''
      ⍺←GetEnv'service_url'
      opt.url←⍺,'/',⍵
