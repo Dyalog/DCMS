@@ -10,7 +10,7 @@
 
 
 ⍝ CONFIG
- keywords←'dolor' 'commodo' 'aute' 'fugiat' 'consectetur' 'Excepteur' 'minim' 'Lorem'
+ keywords←generator.keywords
  person_names←'Geoff' 'Streeter' 'John' 'Scholes' 'Iverson' 'Dolor' 'Fugiat' 'Orange' 'Rich' 'Park' 'Jada' 'Andrade' 'Andy' 'Karen' 'Fiona' 'Jason' 'Peter' 'Silas'
  thing_names←'APL' 'Meeting' 'Seeds' 'Conference' 'Dyalog' 'Alpha' 'Omega'
  lipsum←generator.lipsum
@@ -79,7 +79,7 @@
 
  youtube_video←(
      youtube_id:∪videos.youtube_id
-     )
+ )
  youtube_video.⎕DF'youtube_video'
 
 ⍝ All generator functions take a right arg of number of records to generate

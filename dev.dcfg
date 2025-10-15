@@ -14,8 +14,13 @@
 		Jarvis:      "/app/packages/Jarvis.dyalog",
 		HttpCommand: "/app/packages/HttpCommand.dyalog",
 
+		YOUTUBE:     "http://localhost:8088/",
+
 		CodeLocation: "#.DMCS",
 		Paradigm:     "REST",
-		LX:           "⎕←⎕SE.Link.Create 'DCMS',⍥⊂⎕SE.Link.LaunchDir,'/APLSource' ⋄ ⎕←⎕SE.Link.Create 'Admin' '[app_dir]/Admin' ⋄ ⎕CS DCMS ⋄ Run 2⊃∘⎕VFI GetEnv'debug'",
+		LX:           "⎕←⎕SE.Link.Create 'DCMS',⍥⊂⎕SE.Link.LaunchDir,'/APLSource' ⋄\
+		               ⎕←⎕SE.Link.Create 'Admin' '[app_dir]/Admin' ⋄\
+					   ⎕CS DCMS ⋄\
+					   Run [debug]",
 	}
 }

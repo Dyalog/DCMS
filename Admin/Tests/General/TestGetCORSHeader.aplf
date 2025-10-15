@@ -1,0 +1,7 @@
+ r←TestGetCORSHeader url;h;res
+ h←##.##.##.HttpCommand.New'GET'
+ h.URL←url,'/version'
+ 'origin'h.SetHeader ##.##.GetEnv'URL'
+ res←h.Run
+ r←200=res.HttpStatus
+ r∧←(≢res.Headers)≥res.Headers⍳'Access-Control-Allow-Origin'(,'*')

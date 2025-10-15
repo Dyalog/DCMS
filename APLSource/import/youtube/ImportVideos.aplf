@@ -1,6 +1,7 @@
  r←{override}ImportVideos ytid;url;key;video_data;names;remove_leading_names_blanks;GBL;opts;titles;pres
  :If 0=≢ytid ⋄ r←2⍴⊂⊂'' ⋄ :Return ⋄ :EndIf
  ytid←,⊆ytid
+ GetEnv←##.##.GetEnv
 ⍝ TODO use eTags to prevent API request for data we already have
  :If 0=⎕NC'override'
      (titles pres)←⊂⊂''
@@ -8,12 +9,12 @@
      (titles pres)←override
  :EndIf
  :If ytid≢⍥≢titles
-     ⎕SIGNAL⊂('EN' 500)('Message' 'youtube.ImportVideos overrides do not match IDs')('Vendor'(##.##.GetEnv'service_url'))
+     ⎕SIGNAL⊂('EN' 500)('Message' 'youtube.ImportVideos overrides do not match IDs')('Vendor'(GetEnv'service_url'))
  :EndIf
 ⍝ titles :: nested list of character vectors 2=≡titles
 ⍝ pres   :: doubly nested list of character vectors 3=≡pres
  GBL←##.##.GLOBAL
- url←GBL.secrets.youtube
+ url←GetEnv'YOUTUBE'
  key←GBL.secrets.youtube_key
  opts←⎕NS''
  opts.table←'youtube_video'

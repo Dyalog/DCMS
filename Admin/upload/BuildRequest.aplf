@@ -6,7 +6,7 @@
 ⍝  ⍵.data: JSON data as text
 ⍝ ⍵.token: bearer authorization token
 
-     h←⎕NEW ##.HttpCommand
+     h←⎕NEW ##.##.HttpCommand
      h.URL←⍵.url
      h.Command←⍺
      h.Headers←0 2⍴''

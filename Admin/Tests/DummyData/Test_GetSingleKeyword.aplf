@@ -1,0 +1,9 @@
+ Test_GetSingleKeyword←{
+⍝ Test free text search returns results that all include
+⍝ the single query term
+     keyword←⊃##.generator.keywords
+     url←⍵,'/videos?search=',keyword
+     res←##.##.##.HttpCommand.GetJSON'GET'url
+     200≠res.HttpStatus:0
+     ∧/keyword∘(∨/⍷)¨1 ⎕JSON¨res.Data
+ }
