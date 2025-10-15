@@ -5,7 +5,7 @@
 ⍝ ⍵: How many texts to generator
 ⍝ ←: Nested list of texts
      (vocab max)←⍺ ⎕VGET('vocab'lipsum)('max')
-     mean←(+⌿÷≢)≢¨vocab
+     mean←(+⌿÷≢)+/' '≠lipsum
      k←⌈max÷mean
-     max(⌊∘≢↑⊢)¨(⊃(⊣,' ',⊢)/)¨{vocab[?⍵⍴≢vocab]}¨?⍵⍴k
+     max(⌊∘≢↑⊢)¨{1↓(' ',⍵)/⍨1(⊢∨⌽)0,' '≠⍵}¨{,(⊂?⍵⍴≢vocab)⌷vocab}¨?⍵⍴k
  }

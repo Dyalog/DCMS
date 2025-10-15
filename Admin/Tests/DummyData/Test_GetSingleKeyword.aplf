@@ -5,5 +5,5 @@
      url←⍵,'/videos?search=',keyword
      res←##.##.##.HttpCommand.GetJSON'GET'url
      200≠res.HttpStatus:0
-     ∧/keyword∘(∨/⍷)¨1 ⎕JSON¨res.Data
+     ∧/keyword∘(∨/⍷)⍥⎕C¨1 ⎕JSON¨res.Data
  }

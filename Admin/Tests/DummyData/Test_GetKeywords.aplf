@@ -6,5 +6,5 @@
      res←H.GetJSON'GET'url
      200≠res.HttpStatus:0
      0∊⍴res.Data:0
-     ∧/∨⌿∨/¨##.generator.keywords∘.⍷1 ⎕JSON¨res.Data
+     ∧/∨/∨/¨##.generator.keywords∘.⍷1 ⎕JSON¨res.Data
  }
