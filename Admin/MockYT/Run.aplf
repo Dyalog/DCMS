@@ -1,0 +1,18 @@
+ Run
+ ⍝ Mock YouTube service for testing
+ URL←##.GetEnv'YOUTUBE'
+ ROOT←##.##
+ Import←{0=⍺.⎕NC ⍵:⍺⍎⍵⊣⎕SE.Link.Import ⍺(##.GetEnv ⍵) ⋄ ⍺⍎⍵}
+ :If 0<⎕NC'j'
+ :AndIf j.Running
+     ⎕←'MockYT already running on port ',⍕j.Port
+ :ElseIf 'localhost'(∨/⍷)URL
+     Jarvis←ROOT Import'Jarvis'
+     j←⎕NEW Jarvis
+     j.CodeLocation←⎕THIS
+     j.Port←8088
+     j.Paradigm←'REST'
+     j.Start
+ :Else
+     ⎕←'Not running MockYT. YOUTUBE environment variable does not point to localhost.'
+ :EndIf

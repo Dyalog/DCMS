@@ -1,0 +1,5 @@
+ Boolean←{
+⍝ ⍵: Number of Booleans to generate
+⍝ ←: List of Booleans
+     1=?⍵⍴2
+ }

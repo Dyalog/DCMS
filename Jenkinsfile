@@ -35,25 +35,17 @@ node ('Docker') {
 		sleep 10
 		
 		withCredentials([file(credentialsId: '205bc57d-1fae-4c67-9aeb-44c1144f071c', variable: 'DCMS_SECRETS')]) {
-			DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e CONFIGFILE=/app/run.dcfg -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
-			println(DockerApp.id)
-			
-			def DOCKER_IP = sh (
-				script: "docker inspect ${DockerApp.id} | jq .[0].NetworkSettings.IPAddress | sed 's/\"//g'",
-				returnStdout: true
-			).trim()
 			
 			try {
-				sh "sleep 10 && rm -f ${Testfile} && touch ${Testfile}"
-				DockerTestApp = DockerDyalog.run("-t -u 6203 -e TEST_FILE=${Testfile} -e APP_DIR=/app -e SERVICE_URL=${DOCKER_IP} -e SERVICE_PORT=8080 -e CONFIGFILE=/app/CI/testing.dcfg -v $WORKSPACE:/app")
-				sh "docker logs -f ${DockerTestApp.id}"
-				def out = sh script: "docker inspect ${DockerTestApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
+				DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=/tmp -e CONFIGFILE=/app/CI/testing.dcfg -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
+				println(DockerApp.id)
+				sh "docker logs -f ${DockerApp.id}"
+				def out = sh script: "docker inspect ${DockerApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
 				sh "exit ${out}"
 			}
 			catch (e) {
 				DockerAppDB.stop()
-				println 'Failed to start DCMS service correctly - cleaning up.'
-				sh ("docker logs ${DockerTestApp.id}")
+				println 'DCMS tests failed - cleaning up.'
 				sh ("docker logs ${DockerApp.id}")
 				sh ('git rev-parse --short HEAD > .git/commit-id')
 				withCredentials([string(credentialsId: '250bdc45-ee69-451a-8783-30701df16935', variable: 'GHTOKEN')]) {
@@ -61,14 +53,12 @@ node ('Docker') {
 					sh "${WORKSPACE}/CI/githubComment.sh ${DockerApp.id} ${commit_id}"
 				}
 				DockerApp.stop()
-				DockerTestApp.stop()
 				echo "Throwing Exception..."
 				echo "Exception is: ${e}"
 				throw new Exception("${e}");
 			}
 		}
 		DockerApp.stop()
-		DockerTestApp.stop()
 		DockerAppDB.stop()
 	}
 

@@ -1,0 +1,10 @@
+ Test_GetKeywords←{
+⍝ Test free text search results include at least one keyword
+     keywords←⊃(⊣,' ',⊢)/##.generator.keywords
+     H←##.##.##.HttpCommand
+     url←⍵,'/videos?search=',H.UrlEncode keywords
+     res←H.GetJSON'GET'url
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     ∧/∨/∨/¨##.generator.keywords∘.⍷1 ⎕JSON¨res.Data
+ }

@@ -1,0 +1,7 @@
+ Integer←{
+⍝ ⍵: Length of result
+⍝ ⍺: Max bits of each element
+⍝ ←: List of random integers
+     ⍺←2*8
+     ?⍵⍴⍺
+ }

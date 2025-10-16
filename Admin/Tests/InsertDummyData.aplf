@@ -1,0 +1,107 @@
+ InsertDummyData;D;GEN;WrapBackticks;WrapColons;cid;col_spec;column;data;fn_cols;gen;idx;keywords;length;lipsum;n;name;opt;opt_cols;person_names;remove_columns;spec_fns;spec_opts;sql;table;thing_names;tid;type;type_spec;type_sql;types
+⍝ Insert dummy data into the database for testing
+⍝ First tests considered:
+⍝ - /videos?search= should return all videos with matching terms
+⍝ - /videos?presenter=p_name should return all videos by presenter p_name
+⍝ - /videos?search=p_name       should include videos by presenter p_name
+⍝ FIXME this is not comprehensive. Fields essential to the video library are used, but many are not.
+
+⍝ Start by generating joined data and deconstructing it into the normalised database, then loop over each table and insert.
+
+
+⍝ CONFIG
+ keywords←generator.keywords
+ person_names←'Geoff' 'Streeter' 'John' 'Scholes' 'Iverson' 'Dolor' 'Fugiat' 'Orange' 'Rich' 'Park' 'Jada' 'Andrade' 'Andy' 'Karen' 'Fiona' 'Jason' 'Peter' 'Silas'
+ thing_names←'APL' 'Meeting' 'Seeds' 'Conference' 'Dyalog' 'Alpha' 'Omega'
+ lipsum←generator.lipsum
+
+⍝ SETUP
+ D←#.DCMS
+
+⍝ GENERATE
+ n←100
+ ⎕RL←42
+
+⍝ Use ⎕DF to give each namespace a name that can be used to look up into SQL table metadata
+ event_type←(
+     type:(vocab:keywords ⋄ max:1)generator.Name n
+     description:(vocab:lipsum ⋄ max:65535)generator.Text n
+     url_slug:generator.URL n
+ )
+ event_type.⎕DF'event_type'
+
+ event←()
+ event.title←(vocab:thing_names ⋄ max:2)generator.Name n
+ event.(start end)←generator.DateTime¨2⍴n
+ event.type←?n⍴n
+ event.⎕DF'event'
+
+ organisation←()
+ organisation.name←(vocab:thing_names ⋄ max:1)generator.Name n
+ organisation.⎕DF'organisation'
+
+ person←()
+ person.name←(vocab:person_names ⋄ max:3)generator.Name n
+ person.organisation←?n⍴n
+ person.⎕DF'person'
+
+ category←(category:(⊂?n⍴≢keywords)⌷keywords)
+ category.⎕DF'category'
+
+ presentation_type←(type:(⊂?n⍴≢keywords)⌷keywords)
+ presentation_type.⎕DF'presentation_type'
+
+ presentation←()
+ presentation.event_id←?n⍴n
+ presentation.code←(vocab:⎕A,⎕D ⋄ max:2 ⋄ unique:1)generator.Name n
+ presentation.title←(vocab:lipsum ⋄ max:30)generator.Text n
+ presentation.title[1],←⊂' dolor'   ⍝ Ensure a keyword is present in search results
+ presentation.type_id←?n⍴n
+ presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
+ presentation.presented_at←generator.DateTime n
+ presentation.category_id←?n⍴n
+ presentation.⎕DF'presentation'
+
+ presenter←()
+ presenter.(presentation_id person_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0
+ presenter.⎕DF'presenter'
+
+ ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
+ videos←()
+ videos.presentation_id←?n⍴n
+ videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍵}n 11⍴0
+
+ presentation_media←(type:n⍴⊂'youtube_video')
+ presentation_media.(presentation_id media_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0   ⍝ Random unique pairs of numbers
+ presentation_media.⎕DF'presentation_media'
+
+ youtube_video←(
+     youtube_id:∪videos.youtube_id
+ )
+ youtube_video.⎕DF'youtube_video'
+
+⍝ All generator functions take a right arg of number of records to generate
+⍝ Left argument is max size of data (length in bits), OR a special left argument for specific columns
+
+ WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
+ WrapColons←(1↓∊)(',:',':',⍨⊢)¨
+
+ :For table :In event_type event organisation person category presentation presentation_type presenter presentation_media youtube_video
+     ⎕←name←⍕table
+     table.id←⍳n
+     tid←D.GLOBAL.tables⍳⊂name
+     cid←(column←tid⊃D.GLOBAL.columns)⍳table.⎕NL ¯2
+     type←cid⊂⍛⌷tid⊃D.GLOBAL.type_sqapl
+     column←cid⊂⍛⌷column
+     col_spec←WrapBackticks column
+     type_spec←WrapColons type
+     sql←'INSERT INTO ',name,' (',col_spec,') VALUES (',type_spec,')'
+     data←⍉↑table ⎕VGET table.⎕NL ¯2
+     D.SQL.Do'DELETE from ',name
+     D.SQL.DoBulk sql data
+ :EndFor
+
+
+
+
+ ⍝

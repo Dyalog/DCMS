@@ -1,4 +1,8 @@
  r←RefreshData timer
- import.youtube.RefreshData''
+ :Trap 202
+     import.youtube.RefreshData''
+ :Else
+     ⎕←'DATA NOT REFRESHED. Could not access YouTube API.'
+ :EndTrap
  read.BuildCache''
  ⎕←r←'Refreshed data at ',⍕⎕TS

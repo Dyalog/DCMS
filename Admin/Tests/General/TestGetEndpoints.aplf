@@ -1,14 +1,14 @@
  r←TestGetEndpoints url;GetEnv;app;c;d;e;ep;h;n;p;responses;t;url
 ⍝ Test that GET endpoints respond with appropriate HTTP status as described in openapi.json spec
 ⍝ TODO write tests for all responses
- GetEnv←##.GetEnv
+ GetEnv←##.##.GetEnv
  app←GetEnv'APP_DIR'
  (d n c t)←↓⍉0(⎕JSON ⎕OPT'Format' 'M')⊃⎕NGET app,'/docs/openapi.json'   ⍝ Depth Node Content Type
  2{p[⍵]←⍺[⍺⍸⍵]}⌿⊂⍤⊢⌸d⊣p←⍳≢d   ⍝ Parent vector from depth
  ep←n[p⌿⍨n∊⊂'get']
  responses←⍎¨¨1↓n⊢∘⊂⌸⍨(+\e)×(p∊⍸n∊⊂'responses')∧(⊢∨p∊⍸)⍣≡e←n∊ep
 
- h←##.##.HttpCommand.New¨'GET'⍨¨ep
+ h←##.##.##.HttpCommand.New¨'GET'⍨¨ep
  h.URL←url∘,¨ep
  r←h.Run
  r←r.HttpStatus∊¨responses

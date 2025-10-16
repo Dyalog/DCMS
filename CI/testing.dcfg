@@ -1,19 +1,15 @@
 {
-	Settings: {
-		MAXWS:         "2G",
+    Extend: "../run.dcfg",
+    Settings: {
+        ADMIN_DIR:     "[APP_DIR]/Admin",
+        DCMS_DIR:      "[APP_DIR]/APLSource",
 
-		ADMIN_DIR:     "[APP_DIR]/Admin",
-		SECRETS:       "[APP_DIR]/secrets/secrets.json5",
-		URL:           "[SERVICE_URL]:[SERVICE_PORT]",
+        YOUTUBE:       "http://localhost:8088/",
 
-		Jarvis:        "[APP_DIR]/packages/Jarvis.dyalog",
-		HttpCommand:   "[APP_DIR]/packages/HttpCommand.dyalog",
-
-		RIDE_INIT:     "HTTP:*:4503",
-
-		LX:            "⎕←⎕SE.Link.Import 'Admin',⍥⊂'[ADMIN_DIR]' ⋄\
-		                ⎕←⎕SE.Link.Import ⎕THIS '[HttpCommand]' ⋄\
-						result←Admin.Tests.Run Admin.GetEnv'URL' ⋄\
-						:If 1≡result ⋄ ⎕OFF 0 ⋄ :Else ⋄ ⎕OFF 1 ⋄ :EndIf"
-	}
+        LX:            "⎕←⎕SE.Link.Import 'Admin' '[ADMIN_DIR]'  ⋄\
+                        ⎕←⎕SE.Link.Import 'DCMS'  '[DCMS_DIR]'   ⋄\
+                        DCMS.Run 1                               ⋄\
+                        result←Admin.Tests.Run Admin.GetEnv'URL' ⋄\
+                        :If 1≡result ⋄ ⎕←'All tests passed.',⎕UCS 10 ⋄ ⎕OFF 0 ⋄ :Else ⋄ ⎕OFF 1 ⋄ :EndIf"
+    }
 }

@@ -1,0 +1,10 @@
+ DateTime←{
+⍝ ⍵: number of datetimes to generate
+⍝ ⍺ [optional]: range of date times as a namespace contaning values 'from' and 'to'
+⍝ ←: nested list of character vectors in format YYYY-MM-DDThh:mm:ss
+     ⍺←()
+     (from to)←1 ⎕DT ⍺ ⎕VGET('from'(2000 1 1))('to'(2050 1 1))
+     ddn←from+¯1+?⍵⍴1+to-from
+     'YYYY-MM-DD hh:mm:ss'(1200⌶)ddn
+     ⍝'T'@('/'∘=)¨
+ }

@@ -1,11 +1,14 @@
- result←Run url;F;LoadDependency;fn;tests;r
+ result←Run url;DoTest;F;LoadDependency;fn;r;tests
  ⎕←'Testing ',url
- tests←'Test'⎕NL ¯3
+ ##.MockYT.Run
+ DoTest←url∘Test
  result←1
- DoTest←{
-    F←⍎⍵
-    0::0⊣⎕←'**TEST ERROR** ',⍵
-    0=F url:0⊣⎕←'**TEST FAIL** ',⍵
-    1
- }
- result←∧/DoTest¨tests
+ result∧←DoTest General     ⍝ General tests should pass from clean start
+ InsertDummyData
+ :If 0<⎕NC'##.##.DCMS'
+     ##.##.DCMS.RefreshData''
+ :Else
+     ##.Refresh''
+ :EndIf
+ result∧←DoTest DummyData   ⍝ Test insert and retrieve dummy data
+ result∧←DoTest General     ⍝ General tests should still pass after populating database, cache etc.

@@ -1,0 +1,18 @@
+ Get←{
+     ⎕THIS.last←⍵   ⍝ Save last request for debugging
+     '/videos'≢⍵.Endpoint:''⊣⍵.Fail 404
+     (q v)←↓⍉⍵.QueryParams
+     id←','(≠⊆⊢)v⊃⍨q⍳⊂'id'
+     NS←{⎕NS''}
+     items←NS¨id
+     items.id←id
+     items.snippet←NS⍨¨id
+     T←##.Tests
+     items.snippet.title←'Mock Video '∘,¨⍳≢id
+     items.snippet.description←(max:100)T.generator.Text≢id
+     items.snippet.channelId←{(⎕A,⎕C ⎕A)[?15⍴2×26]}¨id
+     items.snippet.channelTitle←⊂'Mock YouTube'
+     items.snippet.publishedAt←T.generator.DateTime≢id
+     items.snippet.thumbnails←{(maxres:(url:'http://fake.img/',⍵))}¨id
+     (items:items)   ⍝ Return a namespace with a single member "items"
+ }

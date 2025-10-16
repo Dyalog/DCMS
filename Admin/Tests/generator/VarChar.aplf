@@ -1,0 +1,7 @@
+ r←{len}VarChar n;k;mlen
+⍝ r: nested vector of n character vectors of random lengths up to len
+ len←⎕VGET⊂('len' 65535)
+⍝ FIXME investigate Wald's equation or Dirichlet Multinomial distribution
+ mlen←(+⌿÷≢)≢¨lipsum
+ k←⌈len÷mlen
+ r←len(⌊∘≢↑⊢)¨(⊃(⊣,' ',⊢)/)¨{lipsum[?⍵⍴≢lipsum]}¨?n⍴k

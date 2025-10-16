@@ -1,0 +1,11 @@
+ Name←{
+⍝ ⍺: Options namespace
+   ⍝ vocab: nested list of words
+   ⍝   max: integer maximum words per name
+     (vocab max)←⍺ ⎕VGET('vocab'lipsum)('max' 1)
+⍝ ⍵: How many
+⍝ ←: Nested vec of char vecs
+⍝ FIXME probably faster using matrices than nested vectors
+     names←⍺
+     (⊃(⊣,' ',⊢)/)¨{vocab[?⍵⍴≢vocab]}¨?⍵⍴max
+ }
