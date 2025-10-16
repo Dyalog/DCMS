@@ -8,6 +8,7 @@
 		SERVICE_PORT:  8081,
 		URL:          "[SERVICE_URL]:[SERVICE_PORT]",
 		DEBUG:         1,
+		DEV:           1,
 		log_file:     "[app_dir]/dyalog_log_file.dlf",
 		schema_defs:  "[app_dir]/sql/*.sql",
 
@@ -17,8 +18,9 @@
 		YOUTUBE:      "http://localhost:8088/",
 
 		LX:           "⎕←⎕SE.Link.Create 'DCMS' '[APP_DIR]/APLSource' ⋄\
-		               ⎕←⎕SE.Link.Create 'Admin' '[APP_DIR]/Admin' ⋄\
-					   ⎕CS DCMS ⋄\
+		               ⎕←⎕SE.Link.Create 'Admin' '[APP_DIR]/Admin'    ⋄\
+					   ⎕CS DCMS     ⋄\
+					   Setup [DEV]  ⋄\
 					   Run [DEBUG]",
 	}
 }

@@ -1,0 +1,17 @@
+ Setup in_development
+⍝ Load dependencies into the active workspace
+ ⎕←'Setting up...'
+ ⎕←'Setting app_dir'
+ 'GLOBAL'⎕NS''
+ GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'APP_DIR'
+ ⎕←'Loading dependencies...'
+ :If 0=#.⎕NC'Conga'
+     'Conga'#.⎕CY'conga'
+     #.DRC←#.Conga.Init''
+ :EndIf
+ 'SQA'SQL.⎕CY'sqapl'
+ #.⎕CY'isolate'
+ Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
+ :If in_development
+     ⎕SE.Tatin.LoadDependencies(app_dir,'/packages')#
+ :EndIf
