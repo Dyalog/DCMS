@@ -8,6 +8,7 @@
 
         LX:            "⎕←⎕SE.Link.Create 'Admin' '[ADMIN_DIR]'  ⋄\
                         ⎕←⎕SE.Link.Import 'DCMS'  '[DCMS_DIR]'   ⋄\
+                        ⎕TRAP←0 'C' '⎕←1⎕JSON⍠''Compact''0⊢⎕DMX ⋄ ⎕OFF 1'   ⋄\
                         DCMS.Run 1                               ⋄\
                         result←Admin.Tests.Run Admin.GetEnv'URL' ⋄\
                         :If 1≡result ⋄ ⎕←'All tests passed.',⎕UCS 10 ⋄ ⎕OFF 0 ⋄ :Else ⋄ ⎕OFF 1 ⋄ :EndIf"
