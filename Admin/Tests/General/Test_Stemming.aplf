@@ -1,0 +1,4 @@
+ Test_Stemming←{
+     word←stemmer.Stem⊂'words'
+     'word'≡word.Value
+ }
