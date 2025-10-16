@@ -16,5 +16,8 @@
  ⎕←'Isolate loaded into #'
  Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
  :If in_development
-     ⎕SE.Tatin.LoadDependencies(app_dir,'/packages')#
+     ⎕←'Loading Tatin packages...'
+     ⎕←⍪⎕SE.Tatin.LoadDependencies(GetEnv'PKG')#
  :EndIf
+ ⎕←'Loading NuGet packages...'
+ ⎕←⍪⎕USING←##.NuGet.Using GetEnv'PKG_NUGET'
