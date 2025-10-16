@@ -8,9 +8,12 @@
  :If 0=#.⎕NC'Conga'
      'Conga'#.⎕CY'conga'
      #.DRC←#.Conga.Init''
+     ⎕←'Conga initalised'
  :EndIf
  'SQA'SQL.⎕CY'sqapl'
+ ⎕←'SQAPL loaded into SQL.SQA'
  #.⎕CY'isolate'
+ ⎕←'Isolate loaded into #'
  Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
  :If in_development
      ⎕SE.Tatin.LoadDependencies(app_dir,'/packages')#
