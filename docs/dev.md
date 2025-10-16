@@ -30,3 +30,8 @@ The `Admin.Tests.Test` function takes a namespace of functions that begin with `
 The `Admin.Tests.General` test suite should pass when the system is newly started with a fresh database and when the service has data in the cache ready to serve. These are like regression tests.
 
 The `Admin.Tests.DummyData` is more like an integration test suite.
+
+## Packages
+This application depends on [Tatin and NuGet packages](./packages.md). During development, these are loaded using Tatin and the .NET SDK. For testing and production, the application source and dependencies are loaded into the active workspace which is saved as a binary workspace file.
+
+Using the built application workspace then only requires the .NET runtime.
