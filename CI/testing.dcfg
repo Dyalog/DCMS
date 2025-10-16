@@ -6,8 +6,7 @@
 
         YOUTUBE:       "http://localhost:8088/",
 
-        LX:            "⎕TRAP←0 'C' '⎕←1⎕JSON⍠''Compact''0⊢⎕DMX ⋄ ⎕OFF 1'   ⋄\
-                        ⎕←⎕SE.Link.Import 'Admin' '[ADMIN_DIR]'  ⋄\
+        LX:            "⎕←⎕SE.Link.Import 'Admin' '[ADMIN_DIR]'  ⋄\
                         ⎕←⎕SE.Link.Import 'DCMS'  '[DCMS_DIR]'   ⋄\
                         DCMS.Run 1                               ⋄\
                         result←Admin.Tests.Run Admin.GetEnv'URL' ⋄\
