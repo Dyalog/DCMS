@@ -30,8 +30,17 @@ node ('Docker') {
 			DockerBuild=docker.image('rikedyp/dyalogci:techpreview')
 			DockerBuild.pull()
 		}
-		DockerAppBuild = DockerBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
-		sh "docker logs -f ${DockerAppBuild.id}"
+		try {
+			DockerAppBuild = DockerBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
+			sh "docker logs -f ${DockerAppBuild.id}"
+			sh "docker logs -f ${DockerApp.id}"
+			def out = sh script: "docker inspect ${DockerApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
+			sh "exit ${out}"
+		} catch(e) {
+			println 'DCMS build failed.'
+			DockerAppBuild.stop()
+			throw new Exception("${e}")
+		}
 		/*DockerDyalog.withRun("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf") {
 			sh "while ! ls ${WORKSPACE}/dcms.dws; do sleep 3; done"
 		}*/
