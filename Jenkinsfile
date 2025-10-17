@@ -30,7 +30,7 @@ node ('Docker') {
 			DockerDyalogBuild=docker.image('rikedyp/dyalogci:techpreview')
 			DockerDyalogBuild.pull()
 		}
-		DockerAppBuild = DockerDyalogBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
+		DockerDyalogBuild.withRun("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
 		sh "echo WS BUILT!?"
 		sh "ls ${WORKSPACE}"
 	}
@@ -72,7 +72,6 @@ node ('Docker') {
 		}
 		DockerApp.stop()
 		DockerAppDB.stop()
-		DockerAppBuild.stop()
 	}
 
 	stage ('Publish DCMS') {
