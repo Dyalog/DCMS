@@ -33,8 +33,7 @@ node ('Docker') {
 		try {
 			DockerAppBuild = DockerBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
 			sh "docker logs -f ${DockerAppBuild.id}"
-			sh "docker logs -f ${DockerApp.id}"
-			def out = sh script: "docker inspect ${DockerApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
+			def out = sh script: "docker inspect ${DockerAppBuild.id} --format='{{.State.ExitCode}}'", returnStdout: true
 			sh "exit ${out}"
 		} catch(e) {
 			println 'DCMS build failed.'
