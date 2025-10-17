@@ -29,10 +29,10 @@ node ('Docker') {
 		withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
 			DockerDyalogBuild=docker.image('rikedyp/dyalogci:techpreview')
 			DockerDyalogBuild.pull
-			DockerAppBuild = DockerDyalogBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
 		}
 	}
 	stage ('Test service') {
+		DockerAppBuild = DockerDyalogBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
 		DockerAppDB = DockerDB.run ("-e MYSQL_RANDOM_ROOT_PASSWORD=true -e MYSQL_DATABASE=dyalog_cms -e MYSQL_USER=dcms -e MYSQL_PASSWORD=apl")
 		
 		def DBIP = sh (
