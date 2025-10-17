@@ -4,7 +4,7 @@ def DockerApp
 def DockerAppDB
 def DockerDB
 def DockerDyalog
-def DockerDyalogBuild
+def DockerBuild
 def DockerAppBuild
 def Testfile = "/tmp/dcms-CI.log"
 def Branch = env.BRANCH_NAME.toLowerCase()
@@ -27,10 +27,10 @@ node ('Docker') {
 	}
 	stage ('Build DCMS') {
 		withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
-			DockerDyalogBuild=docker.image('rikedyp/dyalogci:techpreview')
-			DockerDyalogBuild.pull()
+			DockerBuild=docker.image('rikedyp/dyalogci:techpreview')
+			DockerBuild.pull()
 		}
-		DockerAppBuild = DockerDyalogBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
+		DockerAppBuild = DockerBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
 		sh "docker logs -f ${DockerAppBuild.id}"
 		/*DockerDyalog.withRun("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf") {
 			sh "while ! ls ${WORKSPACE}/dcms.dws; do sleep 3; done"
