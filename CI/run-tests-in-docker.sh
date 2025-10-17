@@ -7,8 +7,11 @@ else
 fi
 
 ## Populate env file
-echo CONFIGFILE=/app/CI/testing.dcfg >> ${PWD}/env
-echo RIDE_INIT=HTTP:*:4502 >> ${PWD}/env
+rm ${PWD}/env
+echo YOUTUBE="http://localhost:8088/" >> ${PWD}/env
+echo APP_DIR=/app >> ${PWD}/env
+echo LX="DCMS.Setup 0 ⋄ DCMS.Run 0 ⋄ Admin.RunTests 0" >> ${PWD}/env
+echo RIDE_INIT=SERVE:*:4502 >> ${PWD}/env
 echo SQL_SERVER=db >> ${PWD}/env
 echo SQL_DATABASE=dyalog_cms >> ${PWD}/env
 echo SQL_USER=dcms >> ${PWD}/env

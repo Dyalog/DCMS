@@ -12,6 +12,7 @@ file←root,'/dcms.dws'
     ⎕SE.Tatin.LoadDependencies (root,'/packages') #
     NuGet.Publish (root,'/nuget-packages')
     ⎕EX'Build'
+    ⎕LX←'DCMS.Setup 0 ⋄ DCMS.Run 0'
     0 ⎕SAVE file
     ⎕←'Application workspace saved to ',file
     ⎕OFF 0

@@ -8,6 +8,7 @@
 		YOUTUBE:      "http://localhost:8088/",
 
 		LX:           "⎕←⎕SE.Link.Create 'DCMS' '[APP_DIR]/APLSource' ⋄\
-					   ⎕←⎕SE.Link.Create 'Admin' '[APP_DIR]/Admin'    "
+					   ⎕←⎕SE.Link.Create 'Admin' '[APP_DIR]/Admin'    ⋄\
+					   DCMS.Setup [DEV] ⋄ DCMS.Run [DEBUG]"
 	}
 }

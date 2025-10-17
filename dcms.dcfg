@@ -14,10 +14,5 @@
 		PKG:          "[APP_DIR]/packages",
 		PKG_NUGET:    "[APP_DIR]/nuget-packages",
 
-		YOUTUBE:      "https://www.googleapis.com/youtube/v3/",
-
-		LX:           "DCMS.Setup [DEV]  ⋄\
-					   DCMS.Run [DEBUG]  ⋄\
-					   [RUN_TESTS]",
 	}
 }
