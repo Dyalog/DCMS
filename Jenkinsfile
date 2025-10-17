@@ -109,11 +109,12 @@ node ('Docker') {
 			echo SQL_PASSWORD=apl >> ${WORKSPACE}/env
 			echo SQL_PORT=3306 >> ${WORKSPACE}/env
 			echo SECRETS=/app/secrets/secrets.json5 >> ${WORKSPACE}/env
-			echo RIDE_INIT=http:*:4502 >> ${WORKSPACE}/env
 			echo MYSQL_DATABASE=dyalog_cms >> ${WORKSPACE}/env
 			echo MYSQL_USER=dcms >> ${WORKSPACE}/env
 			echo MYSQL_PASSWORD=apl >> ${WORKSPACE}/env
 			echo MYSQL_PORT=3306 >> ${WORKSPACE}/env
+			echo YOUTUBE=https://www.googleapis.com/youtube/v3/ >> ${WORKSPACE}/env
+			echo APP_DIR=/app
 
 			echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${WORKSPACE}/env
 		'''
