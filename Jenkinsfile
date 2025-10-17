@@ -30,9 +30,11 @@ node ('Docker') {
 			DockerDyalogBuild=docker.image('rikedyp/dyalogci:techpreview')
 			DockerDyalogBuild.pull()
 		}
-		DockerDyalog.withRun("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf") {
+		DockerAppBuild = DockerDyalogBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
+		sh "docker logs -f ${DockerAppBuild.id}"
+		/*DockerDyalog.withRun("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf") {
 			sh "while ! ls ${WORKSPACE}/dcms.dws; do sleep 3; done"
-		}
+		}*/
 		sh "echo WS BUILT!?"
 		sh "ls ${WORKSPACE}"
 	}
