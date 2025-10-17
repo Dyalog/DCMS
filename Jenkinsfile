@@ -31,7 +31,7 @@ node ('Docker') {
 			DockerDyalogBuild.pull()
 		}
 		DockerAppBuild = DockerDyalogBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
-		sh "WS BUILT!?"
+		sh "echo WS BUILT!?"
 		sh "ls ${WORKSPACE}"
 	}
 	stage ('Test service') {
