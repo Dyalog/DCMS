@@ -32,7 +32,7 @@ node ('Docker') {
 		}
 		sh 
 		DockerDyalogBuild.inside("-u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf") {
-			c -> sh "while ! ls ${WORKSPACE}/dcms.dws; do sleep 3; done"
+			sh "while ! ls /app/dcms.dws; do sleep 3; done"
 		}
 		sh "echo WS BUILT!?"
 		sh "ls ${WORKSPACE}"
