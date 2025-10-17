@@ -1,0 +1,23 @@
+file←Build;root
+⎕←'Building application workspace...'
+
+root←2 ⎕NQ # 'GetEnvironment' 'APP_DIR'
+
+file←root,'/dcms.dws'
+
+:Trap 0
+    ⎕←⎕SE.Link.Import 'DCMS' (root,'/APLSource')
+    ⎕←⎕SE.Link.Import 'Admin' (root,'/Admin')
+    ⎕SE.Tatin.ReInstallDependencies (root,'/packages')
+    ⎕SE.Tatin.LoadDependencies (root,'/packages') #
+    NuGet.Publish (root,'/nuget-packages')
+    ⎕EX'Build'
+    ⎕LX←'DCMS.Setup 0 ⋄ DCMS.Run 0'
+    0 ⎕SAVE file
+    ⎕←'Application workspace saved to ',file
+    ⎕OFF 0
+:Else
+    ⎕←'Could not build application workspace ',file
+    ⎕←1⎕JSON⎕OPT'Compact'0⊢⎕DMX
+    ⎕OFF 1
+:EndTrap

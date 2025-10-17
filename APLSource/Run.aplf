@@ -1,19 +1,5 @@
  Run debug;app_dir;LoadDependency
- ⎕←'Setting up...'
- ⎕←'Loading dependencies...'
- :If 0=#.⎕NC'Conga'
-     'Conga'#.⎕CY'conga'
-     #.DRC←#.Conga.Init''
- :EndIf
- 'GLOBAL'⎕NS''
  GLOBAL.debug←debug
- 'SQA'SQL.⎕CY'sqapl'
- #.⎕CY'isolate'
- LoadDependency←{0=##.⎕NC ⍵:⎕SE.Link.Import ##,⍥⊂GetEnv ⍵}
- LoadDependency¨'Jarvis' 'HttpCommand'
- ⎕←'Setting app_dir'
- GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'app_dir'
- Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
 ⍝ Initialise SQL schema
  GLOBAL.secrets←ReadJSON GetEnv'SECRETS'
  ⎕←'Initialising SQAPL...'

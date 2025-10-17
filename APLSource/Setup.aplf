@@ -1,0 +1,23 @@
+ Setup in_development
+⍝ Load dependencies into the active workspace
+ ⎕←'Setting up...'
+ 'GLOBAL'⎕NS''
+ GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'APP_DIR'
+ ⎕←'App directory is ',app_dir
+ ⎕←'Loading dependencies...'
+ :If 0=#.⎕NC'Conga'
+     'Conga'#.⎕CY'conga'
+     #.DRC←#.Conga.Init''
+     ⎕←'Conga initalised'
+ :EndIf
+ 'SQA'SQL.⎕CY'sqapl'
+ ⎕←'SQAPL loaded into SQL.SQA'
+ #.⎕CY'isolate'
+ ⎕←'Isolate loaded into #'
+ Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
+ :If in_development
+     ⎕←'Loading Tatin packages...'
+     ⎕←⍪⎕SE.Tatin.LoadDependencies(GetEnv'PKG')#
+ :EndIf
+ ⎕←'Loading NuGet packages...'
+ ⎕←⍪⎕USING←##.NuGet.Using GetEnv'PKG_NUGET'

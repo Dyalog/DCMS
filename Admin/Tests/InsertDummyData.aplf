@@ -63,16 +63,16 @@
  presentation.⎕DF'presentation'
 
  presenter←()
- presenter.(presentation_id person_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0
+ presenter.(presentation_id person_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍺}n 2⍴0
  presenter.⎕DF'presenter'
 
  ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
  videos←()
  videos.presentation_id←?n⍴n
- videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍵}n 11⍴0
+ videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
 
  presentation_media←(type:n⍴⊂'youtube_video')
- presentation_media.(presentation_id media_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0   ⍝ Random unique pairs of numbers
+ presentation_media.(presentation_id media_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍺}n 2⍴0   ⍝ Random unique pairs of numbers
  presentation_media.⎕DF'presentation_media'
 
  youtube_video←(

@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">  <PropertyGroup>    <TargetFramework>net8.0</TargetFramework>    <RootNamespace>_nuget_packages</RootNamespace>    <ImplicitUsings>enable</ImplicitUsings>    <Nullable>enable</Nullable>    <LangVersion>Latest</LangVersion>  </PropertyGroup>  <ItemGroup>
+  <PackageReference Include="Porter2Stemmer" Version="1.0.0" />
+</ItemGroup></Project>
