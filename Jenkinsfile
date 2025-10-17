@@ -30,7 +30,8 @@ node ('Docker') {
 			DockerDyalogBuild=docker.image('rikedyp/dyalogci:techpreview')
 			DockerDyalogBuild.pull()
 		}
-		DockerDyalogBuild.withRun("-t -u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
+		DockerAppBuild = DockerDyalogBuild.run("-u 6203 -v $WORKSPACE:/app -e HOME=/tmp -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
+		DockerAppBuild.stop()
 		sh "echo WS BUILT!?"
 		sh "ls ${WORKSPACE}"
 	}
