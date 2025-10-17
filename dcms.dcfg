@@ -2,23 +2,22 @@
 	Settings: {
 		MAXWS:        "2G",
 		PW:            300,
-		APP_DIR:      "/app",
 		SERVICE_URL:  "http://localhost",
 		SERVICE_PORT:  8080,
 		URL:          "[SERVICE_URL]:[SERVICE_PORT]",
 		DEBUG:         0,
 		DEV:           0,
-		log_file:     "[app_dir]/dyalog_log_file.dlf",
-		SCHEMA_DEFS:  "[app_dir]/sql/*.sql",
+		log_file:     "[APP_DIR]/dyalog_log_file.dlf",
+		SCHEMA_DEFS:  "[APP_DIR]/sql/*.sql",
+		SECRETS:      "[APP_DIR]/secrets/secrets.json5",
 
 		PKG:          "[APP_DIR]/packages",
 		PKG_NUGET:    "[APP_DIR]/nuget-packages",
 
 		YOUTUBE:      "https://www.googleapis.com/youtube/v3/",
 
-		LX:           "⎕←⎕SE.Link.Import 'DCMS' '[APP_DIR]/APLSource' ⋄\
-					   ⎕CS DCMS     ⋄\
-					   Setup [DEV]  ⋄\
-					   Run [DEBUG]",
+		LX:           "DCMS.Setup [DEV]  ⋄\
+					   DCMS.Run [DEBUG]  ⋄\
+					   [RUN_TESTS]",
 	}
 }

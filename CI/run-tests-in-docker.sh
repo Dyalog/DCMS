@@ -26,4 +26,4 @@ echo COMPOSE IS: $COMPOSE
 echo "Use docker inspect to get the IP of the running container"
 
 $COMPOSE pull
-$COMPOSE -f docker-compose.yml up
+$COMPOSE -f docker-compose.yml up db web --force-recreate

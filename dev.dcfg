@@ -1,5 +1,5 @@
 {
-	Extend: "run.dcfg",
+	Extend: "dcms.dcfg",
 	Settings: {
 		SERVICE_PORT:  8081,
 		DEBUG:         1,
@@ -8,8 +8,6 @@
 		YOUTUBE:      "http://localhost:8088/",
 
 		LX:           "⎕←⎕SE.Link.Create 'DCMS' '[APP_DIR]/APLSource' ⋄\
-					   ⎕←⎕SE.Link.Create 'Admin' '[APP_DIR]/Admin'    ⋄\
-					   DCMS.Setup [DEV] ⋄\
-					   DCMS.Run [DEBUG]"
+					   ⎕←⎕SE.Link.Create 'Admin' '[APP_DIR]/Admin'    "
 	}
 }

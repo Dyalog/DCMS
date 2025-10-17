@@ -13,3 +13,4 @@ packages/*
 !packages/apl-buildlist.json
 nuget-packages/*
 !nuget-packages/_nuget-packages.csproj
+dcms.dws

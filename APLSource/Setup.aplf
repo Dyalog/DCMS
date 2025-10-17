@@ -1,9 +1,9 @@
  Setup in_development
 ⍝ Load dependencies into the active workspace
  ⎕←'Setting up...'
- ⎕←'Setting app_dir'
  'GLOBAL'⎕NS''
  GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'APP_DIR'
+ ⎕←'App directory is ',app_dir
  ⎕←'Loading dependencies...'
  :If 0=#.⎕NC'Conga'
      'Conga'#.⎕CY'conga'
