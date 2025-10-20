@@ -5,6 +5,8 @@ root←2 ⎕NQ # 'GetEnvironment' 'APP_DIR'
 
 file←root,'/dcms.dws'
 
+⎕←⎕SH'id'
+
 :Trap 0
     ⎕←⎕SE.Link.Import 'DCMS' (root,'/APLSource')
     ⎕←⎕SE.Link.Import 'Admin' (root,'/Admin')
