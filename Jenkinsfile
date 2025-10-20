@@ -31,6 +31,9 @@ node ('Docker') {
 			DockerBuild.pull()
 		}
 		try {
+			DockerBuild.inside("-t -u 6203 -v $WORKSPACE:/app -e HOME=/app -e APP_DIR=/app"){
+				sh "/app/CI/activate.apls"
+			}
 			DockerAppBuild = DockerBuild.run("-t -u 6203 -v $WORKSPACE:/app -e HOME=/app -e APP_DIR=/app -e LOAD=/app/CI/Build.aplf")
 			sh "docker logs -f ${DockerAppBuild.id}"
 			def out = sh script: "docker inspect ${DockerAppBuild.id} --format='{{.State.ExitCode}}'", returnStdout: true
