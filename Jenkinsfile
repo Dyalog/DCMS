@@ -24,11 +24,12 @@ node ('Docker') {
 	}
 	stage ('Install dependencies') {
 		try {
-			DockerDyalog.inside("-t -u 6203 -v $WORKSPACE:/app -e HOME=/home/dyalog -e APP_DIR=/app"){
+			DockerDyalog.inside("-t -u 6203 -v $WORKSPACE:/app -e HOME=/home/dyalog -e APP_DIR=/app --entrypoint=''"){
 				sh "/app/CI/install.apls"
 			}
 		} catch(e) {
 			println 'Could not install Tatin or NuGet dependencies.'
+			sh "docker rmi dcms-build"
 			throw new Exception("${e}")
 		}
 	}
