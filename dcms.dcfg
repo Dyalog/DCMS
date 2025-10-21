@@ -8,7 +8,6 @@
 		DEBUG:         0,
 		log_file:     "[APP_DIR]/dyalog_log_file.dlf",
 		SCHEMA_DEFS:  "[APP_DIR]/sql/*.sql",
-		SECRETS:      "[APP_DIR]/secrets/secrets.json5",
 
 		PKG:          "[APP_DIR]/packages",
 		PKG_NUGET:    "[APP_DIR]/nuget-packages",
