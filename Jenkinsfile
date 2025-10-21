@@ -48,7 +48,10 @@ node ('Docker') {
 		withCredentials([file(credentialsId: '205bc57d-1fae-4c67-9aeb-44c1144f071c', variable: 'DCMS_SECRETS')]) {
 			
 			try {
-				sh "ls ${WORKSPACE}"
+				sh "id"
+				DockerDyalog.inside("-t -u 6203 --entrypoint=''"){
+					sh 'id'
+				}
 				DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=${Home} -e DOTNET_ROOT=/opt/dotnet -e CONFIGFILE=/app/CI/test.dcfg -e APP_DIR=/app -e YOUTUBE=http://localhost:8088/ -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
 				println(DockerApp.id)
 				sh "docker logs -f ${DockerApp.id}"
