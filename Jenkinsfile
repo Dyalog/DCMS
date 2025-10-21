@@ -6,7 +6,7 @@ def DockerDB
 def DockerDyalog
 def Testfile = "/tmp/dcms-CI.log"
 def Branch = env.BRANCH_NAME.toLowerCase()
-def Home = "/tmp"
+def Home = "/home/dyalog"
 
 node ('Docker') {
 	stage ('Checkout') {
@@ -31,7 +31,6 @@ node ('Docker') {
 		} catch(e) {
 			println 'Could not install Tatin or NuGet dependencies.'
 			sh "docker rmi dcms-build"
-			sh "docker rm docker-build1"
 			throw new Exception("${e}")
 		}
 	}
