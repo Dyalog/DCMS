@@ -6,7 +6,7 @@ def DockerDB
 def DockerDyalog
 def Testfile = "/tmp/dcms-CI.log"
 def Branch = env.BRANCH_NAME.toLowerCase()
-def Home = "/home/dyalog"
+def Home = "/app/home"
 
 node ('Docker') {
 	stage ('Checkout') {
@@ -24,8 +24,10 @@ node ('Docker') {
 		}
 	}
 	stage ('Install dependencies') {
+		sh "mkdir -p $WORKSPACE/home"
 		try {
-			DockerDyalog.inside("-t -u root -v $WORKSPACE:/app -e HOME=${Home} -e APP_DIR=/app -e DOTNET_ROOT=/opt/dotnet --entrypoint=''"){
+			DockerDyalog.inside("-t -u 6203 -v $WORKSPACE:/app -e HOME=${Home} -e APP_DIR=/app -e DOTNET_ROOT=/opt/dotnet --entrypoint=''"){
+				sh "/app/CI/activate.apls"
 				sh "/app/CI/install.apls"
 			}
 		} catch(e) {
