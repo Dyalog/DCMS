@@ -6,6 +6,7 @@ def DockerDB
 def DockerDyalog
 def Testfile = "/tmp/dcms-CI.log"
 def Branch = env.BRANCH_NAME.toLowerCase()
+def Home = "/tmp"
 
 node ('Docker') {
 	stage ('Checkout') {
@@ -24,7 +25,7 @@ node ('Docker') {
 	}
 	stage ('Install dependencies') {
 		try {
-			DockerDyalog.inside("-t -u 6203 -v $WORKSPACE:/app -e HOME=/home/dyalog -e APP_DIR=/app --entrypoint=''"){
+			DockerDyalog.inside("-t -u 6203 -v $WORKSPACE:/app -e HOME=${Home} -e APP_DIR=/app --entrypoint=''"){
 				sh "/app/CI/install.apls"
 			}
 		} catch(e) {
@@ -48,7 +49,7 @@ node ('Docker') {
 			
 			try {
 				sh "ls ${WORKSPACE}"
-				DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=/home/dyalog -e CONFIGFILE=/app/CI/test.dcfg -e APP_DIR=/app -e YOUTUBE=http://localhost:8088/ -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
+				DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=${Home} -e CONFIGFILE=/app/CI/test.dcfg -e APP_DIR=/app -e YOUTUBE=http://localhost:8088/ -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
 				println(DockerApp.id)
 				sh "docker logs -f ${DockerApp.id}"
 				def out = sh script: "docker inspect ${DockerApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
