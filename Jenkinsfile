@@ -31,6 +31,7 @@ node ('Docker') {
 		} catch(e) {
 			println 'Could not install Tatin or NuGet dependencies.'
 			sh "docker rmi dcms-build"
+			sh "docker rm docker-build1"
 			throw new Exception("${e}")
 		}
 	}
