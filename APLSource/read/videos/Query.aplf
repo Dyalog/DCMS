@@ -1,4 +1,4 @@
- res←Query req;C;CACHE;Norm;Q;Stem;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;to;v
+ res←Query req;C;CACHE;Norm;Q;Stem;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;stemmer;terms;to;v
  (p v)←↓⍉req.QueryParams ⋄ v←RLTB¨v,⊂'' ⋄ v[⍸'null'∘≡¨v]←⊂'' ⋄ Q←{v⊃⍨p⍳⊆⍵}
  CACHE←##.##.CACHE
  C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
@@ -22,13 +22,14 @@
  filter←in_range∧presenter∧event
 
  Norm←##.##.Unidecode.NormaliseText
+ stemmer←⎕NEW #.DCMS.Porter2Stemmer.EnglishPorter2Stemmer
  Stem←{
-     stemmer←⎕NEW #.DCMS.Porter2Stemmer.EnglishPorter2Stemmer
      stemmed←stemmer.Stem⊆⍵
      stemmed.Value
  }
 ⍝ Rank by search terms
- i←(Stem Norm Q'search')Rank filter⌿CACHE.videos.index_all
+ terms←Stem¨', '(~⍤∊⍨⊆⊢)Norm Q'search'
+ i←terms Rank filter⌿CACHE.videos.index_all
 
 ⍝ Sort
  data←(filter⌿CACHE.videos.values)[i;]
