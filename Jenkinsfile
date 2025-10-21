@@ -13,7 +13,7 @@ node ('Docker') {
 	}
 	stage ('Update Dyalog') {
 		withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
-			DockerDyalog = docker.build("dcms-build", "-e HOME=/tmp -f $WORKSPACE/Dockerfile .")
+			DockerDyalog = docker.build("dcms-build", "-f $WORKSPACE/Dockerfile .")
 			//DockerDyalog=docker.image('dyalog/techpreview:latest')
 			//DockerDyalog.pull()
 		}
@@ -50,7 +50,7 @@ node ('Docker') {
 			
 			try {
 				sh "ls ${WORKSPACE}"
-				DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=/tmp -e CONFIGFILE=/app/CI/test.dcfg -e APP_DIR=/app -e YOUTUBE=http://localhost:8088/ -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
+				DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=/home/dyalog -e CONFIGFILE=/app/CI/test.dcfg -e APP_DIR=/app -e YOUTUBE=http://localhost:8088/ -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
 				println(DockerApp.id)
 				sh "docker logs -f ${DockerApp.id}"
 				def out = sh script: "docker inspect ${DockerApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
