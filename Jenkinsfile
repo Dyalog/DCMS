@@ -11,11 +11,9 @@ node ('Docker') {
 	stage ('Checkout') {
 		checkout scm
 	}
-	stage ('Update Dyalog') {
+	stage ('Build container') {
 		withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
 			DockerDyalog = docker.build("dcms-build", "-f $WORKSPACE/Dockerfile .")
-			//DockerDyalog=docker.image('dyalog/techpreview:latest')
-			//DockerDyalog.pull()
 		}
 	}
 	stage ('Update MariaDB') {
@@ -24,17 +22,16 @@ node ('Docker') {
 			DockerDB.pull()
 		}
 	}
-	// stage ('Install dependencies') {
-	// 	try {
-	// 		DockerDyalog.inside("-t -u root -v $WORKSPACE:/app -e HOME=/app -e APP_DIR=/app"){
-	// 			sh "/tmp/dotnet-install.sh -c 8.0 -i /opt/dotnet"
-	// 			sh "apt-get update && apt-get install -y zip && apt-get clean && rm -Rf /var/lib/apt/lists/*"
-	// 		}
-	// 	} catch(e) {
-	// 		println 'Could not install Tatin or NuGet dependencies.'
-	// 		throw new Exception("${e}")
-	// 	}
-	// }
+	stage ('Install dependencies') {
+		try {
+			DockerDyalog.inside("-t -u 6203 -v $WORKSPACE:/app -e HOME=/home/dyalog -e APP_DIR=/app"){
+				sh "/app/CI/install.apls"
+			}
+		} catch(e) {
+			println 'Could not install Tatin or NuGet dependencies.'
+			throw new Exception("${e}")
+		}
+	}
 	stage ('Test service') {
 		DockerAppDB = DockerDB.run ("-e MYSQL_RANDOM_ROOT_PASSWORD=true -e MYSQL_DATABASE=dyalog_cms -e MYSQL_USER=dcms -e MYSQL_PASSWORD=apl")
 		
