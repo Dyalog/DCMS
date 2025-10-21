@@ -13,7 +13,7 @@ node ('Docker') {
 	}
 	stage ('Update Dyalog') {
 		withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
-			DockerDyalog = docker.build("-f $WORKSPACE/Dockerfile")
+			DockerDyalog = docker.build("dcms-build -f $WORKSPACE/Dockerfile")
 			//DockerDyalog=docker.image('dyalog/techpreview:latest')
 			//DockerDyalog.pull()
 		}
@@ -66,6 +66,7 @@ node ('Docker') {
 					sh "${WORKSPACE}/CI/githubComment.sh ${DockerApp.id} ${commit_id}"
 				}
 				DockerApp.stop()
+				sh ("docker rmi dcms-db")
 				echo "Throwing Exception..."
 				echo "Exception is: ${e}"
 				throw new Exception("${e}");
