@@ -6,7 +6,6 @@
 		SERVICE_PORT:  8080,
 		URL:          "[SERVICE_URL]:[SERVICE_PORT]",
 		DEBUG:         0,
-		DEV:           0,
 		log_file:     "[APP_DIR]/dyalog_log_file.dlf",
 		SCHEMA_DEFS:  "[APP_DIR]/sql/*.sql",
 		SECRETS:      "[APP_DIR]/secrets/secrets.json5",
@@ -14,5 +13,7 @@
 		PKG:          "[APP_DIR]/packages",
 		PKG_NUGET:    "[APP_DIR]/nuget-packages",
 
+		LX:           "⎕SE.Link.Import 'DCMS' '[APP_DIR]/APLSource' ⋄\
+					   DCMS.Setup ⋄ DCMS.Run [DEBUG]"
 	}
 }

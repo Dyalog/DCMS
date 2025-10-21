@@ -1,0 +1,9 @@
+{
+    Extend: "../dcms.dcfg",
+    Settings: {
+        LX: "⎕SE.Link.Import 'DCMS' '[APP_DIR]/APLSource' ⋄\
+             ⎕SE.Link.Import 'Admin' '[APP_DIR]/Admin' ⋄\
+             DCMS.Setup ⋄ DCMS.Run [DEBUG] ⋄\
+             Admin.RunTests 0"
+    }
+}

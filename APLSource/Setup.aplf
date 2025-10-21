@@ -1,4 +1,4 @@
- Setup in_development
+ Setup
 ⍝ Load dependencies into the active workspace
  ⎕←'Setting up...'
  'GLOBAL'⎕NS''
@@ -15,9 +15,7 @@
  #.⎕CY'isolate'
  ⎕←'Isolate loaded into #'
  Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
- :If in_development
-     ⎕←'Loading Tatin packages...'
-     ⎕←⍪⎕SE.Tatin.LoadDependencies(GetEnv'PKG')#
- :EndIf
+ ⎕←'Loading Tatin packages...'
+ ⎕←⍪⎕SE.Tatin.LoadDependencies (GetEnv'PKG') #
  ⎕←'Loading NuGet packages...'
  ⎕←⍪⎕USING←##.NuGet.Using GetEnv'PKG_NUGET'
