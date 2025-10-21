@@ -66,7 +66,7 @@ node ('Docker') {
 					sh "${WORKSPACE}/CI/githubComment.sh ${DockerApp.id} ${commit_id}"
 				}
 				DockerApp.stop()
-				sh ("docker rmi dcms-db")
+				sh "docker rmi dcms-build"
 				echo "Throwing Exception..."
 				echo "Exception is: ${e}"
 				throw new Exception("${e}");
@@ -74,7 +74,6 @@ node ('Docker') {
 		}
 		DockerApp.stop()
 		DockerAppDB.stop()
-		sh "docker rmi dcms-db"
 	}
 
 	stage ('Publish DCMS') {
