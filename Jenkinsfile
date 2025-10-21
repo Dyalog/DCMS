@@ -25,11 +25,12 @@ node ('Docker') {
 	}
 	stage ('Install dependencies') {
 		try {
-			DockerDyalog.inside("-u root"){
+			DockerApp = DockerDyalog.run("-t -v $WORKSPACE:/app -e HOME=/app -e APP_DIR=/app")
+			DockerApp.inside("-u root"){
 				sh "/tmp/dotnet-install.sh -c 8.0 -i /opt/dotnet"
 				sh "apt-get update && apt-get install -y zip && apt-get clean && rm -Rf /var/lib/apt/lists/*"
 			}
-			DockerDyalog.inside("-t -u 6203 -v $WORKSPACE:/app -e HOME=/app -e APP_DIR=/app"){
+			DockerApp.inside("-u 6203"){
 				sh "/app/CI/activate.apls"
 				sh "/app/CI/install.apls"
 			}
@@ -53,7 +54,7 @@ node ('Docker') {
 			
 			try {
 				sh "ls ${WORKSPACE}"
-				DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=/tmp -e CONFIGFILE=/app/CI/test.dcfg -e APP_DIR=/app -e YOUTUBE=http://localhost:8088/ -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
+				DockerApp.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=/tmp -e CONFIGFILE=/app/CI/test.dcfg -e APP_DIR=/app -e YOUTUBE=http://localhost:8088/ -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
 				println(DockerApp.id)
 				sh "docker logs -f ${DockerApp.id}"
 				def out = sh script: "docker inspect ${DockerApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
