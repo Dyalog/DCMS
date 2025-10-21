@@ -72,6 +72,7 @@ node ('Docker') {
 		}
 		DockerApp.stop()
 		DockerAppDB.stop()
+		sh "docker rmi dcms-db"
 	}
 
 	stage ('Publish DCMS') {
