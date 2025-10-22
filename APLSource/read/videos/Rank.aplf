@@ -1,11 +1,11 @@
  Rank←{
-⍝ ⍺: Simple char vec space- or comma-separated search terms
+⍝ ⍺: Nested list of search terms
 ⍝ ⍵: Text search index array
 ⍝ ←: Indices of rows in results
 ⍝    Only results which contain at least one instance of one of the search terms
 ⍝    Ranked descending term-frequency inverse-document-frequency
      0∊⍴⍺:⍳≢⍵   ⍝ No search terms provided, return all results
-     trm←', '(~⍤∊⍨⊆⊢)⍺
+     trm←⍺
      loc←trm⍷¨⊂⍵
      idx←(any←⊃∨/∨/¨loc)⌿⍵
      loc←any∘⌿¨loc

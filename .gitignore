@@ -8,3 +8,9 @@ dcms_db/
 env
 DCMS.code-workspace
 CI/run-tests-in-docker.sh
+packages/*
+!packages/apl-dependencies.txt
+!packages/apl-buildlist.json
+nuget-packages/*
+!nuget-packages/_nuget-packages.csproj
+dcms.dws

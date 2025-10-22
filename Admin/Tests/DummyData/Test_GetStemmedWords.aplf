@@ -1,0 +1,10 @@
+ Test_GetStemmedWords←{
+⍝ Test free text search results include result from multiple stemmed words
+     H←##.##.##.HttpCommand
+     (stemmable stems)←↓⍉##.generator.stemmable
+     url←⍵,'/videos?search=',⊃(⊣,'%20',⊢)/stemmable
+     res←H.GetJSON'GET'url
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     ∧/stems∘.(∨/⍷)⊂1 ⎕JSON res.Data
+ }

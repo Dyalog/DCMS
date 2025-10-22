@@ -1,0 +1,11 @@
+ r←RunTests keepalive;result
+ r←Tests.Run GetEnv'URL'
+ :If keepalive
+     :Return
+ :EndIf
+ :If 1≡r
+     ⎕←'All tests passed.',⎕UCS 10
+     ⎕OFF 0
+ :Else
+     ⎕OFF 1
+ :EndIf

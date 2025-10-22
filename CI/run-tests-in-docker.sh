@@ -7,8 +7,11 @@ else
 fi
 
 ## Populate env file
-echo CONFIGFILE=/app/CI/testing.dcfg >> ${PWD}/env
-echo RIDE_INIT=HTTP:*:4502 >> ${PWD}/env
+rm ${PWD}/env
+echo YOUTUBE=http://localhost:8088/ >> ${PWD}/env
+echo APP_DIR=/app >> ${PWD}/env
+echo CONFIGFILE=/app/CI/test.dcfg >> ${PWD}/env
+echo RIDE_INIT=SERVE:*:4502 >> ${PWD}/env
 echo SQL_SERVER=db >> ${PWD}/env
 echo SQL_DATABASE=dyalog_cms >> ${PWD}/env
 echo SQL_USER=dcms >> ${PWD}/env
@@ -26,4 +29,4 @@ echo COMPOSE IS: $COMPOSE
 echo "Use docker inspect to get the IP of the running container"
 
 $COMPOSE pull
-$COMPOSE -f docker-compose.yml up
+$COMPOSE -f docker-compose.yml up db web --force-recreate --abort-on-container-exit

@@ -6,21 +6,34 @@ def DockerDB
 def DockerDyalog
 def Testfile = "/tmp/dcms-CI.log"
 def Branch = env.BRANCH_NAME.toLowerCase()
+def Home = "/app/home"
 
 node ('Docker') {
 	stage ('Checkout') {
 		checkout scm
 	}
-	stage ('Update Dyalog') {
+	stage ('Build container') {
 		withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
-			DockerDyalog=docker.image('dyalog/techpreview:latest')
-			DockerDyalog.pull()
+			DockerDyalog = docker.build("dcms-build", "-f $WORKSPACE/Dockerfile .")
 		}
 	}
 	stage ('Update MariaDB') {
-			withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
+		withDockerRegistry(credentialsId: '0435817a-5f0f-47e1-9dcc-800d85e5c335') {
 			DockerDB=docker.image('mariadb:10.8.2') // Until build machine is updated
 			DockerDB.pull()
+		}
+	}
+	stage ('Install dependencies') {
+		sh "mkdir -p $WORKSPACE/home"
+		try {
+			DockerDyalog.inside("-t -u 6203 -v $WORKSPACE:/app -e HOME=${Home} -e APP_DIR=/app -e DOTNET_ROOT=/opt/dotnet --entrypoint=''"){
+				sh "/app/CI/activate.apls"
+				sh "/app/CI/install.apls"
+			}
+		} catch(e) {
+			println 'Could not install Tatin or NuGet dependencies.'
+			sh "docker rmi dcms-build"
+			throw new Exception("${e}")
 		}
 	}
 	stage ('Test service') {
@@ -37,7 +50,7 @@ node ('Docker') {
 		withCredentials([file(credentialsId: '205bc57d-1fae-4c67-9aeb-44c1144f071c', variable: 'DCMS_SECRETS')]) {
 			
 			try {
-				DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=/tmp -e CONFIGFILE=/app/CI/testing.dcfg -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
+				DockerApp = DockerDyalog.run ("-t -u 6203 -v $DCMS_SECRETS:$DCMS_SECRETS -e HOME=${Home} -e CONFIGFILE=/app/CI/test.dcfg -e APP_DIR=/app -e YOUTUBE=http://localhost:8088/ -e SECRETS=$DCMS_SECRETS -e SQL_SERVER=${DBIP} -e SQL_DATABASE=dyalog_cms -e SQL_USER=dcms -e SQL_PASSWORD=apl -e SQL_PORT=3306 -v $WORKSPACE:/app")
 				println(DockerApp.id)
 				sh "docker logs -f ${DockerApp.id}"
 				def out = sh script: "docker inspect ${DockerApp.id} --format='{{.State.ExitCode}}'", returnStdout: true
@@ -53,6 +66,7 @@ node ('Docker') {
 					sh "${WORKSPACE}/CI/githubComment.sh ${DockerApp.id} ${commit_id}"
 				}
 				DockerApp.stop()
+				sh "docker rmi dcms-build"
 				echo "Throwing Exception..."
 				echo "Exception is: ${e}"
 				throw new Exception("${e}");
@@ -101,12 +115,12 @@ node ('Docker') {
 			echo SQL_PASSWORD=apl >> ${WORKSPACE}/env
 			echo SQL_PORT=3306 >> ${WORKSPACE}/env
 			echo SECRETS=/app/secrets/secrets.json5 >> ${WORKSPACE}/env
-			echo RIDE_INIT=http:*:4502 >> ${WORKSPACE}/env
 			echo MYSQL_DATABASE=dyalog_cms >> ${WORKSPACE}/env
 			echo MYSQL_USER=dcms >> ${WORKSPACE}/env
 			echo MYSQL_PASSWORD=apl >> ${WORKSPACE}/env
 			echo MYSQL_PORT=3306 >> ${WORKSPACE}/env
-			echo CONFIGFILE=/app/run.dcfg >> ${WORKSPACE}/env
+			echo YOUTUBE=https://www.googleapis.com/youtube/v3/ >> ${WORKSPACE}/env
+			echo APP_DIR=/app
 
 			echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${WORKSPACE}/env
 		'''

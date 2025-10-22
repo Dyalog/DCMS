@@ -1,4 +1,4 @@
- InsertDummyData;D;GEN;WrapBackticks;WrapColons;cid;col_spec;column;data;fn_cols;gen;idx;keywords;length;lipsum;n;name;opt;opt_cols;person_names;remove_columns;spec_fns;spec_opts;sql;table;thing_names;tid;type;type_spec;type_sql;types
+ InsertDummyData;D;NotFixedKeys;WrapBackticks;WrapColons;category;cid;col_spec;column;data;event;event_type;fixed_keys;keywords;lipsum;n;name;nvids;organisation;person;person_names;presentation;presentation_media;presentation_type;presenter;sql;stems;table;thing_names;tid;type;type_spec;videos;youtube_video
 ⍝ Insert dummy data into the database for testing
 ⍝ First tests considered:
 ⍝ - /videos?search= should return all videos with matching terms
@@ -8,9 +8,9 @@
 
 ⍝ Start by generating joined data and deconstructing it into the normalised database, then loop over each table and insert.
 
-
 ⍝ CONFIG
  keywords←generator.keywords
+ stems←generator.stemmable[;2]
  person_names←'Geoff' 'Streeter' 'John' 'Scholes' 'Iverson' 'Dolor' 'Fugiat' 'Orange' 'Rich' 'Park' 'Jada' 'Andrade' 'Andy' 'Karen' 'Fiona' 'Jason' 'Peter' 'Silas'
  thing_names←'APL' 'Meeting' 'Seeds' 'Conference' 'Dyalog' 'Alpha' 'Omega'
  lipsum←generator.lipsum
@@ -54,7 +54,8 @@
  presentation←()
  presentation.event_id←?n⍴n
  presentation.code←(vocab:⎕A,⎕D ⋄ max:2 ⋄ unique:1)generator.Name n
- presentation.title←(vocab:lipsum ⋄ max:30)generator.Text n
+ presentation.title←stems
+ presentation.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
  presentation.title[1],←⊂' dolor'   ⍝ Ensure a keyword is present in search results
  presentation.type_id←?n⍴n
  presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
@@ -63,16 +64,21 @@
  presentation.⎕DF'presentation'
 
  presenter←()
- presenter.(presentation_id person_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0
+ ⍝ Using fixed keys in the presenter and presentation_media tables ensures that stems are found in video results for testing
+ presenter.(presentation_id person_id)←fixed_keys←(1 2)(1 2)
+ NotFixedKeys←{~∨/,(↑fixed_keys)⍷⍤1 2⊢⍵}
+ presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0
  presenter.⎕DF'presenter'
 
  ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
  videos←()
  videos.presentation_id←?n⍴n
- videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍵}n 11⍴0
+ videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
+ nvids←≢∪videos.youtube_id
 
  presentation_media←(type:n⍴⊂'youtube_video')
- presentation_media.(presentation_id media_id)←↓⍉{?⍵⍴⍛⍴n}⍣{∧/≠⍵}n 2⍴0   ⍝ Random unique pairs of numbers
+ presentation_media.(presentation_id media_id)←fixed_keys←(1 2)(1 2)
+ presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n nvids}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
  presentation_media.⎕DF'presentation_media'
 
  youtube_video←(

@@ -1,0 +1,18 @@
+#!/usr/bin/dyalogscript DYALOG_INITSESSION=1
+⎕←'Installing application dependencies...'
+
+root←2 ⎕NQ # 'GetEnvironment' 'APP_DIR'
+pkg←root,'/packages'
+nuget←root,'/nuget-packages'
+
+:Trap 0
+    ⎕SE.Tatin.ReInstallDependencies pkg
+    ⎕SE.Tatin.LoadPackages 'NuGet' ⎕THIS
+    NuGet.Publish nuget
+    ⎕←'Application dependencies installed in ',pkg,' and ',nuget
+    ⎕OFF 0
+:Else
+    ⎕←'Could not install dependencies.'
+    ⎕←1⎕JSON⎕OPT'Compact'0⊢⎕DMX
+    ⎕OFF 1
+:EndTrap

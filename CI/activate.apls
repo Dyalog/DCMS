@@ -1,0 +1,2 @@
+#!/usr/bin/dyalogscript DYALOG_INITSESSION=1
+⎕←⎕SE.UCMD'activate all -reset'

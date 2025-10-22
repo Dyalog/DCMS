@@ -1,9 +1,5 @@
 # Installation and Configuration
-Development config in **dev.dcfg**. Runtime config in **run.dcfg**.
-
-To run locally, use Dyalog with `CONFIGFILE=/path/to/dev.dcfg` or **right-click → Run with Dyalog** on Windows.
-
-To run in a production-like environment, do `docker-compose up` from within the repository root folder.
+The system is developed using Link with Dyalog in a Docker container. This page contains information relevant to anybody modifying to system to run in a different environment.
 
 ## Install ODBC drivers on the host system
 !!!Warning
@@ -70,15 +66,6 @@ grant all privileges on dyalog_cms to user dcms
 3. Set application directory, dependencies etc. in **run.dcfg**
     - app_dir
     - service_url
-
-## Configuring secrets and database information
-Docker secrets are used to store:
-- External API keys (e.g. YouTube)
-
-## data sources
-Most manually updated source data is specified in **data_sources.json5**.
-
-Some data is fetched from external APIs. API keys are specified
 
 ## debug
 Global debug flag. Used as `#.GLOBAL.debug` in order to not have to re-read environment.
