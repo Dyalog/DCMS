@@ -119,8 +119,9 @@ node ('Docker') {
 			echo MYSQL_USER=dcms >> ${WORKSPACE}/env
 			echo MYSQL_PASSWORD=apl >> ${WORKSPACE}/env
 			echo MYSQL_PORT=3306 >> ${WORKSPACE}/env
+			echo CONFIGFILE=${WORKSPACE}/dcms.dcfg >> ${WORKSPACE}/env
+			echo APP_DIR=${WORKSPACE}
 			echo YOUTUBE=https://www.googleapis.com/youtube/v3/ >> ${WORKSPACE}/env
-			echo APP_DIR=/app
 
 			echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${WORKSPACE}/env
 		'''
