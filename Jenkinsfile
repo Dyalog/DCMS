@@ -109,7 +109,8 @@ node ('Docker') {
 	stage ('Create ENV file') {
 		// This will come from Jenkins data after testing
 		sh '''
-			echo SQL_SERVER=db > ${WORKSPACE}/env
+			echo HOME=/app/home >> ${WORKSPACE}/env
+			echo SQL_SERVER=db >> ${WORKSPACE}/env
 			echo SQL_DATABASE=dyalog_cms >> ${WORKSPACE}/env
 			echo SQL_USER=dcms >> ${WORKSPACE}/env
 			echo SQL_PASSWORD=apl >> ${WORKSPACE}/env
