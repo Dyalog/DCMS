@@ -1,0 +1,8 @@
+ Test_GETVideos_BadParameter_PerPage←{
+     url←⍵
+     h←##.##.##.HttpCommand.New'GET'
+     h.URL←url,'/videos?per_page=ILLEGAL'
+     _←'origin'h.SetHeader ##.##.GetEnv'URL'
+     res←h.Run
+     400=res.HttpStatus
+ }

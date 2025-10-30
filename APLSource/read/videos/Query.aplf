@@ -43,4 +43,7 @@
 ⍝ Convert to JSON and paginate
  res←##.Table2JSON CACHE.videos.fields⍪data
  (pg ppg)←2⊃∘⎕VFI∘Q¨'page' 'per_page'
+ :if 0∊pg
+    ⎕SIGNAL⊂('EN' 511)('Message' 'If supplied, page number must be a positive integer.')('Vendor'(##.##.GetEnv'service_url'))
+ :endif
  res←('videos'pg ppg)##.Paginate res
