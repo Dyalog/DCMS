@@ -24,9 +24,11 @@ echo MYSQL_PASSWORD=apl >> ${PWD}/env
 echo MYSQL_PORT=3306 >> ${PWD}/env
 echo SECRETS=/app/secrets/secrets.json5 >> ${PWD}/env
 echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${PWD}/env
+echo HOME=/data >> ${PWD}/env
 
 echo COMPOSE IS: $COMPOSE
 echo "Use docker inspect to get the IP of the running container"
 
 $COMPOSE pull
+$COMPOSE -f docker-compose.yml up install
 $COMPOSE -f docker-compose.yml up db web --force-recreate --abort-on-container-exit
