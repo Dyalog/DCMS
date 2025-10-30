@@ -1,4 +1,7 @@
- res←Post req;allowed;dmx;msg;nl
+ r←Post req;allowed;dmx;msg;nl
+⍝ r: response payload
+⍝ res: response object (can be mutated here to affect response headers etc.) 
+ r←''   ⍝ Default empty payload in case of error
  :If 0<GLOBAL.debug ⋄ last←req ⋄ :EndIf
  res←auth.VerifyToken req
  :If ~∨/401 403∊res.Status
@@ -7,15 +10,15 @@
          :Hold 'SQL.db'
              :Select req.Endpoint
              :CaseList '/person' '/organisation' '/event' '/event_type' '/presentation_type' '/category'
-                 res←req.Endpoint import.Table req
+                 r←req.Endpoint import.Table req
              :Case '/presentation'
-                 res←import.Presentation req
+                 r←import.Presentation req
              :Case '/presentation_material'
-                 res←import.PresentationMaterial req
+                 r←import.PresentationMaterial req
              :Case '/refresh'
-                 res←RefreshData''
+                 r←RefreshData''
              :Case '/wp_update_team_dyalog_videos'
-                 res←wp.PushTeamDyalogVideos req
+                 r←wp.PushTeamDyalogVideos req
              :Case '/fail'
                  {'Failed on purpose.'⎕SIGNAL 42}''
              :Else
@@ -27,6 +30,6 @@
          ''req.Fail 500   ⍝ Fail with no HTTP "reason phrase"
          nl←⎕UCS 10
          allowed←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -_.~!#$&''()*+,/:;=?@[]',nl
-         req.Response.Payload←allowed∩⍨⊃(⊣,nl,⊢)/(⎕EM dmx.EN)(⊃(⊣,nl,⊢)/dmx.DM)(dmx.Message)
+         r←allowed∩⍨⊃(⊣,nl,⊢)/(⎕EM dmx.EN)(⊃(⊣,nl,⊢)/dmx.DM)(dmx.Message)
      :EndTrap
  :EndIf

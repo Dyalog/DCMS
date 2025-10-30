@@ -1,20 +1,20 @@
- res←Get req;allowed;nl
+ r←Get req;allowed;nl
+ r←''   ⍝ Default empty payload in case of error
  :If GLOBAL.debug   ⍝ :If here because prefer not to compute ⍕⎕TS for every request
      ⎕←'> GET REQUEST at ',⍕⎕TS
      ⎕←req.Endpoint
      last←req
  :EndIf
  :Trap GLOBAL.debug↓0 511
-     res←req.Response
      req.Endpoint←{⍵⌿⍨1(⊢∨⌽)'/'≠⍵}req.Endpoint   ⍝ Remove multiple slashes
      :If req.Endpoint(⊃⍷⍨)'/videos'
-         res←read.videos.Handle req
+         r←read.videos.Handle req
      :ElseIf 1=+/req.Endpoint∘≡¨'/person' '/organisation' '/event' '/event_type' '/presentation' '/presentation_type'
-         res←read.Table 1↓req.Endpoint
+         r←read.Table 1↓req.Endpoint
      :ElseIf 1=+/req.Endpoint∘≡¨'/presenters' '/dtv_events'
-         res←CACHE⍎1↓req.Endpoint
+         r←CACHE⍎1↓req.Endpoint
      :ElseIf req.Endpoint≡'/version'
-         res←Version
+         r←Version
      :ElseIf req.Endpoint≡'/teapot'
          req.Fail 418
      :Else

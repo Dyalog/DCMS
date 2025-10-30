@@ -1,0 +1,8 @@
+ Test_GETVideos_BadParameter_Page←{
+     url←⍵
+     h←##.##.##.HttpCommand.New'GET'
+     h.URL←url,'/videos?per_page=20&page=poo'
+     _←'origin'h.SetHeader ##.##.GetEnv'URL'
+     res←h.Run
+     400=res.HttpStatus
+ }

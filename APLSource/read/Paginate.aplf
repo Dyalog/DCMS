@@ -1,7 +1,9 @@
  Paginate←{
      (ep pg ppg)←⍺   ⍝ (URL endpoint)(current_page)(per_page)
      0∊⍴ppg:⍵        ⍝ No pagination, return response unchanged
+     pg←1⌈⊃pg        ⍝ Default first page if not specified in ?page= parameter
      (1>pg)∨pg≠⌊pg:⎕SIGNAL⊂('EN' 511)('Message' 'Page number must be a positive integer.')('Vendor'(##.GetEnv'service_url'))
+     (1>ppg)∨ppg≠⌊ppg:⎕SIGNAL⊂('EN' 511)('Message' 'Items per page must be a positive integer.')('Vendor'(##.GetEnv'service_url'))
      (pg ppg)←⍬∘⍴¨pg ppg
      n←≢⍵            ⍝ Total results count
      ppg←n⌊ppg       ⍝ Results per page
