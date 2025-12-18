@@ -1,4 +1,14 @@
 services:
+    install:
+        build: .
+        volumes:
+        - ${PWD}:/app
+        - ${PWD}/data:/data
+        env_file: env
+        user: root
+        command: "bash -c '/app/CI/activate.apls && /app/CI/install.apls'"
+        entrypoint: ""
+
     web:
         image: dyalog/techpreview:latest
         volumes:
@@ -7,6 +17,9 @@ services:
         - ${PWD}/secrets:/secrets
         tty: true
         env_file: env
+        ports:
+            - 4502:4502
+            - 8081:8081
     db:
         image: mariadb:10.8.2   # https://serverfault.com/questions/1103333/mariadb-10-8-3-in-docker-cant-initialize-timers
         volumes:

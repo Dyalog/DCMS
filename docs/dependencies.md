@@ -1,7 +1,12 @@
-# Packages
-The system depends on some Tatin and NuGet packages. These can be updated using an installed Dyalog system with Tatin activated. Since Tatin is not activated by default in the current version of Dyalog, the packages cannot be updated using the Dyalog Docker container.
+# Dependencies
+Developing this project requires:
+- .NET SDK for the version of Dyalog in use
+- Tatin packages
+- NuGet packages
 
-Instead, we use the [rikedyp/dyalogci](#) image to install Tatin and NuGet dependencies in production.
+These can be updated using an installed Dyalog system with Tatin activated.
+
+The [dev script](../dev) and [Jenkins job](../Jenkinsfile) activate Tatin and install the Tatin and NuGet packages in directories that persist between container runs.
 
 ## Jarvis
 The web service is based on the [Jarvis](https://dyalog.github.io/Jarvis) web service framework which allows APL functions to be exposed as HTTP endpoints.

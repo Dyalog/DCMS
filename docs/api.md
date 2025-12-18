@@ -50,7 +50,7 @@ Returns a list of video objects
 #### search
 `?search=q` where `q` is a list of search terms separated by URL-encoded space (`'%20'`), comma (`','`) or plus (`'+'`). Free text search of titles, descriptions, presenters and events.
 
-The search uses the [Porter2Stemmer](./packages.md#porter2stemmer-nuget-package) NuGet package.
+The search uses the [Porter2Stemmer](./dependencies.md#porter2stemmer-nuget-package) NuGet package.
 
 #### sort
 `?sort=o` where `o` is one of:  
