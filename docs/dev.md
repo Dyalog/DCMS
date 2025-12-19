@@ -12,7 +12,8 @@ The [**dev.dcfg**](../dev.dcfg) configuration is used for development. The scrip
 ./dev
 ```
 
-> The first time **dev** is run, pass the `-i` flag to activate Tatin into the **data** folder and install [dependencies](./dependencies.md).
+> The first time you run **dev**, pass the `-i` flag to activate Tatin into the **data** folder and install [dependencies](./dependencies.md).  
+> `./dev -i`
 
 To run tests during development, do:  
 
