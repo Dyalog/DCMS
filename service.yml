@@ -21,9 +21,9 @@ services:
         traefik.enable: "true"
         traefik.http.routers.dcms-http.entrypoints: http
         traefik.http.routers.dcms-http.middlewares: https-redirect
-        traefik.http.routers.dcms-http.rule: Host(`dcms.gos.dyalog.com`,`dcms.dyalog.com`)
+        traefik.http.routers.dcms-http.rule: Host(`dcms.gos.dyalog.com`) || Host(`dcms.dyalog.com`)
         traefik.http.routers.dcms-https.entrypoints: https
-        traefik.http.routers.dcms-https.rule: Host(`dcms.gos.dyalog.com`,`dcms.dyalog.com`)
+        traefik.http.routers.dcms-https.rule: Host(`dcms.gos.dyalog.com`) || Host(`dcms.dyalog.com`)
         traefik.http.routers.dcms-https.tls: "true"
         traefik.http.routers.dcms-https.tls.certresolver: le
         traefik.http.services.dcms.loadbalancer.server.port: "8080"
