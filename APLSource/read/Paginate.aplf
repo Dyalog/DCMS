@@ -39,7 +39,7 @@
      ((0≡¨lu)/lu)←⊂⊂'null'
      (pl nl)←'&laquo; Previous' 'Next &raquo;'
      ll←pl _ ipl,(hc/⊂'...')_ cpl,(hf/⊂'...')_ fpl _ nl           ⍝ Link labels
-     la←'false' 'true'[1+pg=lnkp]                                 ⍝ Link active
+     la←⊂¨'false' 'true'[1+pg=lnkp]                               ⍝ Link active (extra enclose makes JSON Boolean type instead of string)
      Link←url∘{
          link←⎕JSON'{}'
          link.(url label active)←⍵

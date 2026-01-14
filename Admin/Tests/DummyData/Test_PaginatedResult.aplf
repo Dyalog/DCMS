@@ -1,0 +1,29 @@
+ Test_PaginatedResult←{
+⍝ This test checks that paginated results have the expected structure and types
+     H←##.##.##.HttpCommand
+     Assert←##.Assert
+     url←⍵,'/videos?per_page=5'
+     res←H.GetJSON'GET'url
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     d←res.Data
+     Type←⊃0∘⍴
+     Assert 0=Type d.current_page:
+     Assert 0=Type d.first_page:
+     Assert 0=Type d.from:
+     Assert 0=Type d.last_page:
+     Assert ' '=Type d.last_page_url:
+     Assert 1=≢⍴d.links:
+     Assert {9=⎕NC'r'⊣r←⍵}⊃d.links:   ⍝ links is a list of namespaces
+     Assert ∧/' '=Type¨d.links.label:
+     Assert ∧/' '=Type¨d.links.url:
+⍝ The "active" property of a link must be enclosed, which is a Boolean type in JSON
+     Assert ∧/2=≡¨d.links.active:
+     Assert ' '=Type d.next_page_url:
+     Assert ' '=Type d.path:
+     Assert 0=Type d.per_page:
+     Assert ' '=Type d.prev_page_url:
+     Assert 0=Type d.to:
+     Assert 0=Type d.total:
+     1
+ }
