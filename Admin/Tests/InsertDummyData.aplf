@@ -31,9 +31,10 @@
  event_type.⎕DF'event_type'
 
  event←()
- event.title←(vocab:thing_names ⋄ max:2)generator.Name n
+ event.title←(vocab:thing_names ⋄ max:2)generator.Name⍣{∧/≠⍵}n
  event.(start end)←generator.DateTime¨2⍴n
  event.type←?n⍴n
+ event.url_slug←'-'@(' '∘=)¨¯1⎕C event.title
  event.⎕DF'event'
 
  organisation←()
