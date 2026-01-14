@@ -13,6 +13,6 @@
      items.snippet.channelId←{(⎕A,⎕C ⎕A)[?15⍴2×26]}¨id
      items.snippet.channelTitle←⊂'Mock YouTube'
      items.snippet.publishedAt←T.generator.DateTime≢id
-     items.snippet.thumbnails←{(maxres:(url:'http://fake.img/',⍵))}¨id
+     items.snippet.thumbnails←{(maxres:(url:'/assets/placeholder.png'))}¨id
      (items:items)   ⍝ Return a namespace with a single member "items"
  }
