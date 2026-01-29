@@ -111,13 +111,16 @@
           ';'(≠⊆⊢)sql                         ⍝ Split on semicolons
       }
 
-    ∇ msg←SetupSchema dum;create_migrations;folder;schema_definitions;sequence;latest;migrations;migration;batch;sql
+    ∇ msg←SetupSchema dum;batch;create_migrations;folder;latest;migration;migrations;order;schema_definitions;sequence;sql
       create_migrations←⊃⎕NGET ##.GLOBAL.app_dir,'/sql/migrations.sql'
       Do create_migrations
      
       folder←##.GetEnv'SCHEMA_DEFS'
-      schema_definitions←(⊂∘⍋⌷⊢)'.*\d+-.*.sql'⎕S'&'⊃0(⎕NINFO⍠'Wildcard' 1)folder
+      schema_definitions←'.*\d+-.*.sql'⎕S'&'⊃0(⎕NINFO⍠'Wildcard' 1)folder
       sequence←∊2⊃¨⎕VFI¨⊃¨'-'(≠⊆⊢)¨2⊃¨⎕NPARTS¨schema_definitions
+      order←⍋sequence
+      schema_definitions←schema_definitions[order]
+      sequence←sequence[order]
      
       :If 0=⊃latest←SQA.Do db'select max(batch) from migrations'
           (migrations sequence)←(schema_definitions sequence)↓⍨¨3 1⊃latest   ⍝ Database exists, apply after most recent migration
