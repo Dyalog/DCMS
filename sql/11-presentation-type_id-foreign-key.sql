@@ -1,0 +1,2 @@
+ALTER TABLE `presentation` ADD CONSTRAINT FOREIGN KEY (`type_id`) REFERENCES `presentation_type`(`id`)
+    ON DELETE CASCADE ON UPDATE RESTRICT
