@@ -34,7 +34,7 @@
  event.title←(vocab:thing_names ⋄ max:2)generator.Name⍣{∧/≠⍵}n
  event.(start end)←generator.DateTime¨2⍴n
  event.type←?n⍴n
- event.url_slug←'-'@(' '∘=)¨¯1⎕C event.title
+ event.url_slug←'-'@(' '∘=)¨¯1 ⎕C event.title
  event.⎕DF'event'
 
  organisation←()
@@ -93,7 +93,7 @@
  WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
  WrapColons←(1↓∊)(',:',':',⍨⊢)¨
 
- :For table :In event_type event organisation person category presentation presentation_type presenter presentation_media youtube_video
+ :For table :In event_type event organisation person category presentation_type presentation presenter presentation_media youtube_video
      ⎕←name←⍕table
      table.id←⍳n
      tid←D.GLOBAL.tables⍳⊂name
