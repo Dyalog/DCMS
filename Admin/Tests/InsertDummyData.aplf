@@ -1,4 +1,4 @@
- InsertDummyData;D;NotFixedKeys;WrapBackticks;WrapColons;category;cid;col_spec;column;data;event;event_type;fixed_keys;keywords;lipsum;n;name;nvids;organisation;person;person_names;presentation;presentation_media;presentation_type;presenter;sql;stems;table;thing_names;tid;type;type_spec;videos;youtube_video
+ InsertDummyData;D;NotFixedKeys;WrapBackticks;WrapColons;category;cid;col_spec;column;data;event;event_type;fixed_keys;keywords;lipsum;n;name;organisation;person;person_names;presentation;presentation_media;presentation_type;presenter;sql;stems;table;thing_names;tid;type;type_spec;videos;youtube_video
 ⍝ Insert dummy data into the database for testing
 ⍝ First tests considered:
 ⍝ - /videos?search= should return all videos with matching terms
@@ -73,17 +73,19 @@
 
  ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
  videos←()
+ videos.title←stems
+ videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
  videos.presentation_id←?n⍴n
  videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
- nvids←≢∪videos.youtube_id
 
  presentation_media←(type:n⍴⊂'youtube_video')
  presentation_media.(presentation_id media_id)←fixed_keys←(1 2)(1 2)
- presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n nvids}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
+ presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
  presentation_media.⎕DF'presentation_media'
 
  youtube_video←(
-     youtube_id:∪videos.youtube_id
+     youtube_id: videos.youtube_id
+     title: videos.title
  )
  youtube_video.⎕DF'youtube_video'
 
