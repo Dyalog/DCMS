@@ -1,0 +1,12 @@
+ r←Test_Fail_InsertDuplicatePresentationMedia url;dmx
+⍝ Test that duplicate presentation media cannot be inserted
+ r←0
+
+ sql←'INSERT INTO presentation_media (`presentation_id`, `media_id`, `type`) VALUES (1, 1, "youtube_video")'
+
+ :Trap 500
+     #.DCMS.SQL.Do sql
+ :Else
+     dmx←⎕DMX   ⍝ Save ⎕DMX for debugging
+     r←'Duplicate entry'(∨/⍷)dmx.EM
+ :EndTrap
