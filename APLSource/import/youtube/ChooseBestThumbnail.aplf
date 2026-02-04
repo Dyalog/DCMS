@@ -1,9 +1,0 @@
- ChooseBestThumbnail←{
-⍝ ⍺: list of thumbnail object names
-⍝ ⍵: JSON namespace of video objects from YouTube API
-⍝ ←: list of char vec thumbnail URLs
-     fallback←⎕JSON'{}' ⋄ fallback.url←''
-     available←⍵.snippet.thumbnails.⎕NL ¯9
-     maxres←⍵.snippet.thumbnails⍎¨available⊃¨⍨⊃¨⍺∘⍳¨available
-     maxres.url
- }

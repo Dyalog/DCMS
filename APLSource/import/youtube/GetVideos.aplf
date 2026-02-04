@@ -1,5 +1,6 @@
  GetVideos←{
-     50<≢⍵:(∇ 50↑⍵)⍪∇ 50↓⍵   ⍝ API limit. Download 50 videos at a time
+     ⍺←##.##.GLOBAL.secrets.thumbnails_root
+     50<≢⍵:(⍺ ∇ 50↑⍵)⍪⍺ ∇ 50↓⍵   ⍝ API limit. Download 50 videos at a time
      0=≢⍵:''
      q←url,'videos'
      q,←'?id=',3↓∊'%2C'∘,¨⊆⍵
@@ -14,6 +15,6 @@
      id←{0∊⍴⍵:⍬ ⋄ ⍵.id}r.Data.items
      _←{0=≢⍵:'' ⋄ ⎕SIGNAL⊂('EN'404)('Message' ('YouTube videos ID= (',⍵,') not available.'))('Vendor' (#.DCMS.GetEnv'URL'))}1↓∊','∘,¨⍵/⍨~⍵∊id
      res←'maxres' 'medium' 'default' 'high' 'standard'
-     r.Data.items.thumbnail←res ChooseBestThumbnail r.Data.items
+     r.Data.items.thumbnail←⍺∘,¨⊆⍵,¨⊂'.jpg'
      ↑r.Data.items.((⊂id),snippet.(title description channelId channelTitle ⍬ publishedAt),⊂thumbnail)   ⍝ ⍬ for category_id
  }
