@@ -40,7 +40,11 @@ echo "Use docker inspect to get the IP of the running container"
 $COMPOSE pull
 
 if [ "$DO_INSTALL" = true ]; then
-    $COMPOSE -f docker-compose.yml up install
+    $COMPOSE -f docker-compose.yml up --exit-code-from install install
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Install failed. Not starting services."
+        exit 1
+    fi
 fi
 
 $COMPOSE -f docker-compose.yml up web db
