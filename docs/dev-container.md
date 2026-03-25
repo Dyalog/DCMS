@@ -1,10 +1,10 @@
 # Developing DCMS in a Dev Container
 
 ## Why Docker?
-DCMS runs in Docker so that development, testing and production all use the same environment: the same Dyalog version, the same .NET runtime, the same MariaDB. This eliminates "works on my machine" problems — if it runs locally, it runs in production.
+DCMS runs in Docker so that development, testing and production all use the same environment: the same Dyalog version, the same .NET runtime, the same MariaDB.
 
 ## What the dev container adds
-The VS Code dev container gives you a consistent development toolbox (editor, CLI tools, Claude Code) without installing anything on your host machine beyond Docker Desktop and VS Code. The DCMS source code is mounted into the dev container, and the host Docker socket is shared in, so `docker compose` commands inside the dev container control Docker Desktop directly — there is no Docker-in-Docker.
+The VS Code dev container provides a consistent development toolbox without installing anything on your host machine beyond Docker Desktop and VS Code. The DCMS source code is mounted into the dev container, and the host Docker socket is shared in, so `docker compose` commands inside the dev container control Docker Desktop directly.
 
 ## How the pieces fit together
 
@@ -41,6 +41,10 @@ The dev container runs `docker compose` commands that start the `web` and `db` c
 ### First-time setup
 
 1. Open the DCMS repository in the dev container.
+
+    1. In VS Code, open the DCMS repository folder.
+
+    1. Then, open the command palette (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) and do "Dev Containers: Reopen in Container".
 
 2. Create a secrets file at `secrets/secrets.json5` — see [setup.md](setup.md#secrets) for the format.
 
