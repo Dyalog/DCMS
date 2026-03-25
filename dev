@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export PROJECT_DIR=${PWD}
 DO_INSTALL=false
 
 while getopts "i" opt; do
