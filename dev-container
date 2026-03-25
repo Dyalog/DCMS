@@ -52,14 +52,10 @@ EOF
 
 echo "PROJECT_DIR: $PROJECT_DIR"
 
-sudo -E docker compose pull
+sudo docker compose pull
 
 if [ "$DO_INSTALL" = true ]; then
-    sudo -E docker compose up --exit-code-from install install
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Install failed. Not starting services."
-        exit 1
-    fi
+    sudo docker compose up install
 fi
 
-sudo -E docker compose up web db
+sudo docker compose up web db
