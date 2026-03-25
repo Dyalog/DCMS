@@ -2,18 +2,19 @@ services:
     install:
         build: .
         volumes:
-        - ${PROJECT_DIR}:/app
-        - dcms_home:/data
+        - ${PWD}:/app
+        - ${PWD}/data:/data
         env_file: env
+        user: root
         command: "bash -c '/app/CI/activate.apls && /app/CI/install.apls'"
         entrypoint: ""
 
     web:
         image: dyalog/techpreview:latest
         volumes:
-        - ${PROJECT_DIR}:/app
-        - dcms_home:/data
-        - ${PROJECT_DIR}/secrets:/secrets
+        - ${PWD}:/app
+        - ${PWD}/data:/data
+        - ${PWD}/secrets:/secrets
         tty: true
         env_file: env
         ports:
@@ -22,10 +23,6 @@ services:
     db:
         image: mariadb:10.8.2   # https://serverfault.com/questions/1103333/mariadb-10-8-3-in-docker-cant-initialize-timers
         volumes:
-            - dcms_db:/var/lib/mysql
+            - ${PWD}/dcms_db:/var/lib/mysql
         env_file: env
         tty: true
-
-volumes:
-    dcms_home:
-    dcms_db:
