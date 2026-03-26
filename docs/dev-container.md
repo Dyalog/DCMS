@@ -72,14 +72,7 @@ It is the dev container equivalent of the `./dev` script described in [dev.md](d
 
 ## Working outside a dev container
 
-If you are running on Linux or WSL directly (not inside a dev container), use `./dev` instead:
-
-```sh
-./dev       # start the stack
-./dev -i    # install dependencies first
-```
-
-The same `docker-compose.yml` is used in both cases — only the script that sets the project path differs.
+If you are running on Linux or WSL directly (not inside a dev container), use `./dev` instead. See [dev.md](dev.md) for the full getting-started guide.
 
 ## Named volumes
 
