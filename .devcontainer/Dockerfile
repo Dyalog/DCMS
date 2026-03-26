@@ -1,9 +1,5 @@
 FROM ubuntu:24.04
 
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
 RUN apt-get update && apt-get install -y \
     git curl bash sudo ca-certificates gnupg && \
     install -m 0755 -d /etc/apt/keyrings && \
@@ -13,9 +9,7 @@ RUN apt-get update && apt-get install -y \
     apt-get install -y docker-ce-cli docker-compose-plugin && \
     rm -rf /var/lib/apt/lists/*
 
-RUN groupadd --gid $USER_GID $USERNAME && \
-    useradd --uid $USER_UID --gid $USER_GID -m $USERNAME && \
-    echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && \
-    chmod 0440 /etc/sudoers.d/$USERNAME
+RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
+    chmod 0440 /etc/sudoers.d/ubuntu
 
-USER $USERNAME
+USER ubuntu
