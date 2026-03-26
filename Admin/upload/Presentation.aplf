@@ -6,7 +6,6 @@
      0=≢person←(Get'person').Data:'No persons in database'⎕SIGNAL 5
      0=≢event←(Get'event').Data:'No events in database'⎕SIGNAL 5
      type←(Get'presentation_type').Data
-     category←(Get'category').Data
 
      d[;col]←(event.id,0)[event.title⍳d[;col←h⍳⊂'event']]   ⍝ Event title → Event ID
      d⌿⍨←0≠d[;col]
