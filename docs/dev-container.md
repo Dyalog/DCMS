@@ -1,5 +1,7 @@
 # Developing DCMS in a Dev Container
 
+> Not using a dev container? See [dev.md](dev.md) for developing on Linux or WSL directly.
+
 ## Why Docker?
 DCMS runs in Docker so that development, testing and production all use the same environment: the same Dyalog version, the same .NET runtime, the same MariaDB.
 
@@ -69,10 +71,6 @@ This starts the Dyalog web server and MariaDB. Connect to RIDE in your browser a
 3. Runs `docker compose up web db` (or `install` first with `-i`)
 
 It is the dev container equivalent of the `./dev` script described in [dev.md](dev.md).
-
-## Working outside a dev container
-
-If you are running on Linux or WSL directly (not inside a dev container), use `./dev` instead. See [dev.md](dev.md) for the full getting-started guide.
 
 ## Named volumes
 
