@@ -73,6 +73,10 @@ If you are inside the VS Code dev container, use the dev container variant inste
 
 These scripts are for local testing only — the Jenkinsfile orchestrates Docker directly for CI.
 
+## Deployment
+
+Deployment is handled automatically by a Jenkins job configured in the [Jenkinsfile](../Jenkinsfile). Commits to the `master` branch trigger a build and deploy to production.
+
 ## Packages
 
 This application depends on [Tatin and NuGet packages](dependencies.md). These are loaded using Tatin and the .NET SDK.
