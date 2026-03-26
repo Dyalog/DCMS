@@ -1,6 +1,7 @@
 #!/bin/bash
 
-export PROJECT_DIR=${PWD}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PROJECT_DIR=${SCRIPT_DIR}
 DO_INSTALL=false
 
 while getopts "i" opt; do
@@ -16,35 +17,34 @@ else
 fi
 
 ## Populate env file
-echo APP_DIR=/app > ${PWD}/env
-echo HOME=/data >> ${PWD}/env
-echo SECRETS=/app/secrets/secrets.json5 >> ${PWD}/env
-echo CONFIGFILE=/app/dev.dcfg >> ${PWD}/env
-echo HOME=/data >> ${PWD}/env
-echo SQL_SERVER=db >> ${PWD}/env
-echo SQL_DATABASE=dyalog_cms >> ${PWD}/env
-echo SQL_USER=dcms >> ${PWD}/env
-echo SQL_PASSWORD=apl >> ${PWD}/env
-echo SQL_PORT=3306 >> ${PWD}/env
-echo MYSQL_SERVER=db >> ${PWD}/env
-echo MYSQL_DATABASE=dyalog_cms >> ${PWD}/env
-echo MYSQL_USER=dcms >> ${PWD}/env
-echo MYSQL_PASSWORD=apl >> ${PWD}/env
-echo MYSQL_PORT=3306 >> ${PWD}/env
-echo RIDE_INIT=HTTP:*:4502 >> ${PWD}/env
-echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${PWD}/env
+echo APP_DIR=/app > ${SCRIPT_DIR}/env
+echo HOME=/data >> ${SCRIPT_DIR}/env
+echo SECRETS=/app/secrets/secrets.json5 >> ${SCRIPT_DIR}/env
+echo CONFIGFILE=/app/dev.dcfg >> ${SCRIPT_DIR}/env
+echo SQL_SERVER=db >> ${SCRIPT_DIR}/env
+echo SQL_DATABASE=dyalog_cms >> ${SCRIPT_DIR}/env
+echo SQL_USER=dcms >> ${SCRIPT_DIR}/env
+echo SQL_PASSWORD=apl >> ${SCRIPT_DIR}/env
+echo SQL_PORT=3306 >> ${SCRIPT_DIR}/env
+echo MYSQL_SERVER=db >> ${SCRIPT_DIR}/env
+echo MYSQL_DATABASE=dyalog_cms >> ${SCRIPT_DIR}/env
+echo MYSQL_USER=dcms >> ${SCRIPT_DIR}/env
+echo MYSQL_PASSWORD=apl >> ${SCRIPT_DIR}/env
+echo MYSQL_PORT=3306 >> ${SCRIPT_DIR}/env
+echo RIDE_INIT=HTTP:*:4502 >> ${SCRIPT_DIR}/env
+echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${SCRIPT_DIR}/env
 
 echo COMPOSE IS: $COMPOSE
 echo "Use docker inspect to get the IP of the running container"
 
-$COMPOSE pull
+$COMPOSE -f ${SCRIPT_DIR}/docker-compose.yml pull
 
 if [ "$DO_INSTALL" = true ]; then
-    $COMPOSE -f docker-compose.yml up --exit-code-from install install
+    $COMPOSE -f ${SCRIPT_DIR}/docker-compose.yml up --exit-code-from install install
     if [ $? -ne 0 ]; then
         echo "ERROR: Install failed. Not starting services."
         exit 1
     fi
 fi
 
-$COMPOSE -f docker-compose.yml up web db
+$COMPOSE -f ${SCRIPT_DIR}/docker-compose.yml up web db
