@@ -12,7 +12,7 @@ The entire stack runs in Docker, so development, testing and production all use 
 
 ### First-time setup
 
-1. Create a secrets file at `secrets/secrets.json5` — see [setup.md](setup.md#secrets) for the format.
+1. Create a secrets file at `secrets/secrets.json5` — see [config.md](config.md#secrets) for the format.
 
 2. Run the dev script with `-i` to install [dependencies](dependencies.md):
    ```sh

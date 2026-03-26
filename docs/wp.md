@@ -37,5 +37,5 @@ For example, the `team-dyalog-videos` CCT contains fields:
 The `/refresh` endpoint can be used to trigger a rebuild of the API data and an update of wordpress CPT items. 
 
 ### Authentication
-A WordPress user has permission to edit others' posts. You can create a password (`#.GLOBAL.api.wordpress_token` in the [secrets](secrets.md)) from Wordpress via **Users → Profile → Application Password**.
+A WordPress user has permission to edit others' posts. You can create a password (`#.GLOBAL.api.wordpress_token` in the [secrets](config.md#secrets)) from Wordpress via **Users → Profile → Application Password**.
 

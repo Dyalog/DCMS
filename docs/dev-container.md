@@ -46,7 +46,7 @@ The dev container runs `docker compose` commands that start the `web` and `db` c
 
     1. Then, open the command palette (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) and do "Dev Containers: Reopen in Container".
 
-2. Create a secrets file at `secrets/secrets.json5` — see [setup.md](setup.md#secrets) for the format.
+2. Create a secrets file at `secrets/secrets.json5` — see [config.md](config.md#secrets) for the format.
 
 3. Run with the `-i` flag to install dependencies:
    ```sh
