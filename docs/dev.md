@@ -14,11 +14,11 @@ The entire stack runs in Docker, so development, testing and production all use 
 
 1. Create a secrets file at `secrets/secrets.json5` — see [config.md](config.md#secrets) for the format.
 
-2. Run the dev script with `-i` to install [dependencies](dependencies.md):
+2. Run the dev script with `-i` to install [dependencies](dependencies.md) (Tatin and NuGet packages):
    ```sh
    ./dev -i
    ```
-   This activates Tatin, installs APL and NuGet packages, then starts the stack.
+   This activates Tatin, installs all packages, then starts the stack. You only need `-i` on first run or when dependencies change.
 
 ### Day-to-day development
 
@@ -45,7 +45,7 @@ The services are defined in [docker-compose.yml](../docker-compose.yml):
 
 ## Configuration
 
-[Configuration files](https://docs.dyalog.com/20.0/unix-installation-and-configuration-guide/configuration-parameters/configuration-files/) control how Dyalog launches. The base configuration is in [dcms.dcfg](../dcms.dcfg). The development configuration [dev.dcfg](../dev.dcfg) extends it.
+The `DEBUG` flag controls runtime behaviour such as detailed error responses. See [config.md](config.md) for the full list of configuration parameters and debug-flag effects.
 
 ## Running tests
 
@@ -76,10 +76,6 @@ These scripts are for local testing only — the Jenkinsfile orchestrates Docker
 ## Deployment
 
 Deployment is handled automatically by a Jenkins job configured in the [Jenkinsfile](../Jenkinsfile). Commits to the `master` branch trigger a build and deploy to production.
-
-## Packages
-
-This application depends on [Tatin and NuGet packages](dependencies.md). These are loaded using Tatin and the .NET SDK.
 
 ## VS Code dev container
 
