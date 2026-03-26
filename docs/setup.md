@@ -34,12 +34,13 @@ Secrets are stored in a JSON file. In production these are obtained separately b
 **secrets/secrets.json5**
 ```
 {
-	youtube: "https://www.googleapis.com/youtube/v3/",
+	youtube: "https://www.googleapis.com/youtube/v3/",   // Changes to a localhost dummy server for testing
     youtube_key: "YOUTUBE_API_KEY",
 	youtube_channels: [
 		{ name: "Dyalog Usermeeting", id: "UC89lIdGnKlEozb1WcYQprNw" },
 		{ name: "DyalogLtd", id: "UCRFAE1uHnrhXlSkoaAgKsIQ" },
 	],
+    thumbnails_root: "https://dyalog.com/uploads/video-thumbnails/",   // Video thumbnails hosted on the same server as the front end app for GDPR compliance. We do not make requests to other non-essential services without consent.
 	upload_token: "",   // DCMS API token, only authorised POST requests allowed
 	wordpress: {   // For updating website content
 		url: "WP_JSON URL",
