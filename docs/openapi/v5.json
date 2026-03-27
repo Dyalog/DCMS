@@ -1,0 +1,2505 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Dyalog Content Management System",
+    "version": "5.0.0",
+    "description": "API for managing content in the Dyalog Content Management System"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081/api/v5",
+      "description": "Development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "Video": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string"
+          },
+          "event_shortname": {
+            "type": "string"
+          },
+          "presented_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Year and month of presentation as YYYY-MM-DD hh:mm:ss"
+          },
+          "presenter": {
+            "type": "string",
+            "description": "Comma-separated list of presenter names"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "YouTube video publish date as YYYY-MM-DD hh:mm:ss"
+          },
+          "thumbnail": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "youtube_id": {
+            "type": "string"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "description": "YYYY-MM-DD"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "description": "YYYY-MM-DD"
+          },
+          "url_slug": {
+            "type": "string"
+          }
+        }
+      },
+      "PaginatedVideos": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "The URL for this endpoint"
+          },
+          "per_page": {
+            "type": "integer"
+          },
+          "current_page": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Video"
+            }
+          },
+          "from": {
+            "type": "integer",
+            "description": "Ordinal number of the first result on this page"
+          },
+          "to": {
+            "type": "integer",
+            "description": "Ordinal number of the last result on this page"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total count of results for this query"
+          },
+          "first_page": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "first_page_url": {
+            "type": "string"
+          },
+          "prev_page_url": {
+            "type": "string"
+          },
+          "next_page_url": {
+            "type": "string"
+          },
+          "last_page_url": {
+            "type": "string"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "active": {
+                  "type": "boolean"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Link objects describe numbered, previous and next buttons used on paginated results pages"
+          }
+        }
+      },
+      "CRUDObject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          }
+        },
+        "description": "Objects affected by the CRUD operation with table-specific fields"
+      },
+      "LoggingStatus": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ProfilingStatus": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ProfileData": {
+        "type": "object",
+        "properties": {
+          "fn_name": {
+            "type": "string"
+          },
+          "line_no": {
+            "type": "integer"
+          },
+          "n_calls": {
+            "type": "integer"
+          },
+          "exclusive_time": {
+            "type": "number",
+            "format": "float",
+            "description": "Time spent in this function, excluding time spent in called functions"
+          },
+          "inclusive_time": {
+            "type": "number",
+            "format": "float",
+            "description": "Time spent in this function, including time spent in called functions"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/version": {
+      "get": {
+        "summary": "Get API version",
+        "tags": ["System"],
+        "responses": {
+          "200": {
+            "description": "Current API version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "5.0.0"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/presenters": {
+      "get": {
+        "summary": "Get list of presenters",
+        "tags": ["Content"],
+        "responses": {
+          "200": {
+            "description": "List of presenter names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": ["name1", "name2"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "summary": "Get events",
+        "tags": ["Content"],
+        "parameters": [
+          {
+            "name": "has_videos",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filter events that have videos"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/videos": {
+      "get": {
+        "summary": "Get videos",
+        "tags": ["Content"],
+        "parameters": [
+          {
+            "name": "event_shortname",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by event shortname"
+          },
+          {
+            "name": "presenter",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Filter by presenter IDs"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search terms"
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Results per page"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of videos or paginated videos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Video"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/PaginatedVideos"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/videos/{youtube_id}": {
+      "get": {
+        "summary": "Get a specific video",
+        "tags": ["Content"],
+        "parameters": [
+          {
+            "name": "youtube_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "YouTube video ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Video details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Video"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/videos/{youtube_id}/recommended": {
+      "get": {
+        "summary": "Get recommended videos for a specific video",
+        "tags": ["Content"],
+        "parameters": [
+          {
+            "name": "youtube_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "YouTube video ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of recommended videos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Video"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/person": {
+      "get": {
+        "summary": "List persons",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of persons",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a person",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/person/{id}": {
+      "get": {
+        "summary": "Get a specific person",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Person details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a person",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a person",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted person",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/organisation": {
+      "get": {
+        "summary": "List organisations",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of organisations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an organisation",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created organisation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/organisation/{id}": {
+      "get": {
+        "summary": "Get a specific organisation",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organisation details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an organisation",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated organisation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an organisation",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted organisation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/event_type": {
+      "get": {
+        "summary": "List event types",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of event types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an event type",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created event type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/event_type/{id}": {
+      "get": {
+        "summary": "Get a specific event type",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event type details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an event type",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated event type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an event type",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted event type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/event": {
+      "get": {
+        "summary": "List events",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an event",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/event/{id}": {
+      "get": {
+        "summary": "Get a specific event",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an event",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an event",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_type": {
+      "get": {
+        "summary": "List presentation types",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of presentation types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a presentation type",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created presentation type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_type/{id}": {
+      "get": {
+        "summary": "Get a specific presentation type",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Presentation type details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a presentation type",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated presentation type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a presentation type",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted presentation type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_category": {
+      "get": {
+        "summary": "List presentation categories",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of presentation categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a presentation category",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created presentation category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_category/{id}": {
+      "get": {
+        "summary": "Get a specific presentation category",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Presentation category details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a presentation category",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated presentation category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a presentation category",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted presentation category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation": {
+      "get": {
+        "summary": "List presentations",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of presentations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a presentation",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created presentation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation/{id}": {
+      "get": {
+        "summary": "Get a specific presentation",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Presentation details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a presentation",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated presentation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a presentation",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted presentation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_media": {
+      "get": {
+        "summary": "List presentation media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of presentation media",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create presentation media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created presentation media",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_media/{id}": {
+      "get": {
+        "summary": "Get specific presentation media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Presentation media details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update presentation media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated presentation media",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete presentation media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted presentation media",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/youtube_video": {
+      "get": {
+        "summary": "List YouTube videos",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of YouTube videos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a YouTube video",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created YouTube video",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/youtube_video/{id}": {
+      "get": {
+        "summary": "Get a specific YouTube video",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "YouTube video details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a YouTube video",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated YouTube video",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a YouTube video",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted YouTube video",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/media_general": {
+      "get": {
+        "summary": "List general media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of general media",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create general media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created general media",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/media_general/{id}": {
+      "get": {
+        "summary": "Get specific general media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "General media details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update general media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated general media",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete general media",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted general media",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presenter": {
+      "get": {
+        "summary": "List presenters",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of presenters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a presenter",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created presenter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presenter/{id}": {
+      "get": {
+        "summary": "Get a specific presenter",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Presenter details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CRUDObject"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a presenter",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CRUDObject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated presenter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a presenter",
+        "tags": ["CRUD"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted presenter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CRUDObject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/refresh": {
+      "put": {
+        "summary": "Refresh admin data",
+        "tags": ["Admin"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Refresh completed"
+          }
+        }
+      }
+    },
+    "/admin/logging": {
+      "get": {
+        "summary": "Get logging status",
+        "tags": ["Admin"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logging status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoggingStatus"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update logging status",
+        "tags": ["Admin"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "on",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": true,
+            "description": "Enable or disable logging"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated logging status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoggingStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/log": {
+      "get": {
+        "summary": "Get logs",
+        "tags": ["Admin"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Log contents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Clear logs",
+        "tags": ["Admin"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logs cleared"
+          }
+        }
+      }
+    },
+    "/admin/profiling": {
+      "get": {
+        "summary": "Get profiling status",
+        "tags": ["Admin"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profiling status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfilingStatus"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update profiling status",
+        "tags": ["Admin"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "on",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": true,
+            "description": "Enable or disable profiling"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated profiling status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfilingStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/profile": {
+      "get": {
+        "summary": "Get profiling data",
+        "tags": ["Admin"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profiling data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProfileData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Clear profiling data",
+        "tags": ["Admin"],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profiling data cleared"
+          }
+        }
+      }
+    }
+  }
+}
