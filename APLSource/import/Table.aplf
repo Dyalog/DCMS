@@ -13,7 +13,7 @@
  opts.ids←opts.exists/(id,0)[idx]   ⍝ In correct order
  opts.columns←(##.GLOBAL.(columns⊃⍨tables⍳⊆)table)
  opts.types←##.GLOBAL.(type_sqapl⊃⍨tables⍳⊆)table
- remove_cols←opts.columns(~∊)⊆'created_at' 'updated_at' 'early_bird' ⍝ TODO remove table-specific columns elsewhere
+ remove_cols←opts.columns(~∊)⊆'created_at' 'updated_at'
  opts.columns⌿⍨←remove_cols
  opts.types⌿⍨←remove_cols
  JSON2Table←{m←0 ⎕JSON ⎕OPT'M'⊢1 ⎕JSON ⍵ ⋄ ⍉m[;2]⊂⍤,⌸m[;3]}   ⍝ Group data by fields (doesn't work with nested fields)

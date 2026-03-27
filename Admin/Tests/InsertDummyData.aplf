@@ -43,11 +43,8 @@
 
  person←()
  person.name←(vocab:person_names ⋄ max:3)generator.Name n
- person.organisation←?n⍴n
+ person.organisation_id←?n⍴n
  person.⎕DF'person'
-
- category←(category:(⊂?n⍴≢keywords)⌷keywords)
- category.⎕DF'category'
 
  presentation_type←(type:(⊂?n⍴≢keywords)⌷keywords)
  presentation_type.⎕DF'presentation_type'
@@ -61,7 +58,6 @@
  presentation.type_id←?n⍴n
  presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
  presentation.presented_at←generator.DateTime n
- presentation.category_id←?n⍴n
  presentation.⎕DF'presentation'
 
  presenter←()
@@ -84,8 +80,8 @@
  presentation_media.⎕DF'presentation_media'
 
  youtube_video←(
-     youtube_id: videos.youtube_id
-     title: videos.title
+     youtube_id:videos.youtube_id
+     title:videos.title
  )
  youtube_video.⎕DF'youtube_video'
 
@@ -95,7 +91,7 @@
  WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
  WrapColons←(1↓∊)(',:',':',⍨⊢)¨
 
- :For table :In event_type event organisation person category presentation_type presentation presenter presentation_media youtube_video
+ :For table :In event_type event organisation person presentation_type presentation presenter presentation_media youtube_video
      ⎕←name←⍕table
      table.id←⍳n
      tid←D.GLOBAL.tables⍳⊂name

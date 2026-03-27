@@ -21,7 +21,7 @@
      :Select table←⎕C sheet.Name
      :CaseList 'person' 'organisation'
          ⎕←r,←⊂table upload.Table data
-     :CaseList 'event_type' 'presentation_type' 'category'
+     :CaseList 'event_type' 'presentation_type'
          ⎕←r,←⊂table upload.Table ¯1↓data   ⍝ Excel tables include a "Total" row that must be removed
      :Case 'event'
          ⎕←r,←⊂upload.Event data

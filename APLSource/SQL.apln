@@ -17,10 +17,10 @@
       :EndIf
     ∇
 
-    ∇ msg←Catch msg;en
+    ∇ msg←Catch msg;en;w
       en←⊃msg
       :If 0<en       ⍝ Server error if database operation fails
-          SQA.Close cur
+          {}SQA.Close cur
           :If 2006=2 2⊃msg   ⍝ SQL server has gone away
               Debug'> SQL SERVER WAS AWAY FOR QUERY: ',⍕⎕TS
               SQA.Close db
@@ -28,8 +28,8 @@
           :Else
               (3⊃msg)⎕SIGNAL 500
           :EndIf
-      :ElseIf 0>en   ⍝ Print warnings to session and continue
-          ⎕←msg
+      :ElseIf 0>en
+          ⎕←msg←2 1⊃SQA.GetWarning cur   ⍝ Print and pass on warning
       :EndIf
     ∇
 
@@ -89,9 +89,11 @@
           Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
           r←ucs Do sql
       :Else
-          (1 ⎕JSON 3⊃r)⎕SIGNAL 501   ⍝ Other SQL error
+          (Print 3⊃r)⎕SIGNAL 501                           ⍝ Other SQL error
       :EndIf
     ∇
+
+    Print←{1⎕JSON 1↓,(⎕ucs 13),30(⌊∘≢↑⊢)⍕⍵}
 
     ∇ r←Columns table
       r←1↓4(⌷⍤1)2⊃Catch SQA.Columns db table
