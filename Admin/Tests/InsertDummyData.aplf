@@ -58,7 +58,6 @@
  presentation.type_id←?n⍴n
  presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
  presentation.presented_at←generator.DateTime n
- presentation.category_id←?n⍴n
  presentation.⎕DF'presentation'
 
  presenter←()
@@ -81,8 +80,8 @@
  presentation_media.⎕DF'presentation_media'
 
  youtube_video←(
-     youtube_id: videos.youtube_id
-     title: videos.title
+     youtube_id:videos.youtube_id
+     title:videos.title
  )
  youtube_video.⎕DF'youtube_video'
 
