@@ -4,12 +4,12 @@ Dyalog Content Management System
 ==============================
 v4.0.0
 
-CRUD and admin endpoints are authenticated and require an API key. All other endpoints are public and do not require authentication.
+CRUD and admin endpoints are authenticated by X-API-Key header. The API key can be generated in the admin interface.
 
 CRUD /path is short for:
 GET /path
 POST /path
-GET /person/{id}?columns=[{col1},{col2}]
+GET /person/{id}
 PUT /path/{id}
 DELETE /path/{id}
 [{  // of those objects affected by the CRUD operation
@@ -26,8 +26,8 @@ GET /events?has_videos=true
     id: 0,
     title: "",
     type: "",
-    end_date: ""    // "YYYY-MM-DD"
-    start_date: "", // "YYYY-MM-DD"
+    end: ""    // "YYYY-MM-DD"
+    start: "", // "YYYY-MM-DD"
     url_slug: "",
 }]
 GET /videos
@@ -84,6 +84,8 @@ CRUD /table/youtube_video
 CRUD /table/media_general
 CRUD /table/presenter
 
+PUT /admin/refresh
+
 GET /admin/logging
 {on: true|false}
 PUT /admin/logging?on=true|false
@@ -93,7 +95,9 @@ GET /admin/log
 DELETE /admin/log
 
 GET /admin/profiling
-GET /admin/profiling?on=true|false
+{on: true|false}
+PUT /admin/profiling?on=true|false
+{on: true|false}
 GET /admin/profile
 [{
     fn_name: "",
