@@ -20,7 +20,7 @@
     ∇ msg←Catch msg;en;w
       en←⊃msg
       :If 0<en       ⍝ Server error if database operation fails
-          SQA.Close cur
+          {}SQA.Close cur
           :If 2006=2 2⊃msg   ⍝ SQL server has gone away
               Debug'> SQL SERVER WAS AWAY FOR QUERY: ',⍕⎕TS
               SQA.Close db
@@ -28,16 +28,8 @@
           :Else
               (3⊃msg)⎕SIGNAL 500
           :EndIf
-      :ElseIf ¯1=en
-          w←SQA.GetWarning 2⊃msg
-          msg[1]←0   ⍝ Don't print warnings
-          :If 10010=2⊃w
-              ⎕←'SQAPL cursor object gone away'   ⍝ Cursor object went away
-          :Else
-              ⎕←100(⌊∘≢↑⊢)r                       ⍝ Other SQL warning
-          :EndIf
-      :ElseIf 0>en   ⍝ Print warnings to session and continue
-          ⎕←msg
+      :ElseIf 0>en
+          ⎕←msg←2 1⊃SQA.GetWarning cur   ⍝ Print and pass on warning
       :EndIf
     ∇
 
