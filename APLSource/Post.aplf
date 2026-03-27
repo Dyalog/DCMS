@@ -1,6 +1,6 @@
  r←Post req;allowed;dmx;msg;nl
 ⍝ r: response payload
-⍝ res: response object (can be mutated here to affect response headers etc.) 
+⍝ res: response object (can be mutated here to affect response headers etc.)
  r←''   ⍝ Default empty payload in case of error
  :If 0<GLOBAL.debug ⋄ last←req ⋄ :EndIf
  res←auth.VerifyToken req
