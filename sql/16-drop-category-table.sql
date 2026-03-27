@@ -2,4 +2,4 @@
 -- See https://github.com/Dyalog/DCMS/issues/111
 DROP TABLE `category`;
 ALTER TABLE `presentation` ADD CONSTRAINT FOREIGN KEY (`category_id`) REFERENCES `presentation_category`(`id`)
-    ON DELETE CASCADE ON UPDATE RESTRICT;
+    ON DELETE SET NULL ON UPDATE RESTRICT;

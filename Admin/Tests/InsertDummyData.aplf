@@ -43,7 +43,7 @@
 
  person←()
  person.name←(vocab:person_names ⋄ max:3)generator.Name n
- person.organisation←?n⍴n
+ person.organisation_id←?n⍴n
  person.⎕DF'person'
 
  presentation_type←(type:(⊂?n⍴≢keywords)⌷keywords)
