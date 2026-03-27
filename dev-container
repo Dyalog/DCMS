@@ -20,7 +20,7 @@ done
 # not paths as seen from inside this dev container.
 CONTAINER_ID=$(hostname)
 HOST_PROJECT=$(sudo docker inspect "$CONTAINER_ID" \
-    --format '{{range .Mounts}}{{if eq .Destination "/projects/DCMS"}}{{.Source}}{{end}}{{end}}')
+    --format '{{range .Mounts}}{{if eq .Destination "/projects"}}{{.Source}}{{end}}{{end}}')/DCMS
 
 if [ -z "$HOST_PROJECT" ]; then
     echo "ERROR: Could not determine host path for /projects/DCMS."
