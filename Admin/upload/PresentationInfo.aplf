@@ -29,7 +29,7 @@
      json.videos←(videos,⊂⍬)[vpid⍳id]
 
      opt←⎕NS''
-     opt.url←(##.GetEnv'service_url'),'/presentation'
+     opt.url←(##.GetEnv'URL'),'/presentation'
      opt.token←##.Secrets'upload_token'
      opt.data←json
 
