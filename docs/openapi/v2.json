@@ -1,0 +1,1809 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Dyalog Content Management System",
+        "version": "##VERSION##",
+        "description": "REST API for the Dyalog Content Management System. All collection GET endpoints are paginated and return a consistent envelope (`data`, `meta`, `links`). Write operations require Bearer token authentication."
+    },
+    "tags": [
+        { "name": "Videos",             "description": "YouTube video resources." },
+        { "name": "Persons",            "description": "Person and presenter resources." },
+        { "name": "Organisations",      "description": "Organisation resources." },
+        { "name": "Events",             "description": "Event resources." },
+        { "name": "Event Types",        "description": "Event type classification resources." },
+        { "name": "Presentations",      "description": "Presentation resources and their associated presenters and media." },
+        { "name": "Presentation Types", "description": "Presentation type classification resources." },
+        { "name": "Categories",         "description": "Video category resources." },
+        { "name": "Admin",              "description": "Administrative operations. All require bearer token authentication." },
+        { "name": "System",             "description": "System information." }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        },
+        "responses": {
+            "Unauthorized": {
+                "description": "Unauthorized — invalid or missing bearer token."
+            },
+            "Forbidden": {
+                "description": "Forbidden — Authorization header missing."
+            },
+            "NotFound": {
+                "description": "Not found — the requested resource does not exist."
+            },
+            "NoContent": {
+                "description": "No content — the resource was deleted successfully."
+            }
+        },
+        "parameters": {
+            "per_page": {
+                "name": "per_page",
+                "in": "query",
+                "description": "Number of results per page (default: 20).",
+                "schema": { "type": "integer", "minimum": 1, "default": 20 }
+            },
+            "page": {
+                "name": "page",
+                "in": "query",
+                "description": "Page number (default: 1).",
+                "schema": { "type": "integer", "minimum": 1, "default": 1 }
+            }
+        },
+        "schemas": {
+            "PaginationMeta": {
+                "type": "object",
+                "properties": {
+                    "current_page": { "type": "integer" },
+                    "per_page":     { "type": "integer" },
+                    "total":        { "type": "integer", "description": "Total count of results for this query" },
+                    "from":         { "type": "integer", "description": "Ordinal of the first result on this page" },
+                    "to":           { "type": "integer", "description": "Ordinal of the last result on this page" },
+                    "first_page":   { "type": "integer" },
+                    "last_page":    { "type": "integer" }
+                }
+            },
+            "PaginationLinks": {
+                "type": "object",
+                "properties": {
+                    "first": { "type": "string" },
+                    "prev":  { "type": ["string", "null"] },
+                    "next":  { "type": ["string", "null"] },
+                    "last":  { "type": "string" }
+                }
+            },
+            "VideoObject": {
+                "type": "object",
+                "properties": {
+                    "youtube_id":     { "type": "string", "description": "11-character YouTube video ID" },
+                    "title":          { "type": "string" },
+                    "description":    { "type": "string" },
+                    "presenter":      { "type": "string", "description": "Comma-separated list of presenter names" },
+                    "event":          { "type": "string" },
+                    "event_shortname":{ "type": "string" },
+                    "thumbnail":      { "type": "string", "description": "URL to thumbnail image" },
+                    "category":       { "type": "string" },
+                    "presented_at":   { "type": "string", "description": "YYYY-MM-DD hh:mm:ss" },
+                    "published_at":   { "type": "string", "description": "YYYY-MM-DD hh:mm:ss" },
+                    "url":            { "type": "string" }
+                }
+            },
+            "VideoSummary": {
+                "type": "object",
+                "description": "Abbreviated video object returned by the recommendations sub-resource.",
+                "properties": {
+                    "youtube_id":     { "type": "string" },
+                    "title":          { "type": "string" },
+                    "presenter":      { "type": "string" },
+                    "event":          { "type": "string" },
+                    "event_shortname":{ "type": "string" },
+                    "thumbnail":      { "type": "string" },
+                    "category":       { "type": "string" },
+                    "presented_at":   { "type": "string" },
+                    "url":            { "type": "string" }
+                }
+            },
+            "PersonObject": {
+                "type": "object",
+                "properties": {
+                    "id":           { "type": "integer" },
+                    "name":         { "type": "string" },
+                    "organisation": { "type": "string" },
+                    "location":     { "type": "string" },
+                    "description":  { "type": "string" },
+                    "role":         { "type": "string" },
+                    "role_summary": { "type": "string" },
+                    "url_slug":     { "type": "string" },
+                    "created_at":   { "type": "string", "description": "YYYY-MM-DD hh:mm:ss" },
+                    "updated_at":   { "type": "string", "description": "YYYY-MM-DD hh:mm:ss" },
+                    "updated_by":   { "type": "string" }
+                }
+            },
+            "OrganisationObject": {
+                "type": "object",
+                "properties": {
+                    "id":         { "type": "integer" },
+                    "name":       { "type": "string" },
+                    "url":        { "type": "string" },
+                    "created_at": { "type": "string", "description": "YYYY-MM-DD hh:mm:ss" },
+                    "updated_at": { "type": "string", "description": "YYYY-MM-DD hh:mm:ss" }
+                }
+            },
+            "EventObject": {
+                "type": "object",
+                "properties": {
+                    "id":         { "type": "integer" },
+                    "title":      { "type": "string" },
+                    "location":   { "type": "string" },
+                    "url_slug":   { "type": "string", "description": "URL-friendly event identifier (shortname)" },
+                    "icon":       { "type": "string", "description": "URL of icon image" },
+                    "logo":       { "type": "string", "description": "URL of logo image" },
+                    "physical":   { "type": "integer", "description": "1 if this is a physical/in-person event" },
+                    "digital":    { "type": "integer", "description": "1 if this is a digital/online event" },
+                    "type":       { "type": "integer", "description": "ID of the event type" },
+                    "start":      { "type": "string",  "description": "YYYY-MM-DD hh:mm:ss" },
+                    "end":        { "type": "string",  "description": "YYYY-MM-DD hh:mm:ss" },
+                    "early_bird": { "type": "string",  "description": "End of early-bird registration, YYYY-MM-DD hh:mm:ss" },
+                    "signup_url": { "type": "string" },
+                    "created_at": { "type": "string",  "description": "YYYY-MM-DD hh:mm:ss" },
+                    "updated_at": { "type": "string",  "description": "YYYY-MM-DD hh:mm:ss" },
+                    "updated_by": { "type": "string" }
+                }
+            },
+            "EventTypeObject": {
+                "type": "object",
+                "properties": {
+                    "id":          { "type": "integer" },
+                    "type":        { "type": "string" },
+                    "description": { "type": "string" },
+                    "created_at":  { "type": "string" },
+                    "updated_at":  { "type": "string" },
+                    "updated_by":  { "type": "string" }
+                }
+            },
+            "PresentationObject": {
+                "type": "object",
+                "properties": {
+                    "id":           { "type": "integer" },
+                    "title":        { "type": "string" },
+                    "code":         { "type": "string",  "description": "Alphanumeric code, unique within the event" },
+                    "event_id":     { "type": "integer", "description": "ID of the parent event" },
+                    "abstract":     { "type": "string",  "description": "Short summary from Dyalog website" },
+                    "description":  { "type": "string" },
+                    "location":     { "type": "string" },
+                    "type_id":      { "type": "integer", "description": "ID of the presentation type" },
+                    "category_id":  { "type": "integer", "description": "ID of the category" },
+                    "presented_at": { "type": "string",  "description": "YYYY-MM-DD hh:mm:ss" },
+                    "created_at":   { "type": "string" },
+                    "updated_at":   { "type": "string" },
+                    "updated_by":   { "type": "string" }
+                }
+            },
+            "PresentationTypeObject": {
+                "type": "object",
+                "properties": {
+                    "id":          { "type": "integer" },
+                    "type":        { "type": "string" },
+                    "description": { "type": "string" },
+                    "created_at":  { "type": "string" },
+                    "updated_at":  { "type": "string" },
+                    "updated_by":  { "type": "string" }
+                }
+            },
+            "CategoryObject": {
+                "type": "object",
+                "properties": {
+                    "id":         { "type": "integer" },
+                    "category":   { "type": "string" },
+                    "created_at": { "type": "string" },
+                    "updated_at": { "type": "string" }
+                }
+            },
+            "PresenterLink": {
+                "type": "object",
+                "description": "Represents a person's role as a presenter on a specific presentation.",
+                "properties": {
+                    "person_id":       { "type": "integer" },
+                    "presentation_id": { "type": "integer" },
+                    "affiliation_id":  { "type": ["integer", "null"], "description": "Organisation the presenter was affiliated with at the time of presentation" }
+                }
+            },
+            "MediaItem": {
+                "type": "object",
+                "description": "A media item linked to a presentation.",
+                "properties": {
+                    "id":         { "type": "integer" },
+                    "type":       { "type": "string", "enum": ["youtube_video", "general"] },
+                    "youtube_id": { "type": ["string", "null"], "description": "11-character YouTube ID (type=youtube_video only)" },
+                    "url":        { "type": ["string", "null"], "description": "URL (type=general only)" },
+                    "text":       { "type": ["string", "null"], "description": "Link display text (type=general only)" }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/v1/version": {
+            "get": {
+                "tags": ["System"],
+                "summary": "Get the API version number.",
+                "operationId": "getVersion",
+                "responses": {
+                    "200": {
+                        "description": "A string containing the current version number.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+
+        "/v1/videos": {
+            "get": {
+                "tags": ["Videos"],
+                "summary": "List videos.",
+                "operationId": "listVideos",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Full-text search across titles, descriptions, presenter names, and event names. Terms separated by space, comma, or plus.",
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort order. Defaults to `relevance` when `search` is supplied, otherwise `newest`.",
+                        "schema": { "type": "string", "enum": ["relevance", "newest", "oldest"] }
+                    },
+                    {
+                        "name": "presenter_id",
+                        "in": "query",
+                        "description": "Filter to videos presented by this person ID.",
+                        "schema": { "type": "integer" }
+                    },
+                    {
+                        "name": "event_id",
+                        "in": "query",
+                        "description": "Filter to videos belonging to this event ID.",
+                        "schema": { "type": "integer" }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "Filter to videos presented on or after this date (YYYY-MM-DD).",
+                        "schema": { "type": "string", "format": "date" }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "Filter to videos presented on or before this date (YYYY-MM-DD).",
+                        "schema": { "type": "string", "format": "date" }
+                    },
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of video objects.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/VideoObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Videos"],
+                "summary": "Create a video.",
+                "operationId": "createVideo",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["youtube_id", "title"],
+                                "properties": {
+                                    "youtube_id":   { "type": "string", "minLength": 11, "maxLength": 11 },
+                                    "title":        { "type": "string" },
+                                    "description":  { "type": "string" },
+                                    "thumbnail":    { "type": "string" },
+                                    "url":          { "type": "string" },
+                                    "published_at": { "type": "string", "description": "YYYY-MM-DD hh:mm:ss" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Video created.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/VideoObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        },
+
+        "/v1/videos/{youtube_id}": {
+            "parameters": [
+                {
+                    "name": "youtube_id",
+                    "in": "path",
+                    "required": true,
+                    "description": "11-character YouTube video ID.",
+                    "schema": { "type": "string", "minLength": 11, "maxLength": 11 }
+                }
+            ],
+            "get": {
+                "tags": ["Videos"],
+                "summary": "Get a single video.",
+                "operationId": "getVideo",
+                "responses": {
+                    "200": {
+                        "description": "A video object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/VideoObject" }
+                            }
+                        }
+                    },
+                    "400": { "description": "Bad request — youtube_id is not 11 characters." },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "patch": {
+                "tags": ["Videos"],
+                "summary": "Partially update a video.",
+                "operationId": "updateVideo",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title":        { "type": "string" },
+                                    "description":  { "type": "string" },
+                                    "thumbnail":    { "type": "string" },
+                                    "url":          { "type": "string" },
+                                    "published_at": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated video object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/VideoObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "delete": {
+                "tags": ["Videos"],
+                "summary": "Delete a video.",
+                "operationId": "deleteVideo",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/videos/{youtube_id}/recommendations": {
+            "get": {
+                "tags": ["Videos"],
+                "summary": "Get recommended videos similar to a given video.",
+                "description": "Uses cosine similarity computed over video metadata. Recommendations are pre-computed and rebuilt by `POST /v1/admin/cache/refresh`.",
+                "operationId": "getVideoRecommendations",
+                "parameters": [
+                    {
+                        "name": "youtube_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string", "minLength": 11, "maxLength": 11 }
+                    },
+                    {
+                        "name": "n",
+                        "in": "query",
+                        "description": "Number of recommendations to return (default: 1).",
+                        "schema": { "type": "integer", "minimum": 1, "default": 1 }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of recommended video summaries.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/VideoSummary" }
+                                }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/persons": {
+            "get": {
+                "tags": ["Persons"],
+                "summary": "List persons.",
+                "operationId": "listPersons",
+                "parameters": [
+                    {
+                        "name": "is_presenter",
+                        "in": "query",
+                        "description": "When `true`, return only persons who appear as a presenter on at least one presentation.",
+                        "schema": { "type": "boolean" }
+                    },
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of person objects.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/PersonObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Persons"],
+                "summary": "Create a person.",
+                "operationId": "createPerson",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["name"],
+                                "properties": {
+                                    "name":         { "type": "string" },
+                                    "organisation": { "type": "string" },
+                                    "location":     { "type": "string" },
+                                    "description":  { "type": "string" },
+                                    "role":         { "type": "string" },
+                                    "role_summary": { "type": "string" },
+                                    "url_slug":     { "type": "string" },
+                                    "updated_by":   { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Person created.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PersonObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        },
+
+        "/v1/persons/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "integer" }
+                }
+            ],
+            "get": {
+                "tags": ["Persons"],
+                "summary": "Get a single person.",
+                "operationId": "getPerson",
+                "responses": {
+                    "200": {
+                        "description": "A person object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PersonObject" }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "patch": {
+                "tags": ["Persons"],
+                "summary": "Partially update a person.",
+                "operationId": "updatePerson",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name":         { "type": "string" },
+                                    "organisation": { "type": "string" },
+                                    "location":     { "type": "string" },
+                                    "description":  { "type": "string" },
+                                    "role":         { "type": "string" },
+                                    "role_summary": { "type": "string" },
+                                    "url_slug":     { "type": "string" },
+                                    "updated_by":   { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated person object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PersonObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "delete": {
+                "tags": ["Persons"],
+                "summary": "Delete a person.",
+                "operationId": "deletePerson",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/persons/{id}/videos": {
+            "get": {
+                "tags": ["Persons"],
+                "summary": "List videos presented by a person.",
+                "operationId": "listPersonVideos",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "integer" }
+                    },
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of video objects for this presenter.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/VideoObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/organisations": {
+            "get": {
+                "tags": ["Organisations"],
+                "summary": "List organisations.",
+                "operationId": "listOrganisations",
+                "parameters": [
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of organisation objects.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/OrganisationObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Organisations"],
+                "summary": "Create an organisation.",
+                "operationId": "createOrganisation",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["name"],
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "url":  { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Organisation created.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/OrganisationObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        },
+
+        "/v1/organisations/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "integer" }
+                }
+            ],
+            "get": {
+                "tags": ["Organisations"],
+                "summary": "Get a single organisation.",
+                "operationId": "getOrganisation",
+                "responses": {
+                    "200": {
+                        "description": "An organisation object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/OrganisationObject" }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "patch": {
+                "tags": ["Organisations"],
+                "summary": "Partially update an organisation.",
+                "operationId": "updateOrganisation",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "url":  { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated organisation object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/OrganisationObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "delete": {
+                "tags": ["Organisations"],
+                "summary": "Delete an organisation.",
+                "operationId": "deleteOrganisation",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/events": {
+            "get": {
+                "tags": ["Events"],
+                "summary": "List events.",
+                "operationId": "listEvents",
+                "parameters": [
+                    {
+                        "name": "has_videos",
+                        "in": "query",
+                        "description": "When `true`, return only events that have at least one associated video.",
+                        "schema": { "type": "boolean" }
+                    },
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of event objects.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/EventObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Events"],
+                "summary": "Create an event.",
+                "operationId": "createEvent",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["title"],
+                                "properties": {
+                                    "title":      { "type": "string" },
+                                    "location":   { "type": "string" },
+                                    "url_slug":   { "type": "string" },
+                                    "type":       { "type": "integer", "description": "ID of the event type" },
+                                    "physical":   { "type": "integer" },
+                                    "digital":    { "type": "integer" },
+                                    "start":      { "type": "string" },
+                                    "end":        { "type": "string" },
+                                    "early_bird": { "type": "string" },
+                                    "signup_url": { "type": "string" },
+                                    "icon":       { "type": "string" },
+                                    "logo":       { "type": "string" },
+                                    "updated_by": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Event created.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/EventObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        },
+
+        "/v1/events/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "integer" }
+                }
+            ],
+            "get": {
+                "tags": ["Events"],
+                "summary": "Get a single event.",
+                "operationId": "getEvent",
+                "responses": {
+                    "200": {
+                        "description": "An event object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/EventObject" }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "patch": {
+                "tags": ["Events"],
+                "summary": "Partially update an event.",
+                "operationId": "updateEvent",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title":      { "type": "string" },
+                                    "location":   { "type": "string" },
+                                    "url_slug":   { "type": "string" },
+                                    "type":       { "type": "integer" },
+                                    "physical":   { "type": "integer" },
+                                    "digital":    { "type": "integer" },
+                                    "start":      { "type": "string" },
+                                    "end":        { "type": "string" },
+                                    "early_bird": { "type": "string" },
+                                    "signup_url": { "type": "string" },
+                                    "icon":       { "type": "string" },
+                                    "logo":       { "type": "string" },
+                                    "updated_by": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated event object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/EventObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "delete": {
+                "tags": ["Events"],
+                "summary": "Delete an event.",
+                "operationId": "deleteEvent",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/events/{id}/presentations": {
+            "get": {
+                "tags": ["Events"],
+                "summary": "List presentations for an event.",
+                "operationId": "listEventPresentations",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "integer" }
+                    },
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of presentation objects for this event.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/PresentationObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/events/{id}/videos": {
+            "get": {
+                "tags": ["Events"],
+                "summary": "List videos for an event.",
+                "operationId": "listEventVideos",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "integer" }
+                    },
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of video objects for this event.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/VideoObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/event-types": {
+            "get": {
+                "tags": ["Event Types"],
+                "summary": "List event types.",
+                "operationId": "listEventTypes",
+                "parameters": [
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of event type objects.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/EventTypeObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Event Types"],
+                "summary": "Create an event type.",
+                "operationId": "createEventType",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["type"],
+                                "properties": {
+                                    "type":        { "type": "string" },
+                                    "description": { "type": "string" },
+                                    "updated_by":  { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Event type created.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/EventTypeObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        },
+
+        "/v1/event-types/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "integer" }
+                }
+            ],
+            "get": {
+                "tags": ["Event Types"],
+                "summary": "Get a single event type.",
+                "operationId": "getEventType",
+                "responses": {
+                    "200": {
+                        "description": "An event type object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/EventTypeObject" }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "patch": {
+                "tags": ["Event Types"],
+                "summary": "Partially update an event type.",
+                "operationId": "updateEventType",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "type":        { "type": "string" },
+                                    "description": { "type": "string" },
+                                    "updated_by":  { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated event type object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/EventTypeObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "delete": {
+                "tags": ["Event Types"],
+                "summary": "Delete an event type.",
+                "operationId": "deleteEventType",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/presentations": {
+            "get": {
+                "tags": ["Presentations"],
+                "summary": "List presentations.",
+                "operationId": "listPresentations",
+                "parameters": [
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of presentation objects.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/PresentationObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Presentations"],
+                "summary": "Create a presentation.",
+                "description": "Creates a presentation record only. Add presenters via `POST /v1/presentations/{id}/presenters` and media via `POST /v1/presentations/{id}/media`.",
+                "operationId": "createPresentation",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["title", "event_id"],
+                                "properties": {
+                                    "title":        { "type": "string" },
+                                    "event_id":     { "type": "integer" },
+                                    "code":         { "type": "string" },
+                                    "abstract":     { "type": "string" },
+                                    "description":  { "type": "string" },
+                                    "location":     { "type": "string" },
+                                    "type_id":      { "type": "integer" },
+                                    "category_id":  { "type": "integer" },
+                                    "presented_at": { "type": "string" },
+                                    "updated_by":   { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Presentation created.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PresentationObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        },
+
+        "/v1/presentations/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "integer" }
+                }
+            ],
+            "get": {
+                "tags": ["Presentations"],
+                "summary": "Get a single presentation.",
+                "operationId": "getPresentation",
+                "responses": {
+                    "200": {
+                        "description": "A presentation object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PresentationObject" }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "patch": {
+                "tags": ["Presentations"],
+                "summary": "Partially update a presentation.",
+                "operationId": "updatePresentation",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title":        { "type": "string" },
+                                    "event_id":     { "type": "integer" },
+                                    "code":         { "type": "string" },
+                                    "abstract":     { "type": "string" },
+                                    "description":  { "type": "string" },
+                                    "location":     { "type": "string" },
+                                    "type_id":      { "type": "integer" },
+                                    "category_id":  { "type": "integer" },
+                                    "presented_at": { "type": "string" },
+                                    "updated_by":   { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated presentation object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PresentationObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "delete": {
+                "tags": ["Presentations"],
+                "summary": "Delete a presentation.",
+                "operationId": "deletePresentation",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/presentations/{id}/presenters": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "Presentation ID.",
+                    "schema": { "type": "integer" }
+                }
+            ],
+            "get": {
+                "tags": ["Presentations"],
+                "summary": "List presenters on a presentation.",
+                "operationId": "listPresentationPresenters",
+                "responses": {
+                    "200": {
+                        "description": "A list of presenter link objects for this presentation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/PresenterLink" }
+                                }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "post": {
+                "tags": ["Presentations"],
+                "summary": "Add a presenter to a presentation.",
+                "operationId": "addPresentationPresenter",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["person_id"],
+                                "properties": {
+                                    "person_id":      { "type": "integer" },
+                                    "affiliation_id": { "type": "integer" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Presenter added.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PresenterLink" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/presentations/{id}/presenters/{person_id}": {
+            "delete": {
+                "tags": ["Presentations"],
+                "summary": "Remove a presenter from a presentation.",
+                "operationId": "removePresentationPresenter",
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Presentation ID.",
+                        "schema": { "type": "integer" }
+                    },
+                    {
+                        "name": "person_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Person ID to remove.",
+                        "schema": { "type": "integer" }
+                    }
+                ],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/presentations/{id}/media": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "Presentation ID.",
+                    "schema": { "type": "integer" }
+                }
+            ],
+            "get": {
+                "tags": ["Presentations"],
+                "summary": "List media items on a presentation.",
+                "operationId": "listPresentationMedia",
+                "responses": {
+                    "200": {
+                        "description": "A list of media item objects for this presentation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": { "$ref": "#/components/schemas/MediaItem" }
+                                }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "post": {
+                "tags": ["Presentations"],
+                "summary": "Add a media item to a presentation.",
+                "operationId": "addPresentationMedia",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["type"],
+                                "properties": {
+                                    "type":       { "type": "string", "enum": ["youtube_video", "general"] },
+                                    "youtube_id": { "type": "string", "description": "Required when type=youtube_video" },
+                                    "url":        { "type": "string", "description": "Required when type=general" },
+                                    "text":       { "type": "string", "description": "Link display text, used when type=general" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Media item added.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/MediaItem" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" },
+                    "422": { "description": "Unprocessable entity — required field for the given `type` is missing." }
+                }
+            }
+        },
+
+        "/v1/presentations/{id}/media/{media_id}": {
+            "delete": {
+                "tags": ["Presentations"],
+                "summary": "Remove a media item from a presentation.",
+                "operationId": "removePresentationMedia",
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Presentation ID.",
+                        "schema": { "type": "integer" }
+                    },
+                    {
+                        "name": "media_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Media item ID to remove.",
+                        "schema": { "type": "integer" }
+                    }
+                ],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/presentation-types": {
+            "get": {
+                "tags": ["Presentation Types"],
+                "summary": "List presentation types.",
+                "operationId": "listPresentationTypes",
+                "parameters": [
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of presentation type objects.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/PresentationTypeObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Presentation Types"],
+                "summary": "Create a presentation type.",
+                "operationId": "createPresentationType",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["type"],
+                                "properties": {
+                                    "type":        { "type": "string" },
+                                    "description": { "type": "string" },
+                                    "updated_by":  { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Presentation type created.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PresentationTypeObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        },
+
+        "/v1/presentation-types/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "integer" }
+                }
+            ],
+            "get": {
+                "tags": ["Presentation Types"],
+                "summary": "Get a single presentation type.",
+                "operationId": "getPresentationType",
+                "responses": {
+                    "200": {
+                        "description": "A presentation type object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PresentationTypeObject" }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "patch": {
+                "tags": ["Presentation Types"],
+                "summary": "Partially update a presentation type.",
+                "operationId": "updatePresentationType",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "type":        { "type": "string" },
+                                    "description": { "type": "string" },
+                                    "updated_by":  { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated presentation type object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/PresentationTypeObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "delete": {
+                "tags": ["Presentation Types"],
+                "summary": "Delete a presentation type.",
+                "operationId": "deletePresentationType",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/categories": {
+            "get": {
+                "tags": ["Categories"],
+                "summary": "List categories.",
+                "operationId": "listCategories",
+                "parameters": [
+                    { "$ref": "#/components/parameters/per_page" },
+                    { "$ref": "#/components/parameters/page" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of category objects.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data":  { "type": "array", "items": { "$ref": "#/components/schemas/CategoryObject" } },
+                                        "meta":  { "$ref": "#/components/schemas/PaginationMeta" },
+                                        "links": { "$ref": "#/components/schemas/PaginationLinks" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Categories"],
+                "summary": "Create a category.",
+                "operationId": "createCategory",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["category"],
+                                "properties": {
+                                    "category": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Category created.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/CategoryObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        },
+
+        "/v1/categories/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": { "type": "integer" }
+                }
+            ],
+            "get": {
+                "tags": ["Categories"],
+                "summary": "Get a single category.",
+                "operationId": "getCategory",
+                "responses": {
+                    "200": {
+                        "description": "A category object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/CategoryObject" }
+                            }
+                        }
+                    },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "patch": {
+                "tags": ["Categories"],
+                "summary": "Partially update a category.",
+                "operationId": "updateCategory",
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "category": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated category object.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/CategoryObject" }
+                            }
+                        }
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            },
+            "delete": {
+                "tags": ["Categories"],
+                "summary": "Delete a category.",
+                "operationId": "deleteCategory",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "204": { "$ref": "#/components/responses/NoContent" },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" },
+                    "404": { "$ref": "#/components/responses/NotFound" }
+                }
+            }
+        },
+
+        "/v1/admin/cache/refresh": {
+            "post": {
+                "tags": ["Admin"],
+                "summary": "Rebuild the search cache and recommendation index.",
+                "description": "Fetches fresh data from YouTube, re-indexes all video metadata for full-text search, and recomputes the cosine-similarity recommendation matrix. This is an expensive operation; it runs asynchronously and its effects are visible on the next request after it completes.",
+                "operationId": "adminCacheRefresh",
+                "security": [{ "bearerAuth": [] }],
+                "responses": {
+                    "200": {
+                        "description": "Cache refresh triggered successfully."
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        },
+
+        "/v1/admin/integrations/wordpress/team-videos": {
+            "post": {
+                "tags": ["Admin"],
+                "summary": "Sync Team Dyalog member videos to WordPress.",
+                "description": "Fetches up to `n` latest videos per Team Dyalog member from DCMS and pushes them to the WordPress site as custom posts via the WordPress REST API.",
+                "operationId": "adminSyncWordPressTeamVideos",
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [
+                    {
+                        "name": "n",
+                        "in": "query",
+                        "description": "Maximum number of latest videos to sync per person (default: 10).",
+                        "schema": { "type": "integer", "minimum": 1, "default": 10 }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sync completed successfully."
+                    },
+                    "401": { "$ref": "#/components/responses/Unauthorized" },
+                    "403": { "$ref": "#/components/responses/Forbidden" }
+                }
+            }
+        }
+    }
+}
