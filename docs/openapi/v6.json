@@ -1,0 +1,1578 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Dyalog Content Management System",
+    "version": "6.0.0",
+    "description": "CRUD and admin endpoints for the Dyalog CMS. CRUD and admin endpoints are authenticated by X-API-Key header. The API key can be generated in the admin interface."
+  },
+  "servers": [],
+  "security": [],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "type": { "type": "string" },
+          "start": { "type": "string", "format": "date", "description": "YYYY-MM-DD" },
+          "end": { "type": "string", "format": "date", "description": "YYYY-MM-DD" },
+          "url_slug": { "type": "string" }
+        }
+      },
+      "Video": {
+        "type": "object",
+        "properties": {
+          "category": { "type": "string" },
+          "description": { "type": "string" },
+          "event": { "type": "string" },
+          "event_shortname": { "type": "string" },
+          "presented_at": { "type": "string", "format": "date-time", "description": "Year and month of presentation as YYYY-MM-DD hh:mm:ss" },
+          "presenter": { "type": "string", "description": "Comma-separated list of presenter names" },
+          "published_at": { "type": "string", "format": "date-time", "description": "YouTube video publish date as YYYY-MM-DD hh:mm:ss" },
+          "thumbnail": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string" },
+          "youtube_id": { "type": "string" }
+        }
+      },
+      "PaginatedVideos": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string", "description": "The URL for this endpoint" },
+          "per_page": { "type": "integer" },
+          "current_page": { "type": "integer" },
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Video" }
+          },
+          "from": { "type": "integer", "description": "Ordinal number of the first result on this page" },
+          "to": { "type": "integer", "description": "Ordinal number of the last result on this page" },
+          "total": { "type": "integer", "description": "Total count of results for this query" },
+          "first_page": { "type": "integer" },
+          "last_page": { "type": "integer" },
+          "first_page_url": { "type": "string" },
+          "prev_page_url": { "type": "string" },
+          "next_page_url": { "type": "string" },
+          "last_page_url": { "type": "string" },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaginationLink"
+            }
+          }
+        }
+      },
+      "PaginationLink": {
+        "type": "object",
+        "description": "Link objects describe numbered, previous and next buttons used on paginated results pages",
+        "properties": {
+          "active": { "type": "boolean" },
+          "label": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      },
+      "CrudItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" }
+        },
+        "additionalProperties": true,
+        "description": "A table row. Fields beyond 'id' depend on the specific table."
+      },
+      "LoggingStatus": {
+        "type": "object",
+        "properties": {
+          "on": { "type": "boolean" }
+        }
+      },
+      "ProfilingStatus": {
+        "type": "object",
+        "properties": {
+          "on": { "type": "boolean" }
+        }
+      },
+      "ProfileEntry": {
+        "type": "object",
+        "properties": {
+          "fn_name": { "type": "string" },
+          "line_no": { "type": "integer" },
+          "n_calls": { "type": "integer" },
+          "exclusive_time": { "type": "number", "format": "double", "description": "Time spent in this function, excluding time spent in called functions" },
+          "inclusive_time": { "type": "number", "format": "double", "description": "Time spent in this function, including time spent in called functions" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/version": {
+      "get": {
+        "summary": "Get API version",
+        "operationId": "getVersion",
+        "responses": {
+          "200": {
+            "description": "Version string",
+            "content": {
+              "application/json": {
+                "schema": { "type": "string", "example": "6.0.0" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/presenters": {
+      "get": {
+        "summary": "List presenter names",
+        "operationId": "getPresenters",
+        "responses": {
+          "200": {
+            "description": "Array of presenter names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "summary": "List events",
+        "operationId": "getEvents",
+        "parameters": [
+          {
+            "name": "has_videos",
+            "in": "query",
+            "schema": { "type": "boolean" },
+            "description": "Filter to events that have videos"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Event" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/videos": {
+      "get": {
+        "summary": "List or search videos",
+        "operationId": "getVideos",
+        "description": "Returns all videos, or filtered/paginated results when query parameters are provided. When per_page and page are specified, the response is a paginated envelope rather than a plain array.",
+        "parameters": [
+          {
+            "name": "event_shortname",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Filter by event shortname"
+          },
+          {
+            "name": "presenter",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "type": "integer" }
+            },
+            "style": "form",
+            "explode": false,
+            "description": "Filter by presenter IDs"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Search terms"
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Number of results per page (enables pagination)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Page number (enables pagination)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of videos, or a paginated envelope when per_page and page are specified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Video" }
+                    },
+                    { "$ref": "#/components/schemas/PaginatedVideos" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/videos/{youtube_id}": {
+      "get": {
+        "summary": "Get a single video by YouTube ID",
+        "operationId": "getVideo",
+        "parameters": [
+          {
+            "name": "youtube_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single video object",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Video" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/videos/{youtube_id}/recommended": {
+      "get": {
+        "summary": "Get recommended videos for a given video",
+        "operationId": "getRecommendedVideos",
+        "parameters": [
+          {
+            "name": "youtube_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of recommended videos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Video" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/person": {
+      "get": {
+        "summary": "List persons",
+        "operationId": "listPersons",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of person records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a person",
+        "operationId": "createPerson",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/person/{id}": {
+      "get": {
+        "summary": "Get a person by ID",
+        "operationId": "getPerson",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A person record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a person",
+        "operationId": "updatePerson",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a person",
+        "operationId": "deletePerson",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/organisation": {
+      "get": {
+        "summary": "List organisations",
+        "operationId": "listOrganisations",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of organisation records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an organisation",
+        "operationId": "createOrganisation",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/organisation/{id}": {
+      "get": {
+        "summary": "Get an organisation by ID",
+        "operationId": "getOrganisation",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "An organisation record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an organisation",
+        "operationId": "updateOrganisation",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an organisation",
+        "operationId": "deleteOrganisation",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/event_type": {
+      "get": {
+        "summary": "List event types",
+        "operationId": "listEventTypes",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of event type records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an event type",
+        "operationId": "createEventType",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/event_type/{id}": {
+      "get": {
+        "summary": "Get an event type by ID",
+        "operationId": "getEventType",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "An event type record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an event type",
+        "operationId": "updateEventType",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an event type",
+        "operationId": "deleteEventType",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/event": {
+      "get": {
+        "summary": "List events",
+        "operationId": "listEvents",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of event records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an event",
+        "operationId": "createEvent",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/event/{id}": {
+      "get": {
+        "summary": "Get an event by ID",
+        "operationId": "getEvent",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "An event record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an event",
+        "operationId": "updateEvent",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an event",
+        "operationId": "deleteEvent",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_type": {
+      "get": {
+        "summary": "List presentation types",
+        "operationId": "listPresentationTypes",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of presentation type records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a presentation type",
+        "operationId": "createPresentationType",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_type/{id}": {
+      "get": {
+        "summary": "Get a presentation type by ID",
+        "operationId": "getPresentationType",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A presentation type record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a presentation type",
+        "operationId": "updatePresentationType",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a presentation type",
+        "operationId": "deletePresentationType",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_category": {
+      "get": {
+        "summary": "List presentation categories",
+        "operationId": "listPresentationCategories",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of presentation category records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a presentation category",
+        "operationId": "createPresentationCategory",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_category/{id}": {
+      "get": {
+        "summary": "Get a presentation category by ID",
+        "operationId": "getPresentationCategory",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A presentation category record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a presentation category",
+        "operationId": "updatePresentationCategory",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a presentation category",
+        "operationId": "deletePresentationCategory",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation": {
+      "get": {
+        "summary": "List presentations",
+        "operationId": "listPresentations",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of presentation records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a presentation",
+        "operationId": "createPresentation",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation/{id}": {
+      "get": {
+        "summary": "Get a presentation by ID",
+        "operationId": "getPresentation",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A presentation record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a presentation",
+        "operationId": "updatePresentation",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a presentation",
+        "operationId": "deletePresentation",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_media": {
+      "get": {
+        "summary": "List presentation media",
+        "operationId": "listPresentationMedia",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of presentation media records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a presentation media record",
+        "operationId": "createPresentationMedia",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presentation_media/{id}": {
+      "get": {
+        "summary": "Get a presentation media record by ID",
+        "operationId": "getPresentationMedia",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A presentation media record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a presentation media record",
+        "operationId": "updatePresentationMedia",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a presentation media record",
+        "operationId": "deletePresentationMedia",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/youtube_video": {
+      "get": {
+        "summary": "List YouTube videos",
+        "operationId": "listYoutubeVideos",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of YouTube video records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a YouTube video record",
+        "operationId": "createYoutubeVideo",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/youtube_video/{id}": {
+      "get": {
+        "summary": "Get a YouTube video record by ID",
+        "operationId": "getYoutubeVideo",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A YouTube video record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a YouTube video record",
+        "operationId": "updateYoutubeVideo",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a YouTube video record",
+        "operationId": "deleteYoutubeVideo",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/media_general": {
+      "get": {
+        "summary": "List general media",
+        "operationId": "listMediaGeneral",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of general media records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a general media record",
+        "operationId": "createMediaGeneral",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/media_general/{id}": {
+      "get": {
+        "summary": "Get a general media record by ID",
+        "operationId": "getMediaGeneral",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A general media record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a general media record",
+        "operationId": "updateMediaGeneral",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a general media record",
+        "operationId": "deleteMediaGeneral",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presenter": {
+      "get": {
+        "summary": "List presenters",
+        "operationId": "listPresenterRecords",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of presenter records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a presenter record",
+        "operationId": "createPresenter",
+        "security": [{ "ApiKeyAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/table/presenter/{id}": {
+      "get": {
+        "summary": "Get a presenter record by ID",
+        "operationId": "getPresenterRecord",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "A presenter record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CrudItem" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a presenter record",
+        "operationId": "updatePresenter",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrudItem" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a presenter record",
+        "operationId": "deletePresenter",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Affected records",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/refresh": {
+      "put": {
+        "summary": "Refresh admin cache",
+        "operationId": "adminRefresh",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Refresh successful" }
+        }
+      }
+    },
+    "/admin/logging": {
+      "get": {
+        "summary": "Get logging status",
+        "operationId": "getLoggingStatus",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Logging status",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoggingStatus" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Set logging status",
+        "operationId": "setLoggingStatus",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          {
+            "name": "on",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated logging status",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LoggingStatus" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/log": {
+      "get": {
+        "summary": "Get log contents",
+        "operationId": "getLog",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Log contents as a string",
+            "content": {
+              "application/json": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Clear log",
+        "operationId": "clearLog",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Log cleared" }
+        }
+      }
+    },
+    "/admin/profiling": {
+      "get": {
+        "summary": "Get profiling status",
+        "operationId": "getProfilingStatus",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Profiling status",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProfilingStatus" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Set profiling status",
+        "operationId": "setProfilingStatus",
+        "security": [{ "ApiKeyAuth": [] }],
+        "parameters": [
+          {
+            "name": "on",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated profiling status",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProfilingStatus" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/profile": {
+      "get": {
+        "summary": "Get profiling data",
+        "operationId": "getProfile",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Array of profile entries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProfileEntry" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Clear profiling data",
+        "operationId": "clearProfile",
+        "security": [{ "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Profile data cleared" }
+        }
+      }
+    }
+  }
+}
