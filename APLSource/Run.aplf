@@ -7,20 +7,13 @@
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
  SQL.debug←debug
-⍝ Set up web service
- :If 0=⎕NC'service'
-     service←⎕NEW ##.Jarvis
-     service.CodeLocation←⎕THIS
-     service.Paradigm←'REST'
-     service.Port←2⊃⎕VFI GetEnv'service_port'
-     service.url←(GetEnv'service_url'),':',⍕service.Port
-     service.ErrorInfoLevel←2⌊debug
-     service.EnableCORS←1
-     service.CORS_Headers←'*'
-     service.CORS_Origin←'*'
-     service.Start
+⍝ Set up Stark router
+ :If 0=⎕NC'router'
+     router←⎕NEW #.Stark
+     router.Info←(title:'Dyalog Content Management System' ⋄ version:Version)
+     router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
- service.Debug←1⌊debug   ⍝ Only prevent Jarvis error trapping (1), do not pause on request when 1<DCMS.GLOBAL.debug
+ router.Debug←1⌊debug   ⍝ Only prevent Jarvis error trapping (1), do not pause on request when 1<DCMS.GLOBAL.debug
  ⎕←'Setting up data refresh timer...'
  :If 0=GLOBAL.⎕NC'data_refresh_timer'
      'data_refresh_timer'GLOBAL.⎕WC'Timer'
