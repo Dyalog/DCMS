@@ -32,7 +32,7 @@ GET /events?has_videos=true
 }]
 GET /videos?event_shortname={shortname}&presenter=[{id1},{id2}]&search={"searchterms"}
            &sort=relevance|newest|oldest
-           &per_page={n}&page={n}
+           &per_page={n}&page={m}
 {
     path: "",     // The URL for this endpoint
     per_page: 0,
