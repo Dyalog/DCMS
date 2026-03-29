@@ -189,10 +189,10 @@
         }
       },
       "CrudUpdated": {
-        "description": "Updated. Returns affected records.",
+        "description": "Updated. Returns the updated record.",
         "content": {
           "application/json": {
-            "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
+            "schema": { "$ref": "#/components/schemas/CrudItem" }
           }
         }
       }
