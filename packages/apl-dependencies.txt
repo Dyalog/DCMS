@@ -1,3 +1,4 @@
 dyalog-HttpCommand-5.9.3
 dyalog-Jarvis-1.20.5
 dyalog-NuGet-0.2.5
+bkaw-Stark-0.1.5
