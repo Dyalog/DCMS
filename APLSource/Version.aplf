@@ -1,2 +1,15 @@
  version←Version req
- version←'4.0.0'
+ :If req≡'⍠SPEC'
+     openapi_spec←(
+         tags:,⊂'System' ⋄ summary:'Get API version' ⋄ operationId:'getVersion'
+         responses:(
+             ⍙200:(
+                 description:'Version string'
+                 content:(⍙application⍙47⍙json:(schema:(type:'string' ⋄ example:'4.0.0')))
+             )
+         )
+     )
+     version←openapi_spec
+ :Else
+     version←'4.0.0'
+ :EndIf

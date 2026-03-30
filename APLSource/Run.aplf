@@ -11,12 +11,7 @@
  :If 0=⎕NC'router'
      router←⎕NEW #.Stark
      router.Info←(title:'Dyalog Content Management System' ⋄ version:Version'')
-     version_spec←(tags:,⊂'System' ⋄ summary:'Get API version' ⋄ operationId:'getVersion'
-         responses:(⍙200:(description:'Version string'
-                 content:(⍙application⍙47⍙json:(schema:(type:'string' ⋄ example:'4.0.0'))))
-         )
-     )
-     '/version'router.Get('Version'version_spec)
+     '/version'router.Get('Version' (Version'⍠SPEC'))
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
  router.Debug←1⌊debug   ⍝ Only prevent Jarvis error trapping (1), do not pause on request when 1<DCMS.GLOBAL.debug
