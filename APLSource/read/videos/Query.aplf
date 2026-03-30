@@ -1,4 +1,62 @@
  res←Query req;C;CACHE;Norm;Q;Stem;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;stemmer;terms;to;v
+ :If req≡'⍠SPEC'
+     res←(
+         tags:,⊂'Videos' ⋄ summary:'List and query videos' ⋄ operationId:'queryVideos'
+         description:'Returns a list of videos, optionally filtered by date range, presenter name, event name, and/or search terms. All responses use a paginated envelope format with `data`, pagination metadata, and navigation links.'
+         parameters:(
+             (name:'from' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
+             (name:'to'   ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
+             (name:'presenter'  ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'array' ⋄ items:(type:'integer')) ⋄ explode: ⊂'false' ⋄ description:'Comma-separated list of presenter IDs, e.g. "123,456"')
+             (name:'event'      ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string') ⋄ description: 'URL slug of event, e.g. "dyalog-23"')
+             (name:'search'     ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string') ⋄ description: 'Full-text search across video titles, descriptions, presenter names, and event names')
+             (name:'sort'       ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string'⋄enum:('relevance' 'newest' 'oldest')) ⋄ description:'Sort order of results. Defaults to "relevance" when `search` is supplied, otherwise "newest".')
+             (name:'page'       ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer'⋄minimum:1 ⋄ default: 1) ⋄ description:'Page number for paginated results.')
+             (name:'per_page'   ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer'⋄minimum:1 ⋄ default: 20) ⋄ description:'Number of results per page for paginated results. Defaults to 20.')
+         )
+         responses:(
+             ⍙200:(
+                 description:'Paginated video results'
+                 content:(⍙application⍙47⍙json:(schema:(type:'object' ⋄ properties:(
+                     path: (type: 'string' ⋄ description: 'URL for this endpoint')
+                     per_page: (type: 'integer')
+                     current_page: (type: 'integer')
+                     data: (type: 'array' ⋄ items:( ⍝ FIXME cross-check against Video schema ref
+                         type: 'object'
+                         properties:(
+                             id: (type: 'integer')
+                             title: (type: 'string')
+                             description: (type: 'string')
+                             presenter_names: (type: 'array' ⋄ items:(type:'string'))
+                             event_name: (type:'string')
+                             presented_at: (type:'string' ⋄ format:'date-time')
+                             url: (type:'string' ⋄ format:'uri')
+                         )
+                     ))
+                     from: (type: 'integer' ⋄ description: 'Ordinal of the first result on this page')
+                     to: (type: 'integer' ⋄ description: 'Ordinal of the last result on this page')
+                     total: (type: 'integer' ⋄ description: 'Total count of results for this query, across all pages')
+                     first_page: (type: 'integer' ⋄ description: 'Page number of the first page of results (always 1)')
+                     last_page: (type: 'integer' ⋄ description: 'Page number of the last page of results')
+                     first_page_url: (type: 'string' ⋄ format:'uri')
+                     prev_page_url: (type: 'string' ⋄ format:'uri')
+                     next_page_url: (type: 'string' ⋄ format:'uri')
+                     last_page_url: (type: 'string' ⋄ format:'uri')
+                     links: (type: 'array' ⋄ items: (
+                         type: 'object'
+                         description: 'Describes numbered, previous and next buttons for paginated results.'
+                         properties:(
+                            active: (type: 'boolean')
+                            label: (type: 'string')
+                            url: (type: 'string' ⋄ format:'uri' ⋄ nullable: ⊂'true')
+                         )
+                     ))
+                 ))))
+             )
+         )
+         
+     )
+     :Return
+ :EndIf
  (p v)←↓⍉req.QueryParams ⋄ v←RLTB¨v,⊂'' ⋄ v[⍸'null'∘≡¨v]←⊂'' ⋄ Q←{v⊃⍨p⍳⊆⍵}
  CACHE←##.##.CACHE
  C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
