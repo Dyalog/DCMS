@@ -67,7 +67,7 @@
  :Trap 11
      (fm to)←DT2DDN Q('from' '')('to' '')
  :Else
-     ⎕SIGNAL⊂('EN' 511)('Message' 'Invalid date-time')('Vendor' 'https://dcms.dyalog.com')
+     ⎕SIGNAL⊂('EN' 511)('Message' 'Invalid date-time')('Vendor' (##.##.GetEnv'URL'))
  :EndTrap
  in_range←(fm to)FilterDateTimes ddn←C'presented_at'
 
@@ -99,6 +99,6 @@
  res←##.Table2JSON CACHE.videos.fields⍪data
  (pg ppg)←2⊃∘⎕VFI¨Q('page' '1')('per_page' '20')
  :If 0≥pg
-     ⎕SIGNAL⊂('EN' 511)('Message' 'If supplied, page number must be a positive integer.')('Vendor'(##.##.GetEnv'service_url'))
+     ⎕SIGNAL⊂('EN' 511)('Message' 'If supplied, page number must be a positive integer.')('Vendor'(##.##.GetEnv'URL'))
  :EndIf
  res←('videos'pg ppg)##.Paginate res
