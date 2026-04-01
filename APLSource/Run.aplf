@@ -14,6 +14,7 @@
      router.Info←(title:'Dyalog Content Management System' ⋄ version:Version'')
      '/version'router.Get('Version' (Version'⍠SPEC'))
      '/videos' router.Get('read.videos.Query' (read.videos.Query'⍠SPEC'))
+     router.OnErrorFn←'HandleError'
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
  router.Debug←1⌊debug   ⍝ Only prevent Jarvis error trapping (1), do not pause on request when 1<DCMS.GLOBAL.debug

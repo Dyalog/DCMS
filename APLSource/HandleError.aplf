@@ -1,0 +1,10 @@
+ res←dmx HandleError req
+ ⎕←'EEORRRORO'
+ res←'error happened'
+ ⎕←req.Response.Status
+ :Select dmx.EN
+ :Case 511
+     dmx.Message req.Fail 400
+ :EndSelect
+ ⎕←req.Response.Status
+⍝ #.Admin.(Tests.General.Test_GETVideos_BadParameter GetEnv'URL')
