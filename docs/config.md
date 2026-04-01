@@ -27,11 +27,11 @@ Secrets are stored in `secrets/secrets.json5`. This file is gitignored — each 
 
 Global debug flag stored in `#.GLOBAL.debug`.
 
-This controls behaviour when errors occur.
+This controls error handling behaviour and developer debugging support. See [error-handling.md](error-handling.md) for the full scheme.
 
-|Value|Behaviour|
+| Value | Behaviour |
 |---|---|
-|0|All errors are trapped and the server responds 500.|
-|1|Expected errors are trapped and respond 500. Unexpected errors suspend execution.|
-|2|All errors suspend execution.|
-|>2|The APL system throws DOMAIN ERROR and the server does not start.|
+| 0 | Production — all errors trapped, HTTP status code responses or 500 |
+| 1 | Development — expected errors respond normally, unexpected errors suspend |
+| 2 | Strict debugging — all errors suspend execution |
+| 3 | Tracing — suspend on request entry for step-through debugging |
