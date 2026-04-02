@@ -7,7 +7,13 @@
  SQL←##.SQL
 
  CACHE.presenters←Table2JSON ep.presenters.fields⍪SQL.Do ep.presenters.sql
- CACHE.events←Table2JSON ep.events.fields⍪SQL.Do ep.events.sql
+ 'CACHE.events'⎕NS''
+ ⍝ has_videos is a derived column for filtering events with and without videos
+ ⍝ returned in the API response as enclosed strong for JSON boolean values
+ ⍝ stored in APL as numeric 0 and 1 for efficient filtering
+ CACHE.events.data←Table2JSON ep.events.fields⍪SQL.Do ep.events.sql
+ CACHE.events.has_videos←CACHE.events.data.has_videos
+ CACHE.events.data.has_videos←⊂¨'false' 'true'[1+CACHE.events.has_videos]
 
  vids←⎕NS''
  vids.fields←ep.videos.fields

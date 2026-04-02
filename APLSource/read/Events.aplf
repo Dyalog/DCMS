@@ -27,4 +27,4 @@
  ⍝ has_videos ← one of (0 1 2)
  ⍝ 0: only events without videos, 1: only events with videos, 2: all events (default)
  has_videos←¯1+'false' 'true'⍳⊂req.QueryParams ⎕VGET⊂'has_videos' 'ignore'
- res←##.CACHE.events⌿⍨(2=has_videos)∨(1⌊has_videos)=##.CACHE.events.has_videos
+ res←##.CACHE.events.data⌿⍨(2=has_videos)∨(1⌊has_videos)=##.CACHE.events.has_videos
