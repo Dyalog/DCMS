@@ -1,0 +1,17 @@
+ res←Presenters req
+ :If req≡'⍠SPEC'
+     res←(
+         tags:,⊂'Presenters' ⋄ summary:'List presenter names' ⋄ operationId:'getPresenters'
+         responses: (
+             ⍙200: (
+                 description: 'List of presenter names and IDs'
+                 content: (⍙application⍙47⍙json: (schema: (type:'object' ⋄ properties:(
+                     id: (type:'integer')
+                     name: (type:'string')
+                 ))))
+             )
+         )
+     )
+     :Return
+ :EndIf
+ res←##.CACHE.presenters

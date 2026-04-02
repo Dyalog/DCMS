@@ -6,7 +6,7 @@
  '##.CACHE'⎕NS'' ⋄ CACHE←##.CACHE
  SQL←##.SQL
 
- CACHE.presenters←,SQL.Do ep.presenters.sql
+ CACHE.presenters←Table2JSON ep.presenters.fields⍪SQL.Do ep.presenters.sql
  CACHE.dtv_events←Table2JSON ep.dtv_events.fields⍪SQL.Do ep.dtv_events.sql
 
  vids←⎕NS''

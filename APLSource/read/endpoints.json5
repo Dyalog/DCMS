@@ -1,6 +1,7 @@
 {
     presenters: {
-        sql: "SELECT DISTINCT name FROM person\
+        fields: ["name", "id"],
+        sql: "SELECT DISTINCT name, person_id FROM person\
                 LEFT JOIN presenter ON presenter.person_id = person.id\
                 LEFT JOIN presentation ON presenter.presentation_id = presentation.id\
                 LEFT JOIN presentation_media AS pm ON pm.presentation_id = presentation.id\

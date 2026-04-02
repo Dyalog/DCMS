@@ -12,8 +12,9 @@
  :If 0=⎕NC'router'
      router←⎕NEW #.Stark
      router.Info←(title:'Dyalog Content Management System' ⋄ version:Version'')
-     '/version'router.Get('Version' (Version'⍠SPEC'))
-     '/videos' router.Get('read.videos.Query' (read.videos.Query'⍠SPEC'))
+     '/version'    router.Get ('Version'           (Version'⍠SPEC'))
+     '/videos'     router.Get ('read.videos.Query' (read.videos.Query'⍠SPEC'))
+     '/presenters' router.Get ('read.Presenters'   (read.Presenters'⍠SPEC'))
      router.OnErrorFn←'HandleError'
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf

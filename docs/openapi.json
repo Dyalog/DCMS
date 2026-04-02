@@ -234,10 +234,16 @@
         "operationId": "getPresenters",
         "responses": {
           "200": {
-            "description": "Array of presenter names",
+            "description": "List of presenter names and IDs",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "type": "string" } }
+                "schema": { "type": "array", "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer" },
+                    "name": { "type": "string" }
+                  }
+                } }
               }
             }
           }
