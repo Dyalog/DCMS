@@ -15,6 +15,7 @@
      '/version'    router.Get ('Version'           (Version'⍠SPEC'))
      '/videos'     router.Get ('read.videos.Query' (read.videos.Query'⍠SPEC'))
      '/presenters' router.Get ('read.Presenters'   (read.Presenters'⍠SPEC'))
+     '/events'     router.Get ('read.Events'       (read.Events'⍠SPEC'))
      router.OnErrorFn←'HandleError'
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf

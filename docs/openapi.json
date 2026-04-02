@@ -260,13 +260,14 @@
           {
             "name": "has_videos",
             "in": "query",
+            "required": false,
             "schema": { "type": "boolean" },
-            "description": "Filter to events that have videos"
+            "description": "Filter whether events have videos of presentations."
           }
         ],
         "responses": {
           "200": {
-            "description": "Array of events",
+            "description": "List of events",
             "content": {
               "application/json": {
                 "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Event" } }

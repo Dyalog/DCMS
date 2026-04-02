@@ -31,12 +31,13 @@
         }
     },
 
-    dtv_events: {
-        fields: ["id", "title", "type", "url_slug"],
-        sql: "SELECT DISTINCT e.id,e.title,etype.type,e.url_slug FROM event AS e\
-                INNER JOIN event_type AS etype ON e.type = etype.id\
-                INNER JOIN presentation ON presentation.event_id = e.id\
-                INNER JOIN presentation_media AS pm ON pm.presentation_id = presentation.id\
-                WHERE pm.type = \"youtube_video\""
+    events: {
+        fields: ["id", "title", "type", "start", "end", "url_slug", "has_videos"],
+        sql: "SELECT DISTINCT e.id,e.title,etype.type,e.start,e.end,e.url_slug\
+                    ,EXISTS(SELECT 1 FROM presentation AS p2\
+                        INNER JOIN presentation_media AS pm ON pm.presentation_id = p2.id\
+                        WHERE p2.event_id = e.id AND pm.type = 'youtube_video') AS has_videos\
+                FROM event AS e\
+                INNER JOIN event_type AS etype ON e.type = etype.id"
     }
 }

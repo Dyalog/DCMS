@@ -7,7 +7,7 @@
  SQL←##.SQL
 
  CACHE.presenters←Table2JSON ep.presenters.fields⍪SQL.Do ep.presenters.sql
- CACHE.dtv_events←Table2JSON ep.dtv_events.fields⍪SQL.Do ep.dtv_events.sql
+ CACHE.events←Table2JSON ep.events.fields⍪SQL.Do ep.events.sql
 
  vids←⎕NS''
  vids.fields←ep.videos.fields
