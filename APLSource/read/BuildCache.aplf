@@ -1,4 +1,4 @@
- r←BuildCache opt;ep;CACHE;SQL;vids;vp;RLTB;dtcol;txtcol;norm;II;Values
+ r←BuildCache opt;CACHE;II;RLTB;SQL;Values;dtcol;ep;norm;pid;pname;title;txtcol;vids;vp;ytid
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Store simple character matrices for search
 ⍝ Create term-frequency inverse-document-frequency index for search
@@ -18,8 +18,13 @@
  vids←⎕NS''
  vids.fields←ep.videos.fields
  vids.values←SQL.Do ep.videos.sql
- vp←{⍵[;2],∘⊂⌸⍵[;3]}##.SQL.Do ep.videos.presenter.sql   ⍝ YouTube ID, presenter name
- vids.values,←⊃¨(⊣,', ',⊢)/¨(vp[;2]⍪⊂⊂'')[vp[;1]⍳vids.values[;vids.fields⍳⊂'youtube_id']]   ⍝ But should it be IDs? Or presenter_name, presenter_id?
+ (title ytid pname pid)←↓⍉##.SQL.Do ep.videos.presenter.sql   ⍝ YouTube ID, presenter name
+ (ytid pname pid)←↓⍉ytid{(pname pid)←↓⍉⍵ ⋄ ⍺,(⊃(⊣,', ',⊢)/pname)(pid)}⌸⍉↑pname pid
+ vids.values,←(pname,⊂'')[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
+ vids.values,←(pid,⊂⍬)[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
+
+ ⍝ FIXME mock video titles are lists of chars rather than strings
+ ⍝ ImportVideos opts.values
 
  :If (≢vids.fields)≠⊢/⍴vids.values
      'Videos endpoint number of fields does not match number of columns'⎕SIGNAL 42

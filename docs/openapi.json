@@ -75,17 +75,18 @@
       "Video": {
         "type": "object",
         "properties": {
-          "category":       { "type": "string" },
-          "description":    { "type": "string" },
-          "event":          { "type": "string" },
+          "category":        { "type": "string" },
+          "description":     { "type": "string" },
+          "event":           { "type": "string" },
           "event_shortname": { "type": "string" },
-          "presented_at":   { "type": "string", "format": "date-time", "description": "Presentation date as YYYY-MM-DD hh:mm:ss" },
-          "presenter":      { "type": "string", "description": "Comma-separated list of presenter names" },
-          "published_at":   { "type": "string", "format": "date-time", "description": "YouTube publish date as YYYY-MM-DD hh:mm:ss" },
-          "thumbnail":      { "type": "string" },
-          "title":          { "type": "string" },
-          "url":            { "type": "string" },
-          "youtube_id":     { "type": "string" }
+          "presented_at":    { "type": "string", "format": "date-time", "description": "Presentation date as YYYY-MM-DD hh:mm:ss" },
+          "presenter":       { "type": "string", "description": "Comma-separated list of presenter names" },
+          "presenter_id":    { "type": "array", "items": { "type": "integer" }, "description": "List of presenter IDs" },
+          "published_at":    { "type": "string", "format": "date-time", "description": "YouTube publish date as YYYY-MM-DD hh:mm:ss" },
+          "thumbnail":       { "type": "string", "format": "uri" },
+          "title":           { "type": "string" },
+          "url":             { "type": "string", "format": "uri" },
+          "youtube_id":      { "type": "string" }
         }
       },
       "PaginationLink": {
@@ -94,7 +95,7 @@
         "properties": {
           "active": { "type": "boolean" },
           "label":  { "type": "string" },
-          "url":    { "type": "string", "nullable": true }
+          "url":    { "type": "string", "format": "uri", "nullable": true }
         }
       },
       "PaginatedVideos": {
@@ -106,13 +107,13 @@
           "data":           { "type": "array", "items": { "$ref": "#/components/schemas/Video" } },
           "from":           { "type": "integer", "description": "Ordinal of the first result on this page" },
           "to":             { "type": "integer", "description": "Ordinal of the last result on this page" },
-          "total":          { "type": "integer", "description": "Total count of results for this query" },
+          "total":          { "type": "integer", "description": "Total count of results for this query, across all pages" },
           "first_page":     { "type": "integer" },
           "last_page":      { "type": "integer" },
-          "first_page_url": { "type": "string" },
-          "prev_page_url":  { "type": "string", "nullable": true },
-          "next_page_url":  { "type": "string", "nullable": true },
-          "last_page_url":  { "type": "string" },
+          "first_page_url": { "type": "string", "format": "uri" },
+          "prev_page_url":  { "type": "string", "format": "uri", "nullable": true },
+          "next_page_url":  { "type": "string", "format": "uri", "nullable": true },
+          "last_page_url":  { "type": "string", "format": "uri" },
           "links":          { "type": "array", "items": { "$ref": "#/components/schemas/PaginationLink" } }
         }
       },
@@ -282,8 +283,8 @@
       "get": {
         "tags": ["Videos"],
         "summary": "Search and list videos",
-        "operationId": "listVideos",
-        "description": "Returns a paginated envelope of video results. All responses use the envelope format with `data`, pagination metadata, and navigation links.",
+        "operationId": "read.videos.Query",
+        "description": "Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.",
         "parameters": [
           {
             "name": "event_shortname",

@@ -1,11 +1,33 @@
  res←Single req;CACHE;ytid;idx;id
- CACHE←##.##.CACHE
-
- id←8↓req.Endpoint
- :If 11≠≢id
-     res←req.Fail 400
+ #.last←req
+ :If '⍠SPEC'≡req
+     res←(tags:,⊂'Videos' ⋄ summary:'Get a single video' ⋄ operationId:'getVideo'
+         responses:(
+             ⍙200:(
+                 description:'A single video object'
+                 content:(⍙application⍙47⍙json:(schema:(type:'object' ⋄ properties:(
+                                 category:(type:'string')
+                                 description:(type:'string')
+                                 event:(type:'string')
+                                 event_shortname:(type:'string')
+                                 presented_at:(type:'string' ⋄ format:'date-time' ⋄ description:'Presentation date as YYYY-MM-DD hh:mm:ss')
+                                 presenter:(type:'string' ⋄ description:'Comma-separated list of presenter names')
+                                 presenter_id:(type:'array' ⋄ items:(type:'integer') ⋄ description:'List of presenter IDs')
+                                 published_at:(type:'string' ⋄ format:'date-time' ⋄ description:'YouTube publish date as YYYY-MM-DD hh:mm:ss')
+                                 thumbnail:(type:'string' ⋄ format:'uri')
+                                 title:(type:'string')
+                                 url:(type:'string' ⋄ format:'uri')
+                                 youtube_id:(type:'string')
+                             ))))
+             )
+         )
+     )
      :Return
  :EndIf
+
+ CACHE←##.##.CACHE
+
+ id←req.PathParams.youtube_id
 
  ytid←CACHE.videos.index_cols⊃⍨CACHE.videos.fields⍳⊂'youtube_id'
  idx←ytid⍳id

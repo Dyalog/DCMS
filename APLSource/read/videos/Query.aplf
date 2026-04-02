@@ -1,8 +1,9 @@
  res←Query req;C;CACHE;Norm;Q;Stem;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;stemmer;terms;to;v
+ ⍝
  :If req≡'⍠SPEC'
      res←(
-         tags:,⊂'Videos' ⋄ summary:'List and query videos' ⋄ operationId:'queryVideos'
-         description:'Returns a list of videos, optionally filtered by date range, presenter name, event name, and/or search terms. All responses use a paginated envelope format with `data`, pagination metadata, and navigation links.'
+         tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId:'read.videos.Query'
+         description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
          parameters:(
              (name:'from' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
              (name:'to' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
@@ -16,42 +17,46 @@
          responses:(
              ⍙200:(
                  description:'Paginated video results'
-                 
                  content:(⍙application⍙47⍙json:(schema:(type:'object' ⋄ properties:(
-                                 path:(type:'string' ⋄ description:'URL for this endpoint')
-                                 per_page:(type:'integer')
-                                 current_page:(type:'integer')
-                                 data:(type:'array' ⋄ items:( ⍝ FIXME cross-check against Video schema ref
-                                         type:'object'
-                                         properties:(
-                                             id:(type:'integer')
-                                             title:(type:'string')
-                                             description:(type:'string')
-                                             presenter_names:(type:'array' ⋄ items:(type:'string'))
-                                             event_name:(type:'string')
-                                             presented_at:(type:'string' ⋄ format:'date-time')
-                                             url:(type:'string' ⋄ format:'uri')
-                                         )
-                                     ))
-                                 from:(type:'integer' ⋄ description:'Ordinal of the first result on this page')
-                                 to:(type:'integer' ⋄ description:'Ordinal of the last result on this page')
-                                 total:(type:'integer' ⋄ description:'Total count of results for this query, across all pages')
-                                 first_page:(type:'integer' ⋄ description:'Page number of the first page of results (always 1)')
-                                 last_page:(type:'integer' ⋄ description:'Page number of the last page of results')
-                                 first_page_url:(type:'string' ⋄ format:'uri')
-                                 prev_page_url:(type:'string' ⋄ format:'uri')
-                                 next_page_url:(type:'string' ⋄ format:'uri')
-                                 last_page_url:(type:'string' ⋄ format:'uri')
-                                 links:(type:'array' ⋄ items:(
-                                         type:'object'
-                                         description:'Describes numbered, previous and next buttons for paginated results.'
-                                         properties:(
-                                             active:(type:'boolean')
-                                             label:(type:'string')
-                                             url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
-                                         )
-                                     ))
-                             ))))
+                     path:(type:'string' ⋄ description:'URL for this endpoint')
+                     per_page:(type:'integer')
+                     current_page:(type:'integer')
+                     data:(type:'array' ⋄ items:(
+                         type:'object'
+                         properties:(
+                             category: (type:'string')
+                             description: (type:'string')
+                             event: (type:'string')
+                             event_shortname: (type:'string')
+                             presented_at: (type:'string' ⋄ format:'date-time' ⋄ description:'Presentation date as YYYY-MM-DD hh:mm:ss')
+                             presenter: (type:'string' ⋄ description:'Comma-separated list of presenter names')
+                             presenter_id: (type:'array' ⋄ items:(type:'integer') ⋄ description:'List of presenter IDs')
+                             published_at: (type:'string' ⋄ format:'date-time' ⋄ description:'YouTube publish date as YYYY-MM-DD hh:mm:ss')
+                             thumbnail: (type:'string')
+                             title: (type:'string')
+                             url: (type:'string' ⋄ format:'uri')
+                             youtube_id: (type:'string')
+                         )
+                         ))
+                     from:(type:'integer' ⋄ description:'Ordinal of the first result on this page')
+                     to:(type:'integer' ⋄ description:'Ordinal of the last result on this page')
+                     total:(type:'integer' ⋄ description:'Total count of results for this query, across all pages')
+                     first_page:(type:'integer' ⋄ description:'Page number of the first page of results (always 1)')
+                     last_page:(type:'integer' ⋄ description:'Page number of the last page of results')
+                     first_page_url:(type:'string' ⋄ format:'uri')
+                     prev_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                     next_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                     last_page_url:(type:'string' ⋄ format:'uri')
+                     links:(type:'array' ⋄ items:(
+                         type:'object'
+                         description:'Describes numbered, previous and next buttons for paginated results.'
+                         properties:(
+                             active:(type:'boolean')
+                             label:(type:'string')
+                             url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                         )
+                    ))
+                 ))))
              )
          )
 
@@ -59,7 +64,6 @@
      :Return
  :EndIf
  Q←req.QueryParams∘⎕VGET
-⍝ (p v)←↓⍉req.QueryParams ⋄ v←RLTB¨v,⊂'' ⋄ v[⍸'null'∘≡¨v]←⊂'' ⋄ Q←{v⊃⍨p⍳⊆⍵}
  CACHE←##.##.CACHE
  C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
 

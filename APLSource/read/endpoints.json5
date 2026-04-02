@@ -10,7 +10,7 @@
 
     videos: {
         fields: ["title", "event", "event_shortname", "description", "presented_at", "published_at", "category", "url"
-                , "youtube_id", "thumbnail", "presenter"],
+                , "youtube_id", "thumbnail", "presenter", "presenter_id"],
         sql: "SELECT yt.title, e.title, e.url_slug, yt.description, p.presented_at, yt.published_at\
                     ,c.category, yt.url, yt.youtube_id, yt.thumbnail\
                 FROM presentation AS p\
@@ -20,7 +20,7 @@
                 LEFT JOIN presentation_category AS c ON c.id = p.category_id\
                 WHERE m.type = \"youtube_video\"",
         presenter: {
-            sql: "SELECT DISTINCT yt.title,yt.youtube_id,per.name\
+            sql: "SELECT DISTINCT yt.title,yt.youtube_id,per.name,per.id\
                     FROM presentation AS p\
                     RIGHT JOIN event AS e ON e.id = p.event_id\
                     INNER JOIN presentation_media AS m ON m.presentation_id = p.id\

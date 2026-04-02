@@ -1,0 +1,47 @@
+ Test_GETVideos←{
+⍝ Test that GET /videos returns an object of paginated video reults with the correct fields and types
+     H←##.##.##.HttpCommand
+     Assert←##.Assert
+     StringOrNull←{(' '=Type ⍵)∨(⊂'null')≡⍵}
+     res←H.GetJSON'GET'(⍵,'/videos')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     d←res.Data
+     Type←⊃0∘⍴
+     
+     Assert ' '=Type d.path:
+     Assert 0=Type d.per_page:
+     Assert 0=Type d.current_page:
+     Assert 1=≢⍴d.data:
+     Assert 0=Type d.from:
+     Assert 0=Type d.to:
+     Assert 0=Type d.total:
+     Assert 0=Type d.first_page:
+     Assert 0=Type d.last_page:
+     Assert ' '=Type d.first_page_url:
+     Assert StringOrNull d.prev_page_url:
+     Assert StringOrNull d.next_page_url:
+     Assert ' '=Type d.last_page_url:
+     Assert 1=≢⍴d.links:
+
+     v←d.data[1]
+     Assert ' '=Type v.category:
+     Assert ' '=Type v.description:
+     Assert ' '=Type v.event:
+     Assert ' '=Type v.event_shortname:
+     Assert ' '=Type v.presented_at:
+     Assert ' '=Type v.presenter:
+     Assert 1=≢⍴v.presenter_id:
+     Assert ' '=Type v.title:
+     Assert ' '=Type v.youtube_id:
+
+     pid←v.presenter_id[1]
+     Assert 0=Type pid:
+
+     l←d.links[1]
+     Assert ((0=≢∘⍴)∧(' '=Type∘⊃)) l.active:   ⍝ JSON Boolean ⊂'true' or ⊂'false'
+     Assert ' '=Type l.label:
+     Assert StringOrNull l.url:
+
+     1
+ }
