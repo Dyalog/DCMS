@@ -357,18 +357,19 @@
       "get": {
         "tags": ["Videos"],
         "summary": "Get video recommendations",
-        "operationId": "getRecommendations",
+        "operationId": "read.videos.Recommended",
         "parameters": [
           {
             "name": "n",
             "in": "query",
+            "required": false,
             "schema": { "type": "integer", "minimum": 1, "default": 5 },
             "description": "Number of recommendations to return"
           }
         ],
         "responses": {
           "200": {
-            "description": "Array of recommended videos",
+            "description": "List of recommended videos",
             "content": {
               "application/json": {
                 "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Video" } }
