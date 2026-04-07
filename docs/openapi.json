@@ -6,7 +6,7 @@
     "description": "REST API for the Dyalog Content Management System.\n\nPublic read endpoints serve cached, joined views of the data. Authenticated `/table/*` endpoints provide direct CRUD access to individual database tables. Admin endpoints control logging, profiling, and cache refresh.\n\nAll `/table/*` and `/admin/*` endpoints require an `X-API-Key` header. API keys are generated in the admin interface."
   },
   "servers": [
-    { "url": "/v4", "description": "API v4 base path" }
+    { "url": "https://dcms.dyalog.com", "description": "API base path" }
   ],
   "tags": [
     { "name": "System",  "description": "Version and health." },
