@@ -12,12 +12,12 @@
  :If 0=⎕NC'router'
      router←⎕NEW #.Stark
      router.Info←(title:'Dyalog Content Management System' ⋄ version:Version'')
-     '/version'             router.Get ('Version'            (Version'⍠SPEC'))
-     '/videos/{youtube_id}/recommendations' router.Get ('read.videos.Recommended' (read.videos.Recommended'⍠SPEC'))
-     '/videos/{youtube_id}' router.Get ('read.videos.Single' (read.videos.Single'⍠SPEC'))
-     '/videos'              router.Get ('read.videos.Query'  (read.videos.Query'⍠SPEC'))
-     '/presenters'          router.Get ('read.Presenters'    (read.Presenters'⍠SPEC'))
-     '/events'              router.Get ('read.Events'        (read.Events'⍠SPEC'))
+     '/version'                             router.Get('Version'                    (Version'⍠SPEC'))
+     '/videos/{youtube_id}/recommendations' router.Get('read.videos.Recommendations'(read.videos.Recommendations'⍠SPEC'))
+     '/videos/{youtube_id}'                 router.Get('read.videos.Single'         (read.videos.Single'⍠SPEC'))
+     '/videos'                              router.Get('read.videos.Query'          (read.videos.Query'⍠SPEC'))
+     '/presenters'                          router.Get('read.Presenters'            (read.Presenters'⍠SPEC'))
+     '/events'                              router.Get('read.Events'                (read.Events'⍠SPEC'))
      ⍝ FIXME operationId for endpoints should reference the function that handles the request
      router.OnErrorFn←'HandleError'
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'

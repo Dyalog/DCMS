@@ -1,4 +1,4 @@
- ComputeRecommended←{
+ ComputeRecommendations←{
 ⍝ ⍵: vector of character matrices of video titles, descriptions and presenters
 ⍝ ←: integer matrix
 ⍝    each row corresponds to one video in CACHE.videos
