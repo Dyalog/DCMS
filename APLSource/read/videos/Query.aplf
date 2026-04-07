@@ -1,6 +1,7 @@
- res←Query req;C;CACHE;Norm;Q;Stem;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;stemmer;terms;to;v
+ res←Query req;C;CACHE;Norm;Q;Stem;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;stemmer;terms;to;v;schemas
  ⍝
  :If req≡'⍠SPEC'
+     schemas←##.##.spec.components.schemas
      res←(
          tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId:'read.videos.Query'
          description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
@@ -21,23 +22,7 @@
                      path:(type:'string' ⋄ description:'URL for this endpoint')
                      per_page:(type:'integer')
                      current_page:(type:'integer')
-                     data:(type:'array' ⋄ items:(
-                         type:'object'
-                         properties:(
-                             category: (type:'string')
-                             description: (type:'string')
-                             event: (type:'string')
-                             event_shortname: (type:'string')
-                             presented_at: (type:'string' ⋄ format:'date-time' ⋄ description:'Presentation date as YYYY-MM-DD hh:mm:ss')
-                             presenter: (type:'string' ⋄ description:'Comma-separated list of presenter names')
-                             presenter_id: (type:'array' ⋄ items:(type:'integer') ⋄ description:'List of presenter IDs')
-                             published_at: (type:'string' ⋄ format:'date-time' ⋄ description:'YouTube publish date as YYYY-MM-DD hh:mm:ss')
-                             thumbnail: (type:'string')
-                             title: (type:'string')
-                             url: (type:'string' ⋄ format:'uri')
-                             youtube_id: (type:'string')
-                         )
-                         ))
+                     data:(type:'array' ⋄ items: schemas.video)
                      from:(type:'integer' ⋄ description:'Ordinal of the first result on this page')
                      to:(type:'integer' ⋄ description:'Ordinal of the last result on this page')
                      total:(type:'integer' ⋄ description:'Total count of results for this query, across all pages')
@@ -58,6 +43,18 @@
                     ))
                  ))))
              )
+             ⍙404:(
+                 description:'No videos found matching the query parameters'
+                 content:(⍙application⍙47⍙json:(schema: schemas.error))
+             )
+                ⍙422:(
+                    description:'Invalid query parameters'
+                    content:(⍙application⍙47⍙json:(schema: schemas.error))
+                )
+                ⍙500:(
+                    description:'Internal server error'
+                    content:(⍙application⍙47⍙json:(schema: schemas.error))
+                )
          )
 
      )

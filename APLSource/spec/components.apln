@@ -1,0 +1,41 @@
+:Namespace components
+
+   :Namespace schemas
+       video←(
+        type: 'object'
+        properties: (
+            category: (type: 'string')
+            description: (type: 'string')
+            event: (type: 'string')
+            event_shortname: (type: 'string')
+            presented_at: (type: 'string' ⋄ format: 'date-time' ⋄ description: 'Presentation date as YYYY-MM-DD hh:mm:ss')
+            presenter: (type: 'string' ⋄ description: 'Comma-separated list of presenter names')
+            presenter_id: (type: 'array' ⋄ items: (type: 'integer') ⋄ description: 'List of presenter IDs')
+            published_at: (type: 'string' ⋄ format: 'date-time' ⋄ description: 'YouTube publish date as YYYY-MM-DD hh:mm:ss')
+            thumbnail: (type: 'string' ⋄ format: 'uri')
+            title: (type: 'string')
+            url: (type: 'string' ⋄ format: 'uri')
+            youtube_id: (type: 'string')
+        )
+       )
+
+       error←(
+        type: 'object'
+        required: ('error' ⋄ 'message')
+        properties: (
+            error: (type: 'string' ⋄ description: 'Machine-readable error code')
+            message: (type: 'string' ⋄ description: 'Human-readable description')
+        )
+       )
+   :EndNamespace
+
+   :Namespace responses
+
+         not_found←(
+            description: 'Resource not found'
+            content: (⍙application⍙47⍙json: (schema: ##.schemas.error))
+        )
+
+   :EndNamespace
+
+:EndNamespace

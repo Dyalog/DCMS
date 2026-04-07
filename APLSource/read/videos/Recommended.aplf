@@ -1,5 +1,27 @@
- r←Recommended req;ytid;vids;this;fields;fid;rec;Q;n;Values;all_id
+ r←Recommended req;Q;Values;all_id;fid;fields;n;rec;schemas;this;vids;ytid
 ⍝ List of video objects most related to video with youtube_id given by "v" query parameter
+
+ :If '⍠SPEC'≡req
+     schemas←##.##.spec.components.schemas
+     r←(tags:,⊂'Videos' ⋄ summary:'Get video recommendations' ⋄ operationId:'read.videos.Recommended'
+         parameters:(
+             (name:'youtube_id' ⋄ in:'path' ⋄ required:⊂'true' ⋄ schema:(type:'string') ⋄ description:'11-character YouTube video ID')
+             (name:'n' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:5) ⋄ description:'Number of recommendations to return')
+         )
+         responses:(
+             ⍙200:(
+                 description:'List of recommended videos'
+                 content:(⍙application⍙47⍙json:(schema:(type:'array' ⋄ items: schemas.video)))
+             )
+             ⍙404: (
+                 description:'Video not found'
+                 content:(⍙application⍙47⍙json:(schema: schemas.error))
+             )
+         )
+     )
+     :Return
+ :EndIf
+
  Q←{⊃(req.QueryParams⍪⊂'')[req.QueryParams[;1]⍳⊂,⍵;2]}
  ytid←Q'v'
  n←{0∊⍴⍵:1 ⋄ 2⊃⎕VFI ⍵}Q'n'   ⍝ Number of results. Default 1.
