@@ -36,6 +36,7 @@
  event.type←?n⍴n
  event.url_slug←'-'@(' '∘=)¨¯1 ⎕C event.title
  event.⎕DF'event'
+ example_event←⊃event.url_slug   ⍝ Use example_event in DummyData.TestGETVideos_EventShortname
 
  organisation←()
  organisation.name←(vocab:thing_names ⋄ max:1)generator.Name n

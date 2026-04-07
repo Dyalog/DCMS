@@ -1,4 +1,4 @@
- res←Query req;C;CACHE;Norm;Q;Stem;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;stemmer;terms;to;v;schemas
+ res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;schemas;stemmer;terms;this;to;v
  ⍝
  :If req≡'⍠SPEC'
      schemas←##.##.spec.components.schemas
@@ -74,7 +74,7 @@
 
 ⍝ Filter by columns: presenter, event
  presenter←(Q⊂'presenter' '')FilterPresenter C'presenter'
- event←⊣/{1,⍣(0∊⍴⍵)⊢⍵}(Q⊂'event_shortname' '')⍷C'event_shortname'
+ event←((''≡this)∨this≢⍛=+/∧\' '≠all)∧⊣/(this←Q⊂'event_shortname' '')⍷all←C'event_shortname'
  filter←in_range∧presenter∧event
 
  Norm←##.##.Unidecode.NormaliseText
