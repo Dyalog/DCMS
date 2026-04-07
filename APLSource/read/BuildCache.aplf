@@ -11,7 +11,11 @@
  ⍝ has_videos is a derived column for filtering events with and without videos
  ⍝ returned in the API response as enclosed strong for JSON boolean values
  ⍝ stored in APL as numeric 0 and 1 for efficient filtering
+
  CACHE.events.data←Table2JSON ep.events.fields⍪SQL.Do ep.events.sql
+ :If 0=≢CACHE.events.data
+     CACHE.events.data←Table2JSON ep.events.fields⍪⊂''
+ :EndIf
  CACHE.events.has_videos←CACHE.events.data.has_videos
  CACHE.events.data.has_videos←⊂¨'false' 'true'[1+CACHE.events.has_videos]
 
@@ -19,7 +23,9 @@
  vids.fields←ep.videos.fields
  vids.values←SQL.Do ep.videos.sql
  (title ytid pname pid)←↓⍉##.SQL.Do ep.videos.presenter.sql   ⍝ YouTube ID, presenter name
- (ytid pname pid)←↓⍉ytid{(pname pid)←↓⍉⍵ ⋄ ⍺,(⊃(⊣,', ',⊢)/pname)(pid)}⌸⍉↑pname pid
+ :If 0<≢vids.values
+     (ytid pname pid)←↓⍉ytid{(pname pid)←↓⍉⍵ ⋄ ⍺,(⊃(⊣,', ',⊢)/pname)(pid)}⌸⍉↑pname pid
+ :EndIf
  vids.values,←(pname,⊂'')[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
  vids.values,←(pid,⊂⍬)[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
 
