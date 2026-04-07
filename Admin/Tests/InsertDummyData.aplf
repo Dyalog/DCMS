@@ -64,7 +64,7 @@
 
  presenter←()
  ⍝ Using fixed keys in the presenter and presentation_media tables ensures that stems are found in video results for testing
- presenter.(presentation_id person_id)←fixed_keys←(1 2)(1 2)
+ presenter.(presentation_id person_id)←fixed_keys←(1 2 3 3)(1 2 3 4)   ⍝ presentation 1 has presenter 1; presentation 2 has presenter 2; presentation 3 has presenters 3 and 4
  NotFixedKeys←{~∨/,(↑fixed_keys)⍷⍤1 2⊢⍵}
  presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0
  presenter.⎕DF'presenter'

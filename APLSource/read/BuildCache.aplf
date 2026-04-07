@@ -1,4 +1,4 @@
- r←BuildCache opt;CACHE;II;RLTB;SQL;Values;dtcol;ep;norm;pid;pname;title;txtcol;vids;vp;ytid
+ r←BuildCache opt;CACHE;II;RLTB;SQL;Values;dtcol;ep;nmat;norm;pid;pname;title;txtcol;vids;vp;ytid
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Store simple character matrices for search
 ⍝ Create term-frequency inverse-document-frequency index for search
@@ -42,9 +42,13 @@
  vids.index_all←vids.values
  (norm/vids.index_all)←##.Unidecode.NormaliseText¨(norm←vids.fields(~∊)⊆'youtube_id' 'url' 'presenter')/vids.index_all
  (dtcol txtcol)←(⍸,⍥⊂⍸∘~)vids.fields∊⊆'presented_at' 'published_at'
+ dtcol←vids.fields⍳⊆'presented_at' 'published_at'
+ nmat←vids.fields⍳⊆'presenter_id'
+ txtcol←(⍳≢vids.fields)~dtcol,nmat
  vids.index_all[;dtcol]←TS2DDN vids.index_all[;dtcol]
  vids.index_cols←↓⍉vids.index_all
  vids.index_cols[txtcol]←RLTB¨⍕∘⍪¨vids.index_cols[txtcol]
+ vids.index_cols[nmat]←↑¨vids.index_cols[nmat] ⍝ Presenter IDs as numeric matrix
  vids.index_all[;norm]←##.Unidecode.NormaliseText¨vids.index_all[;norm←vids.fields⍳⊂'presenter']
  vids.index_all←⍕vids.index_all
 ⍝ Similarity computation is expensive, so we perform it in an isolate

@@ -1,0 +1,8 @@
+ Test_GETVideos_PresenterID_Inclusive←{
+⍝ Test that ?presenter_id=3,4 returns only videos with both presenters
+     H←##.##.##.HttpCommand
+     res←H.GetJSON'GET'(⍵,'/videos?presenter_id=3,4')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     3 4∧.∊res.Data.data.presenter_id
+ }

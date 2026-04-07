@@ -74,8 +74,9 @@
 
 ⍝ Filter by columns: presenter, event
  presenter←(Q⊂'presenter' '')FilterPresenter C'presenter'
+ presenter_id←∧⌿∨/(2⊃','⎕VFI Q⊂'presenter_id' '')∘.=(C'presenter_id')
  event←((''≡this)∨this≢⍛=+/∧\' '≠all)∧⊣/(this←Q⊂'event_shortname' '')⍷all←C'event_shortname'
- filter←in_range∧presenter∧event
+ filter←in_range∧presenter∧event∧presenter_id
 
  Norm←##.##.Unidecode.NormaliseText
  stemmer←⎕NEW #.DCMS.Porter2Stemmer.EnglishPorter2Stemmer
