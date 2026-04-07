@@ -75,7 +75,7 @@
  videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
  videos.presentation_id←?n⍴n
  videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
- example_id←⊃videos.youtube_id   ⍝ Use example_id in DummyData.TestGETVideo
+ example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
 
  presentation_media←(type:n⍴⊂'youtube_video')
  presentation_media.(presentation_id media_id)←fixed_keys←(1 2)(1 2)

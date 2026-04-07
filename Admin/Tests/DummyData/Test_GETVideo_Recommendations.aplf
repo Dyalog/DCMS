@@ -3,7 +3,7 @@
      H←##.##.##.HttpCommand
      Assert←##.Assert
      StringOrNull←{(' '=Type ⍵)∨(⊂'null')≡⍵}
-     res←H.GetJSON'GET'(⍵,'/videos/',##.example_id,'/recommendations')
+     res←H.GetJSON'GET'(⍵,'/videos/',##.example_video,'/recommendations')
      200≠res.HttpStatus:0
      0∊⍴res.Data:0
      recs←res.Data
