@@ -214,7 +214,7 @@
       "get": {
         "tags": ["System"],
         "summary": "Get API version",
-        "operationId": "getVersion",
+        "operationId": "Version",
         "responses": {
           "200": {
             "description": "Version string",
