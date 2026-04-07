@@ -18,9 +18,8 @@
      Assert ' '=Type rec.presenter:
      Assert 1=≢⍴rec.presenter_id:
      Assert ' '=Type rec.title:
-     Assert ' '=Type rec.youtube_id
+     Assert ' '=Type rec.youtube_id:
      pid←rec.presenter_id[1]
      Assert 0=Type pid:
-
      1
  }
