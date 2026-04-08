@@ -59,7 +59,7 @@
  presentation.title[1],←⊂' dolor'   ⍝ Ensure a keyword is present in search results
  presentation.type_id←?n⍴n
  presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
- presentation.presented_at←generator.DateTime n
+ presentation.presented_at←'2005-04-03 00:00:00' '2008-05-05 00:00:00' '2012-12-12 00:00:00',generator.DateTime n-3   ⍝ Fixed dates for testing date range filtering
  presentation.⎕DF'presentation'
 
  presenter←()
