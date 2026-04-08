@@ -1,7 +1,7 @@
  version←Version req
  :If req≡'⍠SPEC'
      openapi_spec←(
-         tags:,⊂'System' ⋄ summary:'Get API version' ⋄ operationId:'Version'
+         tags:,⊂'System' ⋄ summary:'Get API version' ⋄ operationId: 'getVersion'
          responses:(
              ⍙200:(
                  description:'Version string'

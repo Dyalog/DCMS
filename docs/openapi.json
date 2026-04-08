@@ -280,7 +280,7 @@
       "get": {
         "tags": ["System"],
         "summary": "Get API version",
-        "operationId": "Version",
+        "operationId": "getVersion",
         "responses": {
           "200": {
             "description": "Version string",
@@ -349,7 +349,7 @@
       "get": {
         "tags": ["Videos"],
         "summary": "Search and list videos",
-        "operationId": "read.videos.Query",
+        "operationId": "getVideos",
         "description": "Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.",
         "parameters": [
           {
@@ -423,7 +423,7 @@
       "get": {
         "tags": ["Videos"],
         "summary": "Get video recommendations",
-        "operationId": "read.videos.Recommended",
+        "operationId": "getVideoRecommendations",
         "parameters": [
           {
             "name": "n",

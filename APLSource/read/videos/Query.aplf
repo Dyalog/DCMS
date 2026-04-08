@@ -3,7 +3,7 @@
  :If req≡'⍠SPEC'
      schemas←##.##.spec.components.schemas
      res←(
-         tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId:'read.videos.Query'
+         tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId: 'getVideos'
          description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
          parameters:(
              (name:'from' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
