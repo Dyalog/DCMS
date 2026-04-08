@@ -13,10 +13,12 @@
      1≥≢res.Data.data:0
      su←(⊂⍤⍋⍛⌷)pa←res.Data.data.presented_at
      su≢pa:0
-     res←H.GetJSON'GET'(⍵,'/videos?sort=relevance')
+⍝ search= required so Rank scores by term relevance, not natural index order
+     keyword←⊃##.generator.keywords
+     res←H.GetJSON'GET'(⍵,'/videos?search=',keyword,'&sort=relevance')
      200≠res.HttpStatus:0
      0∊⍴res.Data:0
      1≥≢res.Data.data:0
      pa←res.Data.data.presented_at
-     (pa≢su)∧(pa≢sd)   ⍝ 'relevance' is sorted neither up nor down. Test might need revising if another order is added
+     (pa≢su)∧(pa≢sd)
  }
