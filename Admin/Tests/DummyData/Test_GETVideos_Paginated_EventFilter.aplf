@@ -1,0 +1,10 @@
+ Test_GETVideos_Paginated_EventFilter←{
+⍝ Test that total count of results is consistent across paginated requests with an event_shortname filter
+     H←##.##.##.HttpCommand
+     r1←H.GetJSON'GET' (⍵,'/videos?event_shortname=',##.example_event)
+     200≠r1.HttpStatus:0
+     r2←H.GetJSON'GET' (⍵,'/videos?event_shortname=',##.example_event,'&per_page=3')
+     200≠r2.HttpStatus:0
+     (≢r1.Data.data)≠r2.Data.total:0
+     r1.Data.total=r2.Data.total
+ }
