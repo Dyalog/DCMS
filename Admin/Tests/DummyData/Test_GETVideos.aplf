@@ -30,9 +30,12 @@
      Assert ' '=Type v.event:
      Assert ' '=Type v.event_shortname:
      Assert ' '=Type v.presented_at:
+     Assert ' '=Type v.published_at:
      Assert ' '=Type v.presenter:
      Assert 1=≢⍴v.presenter_id:
+     Assert ' '=Type v.thumbnail:
      Assert ' '=Type v.title:
+     Assert ' '=Type v.url:
      Assert ' '=Type v.youtube_id:
 
      pid←v.presenter_id[1]

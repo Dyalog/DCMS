@@ -15,9 +15,12 @@
      Assert ' '=Type rec.event:
      Assert ' '=Type rec.event_shortname:
      Assert ' '=Type rec.presented_at:
+     Assert ' '=Type rec.published_at:
      Assert ' '=Type rec.presenter:
      Assert 1=≢⍴rec.presenter_id:
+     Assert ' '=Type rec.thumbnail:
      Assert ' '=Type rec.title:
+     Assert ' '=Type rec.url:
      Assert ' '=Type rec.youtube_id:
      pid←rec.presenter_id[1]
      Assert 0=Type pid:
