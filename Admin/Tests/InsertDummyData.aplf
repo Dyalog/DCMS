@@ -71,7 +71,8 @@
 
  ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
  videos←()
- videos.title←'wombo'⊂⍛,stems   ⍝ Unique keyword for search testing
+ example_search_term←'wombo'
+ videos.title←example_search_term⊂⍛,stems   ⍝ Unique keyword for search testing
  videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-1+≢stems
  videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
  example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
