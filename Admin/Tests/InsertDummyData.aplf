@@ -71,15 +71,14 @@
 
  ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
  videos←()
- videos.title←stems
- videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
- videos.presentation_id←?n⍴n
+ videos.title←'wombo'⊂⍛,stems   ⍝ Unique keyword for search testing
+ videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-1+≢stems
  videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
  example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
 
  presentation_media←(type:n⍴⊂'youtube_video')
  presentation_media.(presentation_id media_id)←fixed_keys←(1 2)(1 2)
- presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
+ presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n n}⍣{(NotFixedKeys ⍺)∧(∧/1<⊢/⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
  presentation_media.⎕DF'presentation_media'
 
  youtube_video←(

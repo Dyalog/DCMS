@@ -1,0 +1,9 @@
+ Test_GETVideos_SearchSingle←{
+⍝ Test that ?search=wombo returns only 1 video titled "wombo"
+     H←##.##.##.HttpCommand
+     res←H.GetJSON'GET'(⍵,'/videos?search=wombo')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     1≠≢res.Data.data:0
+     res.Data.data[1].title≡'wombo'
+ }
