@@ -52,7 +52,7 @@
 
  presentation←()
  presentation.event_id←?n⍴n-1   ⍝ events 1..n-1 only; event n guaranteed no presentations → has_videos=0
- presentation.event_id[1]←1     ⍝ presentation 1 → event 1; combined with fixed_keys, event 1 has has_videos=1
+ presentation.event_id[⍳6]←1    ⍝ presentation 1 → event 1; combined with fixed_keys, event 1 has has_videos=1
  presentation.code←(vocab:⎕A,⎕D ⋄ max:2 ⋄ unique:1)generator.Name n
  presentation.title←stems
  presentation.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
@@ -78,7 +78,7 @@
  example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
 
  presentation_media←(type:n⍴⊂'youtube_video')
- presentation_media.(presentation_id media_id)←fixed_keys←(1 2)(1 2)
+ presentation_media.(presentation_id media_id)←fixed_keys←(⍳6)(⍳6)
  presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n n}⍣{(NotFixedKeys ⍺)∧(∧/1<⊢/⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
  presentation_media.⎕DF'presentation_media'
 
