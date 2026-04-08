@@ -4,5 +4,5 @@
      res←H.GetJSON'GET'(⍵,'/videos?presenter_id=3,4')
      200≠res.HttpStatus:0
      0∊⍴res.Data:0
-     3 4∧.∊res.Data.data.presenter_id
+     ∧/,3 4∘.∊res.Data.data.presenter_id
  }
