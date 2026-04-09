@@ -26,9 +26,15 @@
      '/teapot'            router.Get 'Teapot'
 
      router.OnErrorFn←'HandleError'
+    ⍝ Make sure Jarvis can find authentication function until Stark supports middleware or similar for pre-processing requests
+     jarvis←router.GetJarvis
+     jarvis.AuthenticateFn←'##.##.AUTH.ControlAccess'
+     jarvis.HTTPAuthentication←'x-api-key'
+
+     router.Debug←1
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
- router.Debug←1⌊debug   ⍝ Only prevent Jarvis error trapping (1), do not pause on request when 1<DCMS.GLOBAL.debug
+ 
  ⎕←'Setting up data refresh timer...'
  :If 0=GLOBAL.⎕NC'data_refresh_timer'
      'data_refresh_timer'GLOBAL.⎕WC'Timer'

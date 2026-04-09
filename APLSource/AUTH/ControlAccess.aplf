@@ -1,0 +1,8 @@
+ControlAccess←{
+    ⎕←'authenticating... '
+    ⎕←⍵.Endpoint
+    restricted←⊆'/crud'
+    ∨/restricted(⊃⍷)¨⊂⍵.Endpoint: VerifyToken ⍵⊣⎕←'checking...'
+    ⎕←'NOT CHECKING'
+    0 ⍝ 0 means success, continue
+}
