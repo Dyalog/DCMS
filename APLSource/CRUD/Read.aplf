@@ -1,0 +1,64 @@
+ r←Read req;GBL;data;fields;id;idx;responses;schemas;table
+ :If 2=⎕NC'req'
+     (schemas responses parameters)←##.spec.components.(schemas responses parameters)
+ :EndIf
+ :If req≡'⍠SPEC'
+     r←(
+         tags:,⊂'Table CRUD' ⋄ summary:'List rows from table' ⋄ operationId:'listRows'
+         parameters:(parameters.Page ⋄ parameters.PerPage)
+         responses:(
+             ⍙200:(
+                 description:'Paginated list of table rows.'
+                 content:(⍙application⍙47⍙json:(schema:(allOf:(
+                                 schemas.pagination_envelope
+                                 (
+                                     type:'object'
+                                     properties:(data:(type:'array' ⋄ items:schemas.crud_item))
+                                 )
+                             ))))
+             )
+             ⍙404:responses.not_found
+         )
+     )
+     :Return
+ :ElseIf req≡'ID⍠SPEC'
+     r←(
+         tags:,⊂'Table CRUD' ⋄ summary:'Get row by ID' ⋄ operationId:'getRow'
+         responses:(
+             ⍙200:(
+                 description:'A single table row.'
+                 content:(⍙application⍙47⍙json:(schema:schemas.crud_item))
+             )
+             ⍙404:responses.not_found
+         )
+     )
+     :Return
+ :EndIf
+
+ #.last←req
+
+ table←req.PathParams ⎕VGET⊂'table' ''
+ GBL←##.GLOBAL
+ :If 0∊⍴table
+ :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
+     r←(error:404 ⋄ message:##.spec.components.responses.not_found.description)
+     req.Fail 404
+     :Return
+ :EndIf
+
+ fields←idx⊃GBL.columns
+
+ id←req.PathParams ⎕VGET⊂'id' ''
+ :If 0=≢id
+    ⍝ return whole table
+     data←##.SQL.Do'SELECT * FROM ',table
+     r←##.read.Table2JSON fields⍪data
+ :Else
+     data←##.SQL.Do'SELECT * FROM ',table,' WHERE id = ',id
+     :If 0=≢data
+         r←(error:404 ⋄ message:##.spec.components.responses.not_found.description)
+         req.Fail 404
+     :Else
+         r←##.read.Table2JSON fields⍪data
+     :EndIf
+ :EndIf
