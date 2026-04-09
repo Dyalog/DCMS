@@ -1,4 +1,4 @@
- Test_GetKeywords←{
+ Test_GETKeywords←{
 ⍝ Test free text search results include at least one keyword
      keywords←⊃(⊣,' ',⊢)/##.generator.keywords
      H←##.##.##.HttpCommand

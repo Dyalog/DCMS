@@ -3,18 +3,39 @@
   "info": {
     "title": "Dyalog Content Management System",
     "version": "4.0.0",
-    "description": "REST API for the Dyalog Content Management System.\n\nPublic read endpoints serve cached, joined views of the data. Authenticated `/table/*` endpoints provide direct CRUD access to individual database tables. Admin endpoints control logging, profiling, and cache refresh.\n\nAll `/table/*` and `/admin/*` endpoints require an `X-API-Key` header. API keys are generated in the admin interface."
+    "description": "REST API for the Dyalog Content Management System.\n\nPublic read endpoints serve cached, joined views of the data. Authenticated `/crud/*` endpoints provide direct CRUD access to individual database tables. Admin endpoints control logging, profiling, and cache refresh.\n\nAll `/crud/*` and `/admin/*` endpoints require an `X-API-Key` header. API keys are generated in the admin interface."
   },
   "servers": [
-    { "url": "/v4", "description": "API v4 base path" }
+    {
+      "url": "https://dcms.dyalog.com",
+      "description": "API base path"
+    }
   ],
   "tags": [
-    { "name": "System",  "description": "Version and health." },
-    { "name": "Videos",  "description": "Public read-only video endpoints (cached, joined views)." },
-    { "name": "Events",  "description": "Public read-only event endpoints." },
-    { "name": "Presenters", "description": "Public read-only presenter endpoints." },
-    { "name": "Table CRUD", "description": "Authenticated CRUD on individual database tables." },
-    { "name": "Admin",   "description": "Administrative operations: cache refresh, logging, profiling." }
+    {
+      "name": "System",
+      "description": "Version and health."
+    },
+    {
+      "name": "Videos",
+      "description": "Public read-only video endpoints (cached, joined views)."
+    },
+    {
+      "name": "Events",
+      "description": "Public read-only event endpoints."
+    },
+    {
+      "name": "Presenters",
+      "description": "Public read-only presenter endpoints."
+    },
+    {
+      "name": "Table CRUD",
+      "description": "Authenticated CRUD on database tables via parameterised `/crud/{table}` routes."
+    },
+    {
+      "name": "Admin",
+      "description": "Administrative operations: cache refresh, logging, profiling."
+    }
   ],
   "components": {
     "securitySchemes": {
@@ -25,101 +46,215 @@
       }
     },
     "parameters": {
+      "TableName": {
+        "name": "table",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "person",
+            "organisation",
+            "event",
+            "event_type",
+            "presentation",
+            "presentation_type",
+            "presentation_category",
+            "presenter",
+            "presentation_media",
+            "youtube_video",
+            "media_general"
+          ]
+        },
+        "description": "Database table name"
+      },
       "TableId": {
         "name": "id",
         "in": "path",
         "required": true,
-        "schema": { "type": "integer" },
+        "schema": {
+          "type": "integer"
+        },
         "description": "Row ID"
       },
       "YoutubeId": {
         "name": "youtube_id",
         "in": "path",
         "required": true,
-        "schema": { "type": "string" },
+        "schema": {
+          "type": "string"
+        },
         "description": "11-character YouTube video ID"
       },
       "PerPage": {
         "name": "per_page",
         "in": "query",
-        "schema": { "type": "integer", "minimum": 1, "default": 20 },
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 20
+        },
         "description": "Number of results per page."
       },
       "Page": {
         "name": "page",
         "in": "query",
-        "schema": { "type": "integer", "minimum": 1, "default": 1 },
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
         "description": "Page number."
       }
     },
     "schemas": {
       "Error": {
         "type": "object",
-        "required": ["error", "message"],
+        "required": [
+          "error",
+          "message"
+        ],
         "properties": {
-          "error":   { "type": "string", "description": "Machine-readable error code" },
-          "message": { "type": "string", "description": "Human-readable description" }
-        }
-      },
-      "Event": {
-        "type": "object",
-        "properties": {
-          "id":       { "type": "integer" },
-          "title":    { "type": "string" },
-          "type":     { "type": "string" },
-          "start":    { "type": "string", "format": "date", "description": "YYYY-MM-DD" },
-          "end":      { "type": "string", "format": "date", "description": "YYYY-MM-DD" },
-          "url_slug": { "type": "string" }
+          "error": {
+            "type": "string",
+            "description": "Machine-readable error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable description"
+          }
         }
       },
       "Video": {
         "type": "object",
         "properties": {
-          "category":       { "type": "string" },
-          "description":    { "type": "string" },
-          "event":          { "type": "string" },
-          "event_shortname": { "type": "string" },
-          "presented_at":   { "type": "string", "format": "date-time", "description": "Presentation date as YYYY-MM-DD hh:mm:ss" },
-          "presenter":      { "type": "string", "description": "Comma-separated list of presenter names" },
-          "published_at":   { "type": "string", "format": "date-time", "description": "YouTube publish date as YYYY-MM-DD hh:mm:ss" },
-          "thumbnail":      { "type": "string" },
-          "title":          { "type": "string" },
-          "url":            { "type": "string" },
-          "youtube_id":     { "type": "string" }
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string"
+          },
+          "event_shortname": {
+            "type": "string"
+          },
+          "presented_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Presentation date as YYYY-MM-DD hh:mm:ss"
+          },
+          "presenter": {
+            "type": "string",
+            "description": "Comma-separated list of presenter names"
+          },
+          "presenter_id": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "List of presenter IDs"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "YouTube publish date as YYYY-MM-DD hh:mm:ss"
+          },
+          "thumbnail": {
+            "type": "string",
+            "format": "uri"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "youtube_id": {
+            "type": "string"
+          }
         }
       },
-      "PaginationLink": {
+      "PaginationEnvelope": {
         "type": "object",
-        "description": "Describes a numbered, previous, or next button for paginated results.",
+        "description": "Pagination metadata wrapper. The 'data' field type varies by endpoint.",
         "properties": {
-          "active": { "type": "boolean" },
-          "label":  { "type": "string" },
-          "url":    { "type": "string", "nullable": true }
-        }
-      },
-      "PaginatedVideos": {
-        "type": "object",
-        "properties": {
-          "path":           { "type": "string", "description": "The URL for this endpoint" },
-          "per_page":       { "type": "integer" },
-          "current_page":   { "type": "integer" },
-          "data":           { "type": "array", "items": { "$ref": "#/components/schemas/Video" } },
-          "from":           { "type": "integer", "description": "Ordinal of the first result on this page" },
-          "to":             { "type": "integer", "description": "Ordinal of the last result on this page" },
-          "total":          { "type": "integer", "description": "Total count of results for this query" },
-          "first_page":     { "type": "integer" },
-          "last_page":      { "type": "integer" },
-          "first_page_url": { "type": "string" },
-          "prev_page_url":  { "type": "string", "nullable": true },
-          "next_page_url":  { "type": "string", "nullable": true },
-          "last_page_url":  { "type": "string" },
-          "links":          { "type": "array", "items": { "$ref": "#/components/schemas/PaginationLink" } }
+          "path": {
+            "type": "string",
+            "description": "The URL for this endpoint"
+          },
+          "per_page": {
+            "type": "integer"
+          },
+          "current_page": {
+            "type": "integer"
+          },
+          "from": {
+            "type": "integer",
+            "description": "Ordinal of the first result on this page"
+          },
+          "to": {
+            "type": "integer",
+            "description": "Ordinal of the last result on this page"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total count of results for this query, across all pages"
+          },
+          "first_page": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "first_page_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "prev_page_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "next_page_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "last_page_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "Describes a numbered, previous, or next button for paginated results.",
+              "properties": {
+                "active": {
+                  "type": "boolean"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "nullable": true
+                }
+              }
+            }
+          }
         }
       },
       "CrudItem": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer" }
+          "id": {
+            "type": "integer"
+          }
         },
         "additionalProperties": true,
         "description": "A table row. Fields beyond 'id' depend on the specific table."
@@ -127,19 +262,13 @@
       "ToggleStatus": {
         "type": "object",
         "properties": {
-          "on": { "type": "boolean" }
+          "on": {
+            "type": "boolean"
+          }
         },
-        "required": ["on"]
-      },
-      "ProfileEntry": {
-        "type": "object",
-        "properties": {
-          "fn_name":        { "type": "string" },
-          "line_no":        { "type": "integer" },
-          "n_calls":        { "type": "integer" },
-          "exclusive_time": { "type": "number", "format": "double", "description": "Time in this function, excluding called functions" },
-          "inclusive_time": { "type": "number", "format": "double", "description": "Time in this function, including called functions" }
-        }
+        "required": [
+          "on"
+        ]
       }
     },
     "responses": {
@@ -147,8 +276,13 @@
         "description": "Missing or invalid API key.",
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/Error" },
-            "example": { "error": "unauthorized", "message": "Missing or invalid X-API-Key header" }
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "unauthorized",
+              "message": "Missing or invalid X-API-Key header"
+            }
           }
         }
       },
@@ -156,62 +290,27 @@
         "description": "Resource not found.",
         "content": {
           "application/json": {
-            "schema": { "$ref": "#/components/schemas/Error" },
-            "example": { "error": "not_found", "message": "The requested resource does not exist" }
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "not_found",
+              "message": "The requested resource does not exist"
+            }
           }
         }
       },
       "NoContent": {
         "description": "Deleted successfully. No content returned."
-      },
-      "CrudList": {
-        "description": "Array of table rows.",
-        "content": {
-          "application/json": {
-            "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
-          }
-        }
-      },
-      "CrudSingle": {
-        "description": "A single table row.",
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/CrudItem" }
-          }
-        }
-      },
-      "CrudCreated": {
-        "description": "Created. Returns affected records.",
-        "content": {
-          "application/json": {
-            "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CrudItem" } }
-          }
-        }
-      },
-      "CrudUpdated": {
-        "description": "Updated. Returns the updated record.",
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/CrudItem" }
-          }
-        }
-      }
-    },
-    "requestBodies": {
-      "CrudItemBody": {
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/CrudItem" }
-          }
-        }
       }
     }
   },
   "paths": {
     "/version": {
       "get": {
-        "tags": ["System"],
+        "tags": [
+          "System"
+        ],
         "summary": "Get API version",
         "operationId": "getVersion",
         "responses": {
@@ -219,75 +318,133 @@
             "description": "Version string",
             "content": {
               "application/json": {
-                "schema": { "type": "string", "example": "4.0.0" }
+                "schema": {
+                  "type": "string",
+                  "example": "4.0.0"
+                }
               }
             }
           }
         }
       }
     },
-
     "/presenters": {
       "get": {
-        "tags": ["Presenters"],
+        "tags": [
+          "Presenters"
+        ],
         "summary": "List presenter names",
         "operationId": "getPresenters",
         "responses": {
           "200": {
-            "description": "Array of presenter names",
+            "description": "List of presenter names and IDs",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "type": "string" } }
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
               }
             }
           }
         }
       }
     },
-
     "/events": {
       "get": {
-        "tags": ["Events"],
+        "tags": [
+          "Events"
+        ],
         "summary": "List events",
         "operationId": "getEvents",
         "parameters": [
           {
             "name": "has_videos",
             "in": "query",
-            "schema": { "type": "boolean" },
-            "description": "Filter to events that have videos"
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filter whether events have videos of presentations."
           }
         ],
         "responses": {
           "200": {
-            "description": "Array of events",
+            "description": "List of events",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Event" } }
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "start": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "YYYY-MM-DD"
+                      },
+                      "end": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "YYYY-MM-DD"
+                      },
+                      "url_slug": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
               }
             }
           }
         }
       }
     },
-
     "/videos": {
       "get": {
-        "tags": ["Videos"],
+        "tags": [
+          "Videos"
+        ],
         "summary": "Search and list videos",
-        "operationId": "listVideos",
-        "description": "Returns a paginated envelope of video results. All responses use the envelope format with `data`, pagination metadata, and navigation links.",
+        "operationId": "getVideos",
+        "description": "Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.",
         "parameters": [
           {
             "name": "event_shortname",
             "in": "query",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Filter by event shortname"
           },
           {
             "name": "presenter",
             "in": "query",
-            "schema": { "type": "array", "items": { "type": "integer" } },
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
             "style": "form",
             "explode": false,
             "description": "Filter by presenter IDs (comma-separated)"
@@ -295,37 +452,70 @@
           {
             "name": "search",
             "in": "query",
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "Full-text search across titles, descriptions, presenter names, and event names"
           },
           {
             "name": "sort",
             "in": "query",
-            "schema": { "type": "string", "enum": ["relevance", "newest", "oldest"] },
+            "schema": {
+              "type": "string",
+              "enum": [
+                "relevance",
+                "newest",
+                "oldest"
+              ]
+            },
             "description": "Sort order. Defaults to `relevance` when `search` is supplied, otherwise `newest`."
           },
-          { "$ref": "#/components/parameters/PerPage" },
-          { "$ref": "#/components/parameters/Page" }
+          {
+            "$ref": "#/components/parameters/PerPage"
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          }
         ],
         "responses": {
           "200": {
             "description": "Paginated video results",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/PaginatedVideos" }
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Video"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
               }
             }
           }
         }
       }
     },
-
     "/videos/{youtube_id}": {
       "parameters": [
-        { "$ref": "#/components/parameters/YoutubeId" }
+        {
+          "$ref": "#/components/parameters/YoutubeId"
+        }
       ],
       "get": {
-        "tags": ["Videos"],
+        "tags": [
+          "Videos"
+        ],
         "summary": "Get a single video",
         "operationId": "getVideo",
         "responses": {
@@ -333,759 +523,443 @@
             "description": "A single video object",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Video" }
+                "schema": {
+                  "$ref": "#/components/schemas/Video"
+                }
               }
             }
           },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       }
     },
-
     "/videos/{youtube_id}/recommendations": {
       "parameters": [
-        { "$ref": "#/components/parameters/YoutubeId" }
+        {
+          "$ref": "#/components/parameters/YoutubeId"
+        }
       ],
       "get": {
-        "tags": ["Videos"],
+        "tags": [
+          "Videos"
+        ],
         "summary": "Get video recommendations",
-        "operationId": "getRecommendations",
+        "operationId": "getVideoRecommendations",
         "parameters": [
           {
             "name": "n",
             "in": "query",
-            "schema": { "type": "integer", "minimum": 1, "default": 5 },
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 5
+            },
             "description": "Number of recommendations to return"
           }
         ],
         "responses": {
           "200": {
-            "description": "Array of recommended videos",
+            "description": "List of recommended videos",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Video" } }
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Video"
+                  }
+                }
               }
             }
           },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       }
     },
-
-    "/table/person": {
+    "/crud/{table}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TableName"
+        }
+      ],
       "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List persons",
-        "operationId": "listPersons",
-        "security": [{ "ApiKeyAuth": [] }],
+        "tags": [
+          "Table CRUD"
+        ],
+        "summary": "List rows",
+        "operationId": "listRows",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PerPage"
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          }
+        ],
         "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "200": {
+            "description": "Paginated list of table rows.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CrudItem"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       },
       "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create a person",
-        "operationId": "createPerson",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
+        "tags": [
+          "Table CRUD"
+        ],
+        "summary": "Create rows",
+        "operationId": "createRows",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CrudItem"
+                }
+              }
+            }
+          }
+        },
         "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "201": {
+            "description": "Created. Returns affected records.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CrudItem"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       }
     },
-    "/table/person/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
+    "/crud/{table}/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TableName"
+        },
+        {
+          "$ref": "#/components/parameters/TableId"
+        }
+      ],
       "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get a person by ID",
-        "operationId": "getPerson",
-        "security": [{ "ApiKeyAuth": [] }],
+        "tags": [
+          "Table CRUD"
+        ],
+        "summary": "Get row by ID",
+        "operationId": "getRow",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "200": {
+            "description": "A single table row.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrudItem"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       },
       "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update a person",
-        "operationId": "updatePerson",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
+        "tags": [
+          "Table CRUD"
+        ],
+        "summary": "Update a row",
+        "operationId": "updateRow",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrudItem"
+              }
+            }
+          }
+        },
         "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "200": {
+            "description": "Updated. Returns the updated record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrudItem"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       },
       "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete a person",
-        "operationId": "deletePerson",
-        "security": [{ "ApiKeyAuth": [] }],
+        "tags": [
+          "Table CRUD"
+        ],
+        "summary": "Delete a row",
+        "operationId": "deleteRow",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Delete blocked by foreign key constraint.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "message"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "fk_conflict"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "blocking_table": {
+                      "type": "string",
+                      "description": "Table holding dependent rows"
+                    },
+                    "dependent_count": {
+                      "type": "integer",
+                      "description": "Number of dependent rows, if available"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
-
-    "/table/organisation": {
+    "/crud/{table}/schema": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TableName"
+        }
+      ],
       "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List organisations",
-        "operationId": "listOrganisations",
-        "security": [{ "ApiKeyAuth": [] }],
+        "tags": [
+          "Table CRUD"
+        ],
+        "summary": "Get table column metadata",
+        "operationId": "getTableSchema",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create an organisation",
-        "operationId": "createOrganisation",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      }
-    },
-    "/table/organisation/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get an organisation by ID",
-        "operationId": "getOrganisation",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update an organisation",
-        "operationId": "updateOrganisation",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete an organisation",
-        "operationId": "deleteOrganisation",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
-    "/table/event_type": {
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List event types",
-        "operationId": "listEventTypes",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create an event type",
-        "operationId": "createEventType",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "200": {
+            "description": "Column metadata for the table.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "table",
+                    "columns"
+                  ],
+                  "properties": {
+                    "table": {
+                      "type": "string"
+                    },
+                    "columns": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "type"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Column name"
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "SQAPL type code (e.g. '<I', '<C128', '<D', '<C19')"
+                          },
+                          "length": {
+                            "type": "integer",
+                            "description": "Column size from database metadata"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
         }
       }
     },
-    "/table/event_type/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get an event type by ID",
-        "operationId": "getEventType",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update an event type",
-        "operationId": "updateEventType",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete an event type",
-        "operationId": "deleteEventType",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
-    "/table/event": {
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List events (raw table)",
-        "operationId": "listEventRows",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create an event",
-        "operationId": "createEvent",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      }
-    },
-    "/table/event/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get an event by ID",
-        "operationId": "getEventRow",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update an event",
-        "operationId": "updateEvent",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete an event",
-        "operationId": "deleteEvent",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
-    "/table/presentation_type": {
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List presentation types",
-        "operationId": "listPresentationTypes",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create a presentation type",
-        "operationId": "createPresentationType",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      }
-    },
-    "/table/presentation_type/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get a presentation type by ID",
-        "operationId": "getPresentationType",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update a presentation type",
-        "operationId": "updatePresentationType",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete a presentation type",
-        "operationId": "deletePresentationType",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
-    "/table/presentation_category": {
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List presentation categories",
-        "operationId": "listPresentationCategories",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create a presentation category",
-        "operationId": "createPresentationCategory",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      }
-    },
-    "/table/presentation_category/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get a presentation category by ID",
-        "operationId": "getPresentationCategory",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update a presentation category",
-        "operationId": "updatePresentationCategory",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete a presentation category",
-        "operationId": "deletePresentationCategory",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
-    "/table/presentation": {
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List presentations",
-        "operationId": "listPresentations",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create a presentation",
-        "operationId": "createPresentation",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      }
-    },
-    "/table/presentation/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get a presentation by ID",
-        "operationId": "getPresentation",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update a presentation",
-        "operationId": "updatePresentation",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete a presentation",
-        "operationId": "deletePresentation",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
-    "/table/presentation_media": {
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List presentation media",
-        "operationId": "listPresentationMedia",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create a presentation media record",
-        "operationId": "createPresentationMedia",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      }
-    },
-    "/table/presentation_media/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get a presentation media record by ID",
-        "operationId": "getPresentationMedia",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update a presentation media record",
-        "operationId": "updatePresentationMedia",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete a presentation media record",
-        "operationId": "deletePresentationMedia",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
-    "/table/youtube_video": {
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List YouTube video records",
-        "operationId": "listYoutubeVideos",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create a YouTube video record",
-        "operationId": "createYoutubeVideo",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      }
-    },
-    "/table/youtube_video/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get a YouTube video record by ID",
-        "operationId": "getYoutubeVideo",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update a YouTube video record",
-        "operationId": "updateYoutubeVideo",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete a YouTube video record",
-        "operationId": "deleteYoutubeVideo",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
-    "/table/media_general": {
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List general media records",
-        "operationId": "listMediaGeneral",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create a general media record",
-        "operationId": "createMediaGeneral",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      }
-    },
-    "/table/media_general/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get a general media record by ID",
-        "operationId": "getMediaGeneral",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update a general media record",
-        "operationId": "updateMediaGeneral",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete a general media record",
-        "operationId": "deleteMediaGeneral",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
-    "/table/presenter": {
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "List presenter records",
-        "operationId": "listPresenterRecords",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudList" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      },
-      "post": {
-        "tags": ["Table CRUD"],
-        "summary": "Create a presenter record",
-        "operationId": "createPresenter",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "201": { "$ref": "#/components/responses/CrudCreated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
-        }
-      }
-    },
-    "/table/presenter/{id}": {
-      "parameters": [{ "$ref": "#/components/parameters/TableId" }],
-      "get": {
-        "tags": ["Table CRUD"],
-        "summary": "Get a presenter record by ID",
-        "operationId": "getPresenterRecord",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudSingle" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "patch": {
-        "tags": ["Table CRUD"],
-        "summary": "Update a presenter record",
-        "operationId": "updatePresenter",
-        "security": [{ "ApiKeyAuth": [] }],
-        "requestBody": { "$ref": "#/components/requestBodies/CrudItemBody" },
-        "responses": {
-          "200": { "$ref": "#/components/responses/CrudUpdated" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      },
-      "delete": {
-        "tags": ["Table CRUD"],
-        "summary": "Delete a presenter record",
-        "operationId": "deletePresenter",
-        "security": [{ "ApiKeyAuth": [] }],
-        "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" },
-          "404": { "$ref": "#/components/responses/NotFound" }
-        }
-      }
-    },
-
     "/admin/refresh": {
       "put": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Refresh cached API data",
         "operationId": "adminRefresh",
         "description": "Rebuilds the cached joined views served by the public read endpoints.",
-        "security": [{ "ApiKeyAuth": [] }],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       }
     },
-
     "/admin/logging": {
       "get": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Get logging status",
         "operationId": "getLoggingStatus",
-        "security": [{ "ApiKeyAuth": [] }],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Current logging status",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ToggleStatus" }
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleStatus"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       },
       "put": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Enable or disable logging",
         "operationId": "setLoggingStatus",
-        "security": [{ "ApiKeyAuth": [] }],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "on",
             "in": "query",
             "required": true,
-            "schema": { "type": "boolean" },
+            "schema": {
+              "type": "boolean"
+            },
             "description": "Set to true to enable logging, false to disable"
           }
         ],
@@ -1094,74 +968,114 @@
             "description": "Updated logging status",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ToggleStatus" }
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleStatus"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       }
     },
-
     "/admin/log": {
       "get": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Get log contents",
         "operationId": "getLog",
-        "security": [{ "ApiKeyAuth": [] }],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Log contents as plain text",
             "content": {
               "application/json": {
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       },
       "delete": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Clear log",
         "operationId": "clearLog",
-        "security": [{ "ApiKeyAuth": [] }],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       }
     },
-
     "/admin/profiling": {
       "get": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Get profiling status",
         "operationId": "getProfilingStatus",
-        "security": [{ "ApiKeyAuth": [] }],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Current profiling status",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ToggleStatus" }
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleStatus"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       },
       "put": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Enable or disable profiling",
         "operationId": "setProfilingStatus",
-        "security": [{ "ApiKeyAuth": [] }],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "on",
             "in": "query",
             "required": true,
-            "schema": { "type": "boolean" },
+            "schema": {
+              "type": "boolean"
+            },
             "description": "Set to true to enable profiling, false to disable"
           }
         ],
@@ -1170,41 +1084,88 @@
             "description": "Updated profiling status",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ToggleStatus" }
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleStatus"
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       }
     },
-
     "/admin/profile": {
       "get": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Get profiling data",
         "operationId": "getProfile",
-        "security": [{ "ApiKeyAuth": [] }],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Array of profile entries",
             "content": {
               "application/json": {
-                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ProfileEntry" } }
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fn_name": {
+                        "type": "string"
+                      },
+                      "line_no": {
+                        "type": "integer"
+                      },
+                      "n_calls": {
+                        "type": "integer"
+                      },
+                      "exclusive_time": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Time in this function, excluding called functions"
+                      },
+                      "inclusive_time": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Time in this function, including called functions"
+                      }
+                    }
+                  }
+                }
               }
             }
           },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       },
       "delete": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Clear profiling data",
         "operationId": "clearProfile",
-        "security": [{ "ApiKeyAuth": [] }],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "responses": {
-          "204": { "$ref": "#/components/responses/NoContent" },
-          "401": { "$ref": "#/components/responses/Unauthorized" }
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
         }
       }
     }

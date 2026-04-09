@@ -1,0 +1,19 @@
+ Test_GETEvents←{
+⍝ Test that GET /events returns an array of events with the correct fields and types
+     H←##.##.##.HttpCommand
+     Assert←##.Assert
+     res←H.GetJSON'GET'(⍵,'/events')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     Assert 1=≢⍴res.Data:
+     d←res.Data[1]
+     Type←⊃0∘⍴
+     Assert 0=Type d.id:
+     Assert' '=Type d.title:
+     Assert' '=Type d.type:
+     Assert' '=Type d.start:
+     Assert' '=Type d.end:
+     Assert' '=Type d.url_slug:
+     Assert((' '=Type∘⊃)∧(0=≢∘⍴))d.has_videos:   ⍝ JSON Boolean ⊂'true' or ⊂'false'
+     1
+ }

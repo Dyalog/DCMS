@@ -1,0 +1,11 @@
+ Test_GETEvents_HasVideos_Counts←{
+⍝ Test that true and false filters partition the full result with no overlap or gap
+     H←##.##.##.HttpCommand
+     all←H.GetJSON'GET'(⍵,'/events')
+     tv←H.GetJSON'GET'(⍵,'/events?has_videos=true')
+     fv←H.GetJSON'GET'(⍵,'/events?has_videos=false')
+     200≠all.HttpStatus:0
+     200≠tv.HttpStatus:0
+     200≠fv.HttpStatus:0
+     (≢all.Data)=(≢tv.Data)+(≢fv.Data)
+ }

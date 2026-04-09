@@ -1,0 +1,8 @@
+ Test_GETVideos_EventShortname←{
+⍝ Test that ?event_shortname= returns only videos with that shortname
+     H←##.##.##.HttpCommand
+     res←H.GetJSON'GET'(⍵,'/videos?event_shortname=',##.example_event)
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     ∧/##.example_event∘≡¨res.Data.data.event_shortname
+ }

@@ -1,5 +1,5 @@
  result←url Test ns;DoTest;F;LoadDependency;fn;r;suite;tests
- tests←'Test'ns.⎕NL ¯3
+ tests⌿⍨←'Test'∘(⊃⍷)¨tests←'T'ns.⎕NL ¯3
  suite←⍕ns
  result←1
  DoTest←{

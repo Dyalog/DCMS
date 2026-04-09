@@ -1,4 +1,4 @@
- Test_GetStemmedWord←{
+ Test_GETStemmedWord←{
 ⍝ Test free text search results include result from stemmed word
      H←##.##.##.HttpCommand
      url←⍵,'/videos?search=fugiativity'

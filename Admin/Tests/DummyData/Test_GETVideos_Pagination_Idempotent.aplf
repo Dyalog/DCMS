@@ -1,0 +1,10 @@
+ Test_GETVideos_Pagination_Idempotent←{
+⍝ Test that requesting the same paginated page twice returns identical data
+     H←##.##.##.HttpCommand
+     url←⍵,'/videos?per_page=3&page=2'
+     r1←H.Get url
+     200≠r1.HttpStatus:0
+     r2←H.Get url
+     200≠r2.HttpStatus:0
+     r1.Data≡r2.Data
+ }

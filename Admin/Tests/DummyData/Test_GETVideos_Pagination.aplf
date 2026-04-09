@@ -1,0 +1,40 @@
+ Test_GETVideos_Pagination←{
+⍝ Test boundary invariants of /videos?per_page=N&page=M pagination metadata
+     H←##.##.##.HttpCommand
+     Assert←##.Assert
+
+     ⍝ Page 1 with a small per_page
+     pp←5
+     res←H.GetJSON'GET'(⍵,'/videos?per_page=',⍕pp)
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     d←res.Data
+
+     Assert d.per_page≤pp:                 ⍝ per_page never exceeds requested
+     Assert d.first_page=1:                ⍝ first page is always 1
+     Assert d.current_page≥d.first_page:   ⍝ current page ≥ first page
+     Assert d.current_page≤d.last_page:    ⍝ current page ≤ last page
+     Assert d.from≥1:                      ⍝ from index ≥ 1
+     Assert d.to≤d.total:                  ⍝ to index ≤ total
+     Assert d.from≤d.to:                   ⍝ from ≤ to
+     Assert(≢d.data)≤d.per_page:           ⍝ data length ≤ per_page
+     Assert(≢d.data)=d.to-d.from-1:        ⍝ data length matches from..to range
+
+     ⍝ Last page: request beyond total to hit the cap
+     lp←d.last_page
+     res←H.GetJSON'GET'(⍵,'/videos?per_page=',(⍕pp),'&page=',⍕lp)
+     200≠res.HttpStatus:0
+     d←res.Data
+
+     Assert d.current_page=lp:        ⍝ landed on last page
+     Assert d.to=d.total:             ⍝ last page ends at total
+     Assert(≢d.data)≤d.per_page:      ⍝ last page data ≤ per_page
+     Assert(≢d.data)=d.to-d.from-1:   ⍝ data length matches range
+
+     ⍝ Page beyond last should clamp to last page
+     res←H.GetJSON'GET'(⍵,'/videos?per_page=',(⍕pp),'&page=',⍕lp+1)
+     200≠res.HttpStatus:0
+     Assert res.Data.current_page=lp:   ⍝ clamped to last page
+
+     1
+ }

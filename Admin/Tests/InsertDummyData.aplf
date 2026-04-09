@@ -36,6 +36,7 @@
  event.type←?n⍴n
  event.url_slug←'-'@(' '∘=)¨¯1 ⎕C event.title
  event.⎕DF'event'
+ example_event←⊃event.url_slug   ⍝ Use example_event in DummyData.TestGETVideos_EventShortname
 
  organisation←()
  organisation.name←(vocab:thing_names ⋄ max:1)generator.Name n
@@ -50,33 +51,35 @@
  presentation_type.⎕DF'presentation_type'
 
  presentation←()
- presentation.event_id←?n⍴n
+ presentation.event_id←?n⍴n-1   ⍝ events 1..n-1 only; event n guaranteed no presentations → has_videos=0
+ presentation.event_id[⍳6]←1    ⍝ presentation 1 → event 1; combined with fixed_keys, event 1 has has_videos=1
  presentation.code←(vocab:⎕A,⎕D ⋄ max:2 ⋄ unique:1)generator.Name n
  presentation.title←stems
  presentation.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
  presentation.title[1],←⊂' dolor'   ⍝ Ensure a keyword is present in search results
  presentation.type_id←?n⍴n
  presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
- presentation.presented_at←generator.DateTime n
+ presentation.presented_at←'2005-04-03 00:00:00' '2008-05-05 00:00:00' '2012-12-12 00:00:00',generator.DateTime n-3   ⍝ Fixed dates for testing date range filtering
  presentation.⎕DF'presentation'
 
  presenter←()
  ⍝ Using fixed keys in the presenter and presentation_media tables ensures that stems are found in video results for testing
- presenter.(presentation_id person_id)←fixed_keys←(1 2)(1 2)
+ presenter.(presentation_id person_id)←fixed_keys←(1 2 3 3)(1 2 3 4)   ⍝ presentation 1 has presenter 1; presentation 2 has presenter 2; presentation 3 has presenters 3 and 4
  NotFixedKeys←{~∨/,(↑fixed_keys)⍷⍤1 2⊢⍵}
  presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0
  presenter.⎕DF'presenter'
 
  ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
  videos←()
- videos.title←stems
- videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
- videos.presentation_id←?n⍴n
+ example_search_term←'wombo'
+ videos.title←example_search_term⊂⍛,stems   ⍝ Unique keyword for search testing
+ videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-1+≢stems
  videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
+ example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
 
  presentation_media←(type:n⍴⊂'youtube_video')
- presentation_media.(presentation_id media_id)←fixed_keys←(1 2)(1 2)
- presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
+ presentation_media.(presentation_id media_id)←fixed_keys←(⍳6)(⍳6)
+ presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n n}⍣{(NotFixedKeys ⍺)∧(∧/1<⊢/⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
  presentation_media.⎕DF'presentation_media'
 
  youtube_video←(

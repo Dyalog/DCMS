@@ -1,0 +1,24 @@
+ Test_GETVideos_SortOrder←{
+⍝ Test that /videos?sort=newest|oldest|relevance returns results in the correct order
+     H←##.##.##.HttpCommand
+     res←H.GetJSON'GET'(⍵,'/videos?sort=newest')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     1≥≢res.Data.data:0
+     sd←(⊂⍤⍒⍛⌷)pa←res.Data.data.presented_at
+     sd≢pa:0
+     res←H.GetJSON'GET'(⍵,'/videos?sort=oldest')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     1≥≢res.Data.data:0
+     su←(⊂⍤⍋⍛⌷)pa←res.Data.data.presented_at
+     su≢pa:0
+⍝ search= required so Rank scores by term relevance, not natural index order
+     keyword←⊃##.generator.keywords
+     res←H.GetJSON'GET'(⍵,'/videos?search=',keyword,'&sort=relevance')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     1≥≢res.Data.data:0
+     pa←res.Data.data.presented_at
+     (pa≢su)∧(pa≢sd)
+ }

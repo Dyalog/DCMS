@@ -1,0 +1,30 @@
+ res←Events req
+ #.req←req
+ :If req≡'⍠SPEC'
+     res←(
+        tags: ,⊂'Events' ⋄ summary:'List events' ⋄ operationId: 'getEvents'
+        parameters: (
+            (name: 'has_videos' ⋄ in: 'query' ⋄ required: ⊂'false' ⋄ schema: (type: 'boolean') ⋄ description: 'Filter whether events have videos of presentations.')
+        )
+        responses: (
+            ⍙200: (
+                description: 'List of events'
+                content: (⍙application⍙47⍙json: (schema: (type: 'array' ⋄ items: (type: 'object' ⋄ properties: (
+                    id: (type: 'integer')
+                    title: (type: 'string')
+                    type: (type: 'string')
+                    start: (type: 'string' ⋄ format: 'date' ⋄ description: 'YYYY-MM-DD')
+                    end: (type: 'string' ⋄ format: 'date' ⋄ description: 'YYYY-MM-DD')
+                    url_slug: (type: 'string')
+                    has_videos: (type: 'boolean')
+                )))))
+            )
+        )
+     )
+     :Return
+ :EndIf
+
+ ⍝ has_videos ← one of (0 1 2)
+ ⍝ 0: only events without videos, 1: only events with videos, 2: all events (default)
+ has_videos←¯1+'false' 'true'⍳⊂req.QueryParams ⎕VGET⊂'has_videos' 'ignore'
+ res←##.CACHE.events.data⌿⍨(2=has_videos)∨(1⌊has_videos)=##.CACHE.events.has_videos

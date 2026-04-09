@@ -1,8 +1,10 @@
- res←Query req;C;CACHE;Norm;Q;Stem;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;stemmer;terms;to;v
+ res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;schemas;stemmer;terms;this;to;v
+ ⍝
  :If req≡'⍠SPEC'
+     schemas←##.##.spec.components.schemas
      res←(
-         tags:,⊂'Videos' ⋄ summary:'List and query videos' ⋄ operationId:'queryVideos'
-         description:'Returns a list of videos, optionally filtered by date range, presenter name, event name, and/or search terms. All responses use a paginated envelope format with `data`, pagination metadata, and navigation links.'
+         tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId: 'getVideos'
+         description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
          parameters:(
              (name:'from' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
              (name:'to' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
@@ -16,50 +18,49 @@
          responses:(
              ⍙200:(
                  description:'Paginated video results'
-                 
                  content:(⍙application⍙47⍙json:(schema:(type:'object' ⋄ properties:(
-                                 path:(type:'string' ⋄ description:'URL for this endpoint')
-                                 per_page:(type:'integer')
-                                 current_page:(type:'integer')
-                                 data:(type:'array' ⋄ items:( ⍝ FIXME cross-check against Video schema ref
-                                         type:'object'
-                                         properties:(
-                                             id:(type:'integer')
-                                             title:(type:'string')
-                                             description:(type:'string')
-                                             presenter_names:(type:'array' ⋄ items:(type:'string'))
-                                             event_name:(type:'string')
-                                             presented_at:(type:'string' ⋄ format:'date-time')
-                                             url:(type:'string' ⋄ format:'uri')
-                                         )
-                                     ))
-                                 from:(type:'integer' ⋄ description:'Ordinal of the first result on this page')
-                                 to:(type:'integer' ⋄ description:'Ordinal of the last result on this page')
-                                 total:(type:'integer' ⋄ description:'Total count of results for this query, across all pages')
-                                 first_page:(type:'integer' ⋄ description:'Page number of the first page of results (always 1)')
-                                 last_page:(type:'integer' ⋄ description:'Page number of the last page of results')
-                                 first_page_url:(type:'string' ⋄ format:'uri')
-                                 prev_page_url:(type:'string' ⋄ format:'uri')
-                                 next_page_url:(type:'string' ⋄ format:'uri')
-                                 last_page_url:(type:'string' ⋄ format:'uri')
-                                 links:(type:'array' ⋄ items:(
-                                         type:'object'
-                                         description:'Describes numbered, previous and next buttons for paginated results.'
-                                         properties:(
-                                             active:(type:'boolean')
-                                             label:(type:'string')
-                                             url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
-                                         )
-                                     ))
-                             ))))
+                     path:(type:'string' ⋄ description:'URL for this endpoint')
+                     per_page:(type:'integer')
+                     current_page:(type:'integer')
+                     data:(type:'array' ⋄ items: schemas.video)
+                     from:(type:'integer' ⋄ description:'Ordinal of the first result on this page')
+                     to:(type:'integer' ⋄ description:'Ordinal of the last result on this page')
+                     total:(type:'integer' ⋄ description:'Total count of results for this query, across all pages')
+                     first_page:(type:'integer' ⋄ description:'Page number of the first page of results (always 1)')
+                     last_page:(type:'integer' ⋄ description:'Page number of the last page of results')
+                     first_page_url:(type:'string' ⋄ format:'uri')
+                     prev_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                     next_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                     last_page_url:(type:'string' ⋄ format:'uri')
+                     links:(type:'array' ⋄ items:(
+                         type:'object'
+                         description:'Describes numbered, previous and next buttons for paginated results.'
+                         properties:(
+                             active:(type:'boolean')
+                             label:(type:'string')
+                             url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                         )
+                    ))
+                 ))))
              )
+             ⍙404:(
+                 description:'No videos found matching the query parameters'
+                 content:(⍙application⍙47⍙json:(schema: schemas.error))
+             )
+                ⍙422:(
+                    description:'Invalid query parameters'
+                    content:(⍙application⍙47⍙json:(schema: schemas.error))
+                )
+                ⍙500:(
+                    description:'Internal server error'
+                    content:(⍙application⍙47⍙json:(schema: schemas.error))
+                )
          )
 
      )
      :Return
  :EndIf
  Q←req.QueryParams∘⎕VGET
-⍝ (p v)←↓⍉req.QueryParams ⋄ v←RLTB¨v,⊂'' ⋄ v[⍸'null'∘≡¨v]←⊂'' ⋄ Q←{v⊃⍨p⍳⊆⍵}
  CACHE←##.##.CACHE
  C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
 
@@ -73,8 +74,9 @@
 
 ⍝ Filter by columns: presenter, event
  presenter←(Q⊂'presenter' '')FilterPresenter C'presenter'
- event←⊣/{1,⍣(0∊⍴⍵)⊢⍵}(Q⊂'event_shortname' '')⍷C'event_shortname'
- filter←in_range∧presenter∧event
+ presenter_id←∧⌿∨/(2⊃','⎕VFI Q⊂'presenter_id' '')∘.=(C'presenter_id')
+ event←((''≡this)∨this≢⍛=+/∧\' '≠all)∧⊣/(this←Q⊂'event_shortname' '')⍷all←C'event_shortname'
+ filter←in_range∧presenter∧event∧presenter_id
 
  Norm←##.##.Unidecode.NormaliseText
  stemmer←⎕NEW #.DCMS.Porter2Stemmer.EnglishPorter2Stemmer

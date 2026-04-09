@@ -1,0 +1,28 @@
+ Test_GETVideo_Recommendations←{
+⍝ Test that GET /video/{youtube_id}/recommendations returns a list of video objects with the correct fields and types
+     H←##.##.##.HttpCommand
+     Assert←##.Assert
+     StringOrNull←{(' '=Type ⍵)∨(⊂'null')≡⍵}
+     res←H.GetJSON'GET'(⍵,'/videos/',##.example_video,'/recommendations')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     recs←res.Data
+     Type←⊃0∘⍴
+     Assert 0<≢recs: 'No recommendations returned'
+     rec←recs[1]
+     Assert ' '=Type rec.category:
+     Assert ' '=Type rec.description:
+     Assert ' '=Type rec.event:
+     Assert ' '=Type rec.event_shortname:
+     Assert ' '=Type rec.presented_at:
+     Assert ' '=Type rec.published_at:
+     Assert ' '=Type rec.presenter:
+     Assert 1=≢⍴rec.presenter_id:
+     Assert ' '=Type rec.thumbnail:
+     Assert ' '=Type rec.title:
+     Assert ' '=Type rec.url:
+     Assert ' '=Type rec.youtube_id:
+     pid←rec.presenter_id[1]
+     Assert 0=Type pid:
+     1
+ }

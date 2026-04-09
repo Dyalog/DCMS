@@ -1,11 +1,25 @@
- res←Single req;CACHE;ytid;idx;id
- CACHE←##.##.CACHE
-
- id←8↓req.Endpoint
- :If 11≠≢id
-     res←req.Fail 400
+ res←Single req;CACHE;ytid;idx;id;schemas
+ #.last←req
+ :If '⍠SPEC'≡req
+     schemas←##.##.spec.components.schemas
+     res←(tags:,⊂'Videos' ⋄ summary:'Get a single video' ⋄ operationId: 'getVideo'
+         responses:(
+             ⍙200:(
+                 description:'A single video object'
+                 content:(⍙application⍙47⍙json:(schema: schemas.video))
+             )
+             ⍙404: (
+                 description:'Video not found'
+                 content:(⍙application⍙47⍙json:(schema: schemas.error))
+             )
+         )
+     )
      :Return
  :EndIf
+
+ CACHE←##.##.CACHE
+
+ id←req.PathParams.youtube_id
 
  ytid←CACHE.videos.index_cols⊃⍨CACHE.videos.fields⍳⊂'youtube_id'
  idx←ytid⍳id
