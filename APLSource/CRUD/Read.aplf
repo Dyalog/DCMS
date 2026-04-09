@@ -47,18 +47,18 @@
  :EndIf
 
  fields←idx⊃GBL.columns
-
- id←req.PathParams ⎕VGET⊂'id' ''
+ (id pg ppg)←req.PathParams ⎕VGET('id' '')('page' 1)('per_page' 20)
  :If 0=≢id
     ⍝ return whole table
      data←##.SQL.Do'SELECT * FROM ',table
-     r←##.read.Table2JSON fields⍪data
+     r←(('crud/',table) pg ppg) ##.read.(Paginate∘Table2JSON) fields⍪data
  :Else
      data←##.SQL.Do'SELECT * FROM ',table,' WHERE id = ',id
      :If 0=≢data
          r←(error:404 ⋄ message:##.spec.components.responses.not_found.description)
          req.Fail 404
      :Else
-         r←##.read.Table2JSON fields⍪data
+         r←Table2JSON fields⍪data
      :EndIf
  :EndIf
+ 
