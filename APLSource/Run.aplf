@@ -22,6 +22,9 @@
      '/crud/{table}'      router.Get('CRUD.Read' (CRUD.Read'⍠SPEC'))
      '/crud/{table}/{id}' router.Get('CRUD.Read' (CRUD.Read'ID⍠SPEC'))
 
+     Teapot←{(error: 418 ⋄ message: 'I am a teapot')⊣⍵.Fail 418}
+     '/teapot'            router.Get 'Teapot'
+
      router.OnErrorFn←'HandleError'
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
