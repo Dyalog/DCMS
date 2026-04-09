@@ -135,7 +135,7 @@ if (env.BRANCH_NAME.contains('master')) {
 		stage('Deploying with Docker Swarm') {
             unstash 'swarmfiles'
             res1 = stopServices 'DCMS'
-            res2 = dcms 'DCMS'
+            res2 = swarm 'DCMS'
         }
     }
 }
