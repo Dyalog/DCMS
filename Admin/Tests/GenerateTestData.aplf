@@ -1,0 +1,90 @@
+ data←GenerateTestData n;NotFixedKeys;event;event_type;keywords;lipsum;organisation;person;person_names;presentation;presentation_media;presentation_type;presenter;stems;thing_names;videos;youtube_video
+⍝ Insert dummy data into the database for testing
+⍝ First tests considered:
+⍝ - /videos?search= should return all videos with matching terms
+⍝ - /videos?presenter=p_name should return all videos by presenter p_name
+⍝ - /videos?search=p_name       should include videos by presenter p_name
+⍝ FIXME this is not comprehensive. Fields essential to the video library are used, but many are not.
+
+⍝ Start by generating joined data and deconstructing it into the normalised database, then loop over each table and insert.
+
+⍝ CONFIG
+ keywords←generator.keywords
+ stems←generator.stemmable[;2]
+ person_names←'Geoff' 'Streeter' 'John' 'Scholes' 'Iverson' 'Dolor' 'Fugiat' 'Orange' 'Rich' 'Park' 'Jada' 'Andrade' 'Andy' 'Karen' 'Fiona' 'Jason' 'Peter' 'Silas'
+ thing_names←'APL' 'Meeting' 'Seeds' 'Conference' 'Dyalog' 'Alpha' 'Omega'
+ lipsum←generator.lipsum
+
+⍝ GENERATE
+ ⎕RL←42
+
+⍝ Use ⎕DF to give each namespace a name that can be used to look up into SQL table metadata
+ event_type←(
+     type:(vocab:keywords ⋄ max:1)generator.Name n
+     description:(vocab:lipsum ⋄ max:65535)generator.Text n
+     url_slug:generator.URL n
+ )
+ event_type.⎕DF'event_type'
+
+ event←()
+ event.title←(vocab:thing_names ⋄ max:2)generator.Name⍣{∧/≠⍵}n
+ event.(start end)←generator.DateTime¨2⍴n
+ event.type←?n⍴n
+ event.url_slug←'-'@(' '∘=)¨¯1 ⎕C event.title
+ event.⎕DF'event'
+ example_event←⊃event.url_slug   ⍝ Use example_event in DummyData.TestGETVideos_EventShortname
+
+ organisation←()
+ organisation.name←(vocab:thing_names ⋄ max:1)generator.Name n
+ organisation.⎕DF'organisation'
+
+ person←()
+ person.name←(vocab:person_names ⋄ max:3)generator.Name n
+ person.organisation_id←?n⍴n
+ person.⎕DF'person'
+
+ presentation_type←(type:(⊂?n⍴≢keywords)⌷keywords)
+ presentation_type.⎕DF'presentation_type'
+
+ presentation←()
+ presentation.event_id←?n⍴n-1   ⍝ events 1..n-1 only; event n guaranteed no presentations → has_videos=0
+ presentation.event_id[⍳6]←1    ⍝ presentation 1 → event 1; combined with fixed_keys, event 1 has has_videos=1
+ presentation.code←(vocab:⎕A,⎕D ⋄ max:2 ⋄ unique:1)generator.Name n
+ presentation.title←stems
+ presentation.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
+ presentation.title[1],←⊂' dolor'   ⍝ Ensure a keyword is present in search results
+ presentation.type_id←?n⍴n
+ presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
+ presentation.presented_at←'2005-04-03 00:00:00' '2008-05-05 00:00:00' '2012-12-12 00:00:00',generator.DateTime n-3   ⍝ Fixed dates for testing date range filtering
+ presentation.⎕DF'presentation'
+
+ presenter←()
+ ⍝ Using fixed keys in the presenter and presentation_media tables ensures that stems are found in video results for testing
+ presenter.(presentation_id person_id)←fixed_keys←(1 2 3 3)(1 2 3 4)   ⍝ presentation 1 has presenter 1; presentation 2 has presenter 2; presentation 3 has presenters 3 and 4
+ NotFixedKeys←{~∨/,(↑fixed_keys)⍷⍤1 2⊢⍵}
+ presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0
+ presenter.⎕DF'presenter'
+
+ ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
+ videos←()
+ example_search_term←'wombo'
+ videos.title←example_search_term⊂⍛,stems   ⍝ Unique keyword for search testing
+ videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-1+≢stems
+ videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
+ example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
+
+ presentation_media←(type:n⍴⊂'youtube_video')
+ presentation_media.(presentation_id media_id)←fixed_keys←(⍳6)(⍳6)
+ presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n n}⍣{(NotFixedKeys ⍺)∧(∧/1<⊢/⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
+ presentation_media.⎕DF'presentation_media'
+
+ youtube_video←(
+     youtube_id:videos.youtube_id
+     title:videos.title
+ )
+ youtube_video.⎕DF'youtube_video'
+
+⍝ All generator functions take a right arg of number of records to generate
+⍝ Left argument is max size of data (length in bits), OR a special left argument for specific columns
+
+ data←event_type event organisation person presentation_type presentation presenter presentation_media youtube_video

@@ -1,0 +1,3 @@
+ Table2JSON←{
+     0 ⎕JSON 1 ⎕JSON⊂2,⊂⍵
+ }
