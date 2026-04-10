@@ -1,4 +1,5 @@
  r←Read req;GBL;data;fields;id;idx;responses;schemas;table
+ #.last←req
  :If 2=⎕NC'req'
      (schemas responses parameters)←##.spec.components.(schemas responses parameters)
  :EndIf
@@ -39,7 +40,7 @@
      :Return
  :EndIf
 
- #.last←req
+ ##.Log'[REQ] GET /crud/',req.PathParams ⎕VGET⊂'table' ''
 
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL
@@ -65,4 +66,3 @@
          r←##.read.Table2JSON fields⍪data
      :EndIf
  :EndIf
- 
