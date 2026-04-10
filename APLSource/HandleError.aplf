@@ -1,10 +1,12 @@
  res←dmx HandleError req
- ⎕←'EEORRRORO'
- res←'error happened'
- ⎕←req.Response.Status
- :Select dmx.EN
- :Case 511
-     dmx.Message req.Fail 400
- :EndSelect
- ⎕←req.Response.Status
+ :If dmx.Vendor≡'DCMS'
+     :Select dmx.EN
+     :CaseList 400 404 418
+         res←(error:dmx.EN ⋄ message:dmx.Message)
+         req.Fail dmx.EN
+     :EndSelect
+ :Else
+     res←(error:500 ⋄ message:'Server error.')   ⍝ FIXME user-friendly message with link to issue template. Log actual error details for debugging.
+     req.Fail 500
+ :EndIf
 ⍝ #.Admin.(Tests.General.Test_GETVideos_BadParameter GetEnv'URL')
