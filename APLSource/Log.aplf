@@ -1,0 +1,5 @@
+ {msg}←Log msg
+ :If GLOBAL.logging
+     GLOBAL.log,←⊂('[',⍕⎕TS,'] ',msg)
+     ⎕←⊃⊢/GLOBAL.log
+ :EndIf
