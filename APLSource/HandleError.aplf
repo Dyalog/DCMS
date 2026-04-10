@@ -6,7 +6,9 @@
          req.Fail dmx.EN
      :EndSelect
  :Else
-     res←(error:500 ⋄ message:'Server error.')   ⍝ FIXME user-friendly message with link to issue template. Log actual error details for debugging.
+     Log'[ERR] ',⍕dmx.(EN Vendor Message DM)
+     ⍝ FIXME user-friendly message with link to issue template. Log actual error details for debugging.
+     res←(error:500 ⋄ message:'Server error.')
      req.Fail 500
  :EndIf
 ⍝ #.Admin.(Tests.General.Test_GETVideos_BadParameter GetEnv'URL')
