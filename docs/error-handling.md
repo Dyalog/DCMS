@@ -9,16 +9,15 @@ For all levels 1 and above, the request object is retained in the active workspa
 | `#.GLOBAL.debug` | Behaviour |
 |---|---|
 | 0 | **Production.** All errors are trapped. If the event number is an HTTP status code (400--599), respond with that status. Otherwise respond 500. |
-| 1 | **Development.** HTTP-status-code signals are handled as in level 0. Any other error suspends execution for debugging. |
-| 2 | **Strict debugging.** All errors suspend execution, including HTTP-status-code signals. |
-| 3 | **Tracing.** Execution suspends on request entry so the developer can step through the full request. This is passed to the Stark router as debug mode 2, not handled in `OnErrorFn`. |
+| 1 | **Development.** Errors suspend execution for debugging. |
+| 2 | **Tracing.** Execution suspends on request entry so the developer can step through the full request. This is passed to the Stark router as debug mode 2, not handled in `OnErrorFn`. |
 
 ## How lower functions signal expected errors
 
 When a function detects an invalid request condition (missing parameter, unauthorised access, resource not found, etc.) or catches an anticipated error, it signals using the appropriate HTTP status code as the event number:
 
 ```apl
-⎕SIGNAL⊂('EN' 404)('Message' 'Video not found')
+⎕SIGNAL⊂('EN' 404)('Message' 'Video not found')('Vendor' 'DCMS')
 ```
 
 `OnErrorFn` checks whether the event number falls in the 400--599 range to distinguish expected errors from unexpected ones.
