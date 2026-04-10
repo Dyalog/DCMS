@@ -13,6 +13,10 @@
                  description:'List of recommended videos'
                  content:(⍙application⍙47⍙json:(schema:(type:'array' ⋄ items:schemas.video)))
              )
+             ⍙400:(
+                 description:'Bad request, e.g. invalid YouTube ID format'
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
+             )
              ⍙404:(
                  description:'Video not found'
                  content:(⍙application⍙47⍙json:(schema:schemas.error))
@@ -29,12 +33,12 @@
  vids.recommendations←⊃vids.recommendations Values'##.recommendations'   ⍝ Use existing values unless the ComputeRecommended isolate has finished processing
  all_id←vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id'
  :If 11≠≢ytid
-     r←req.Fail 422
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'YouTube ID must be an 11-character string.')
  :ElseIf (≢ytid)=⊢/⍴all_id
      this←all_id⍳ytid
  :AndIf this≤≢vids.values
      rec←vids.recommendations[this;⍳n]
      r←##.Table2JSON vids.fields⍪vids.values[rec;]
  :Else
-     r←req.Fail 404   ⍝ Video not found
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Video not found.')
  :EndIf
