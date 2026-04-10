@@ -72,17 +72,8 @@ GET /videos/{youtube_id}
 GET /videos/{youtube_id}/recommendations?n={n}
 [{GET /videos}]
 
-CRUD /table/person
-CRUD /table/organisation
-CRUD /table/event_type
-CRUD /table/event
-CRUD /table/presentation_type
-CRUD /table/presentation_category
-CRUD /table/presentation
-CRUD /table/presentation_media
-CRUD /table/youtube_video
-CRUD /table/media_general
-CRUD /table/presenter
+CRUD /crud/{table}
+CRUD /crud/{table}/id
 
 PUT /admin/refresh
 
