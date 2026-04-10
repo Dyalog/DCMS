@@ -1,0 +1,15 @@
+ DebugTrigger state
+ :Implements Trigger debug
+ :If 0=⊃0⍴state.NewValue
+     GLOBAL.debug←state.NewValue
+     GLOBAL.logging←state.NewValue
+     router.Debug←state.NewValue
+     jarvis.Debug←state.NewValue
+ :Else
+     ⎕←'[ADMIN] invalid debug value'
+     ⎕←'[ADMIN] current values:'
+     ⎕←'[ADMIN] GLOBAL.debug: ',⍕GLOBAL.debug
+     ⎕←'[ADMIN] GLOBAL.logging: ',⍕GLOBAL.logging
+     ⎕←'[ADMIN] router.Debug: ',⍕router.Debug
+     ⎕←'[ADMIN] jarvis.Debug: ',⍕jarvis.Debug
+ :EndIf
