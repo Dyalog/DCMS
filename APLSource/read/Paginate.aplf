@@ -3,12 +3,12 @@
  :If 0∊⍴ppg ⋄ response←results ⋄ :Return ⋄ :EndIf        ⍝ No pagination, return response unchanged
  pg←1⌈⊃pg        ⍝ Default first page if not specified in ?page= parameter
  :If (1>pg)∨pg≠⌊pg
-     ⎕SIGNAL⊂('EN' 511)('Message' 'Page number must be a positive integer.')('Vendor'(##.GetEnv'service_url'))
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Page number must be a positive integer.')('Vendor' 'DCMS')
  :ElseIf (1>ppg)∨ppg≠⌊ppg
-     ⎕SIGNAL⊂('EN' 511)('Message' 'Items per page must be a positive integer.')('Vendor'(##.GetEnv'service_url'))
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Items per page must be a positive integer.')('Vendor' 'DCMS')
  :EndIf
  (pg ppg)←⍬∘⍴¨pg ppg
- n←≢results            ⍝ Total results count
+ n←≢results      ⍝ Total results count
  ppg←n⌊ppg       ⍝ Results per page
  lp←⌈n÷ppg       ⍝ Last page number
  pg←lp⌊⊃pg,1     ⍝ Current page capped at last page number
@@ -63,4 +63,4 @@
  response.next_page_url←nu
  response.path←#.DCMS.url,'/',ep
  response.links←Link¨↓⍉↑lu ll la
- response
+⍝ response FIXME was tradfn'd due to bug in Ride
