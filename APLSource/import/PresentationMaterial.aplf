@@ -33,7 +33,7 @@
  req_data←'((','))',⍨⊃,/(⊣,'),(',⊢)/(⊣,',',⊢)/(⍕¨req.Payload.presentation_id),('"','"',⍨⊢)¨↑req.Payload.(text url)
  sql,←'WHERE (pm.presentation_id,mg.text,mg.url) IN ',req_data
  res_data←SQL.Do sql
- r←##.read.Table2JSON'presentation_media_id' 'presentation_id' 'text' 'url'⍪res_data
+ r←##.QUERY.Table2JSON'presentation_media_id' 'presentation_id' 'text' 'url'⍪res_data
 
 
 ⍝

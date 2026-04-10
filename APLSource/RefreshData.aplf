@@ -4,5 +4,5 @@
  :Else
      ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
  :EndTrap
- read.BuildCache''
+ QUERY.BuildCache''
  ⎕←r←'Refreshed data at ',⍕⎕TS

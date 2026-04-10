@@ -55,7 +55,7 @@
  :If 0=≢id
     ⍝ return whole table
      data←##.SQL.Do'SELECT * FROM ',table
-     r←(('crud/',table) pg ppg) ##.read.(Paginate∘Table2JSON) fields⍪data
+     r←(('crud/',table) pg ppg) ##.QUERY.(Paginate∘Table2JSON) fields⍪data
  :ElseIf ∨/~id∊⎕D
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
  :Else
@@ -63,6 +63,6 @@
      :If 0=≢data
          ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.spec.components.responses.not_found.description))
      :Else
-         r←##.read.Table2JSON fields⍪data
+         r←##.QUERY.Table2JSON fields⍪data
      :EndIf
  :EndIf

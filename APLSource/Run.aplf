@@ -13,12 +13,12 @@
  :If 0=⎕NC'router'
      router←⎕NEW #.Stark
      router.Info←(title:'Dyalog Content Management System' ⋄ version:Version'')
-     '/version'                             router.Get('Version'                    (Version'⍠SPEC'))
-     '/videos/{youtube_id}/recommendations' router.Get('read.videos.Recommendations'(read.videos.Recommendations'⍠SPEC'))
-     '/videos/{youtube_id}'                 router.Get('read.videos.Single'         (read.videos.Single'⍠SPEC'))
-     '/videos'                              router.Get('read.videos.Query'          (read.videos.Query'⍠SPEC'))
-     '/presenters'                          router.Get('read.Presenters'            (read.Presenters'⍠SPEC'))
-     '/events'                              router.Get('read.Events'                (read.Events'⍠SPEC'))
+     '/version'                             router.Get('Version'                     (Version'⍠SPEC'))
+     '/videos/{youtube_id}/recommendations' router.Get('QUERY.videos.Recommendations'(QUERY.videos.Recommendations'⍠SPEC'))
+     '/videos/{youtube_id}'                 router.Get('QUERY.videos.Single'         (QUERY.videos.Single'⍠SPEC'))
+     '/videos'                              router.Get('QUERY.videos.Query'          (QUERY.videos.Query'⍠SPEC'))
+     '/presenters'                          router.Get('QUERY.Presenters'            (QUERY.Presenters'⍠SPEC'))
+     '/events'                              router.Get('QUERY.Events'                (QUERY.Events'⍠SPEC'))
      ⍝ FIXME operationId for endpoints should reference the function that handles the request
      '/crud/{table}'      router.Get('CRUD.Read' (CRUD.Read'⍠SPEC'))
      '/crud/{table}/{id}' router.Get('CRUD.Read' (CRUD.Read'ID⍠SPEC'))
