@@ -24,6 +24,8 @@
      :Return
  :EndIf
 
+ ##.Log'[REQ] GET /events ',1⎕JSON req.QueryParams
+
  ⍝ has_videos ← one of (0 1 2)
  ⍝ 0: only events without videos, 1: only events with videos, 2: all events (default)
  has_videos←¯1+'false' 'true'⍳⊂req.QueryParams ⎕VGET⊂'has_videos' 'ignore'

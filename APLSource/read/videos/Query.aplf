@@ -60,6 +60,9 @@
      )
      :Return
  :EndIf
+
+ ##.##.Log'[REQ] GET /videos ',1⎕JSON req.QueryParams
+
  Q←req.QueryParams∘⎕VGET
  CACHE←##.##.CACHE
  C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)

@@ -17,6 +17,8 @@
      :Return
  :EndIf
 
+ ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id
+
  CACHE←##.##.CACHE
 
  id←req.PathParams.youtube_id
