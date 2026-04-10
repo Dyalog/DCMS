@@ -4,9 +4,9 @@
      h←⍵.Headers
      r←⍵.Response
      i←(⊣/h)⍳⊂'x-api-key'
-     i>≢h:r⊣⍵.Fail 403          ⍝ FAIL 'No x-api-key header found'
+     i>≢h:1      ⍝ FAIL 'No x-api-key header found'
      try←h⊃⍨⊂2,⍨i
      key←##.GLOBAL.secrets.upload_token
-     try≢key:1                  ⍝ FAIL 'Invalid x-api-key'
+     try≢key:1   ⍝ FAIL 'Invalid x-api-key'
      0
  }
