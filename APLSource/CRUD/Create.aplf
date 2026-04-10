@@ -1,0 +1,42 @@
+ r←Create req;GBL;WrapBackticks;WrapColons;columns;idx;our_cols;parameters;responses;schemas;table
+ #.last←req ⍝ !!! DELETE ME DELETE ME DELETE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+ :If 2=⎕NC'req'
+     (schemas responses parameters)←##.SPEC.(schemas responses parameters)
+ :EndIf
+ :If req≡'⍠SPEC'
+     r←(
+         tags:,⊂'Table CRUD' ⋄ summary:'Create rows' ⋄ operationId:'createRows'
+     )
+     :Return
+ :EndIf
+
+ ##.Log'[REQ] POST /crud/',req.PathParams ⎕VGET⊂'table' ''
+
+⍝ ⎕←req.Params
+ r←'Not yet' ⋄ :Return
+
+ ⎕SIGNAL⊂('EN' 501)('Vendor' 'DCMS')('Message' 'This endpoint is not yet implemented.')
+
+ table←req.PathParams ⎕VGET⊂'table' ''
+ GBL←##.GLOBAL
+ :If 0∊⍴table
+ :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+ :EndIf
+
+ columns←req.Payload[1].⎕NL ¯2   ⍝ FIXME maybe this is where we get the columns from
+ ⍝ FIXME how to check payload is right kind of JSON thingy?
+ our_cols←idx⊃GBL.columns
+ :If 0∊⍴columns
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request payload must include columns to insert.')
+ :ElseIf ∨/(≢our_cols)<our_cols⍳columns
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'One or more specified columns are not valid.')
+ :EndIf
+
+ WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
+ WrapColons←(1↓∊)(',:',':',⍨⊢)¨
+ columns←WrapBackticks columns
+ types←WrapColons idx⊃GBL.sql_types
+ sql←'INSERT INTO ',table,' (',⍪columns,') VALUES (',⍪sql_types,')'
+ r←##.SQL.DoBulk sql
