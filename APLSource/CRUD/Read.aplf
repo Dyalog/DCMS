@@ -31,7 +31,7 @@
              )
              ⍙400:(
                  description: 'Bad request, e.g. invalid ID parameter.'
-                 content:(⍙application⍙47⍙json:(schema:schemas.error_response))
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
              )
              ⍙404:responses.not_found
          )
