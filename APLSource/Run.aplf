@@ -1,5 +1,6 @@
  Run debug;app_dir;LoadDependency
  GLOBAL.debug←debug
+ GLOBAL.(logging log)←debug ⍬
 ⍝ Initialise SQL schema
  GLOBAL.secrets←ReadJSON GetEnv'SECRETS'
  ⎕←'Initialising SQAPL...'
@@ -31,7 +32,7 @@
      jarvis.AuthenticateFn←'##.##.AUTH.ControlAccess'
      jarvis.HTTPAuthentication←'x-api-key'
 
-     router.Debug←1
+     router.Debug←debug
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
  
