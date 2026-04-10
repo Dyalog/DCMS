@@ -29,6 +29,10 @@
                  description:'A single table row.'
                  content:(⍙application⍙47⍙json:(schema:schemas.crud_item))
              )
+             ⍙400:(
+                 description: 'Bad request, e.g. invalid ID parameter.'
+                 content:(⍙application⍙47⍙json:(schema:schemas.error_response))
+             )
              ⍙404:responses.not_found
          )
      )
@@ -41,24 +45,24 @@
  GBL←##.GLOBAL
  :If 0∊⍴table
  :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
-     r←(error:404 ⋄ message:##.spec.components.responses.not_found.description)
-     req.Fail 404
-     :Return
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.spec.components.responses.not_found.description))
  :EndIf
 
  fields←idx⊃GBL.columns
  (id pg ppg)←req.PathParams ⎕VGET('id' '')('page' 1)('per_page' 20)
+ ÷0
  :If 0=≢id
     ⍝ return whole table
      data←##.SQL.Do'SELECT * FROM ',table
      r←(('crud/',table) pg ppg) ##.read.(Paginate∘Table2JSON) fields⍪data
+ :ElseIf ∨/~id∊⎕D
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
  :Else
      data←##.SQL.Do'SELECT * FROM ',table,' WHERE id = ',id
      :If 0=≢data
-         r←(error:404 ⋄ message:##.spec.components.responses.not_found.description)
-         req.Fail 404
+         ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.spec.components.responses.not_found.description))
      :Else
-         r←Table2JSON fields⍪data
+         r←##.read.Table2JSON fields⍪data
      :EndIf
  :EndIf
  
