@@ -1,7 +1,7 @@
  r←Read req;GBL;data;fields;id;idx;responses;schemas;table
  #.last←req
  :If 2=⎕NC'req'
-     (schemas responses parameters)←##.spec.components.(schemas responses parameters)
+     (schemas responses parameters)←##.SPEC.(schemas responses parameters)
  :EndIf
  :If req≡'⍠SPEC'
      r←(
@@ -46,7 +46,7 @@
  GBL←##.GLOBAL
  :If 0∊⍴table
  :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.spec.components.responses.not_found.description))
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
  :EndIf
 
  fields←idx⊃GBL.columns
@@ -61,7 +61,7 @@
  :Else
      data←##.SQL.Do'SELECT * FROM ',table,' WHERE id = ',id
      :If 0=≢data
-         ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.spec.components.responses.not_found.description))
+         ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
      :Else
          r←##.QUERY.Table2JSON fields⍪data
      :EndIf

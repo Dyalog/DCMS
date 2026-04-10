@@ -1,4 +1,4 @@
-:Namespace components
+:Namespace SPEC   ⍝ OpenAPI Specification Components
 
    :Namespace schemas
        video←(

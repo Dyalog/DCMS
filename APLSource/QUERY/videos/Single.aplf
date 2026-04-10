@@ -1,7 +1,7 @@
  res←Single req;CACHE;ytid;idx;id;schemas
  #.last←req
  :If '⍠SPEC'≡req
-     schemas←##.##.spec.components.schemas
+     schemas←##.##.SPEC.schemas
      res←(tags:,⊂'Videos' ⋄ summary:'Get a single video' ⋄ operationId: 'getVideo'
          responses:(
              ⍙200:(

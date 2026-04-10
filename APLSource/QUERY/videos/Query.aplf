@@ -1,7 +1,7 @@
  res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;schemas;stemmer;terms;this;to;v
  ⍝
  :If req≡'⍠SPEC'
-     schemas←##.##.spec.components.schemas
+     schemas←##.##.SPEC.schemas
      res←(
          tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId: 'getVideos'
          description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
