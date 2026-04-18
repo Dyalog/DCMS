@@ -154,9 +154,16 @@
       :Else
           migrations←schema_definitions
       :EndIf
+      Run←{
+          0=⊃r←SQA.Do db ⍵:⍬
+          ⎕←'Migration failed: ',⍺
+          ⎕←'  Statement: ',⍵
+          ⎕←'  Error: ',,⍕3⊃r
+      }
       :For (migration batch) :InEach (migrations sequence)
-          sql←StatementsFromSchema migration
-          SQA.Do¨(⊂db)∘,¨⊂¨sql
+          ##.Log migration
+          statements←StatementsFromSchema migration
+          migration∘Run¨statements
           SQA.Do db'insert into migrations (`migration`,`batch`) values (:file<C255:,:num<I:);'migration batch
       :EndFor
       msg←'Finished SetupSchema'
