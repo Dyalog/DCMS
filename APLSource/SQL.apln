@@ -45,8 +45,12 @@
           Reconnect opt
       :EndIf
       :If 0≠⊃r←SQA.Connect db,⍥⊆datasource
-          ⎕←r
-          ('Could not connect to ',⊃datasource)⎕SIGNAL⊃r
+          :If 10009=2⊃r
+              ⎕←'Already connected to ',⊃datasource
+          :Else
+              ⎕←r
+              ⎕SIGNAL⊂('EN'(⊃r))('Vendor' 'DCMS')('Message'('Could not connect to ',⊃datasource))
+          :EndIf
       :EndIf
       ⎕←Do'create database if not exists dyalog_cms'
       ⎕←Use'dyalog_cms'
