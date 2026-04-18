@@ -26,7 +26,7 @@
               SQA.Close db
               Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
           :Else
-              (3⊃msg)⎕SIGNAL 500
+              ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃msg))
           :EndIf
       :ElseIf 0>en
           ⎕←msg←2 1⊃SQA.GetWarning cur   ⍝ Print and pass on warning
@@ -38,7 +38,7 @@
       :If 0=⊃src←SQA.DSN''
           src←2⊃src          ⍝ List of available ODBC data sources
       :Else
-          (2⊃src)⎕SIGNAL 500 ⍝ Error getting ODBC data sources
+          ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(2⊃src))   ⍝ Error getting ODBC data sources
       :EndIf
       :If ~(1⌷datasource)∊⍥⎕C⊣/src
           'opt'⎕NS ⍬ ⋄ opt.(wait timeout)←3 5 ⋄ opt.datasource←⊃datasource
@@ -65,7 +65,7 @@
           found←(1⌷datasource)∊⍥⎕C⊣/src
           opt.wait-←1 ⋄ timeout←opt.wait≤0
       :Until timeout∨found
-      500 ⎕SIGNAL⍨'Datasource ',(⊃datasource),' not found.'
+      ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Datasource ',(⊃datasource),' not found.'))
     ∇
 
     ∇ r←Use database
@@ -93,7 +93,7 @@
           Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
           r←ucs Do sql
       :Else
-          (Print 3⊃r)⎕SIGNAL 501                           ⍝ Other SQL error
+          ⎕SIGNAL⊂('EN' 501)('Vendor' 'DCMS')('Message'(Print 3⊃r))   ⍝ Other SQL error
       :EndIf
     ∇
 
@@ -105,16 +105,16 @@
      ⍝ This function uses the known types from ProcessTableInformation to ensure full data is retrieved.
           table←⍺ ⋄ cols←⍵
           ti←##.GLOBAL.tables⍳⊂table
-          ti>≢##.GLOBAL.tables:('Unknown table: ',table)⎕SIGNAL 500
+          ti>≢##.GLOBAL.tables:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown table: ',table))
           allcols←⊃##.GLOBAL.columns[ti]
           alltypes←⊃##.GLOBAL.type_sqapl[ti]
           ci←allcols⍳cols
-          ∨/bad←ci>≢allcols:('Unknown columns: ',⍕bad/cols)⎕SIGNAL 500
+          ∨/bad←ci>≢allcols:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown columns: ',⍕bad/cols))
           types←{1↓⍵}¨alltypes[ci]                       ⍝ strip leading '<'
           ann←':>',(1↓∊(',',⊢)¨types),':'                ⍝ :>I,C65535:
           sql←'select ',(1↓∊(',',⊢)¨⊆cols),' from ',table,' ',ann
           cname←2⊃SQA.CursorName db
-          Fail←{{}SQA.Close cname ⋄ (3⊃⍵)⎕SIGNAL 501}
+          Fail←{{}SQA.Close cname ⋄ ⎕SIGNAL⊂('EN' 501)('Vendor' 'DCMS')('Message'(3⊃⍵))}
           0≠⊃p←SQA.Prepare cname sql:Fail p
           0≠⊃e←SQA.Exec cname:Fail e
           0≠⊃f←SQA.Fetch cname:Fail f
@@ -136,13 +136,13 @@
      ⍝ ⍵: Simple char vec        :: path to .sql file
      ⍝ ←: Nested vec of char vec :: SQL statements
           (txt enc nl)←⎕NGET ⍵
-          sql←'/\*.+\*/'⎕R''⍠'Greedy' 0⊢txt   ⍝ Remove comments
+          sql←'/\*.+\*/' '--[^\n]*'⎕R''⊢txt   ⍝ Remove comments
           sql←' '@(∊∘(⎕UCS nl))sql            ⍝ Replace newlines with spaces
           sql←' '∘(1↓,⊢⍤/⍨1(⊢∨⌽)0,≠)sql       ⍝ Remove leading, trailing, duplicate blanks
           ';'(≠⊆⊢)sql                         ⍝ Split on semicolons
       }
 
-    ∇ msg←SetupSchema dum;batch;create_migrations;folder;latest;migration;migrations;order;schema_definitions;sequence;sql
+    ∇ msg←SetupSchema dum;Run;batch;create_migrations;folder;latest;migration;migrations;order;schema_definitions;sequence;statements
       create_migrations←⊃⎕NGET ##.GLOBAL.app_dir,'/sql/migrations.sql'
       Do create_migrations
      
@@ -181,7 +181,7 @@
           cz←d[;h⍳⊂'COLUMN_SIZE']
           tp←d[;h⍳⊂'DATA_TYPE']
           ti←(⊢/tc)⍳tp
-          ∨/ti>≢tc:('Unknown column types in rows ',⍕⍸ti>≢tc)⎕SIGNAL 101
+          ∨/ti>≢tc:⎕SIGNAL⊂('EN' 101)('Vendor' 'DCMS')('Message'('Unknown column types in rows ',⍕⍸ti>≢tc))
           tn←tc[ti;2]
           sqat←('<'∘=⊂⊢)∊(⍕¨cz/⍨'⎕'∘∊¨tn)@('⎕'∘=)∊tn   ⍝ Replace ⎕ with numeric field widths (COLUMN_SIZE) in SQAPL type definitions
           t←d[;h⍳⊂'TABLE_NAME']
