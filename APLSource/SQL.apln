@@ -93,6 +93,31 @@
       :EndIf
     ∇
 
+      Select←{
+     ⍝ ⍺: table name
+     ⍝ ⍵: vector of column names
+     ⍝ ←: nested matrix of result rows
+     ⍝ Simple SQA.Do on text columns hits a default 16384 buffer limit, truncating columns.
+     ⍝ This function uses the known types from ProcessTableInformation to ensure full data is retrieved.
+          table←⍺ ⋄ cols←⍵
+          ti←##.GLOBAL.tables⍳⊂table
+          ti>≢##.GLOBAL.tables:('Unknown table: ',table)⎕SIGNAL 500
+          allcols←⊃##.GLOBAL.columns[ti]
+          alltypes←⊃##.GLOBAL.type_sqapl[ti]
+          ci←allcols⍳cols
+          ∨/bad←ci>≢allcols:('Unknown columns: ',⍕bad/cols)⎕SIGNAL 500
+          types←{1↓⍵}¨alltypes[ci]                       ⍝ strip leading '<'
+          ann←':>',(1↓∊(',',⊢)¨types),':'                ⍝ :>I,C65535:
+          sql←'select ',(1↓∊(',',⊢)¨⊆cols),' from ',table,' ',ann
+          cname←2⊃SQA.CursorName db
+          Fail←{{}SQA.Close cname ⋄ (3⊃⍵)⎕SIGNAL 501}
+          0≠⊃p←SQA.Prepare cname sql:Fail p
+          0≠⊃e←SQA.Exec cname:Fail e
+          0≠⊃f←SQA.Fetch cname:Fail f
+          _←SQA.Close cname
+          2⊃f
+      }
+
     Print←{1⎕JSON 1↓,(⎕ucs 13),30(⌊∘≢↑⊢)⍕⍵}
 
     ∇ r←Columns table
