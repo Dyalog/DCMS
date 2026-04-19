@@ -1,5 +1,5 @@
  res←Events req
- #.req←req
+ 
  :If req≡'⍠SPEC'
      res←(
         tags: ,⊂'Events' ⋄ summary:'List events' ⋄ operationId: 'getEvents'

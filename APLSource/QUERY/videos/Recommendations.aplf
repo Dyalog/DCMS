@@ -1,6 +1,6 @@
  r←Recommendations req;Values;all_id;fid;fields;n;rec;schemas;this;vids;ytid
 ⍝ List of video objects most related to video with youtube_id given by "youtube_id" path parameter
- #.last←req
+ 
  :If '⍠SPEC'≡req
      schemas←##.##.SPEC.schemas
      r←(tags:,⊂'Videos' ⋄ summary:'Get video recommendations' ⋄ operationId: 'getVideoRecommendations'
