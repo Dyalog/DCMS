@@ -1,4 +1,4 @@
- r←Read req;GBL;data;fields;id;idx;responses;schemas;table
+ r←Read req;GBL;data;fields;id;idx;pg;ppg;responses;schemas;table
  
  :If 2=⎕NC'req'
      (schemas responses parameters)←##.SPEC.(schemas responses parameters)
@@ -31,7 +31,7 @@
                  content:(⍙application⍙47⍙json:(schema:schemas.crud_item))
              )
              ⍙400:(
-                 description: 'Bad request, e.g. invalid ID parameter.'
+                 description:'Bad request, e.g. invalid ID parameter.'
                  content:(⍙application⍙47⍙json:(schema:schemas.error))
              )
              ⍙404:responses.not_found
@@ -51,15 +51,15 @@
 
  fields←idx⊃GBL.columns
  (id pg ppg)←req.PathParams ⎕VGET('id' '')('page' 1)('per_page' 20)
- 
+
  :If 0=≢id
     ⍝ return whole table
-     data←##.SQL.Do'SELECT * FROM ',table
-     r←(('crud/',table) pg ppg) ##.QUERY.(Paginate∘Table2JSON) fields⍪data
+     data←##.SQL.Select(table:table ⋄ columns:fields)
+     r←(('crud/',table)pg ppg)##.QUERY.(Paginate∘Table2JSON)fields⍪data
  :ElseIf ∨/~id∊⎕D
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
  :Else
-     data←##.SQL.Do'SELECT * FROM ',table,' WHERE id = ',id
+     data←##.SQL.Select(table:table ⋄ columns:fields ⋄ where:'id=',id)
      :If 0=≢data
          ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
      :Else

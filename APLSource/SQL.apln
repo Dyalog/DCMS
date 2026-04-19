@@ -97,29 +97,56 @@
       :EndIf
     ∇
 
+    ⍝ ───────── CRUD functions ─────────
+    ⍝ Work around 16384-char SQA.Do result-buffer using low-level Prepare/Exec/Fetch
+    ⍝ with explicit SQAPL result-column type annotations
+    ⍝ Each CRUD function takes a single options namespace and returns the rows affected by the statement
+
+      TypesFor←{
+     ⍝ ⍺: table name. ⍵: column names.
+     ⍝ ←: SQAPL type strings (with leading '<') for those columns in ⍵'s order.
+          ti←##.GLOBAL.tables⍳⊂⍺
+          ti>≢##.GLOBAL.tables:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown table: ',⍺))
+          allcols←ti⊃##.GLOBAL.columns
+          alltypes←ti⊃##.GLOBAL.type_sqapl
+          ci←allcols⍳⍵
+          ∨/bad←ci>≢allcols:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown columns: ',⍕bad/⍵))
+          alltypes[ci]
+      }
+
+    WrapColNames←(1↓∊){',`',⍵,'`'}¨              ⍝ `a`,`b`
+    WrapValueTypes←(1↓∊){',:',⍵,':'}¨            ⍝ :<C10:,:<I:
+    WrapResultTypes←{':>',(1↓∊','∘,¨1↓¨⍵),':'}   ⍝ :>C10,I:   ⍝ FIXME if we store types without < don't need 1↓¨
+
+      Fetch←{
+     ⍝ ⍺ (optional): nested vector of bind values. ⍬ means no binds.
+     ⍝ ⍵: annotated SQL statement.
+     ⍝ ←: result matrix (2⊃ of SQA.Fetch), or ⎕SIGNAL on failure.
+          ⍺←⍬ ⋄ values←⍺ ⋄ sql←⍵
+          cur←2⊃SQA.CursorName db
+          Fail←{_←SQA.Close cur ⋄ ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃⍵))}
+          0≠⊃p←SQA.Prepare cur sql:Fail p
+          e←{0=≢values:SQA.Exec cur ⋄ SQA.Exec cur⊂⍛,values}⍬
+          0≠⊃e:Fail e
+          0≠⊃f←1 SQA.Fetch cur:Fail f
+          _←SQA.Close cur
+          ⊃2⊃f
+      }
+
+    ⍝ Crud functions Select/Insert/Update/Delete take a single options namespace. Fields:
+    ⍝   table     : table name (required)
+    ⍝   columns   : insert / set / get columns (Select, Insert, Update)
+    ⍝   values    : matrix of input tuples (Insert, Update)
+    ⍝   where     : literal WHERE clause, without the 'WHERE' keyword (Select, Update, Delete)
+    ⍝   returning : columns to return via RETURNING (Insert, Update)
+
       Select←{
-     ⍝ ⍺: table name
-     ⍝ ⍵: vector of column names
-     ⍝ ←: nested matrix of result rows
-     ⍝ Simple SQA.Do on text columns hits a default 16384 buffer limit, truncating columns.
-     ⍝ This function uses the known types from ProcessTableInformation to ensure full data is retrieved.
-          table←⍺ ⋄ cols←⍵
-          ti←##.GLOBAL.tables⍳⊂table
-          ti>≢##.GLOBAL.tables:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown table: ',table))
-          allcols←⊃##.GLOBAL.columns[ti]
-          alltypes←⊃##.GLOBAL.type_sqapl[ti]
-          ci←allcols⍳cols
-          ∨/bad←ci>≢allcols:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown columns: ',⍕bad/cols))
-          types←{1↓⍵}¨alltypes[ci]                       ⍝ strip leading '<'
-          ann←':>',(1↓∊(',',⊢)¨types),':'                ⍝ :>I,C65535:
-          sql←'select ',(1↓∊(',',⊢)¨⊆cols),' from ',table,' ',ann
-          cname←2⊃SQA.CursorName db
-          Fail←{{}SQA.Close cname ⋄ ⎕SIGNAL⊂('EN' 501)('Vendor' 'DCMS')('Message'(3⊃⍵))}
-          0≠⊃p←SQA.Prepare cname sql:Fail p
-          0≠⊃e←SQA.Exec cname:Fail e
-          0≠⊃f←SQA.Fetch cname:Fail f
-          _←SQA.Close cname
-          2⊃f
+     ⍝ Returns matrix of rows, columns in `columns` order.
+          (table columns where)←⍵ ⎕VGET('table')('columns'⍬)('where' '')
+          return_types←table TypesFor columns
+          sql←'SELECT ',(WrapColNames columns),' FROM ',table,((0<≢where)/' WHERE '),where,' ',WrapResultTypes return_types
+          Fetch sql
+      }
       }
 
     Print←{1⎕JSON 1↓,(⎕ucs 13),30(⌊∘≢↑⊢)⍕⍵}
