@@ -1,0 +1,22 @@
+ r←Test_BadTransaction base_url;after;before;h;payload;res
+⍝ Send a POST where second row violates a NOT NULL constraint (empty `type` → NULL bind → server-side rejection).
+⍝ Transact error-guard: the first row's insert must be rolled back, and the HTTP response shows the SQAPL/server error message.
+
+ before←#.DCMS.SQL.Do'SELECT COUNT(*) FROM event_type'
+
+ payload←'[{"type":"good_type","description":"row 1 should be rolled back","url_slug":"tx-test-1"},{"type":"","description":"row 2 forces NOT NULL violation","url_slug":"tx-test-2"}]'
+
+ h←⎕NEW #.HttpCommand'POST'
+ h.URL←base_url,'/crud/event_type'
+ 'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+ h.ContentType←'application/json'
+ h.Params←payload
+ res←h.Run
+
+ after←#.DCMS.SQL.Do'SELECT COUNT(*) FROM event_type'
+
+ res←0⎕json res.Data
+ r←after≡before
+ r∧←res.error≡500
+ r∧←'cannot be null'(∨/⍷)res.message
+ 
