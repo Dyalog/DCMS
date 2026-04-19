@@ -1,5 +1,5 @@
- r←Create req;GBL;WrapBackticks;WrapColons;cid;columns;eg;idx;our_cols;parameters;responses;schemas;sql;table;types;values
-
+ r←Create req;GBL;columns;eg;idx;our_cols;parameters;responses;schemas;table;values
+ 
  :If 2=⎕NC'req'
      (schemas responses parameters)←##.SPEC.(schemas responses parameters)
  :EndIf
@@ -11,11 +11,6 @@
  :EndIf
 
  ##.Log'[REQ] POST /crud/',req.PathParams ⎕VGET⊂'table' ''
-
-⍝ ⎕←req.Params
- r←'Not yet' ⋄ :Return
-
- ⎕SIGNAL⊂('EN' 501)('Vendor' 'DCMS')('Message' 'This endpoint is not yet implemented.')
 
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL
@@ -29,7 +24,7 @@
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'FIXME bad kind of payload needs to go into API')
  :EndIf
  columns←req.Payload[1].⎕NL ¯2
- our_cols←idx⊃GBL.columns ⋄ cid←our_cols⍳⊆columns
+ our_cols←idx⊃GBL.columns
  :If 0∊⍴columns
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request payload must include columns to insert.')
  :ElseIf ∨/(≢our_cols)<our_cols⍳columns
@@ -38,10 +33,5 @@
 
  values←↑req.Payload ⎕VGET columns
 
- WrapBackticks←(2↓∊){', `',⍵,'`'}¨
- WrapColons←(1↓∊){',:',⍵,':'}¨
- columns←WrapBackticks columns
- types←WrapColons(idx⊃GBL.type_sqapl)[cid]
- sql←'INSERT INTO ',table,' (',columns,') VALUES (',types,');'
- {}##.SQL.DoBulk sql values   ⍝ Failure signalled from SQL namespace; on success, return newly created fields
- 
+ r←##.QUERY.Table2JSON our_cols⍪##.SQL.Insert(table:table ⋄ columns:columns ⋄ values:values ⋄ returning:our_cols)
+ req.SetStatus 201
