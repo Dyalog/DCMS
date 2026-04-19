@@ -8,5 +8,5 @@
      #.DCMS.SQL.Do sql
  :Else
      dmx←⎕DMX   ⍝ Save ⎕DMX for debugging
-     r←'Duplicate entry'(∨/⍷)dmx.EM
+     r←'Duplicate entry'(∨/⍷)dmx.Message
  :EndTrap
