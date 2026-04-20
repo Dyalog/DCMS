@@ -70,6 +70,8 @@
  example_search_term←'wombo'
  videos.title←example_search_term⊂⍛,stems   ⍝ Unique keyword for search testing
  videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-1+≢stems
+ videos.description←(vocab: lipsum ⋄ max: 65535)generator.Text n
+ videos.description[2]←videos.description[1]   ⍝ Guarantee similar video for recommendations test
  videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
  example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
 
@@ -81,6 +83,7 @@
  youtube_video←(
      youtube_id:videos.youtube_id
      title:videos.title
+     description:videos.description
  )
  youtube_video.⎕DF'youtube_video'
 

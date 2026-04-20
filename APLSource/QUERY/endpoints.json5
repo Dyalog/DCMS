@@ -18,7 +18,8 @@
                 LEFT JOIN presentation_media AS m ON m.presentation_id = p.id\
                 LEFT JOIN youtube_video AS yt ON yt.id = m.media_id\
                 LEFT JOIN presentation_category AS c ON c.id = p.category_id\
-                WHERE m.type = \"youtube_video\"",
+                WHERE m.type = \"youtube_video\"\
+                :>C256,C256,C256,C65535,C19(S),C19(S),C256,C256,C11,C256:",
         presenter: {
             sql: "SELECT DISTINCT yt.title,yt.youtube_id,per.name,per.id\
                     FROM presentation AS p\

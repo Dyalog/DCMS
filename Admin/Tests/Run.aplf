@@ -10,7 +10,8 @@
  :Else
      ##.Refresh''
  :EndIf
+ :While ~#.isolate.Available'#.DCMS.QUERY.recommendations'   ⍝ Wait until recommendations ready
+ :EndWhile
  result∧←DoTest DummyData   ⍝ Test insert and retrieve dummy data
  result∧←DoTest General     ⍝ General tests should still pass after populating database, cache etc.
  result∧←DoTest Crud        ⍝ Test Create Read Update Delete
- 
