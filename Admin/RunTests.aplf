@@ -1,5 +1,9 @@
- r←RunTests keepalive;result
- r←Tests.Run GetEnv'URL'
+ r←RunTests opts;result;keepalive;show_pass
+⍝ (keepalive [show_pass])
+⍝ keepalive: do not quit after running tests
+⍝ show_pass: flag to print passing tests to output
+ (keepalive show_pass)←2↑opts
+ r←show_pass Tests.Run GetEnv'URL'
  :If keepalive
      :Return
  :EndIf

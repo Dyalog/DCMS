@@ -1,4 +1,4 @@
- result←url Test ns;DoTest;F;LoadDependency;fn;r;suite;tests
+ result←url (show_pass Test) ns;DoTest;F;LoadDependency;fn;r;suite;tests
  tests⌿⍨←'Test'∘(⊃⍷)¨tests←'T'ns.⎕NL ¯3
  suite←⍕ns
  result←1
@@ -6,6 +6,8 @@
      F←ns⍎⍵
      0::0⊣⎕←'**TEST ERROR** ',suite,'.',⍵
      0=F url:0⊣⎕←'**TEST FAIL** ',suite,'.',⍵
+     ⍺←0
+     ⍺:1⊣⎕←'TEST PASS ',suite,'.',⍵
      1
  }
- result←∧/DoTest¨tests
+ result←∧/show_pass∘DoTest¨tests

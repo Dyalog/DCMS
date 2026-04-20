@@ -1,7 +1,8 @@
- result←Run url;DoTest;F;LoadDependency;fn;r;tests
+ result←{show_pass}Run url;DoTest;F;LoadDependency;fn;r;tests
  ⎕←'Testing ',url
+ show_pass←⎕VGET⊂'show_pass' 0
  ##.MockYT.Run
- DoTest←url∘Test
+ DoTest←url∘(show_pass Test)
  result←1
  result∧←DoTest General     ⍝ General tests should pass from clean start
  InsertDummyData
