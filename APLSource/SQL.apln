@@ -130,7 +130,9 @@
           0≠⊃e:Fail e
           0≠⊃f←1 SQA.Fetch cur:Fail f
           _←SQA.Close cur
-          ⊃2⊃f
+          2⊃f
+      }
+
       }
 
     ⍝ Crud functions Select/Insert/Update/Delete take a single options namespace. Fields:
