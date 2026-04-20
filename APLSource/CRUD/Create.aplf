@@ -1,11 +1,21 @@
  r←Create req;GBL;columns;eg;idx;our_cols;parameters;responses;schemas;table;values
- 
+
  :If 2=⎕NC'req'
      (schemas responses parameters)←##.SPEC.(schemas responses parameters)
  :EndIf
  :If req≡'⍠SPEC'
      r←(
          tags:,⊂'Table CRUD' ⋄ summary:'Create rows' ⋄ operationId:'createRows'
+         body: (
+            required: ⊂'true' ⋄ content: (⍙application⍙47⍙json: (
+                schema: (type: 'array' ⋄ items: schemas.crud_item)
+            ))
+         )
+         responses: (
+            ⍙201: ()
+            ⍙401: responses.unauthorized
+            ⍙404: responses.not_found
+         )
      )
      :Return
  :EndIf
