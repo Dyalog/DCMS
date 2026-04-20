@@ -1,4 +1,4 @@
- r←Test_BadTransaction base_url;after;before;h;payload;res
+ r←Test_05_BadTransaction base_url;after;before;h;payload;res
 ⍝ Send a POST where second row violates a NOT NULL constraint (empty `type` → NULL bind → server-side rejection).
 ⍝ Transact error-guard: the first row's insert must be rolled back, and the HTTP response shows the SQAPL/server error message.
 

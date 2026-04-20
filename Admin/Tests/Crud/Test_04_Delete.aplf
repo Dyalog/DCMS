@@ -1,0 +1,36 @@
+ r←Test_04_Delete base_url;D;DoHttpCommand;after;before;delete;name;url
+⍝ Test that DELETE /crud/{table}/{id} removes a record.
+
+ D←#.DCMS
+
+ DoHttpCommand←{
+     (method url)←⍵
+     h←⎕NEW #.HttpCommand method
+     h.TranslateData←1
+     h.URL←url
+     _←'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     h.Run
+ }
+
+ r←1
+ :For name :In ,⊂'event_type'   ⍝ event organisation person presentation_type presentation presenter presentation_media youtube_video
+     url←base_url,'/crud/',name,'/1'
+     before←DoHttpCommand'GET'url
+     :If 200≢before.HttpStatus
+     :OrIf 1≠before.Data.id
+         r←0
+         ⎕←'**    FAILED GET ',url
+         :Return
+     :EndIf
+     delete←DoHttpCommand'DELETE'url
+     :If 204≢delete.HttpStatus
+         r←0
+         ⎕←'**    FAILED DELETE ',url
+         :Return
+     :EndIf
+     after←DoHttpCommand'GET'url
+     :If 404≢after.HttpStatus
+         r←0
+         ⎕←'**    WAS NOT DELETED ',url
+     :EndIf
+ :EndFor

@@ -20,11 +20,14 @@
      '/presenters'                          router.Get('QUERY.Presenters'            (QUERY.Presenters'⍠SPEC'))
      '/events'                              router.Get('QUERY.Events'                (QUERY.Events'⍠SPEC'))
      ⍝ FIXME operationId for endpoints should reference the function that handles the request
-     '/crud/{table}'      router.Get('CRUD.Read' (CRUD.Read'⍠SPEC'))
-     '/crud/{table}/{id}' router.Get('CRUD.Read' (CRUD.Read'ID⍠SPEC'))
+     '/crud/{table}'      router.Get   ('CRUD.Read'   (CRUD.Read'⍠SPEC'))
+     '/crud/{table}'      router.Post  ('CRUD.Create' (CRUD.Create'⍠SPEC'))
+     '/crud/{table}/{id}' router.Get   ('CRUD.Read'   (CRUD.Read'ID⍠SPEC'))
+     '/crud/{table}/{id}' router.Patch ('CRUD.Update' (CRUD.Read'⍠SPEC'))
+     '/crud/{table}/{id}' router.Delete('CRUD.Delete' (CRUD.Delete'⍠SPEC'))
 
      Teapot←{⎕SIGNAL⊂('EN' 418)('Message' 'I am a teapot')('Vendor' 'DCMS')}
-     '/teapot'            router.Get 'Teapot'
+     '/teapot'            router.Get 'Teapot' (reponses: (⍙418: 'AM TEAPOT FIXME'))
 
      router.OnErrorFn←'HandleError'
     ⍝ Make sure Jarvis can find authentication function until Stark supports middleware or similar for pre-processing requests

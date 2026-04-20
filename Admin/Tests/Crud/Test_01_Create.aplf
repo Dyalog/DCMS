@@ -1,4 +1,4 @@
- r←Test_Create base_url;D;check_cols;cid;column;data;event;event_type;h;name;organisation;payload;person;presentation;presentation_media;presentation_type;presenter;table;tid;youtube_video
+ r←Test_01_Create base_url;D;check_cols;cid;column;data;event;event_type;h;name;organisation;payload;person;presentation;presentation_media;presentation_type;presenter;res;table;tid;youtube_video
 ⍝ Test that POST /crud/{table} creates a new record in the specified table and returns the created record with its new ID
 
  data←##.GenerateTestData 10
@@ -20,9 +20,9 @@
      h.ContentType←'application/json'
      h.Params←payload
      h.TranslateData←1
-     r←h.Run
-     :If 201≢r.HttpStatus
-     :OrIf (r.Data ⎕VGET check_cols)≢payload ⎕VGET check_cols
+     res←h.Run
+     :If 201≢res.HttpStatus
+     :OrIf (res.Data ⎕VGET check_cols)≢payload ⎕VGET check_cols
          ⎕←'**     FAILED ',name
          r←0
          :Return

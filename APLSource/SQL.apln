@@ -201,6 +201,10 @@
           _←(values,nulls)(ExecBind⍤1)upd_sql
           ⊃Fetch sel_sql
       }
+
+      Delete←{
+          (table where)←⍵ ⎕VGET('table' '')('where' '')
+          Do'DELETE FROM ',table,' WHERE ',where
       }
 
     Print←{1⎕JSON 1↓,(⎕ucs 13),30(⌊∘≢↑⊢)⍕⍵}

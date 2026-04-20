@@ -1,0 +1,48 @@
+ r←Delete req;GBL;id;idx;responses;schemas;table;record
+ 
+ :If 2=⎕NC'req'
+     (schemas responses)←##.SPEC.(schemas responses)
+ :EndIf
+ :If req≡'⍠SPEC'
+     r←(
+         tags:,⊂'Table CRUD' ⋄ summary:'Delete a row' ⋄ operationId:'deleteRow'
+         responses:(
+            ⍙204:(description:'Deleted successfully. No content returned.')
+            ⍙400:(
+                description:'Bad request, e.g. invalid ID parameter.'
+                content:(⍙application⍙47⍙json:(schema:schemas.error))
+            )
+            ⍙401:responses.unauthorized
+            ⍙404:responses.not_found
+            ⍙409:(
+                description:'Delete blocked by foreign key constraint.'
+                content:(⍙application⍙47⍙json:(schema:schemas.error))
+            )
+         )
+     )
+     :Return
+ :EndIf
+
+ ##.Log'[REQ] DELETE /crud/',req.PathParams ⎕VGET⊂'table' ''
+
+ table←req.PathParams ⎕VGET⊂'table' ''
+ GBL←##.GLOBAL
+ :If 0∊⍴table
+ :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+ :EndIf
+
+ id←req.PathParams ⎕VGET'id'
+ :If 0=≢id
+ :OrIf ∨/~id∊⎕D
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
+ :EndIf
+
+ record←##.SQL.Select(table:table ⋄ columns:,⊂'id' ⋄ where:'id=',id)
+ :If 0=≢record
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+ :EndIf
+
+ _←##.SQL.Delete(table:table ⋄ where:'id=',id)
+ req.SetStatus 204
+ r←''
