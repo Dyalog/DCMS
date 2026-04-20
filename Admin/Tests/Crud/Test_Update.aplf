@@ -1,0 +1,26 @@
+ r←Test_Update base_url;Patch
+
+ Patch←{
+     (name id fields)←⍵
+     h←⎕NEW #.HttpCommand'Patch'
+     h.URL←base_url,'/crud/',name,'/',⍕id
+     _←'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     h.ContentType←'application/json'
+     h.Params←fields
+     h.TranslateData←1
+     resp←h.Run
+     cols←fields.⎕NL ¯2
+     200≢resp.HttpStatus:0
+     (fields ⎕VGET cols)≡(resp.Data ⊃⍛⎕VGET cols)
+ }
+
+ r←1
+ :If ~Patch'event_type' 1(type:'Updated Event Type') ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'event' 1(title:'Updated Event Title') ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'organisation' 1(name:'Updated Organisation') ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'person' 1(name:'Updated Person') ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'presentation_type' 1(type:'Updated Presentation Type') ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'presentation' 1(title:'Updated Presentation Title') ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'presenter' 1(affiliation: 3) ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'presentation_media' 1(updated_by:'test_runner') ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'youtube_video' 1(title:'Updated Video Title') ⋄ r←0 ⋄ :Return ⋄ :EndIf

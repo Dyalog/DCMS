@@ -1,0 +1,55 @@
+ r←Update req;GBL;columns;eg;id;idx;our_cols;parameters;responses;schemas;table;values
+ 
+ :If 2=⎕NC'req'
+     (schemas responses parameters)←##.SPEC.(schemas responses parameters)
+ :EndIf
+ :If req≡'⍠SPEC'
+     r←(
+         tags:,⊂'Table CRUD' ⋄ summary:'Update a row' ⋄ operationId:'updateRow'
+         body: (
+                content: (⍙application⍙47⍙json: (
+                schema: schemas.crud_item
+            ))
+         )
+         responses: (
+            ⍙200: (
+                description: 'Updated. Returns the updated record.'
+                content: (⍙application⍙47⍙json:
+                    schema: schemas.crud_item
+                )
+            )
+            ⍙400:(
+                 description:'Invalid payload. Request body must be a JSON object.'
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
+            )
+            ⍙401: responses.unauthorized
+            ⍙404: responses.not_found
+         )
+     )
+     :Return
+ :EndIf
+
+ ##.Log'[REQ] POST /crud/',req.PathParams ⎕VGET⊂'table' ''
+ 
+ table←req.PathParams ⎕VGET⊂'table' ''
+ GBL←##.GLOBAL
+ :If 0∊⍴table
+ :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+ :EndIf
+
+ :If 9≠⎕NC'eg'⊣eg←req.Payload
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request body must be a JSON object.')
+ :EndIf
+ columns←req.Payload.⎕NL ¯2
+ our_cols←idx⊃GBL.columns
+ :If 0∊⍴columns
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request payload must include columns to update.')
+ :ElseIf ∨/(≢our_cols)<our_cols⍳columns
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'One or more specified columns are not valid.')
+ :EndIf
+
+ id←req.PathParams ⎕VGET 'id'
+ values←(,req.Payload) ⎕VGET columns   ⍝ Quick fix for rank-compatibility with SQL CRUD functions. FIXME consider modifying Update path to allow bulk updates
+
+ r←##.QUERY.Table2JSON our_cols⍪##.SQL.Update(table:table ⋄ columns:columns ⋄ values:values ⋄ where: 'id=',id ⋄ returning:our_cols)
