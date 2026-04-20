@@ -12,7 +12,16 @@
             ))
          )
          responses: (
-            ⍙201: ()
+            ⍙201: (
+                description: 'Created. Returns affected records.'
+                content: (⍙application⍙47⍙json:
+                    schema: (type: 'array' ⋄ items: schemas.crud_item)
+                )
+            )
+            ⍙400:(
+                 description:'Invalid payload. Request body must be a JSON array of objects.'
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
+             )
             ⍙401: responses.unauthorized
             ⍙404: responses.not_found
          )
@@ -31,7 +40,7 @@
 
  :If 1≠≢⍴req.Payload
  :OrIf 9≠⎕NC'eg'⊣eg←req.Payload[1]
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'FIXME bad kind of payload needs to go into API')
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request body must be a JSON array of objects.')
  :EndIf
  columns←req.Payload[1].⎕NL ¯2
  our_cols←idx⊃GBL.columns
