@@ -1,0 +1,29 @@
+ r←Test_Read base_url;D;event_type;h;name;table;res
+⍝ Test that GET /crud/{table} lists rows and GET /crud/{table}/{id} returns a single row.
+
+ D←#.DCMS
+
+ r←1
+ :For name :In 'event_type' 'event' 'organisation' 'person' 'presentation_type' 'presentation' 'presenter' 'presentation_media' 'youtube_video'
+     h←⎕NEW #.HttpCommand'GET'
+     h.URL←base_url,'/crud/',name
+     h.TranslateData←1
+     'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     res←h.Run
+     :If 200≢res.HttpStatus
+     :OrIf 1≥≢res.Data.data   ⍝ Should return a list of items
+         r←0
+         :Return
+     :EndIf
+
+     h←⎕NEW #.HttpCommand'GET'
+     h.URL←base_url,'/crud/',name,'/1'
+     h.TranslateData←1
+     'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     res←h.Run
+     :If 200≢res.HttpStatus
+     :OrIf 1≠res.Data.id
+         r←0
+         :Return
+     :EndIf
+ :EndFor

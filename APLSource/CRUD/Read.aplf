@@ -18,6 +18,7 @@
                                  )
                              ))))
              )
+             ⍙401:responses.unauthorized
              ⍙404:responses.not_found
          )
      )
@@ -34,6 +35,7 @@
                  description:'Bad request, e.g. invalid ID parameter.'
                  content:(⍙application⍙47⍙json:(schema:schemas.error))
              )
+             ⍙401:responses.unauthorized
              ⍙404:responses.not_found
          )
      )

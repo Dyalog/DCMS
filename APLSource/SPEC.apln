@@ -93,6 +93,15 @@
             content: (⍙application⍙47⍙json: (schema: ##.schemas.error))
         )
 
+        unauthorized←((
+            description: 'Missing or invalid API key.'
+            content: (⍙application⍙47⍙json: (schema: ##.schemas.error))
+            example: (
+                error: 'unauthorized'
+                message: 'Missing or invalid X-API-Key header'
+            )
+        ))
+
    :EndNamespace
 
 :EndNamespace
