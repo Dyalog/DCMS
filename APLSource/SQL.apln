@@ -29,7 +29,7 @@
               ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃msg))
           :EndIf
       :ElseIf 0>en
-          ⎕←msg←2 1⊃SQA.GetWarning cur   ⍝ Print and pass on warning
+          ⎕←msg←SQA.GetWarning cur   ⍝ Print and pass on warning
       :EndIf
     ∇
 
@@ -88,12 +88,13 @@
               r←3 1⊃r
               (ucs/r)←FromUTF8¨ucs/r
           :EndIf
-      :ElseIf '08S01'≡2 1⊃r           ⍝ SQL Server has gone away, attempt to reconnect
+      :ElseIf '08S01'≡⊃2⊃r           ⍝ SQL Server has gone away, attempt to reconnect
+                                     ⍝ ⊃2⊃ fail safe in case non-nested inner structure
           SQA.Close db
           Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
           r←ucs Do sql
       :Else
-          ⎕SIGNAL⊂('EN' 501)('Vendor' 'DCMS')('Message'(Print 3⊃r))   ⍝ Other SQL error
+          ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(Print 3⊃r))   ⍝ Other SQL error
       :EndIf
     ∇
 
