@@ -133,6 +133,16 @@
           2⊃f
       }
 
+      ExecBind←{
+     ⍝ Like Fetch, but for statements that produce no result set.
+          ⍺←⍬ ⋄ values←⍺ ⋄ sql←⍵
+          cur←2⊃SQA.CursorName db
+          Fail←{_←SQA.Close cur ⋄ ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃⍵))}
+          0≠⊃p←SQA.Prepare cur sql:Fail p
+          e←{0=≢values:SQA.Exec cur ⋄ SQA.Exec cur⊂⍛,values}⍬
+          0≠⊃e:Fail ⎕←e
+          _←SQA.Close cur
+          0
       }
 
     ⍝ Crud functions Select/Insert/Update/Delete take a single options namespace. Fields:
@@ -144,10 +154,51 @@
 
       Select←{
      ⍝ Returns matrix of rows, columns in `columns` order.
-          (table columns where)←⍵ ⎕VGET('table')('columns'⍬)('where' '')
+          (table where)←⍵ ⎕VGET('table')('where' '')
+          columns←⎕VGET⊂('columns'(Columns table))
           return_types←table TypesFor columns
           sql←'SELECT ',(WrapColNames columns),' FROM ',table,((0<≢where)/' WHERE '),where,' ',WrapResultTypes return_types
-          Fetch sql
+          ⊃Fetch sql
+      }
+      
+      Insert←{
+     ⍝ Empty cells in `values` become SQL NULLs. Returns matrix of inserted rows with "RETURNING".
+          (table columns values returning)←⍵ ⎕VGET('table' '')('columns'⍬)('values'⍬)('returning'⍬)
+          insert_types←table TypesFor columns
+          return_types←table TypesFor returning
+          sql←'INSERT INTO ',table,' (',(WrapColNames columns),') VALUES (',(WrapValueTypes insert_types),') RETURNING ',(WrapColNames returning),' ',WrapResultTypes return_types
+          nulls←(0∊⍴)¨values
+          values[⍸(insert_types∊⊂'<S')(∧⍤1)nulls]←⊂19⍴''   ⍝ datetime placeholder for nulls
+          values[⍸(insert_types∊⊂'<I')(∧⍤1)nulls]←0        ⍝ integer placeholder for nulls
+          (values nulls) Transact sql
+      }
+
+      Transact←{
+          (values nulls)←⍺ ⋄ sql←⍵
+          _←Do'START TRANSACTION'
+          0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
+          ⊃⍪⌿(values,nulls)(Fetch⍤1)sql
+      }
+
+      Update←{
+     ⍝ Same `where` applied to every row of `values`. Returns matrix of
+     ⍝ affected rows projected through `returning`. MariaDB v10 does not support
+     ⍝ UPDATE...RETURNING, so the UPDATE and a follow-up SELECT are issued in
+     ⍝ a single transaction.
+          (table columns values where returning)←⍵ ⎕VGET('table' '')('columns'⍬)('values'⍬)('where' '')('returning'⍬)
+          set_types←table TypesFor columns
+          return_types←table TypesFor returning
+          SetPair←{',`',⍺,'`=:',⍵,':'}
+          set_clause←1↓∊columns SetPair¨set_types
+          upd_sql←'UPDATE ',table,' SET ',set_clause,' WHERE ',where
+          sel_sql←'SELECT ',(WrapColNames returning),' FROM ',table,' WHERE ',where,' ',WrapResultTypes return_types
+          nulls←(0∊⍴)¨⊆values
+          values[⍸(set_types∊⊂'<S')(∧⍤1)nulls]←⊂19⍴''
+          values[⍸(set_types∊⊂'<I')(∧⍤1)nulls]←0
+          _←Do'START TRANSACTION'
+          0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
+          _←(values,nulls)(ExecBind⍤1)upd_sql
+          ⊃Fetch sel_sql
       }
       }
 
