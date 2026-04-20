@@ -14,14 +14,14 @@
          responses: (
             ⍙201: (
                 description: 'Created. Returns affected records.'
-                content: (⍙application⍙47⍙json:
+                content: (⍙application⍙47⍙json:(
                     schema: (type: 'array' ⋄ items: schemas.crud_item)
-                )
+                ))
             )
             ⍙400:(
                  description:'Invalid payload. Request body must be a JSON array of objects.'
                  content:(⍙application⍙47⍙json:(schema:schemas.error))
-             )
+            )
             ⍙401: responses.unauthorized
             ⍙404: responses.not_found
          )
