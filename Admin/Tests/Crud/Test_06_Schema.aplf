@@ -1,0 +1,97 @@
+ r←Test_06_Schema base_url;D;DoRequest;FindCol;c;col;fk_cols;fk_refs;fk_tables;id_col;name;ref_table;res;token
+⍝ Test that GET /crud/{table}/schema returns column metadata including FK references.
+
+ D←#.DCMS
+
+ DoRequest←{
+     ⍺←⍬
+     (method url)←⍵
+     h←⎕NEW #.HttpCommand method
+     h.TranslateData←1
+     h.URL←url
+     0∊⍴⍺:h.Run
+     _←'x-api-key'h.SetHeader ⍺
+     h.Run
+ }
+ FindCol←{
+     0∊⍴⍵:⍬
+     names←{⍵.name}¨⍵
+     ix←names⍳⊂⍺
+     ix>≢names:⍬
+     ix⊃⍵
+ }
+
+ r←1
+ token←##.##.Secrets'upload_token'
+
+ :For name :In 'event_type' 'event' 'organisation' 'person' 'presentation_type' 'presentation' 'presenter' 'presentation_media' 'youtube_video'
+     res←token DoRequest'GET'(base_url,'/crud/',name,'/schema')
+     :If 200≢res.HttpStatus
+     :OrIf name≢res.Data.table
+     :OrIf 0=≢res.Data.columns
+         ⎕←'**    FAILED /schema for ',name
+         r←0
+         :Return
+     :EndIf
+     id_col←'id' FindCol res.Data.columns
+     :If 0∊⍴id_col
+     :OrIf 'integer'≢id_col.json_type
+     :OrIf 0≠id_col.⎕NC'references'
+         ⎕←'**    FAILED id column contract for ',name
+         r←0
+         :Return
+     :EndIf
+ :EndFor
+
+ fk_tables←'presentation' 'presentation' 'presenter' 'presenter' 'presentation_media'
+ fk_cols←'event_id' 'type_id' 'person_id' 'presentation_id' 'presentation_id'
+ fk_refs←'event' 'presentation_type' 'person' 'presentation' 'presentation'
+ :For (name col ref_table) :InEach fk_tables fk_cols fk_refs
+     res←token DoRequest'GET'(base_url,'/crud/',name,'/schema')
+     c←col FindCol res.Data.columns
+     :If 0∊⍴c
+     :OrIf 0=c.⎕NC'references'
+     :OrIf ref_table≢c.references.table
+     :OrIf 'id'≢c.references.column
+         ⎕←'**    FAILED FK ',name,'.',col,' → ',ref_table
+         r←0
+         :Return
+     :EndIf
+ :EndFor
+
+ res←token DoRequest'GET'(base_url,'/crud/person/schema')
+ c←'name' FindCol res.Data.columns
+ :If (~0∊⍴c)∧0≠c.⎕NC'references'
+     ⎕←'**    FAILED non-FK column person.name has references'
+     r←0
+     :Return
+ :EndIf
+
+ res←token DoRequest'GET'(base_url,'/crud/does_not_exist/schema')
+ :If 404≢res.HttpStatus
+     ⎕←'**    FAILED unknown table returned ',⍕res.HttpStatus
+     r←0
+     :Return
+ :EndIf
+
+ res←DoRequest'GET'(base_url,'/crud/person/schema')
+ :If 401≢res.HttpStatus
+     ⎕←'**    FAILED missing auth returned ',⍕res.HttpStatus
+     r←0
+     :Return
+ :EndIf
+
+ res←token DoRequest'GET'(base_url,'/crud/person/schema')
+ :If 200≢res.HttpStatus
+ :OrIf 'person'≢res.Data.table
+     ⎕←'**    FAILED route ordering /schema'
+     r←0
+     :Return
+ :EndIf
+ res←token DoRequest'GET'(base_url,'/crud/person/1')
+ :If 200≢res.HttpStatus
+ :OrIf 1≠res.Data.id
+     ⎕←'**    FAILED route ordering /{id}'
+     r←0
+     :Return
+ :EndIf
