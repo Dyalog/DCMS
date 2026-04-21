@@ -275,6 +275,11 @@
           ##.GLOBAL.type_sqapl←t⊢∘⊂⌸sqat
           ##.GLOBAL.columns←t⊢∘⊂⌸d[;h⍳⊂'COLUMN_NAME']
           ##.GLOBAL.lengths←t⊢∘⊂⌸cz
+          fk_rows←Do'SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL ORDER BY TABLE_NAME, ORDINAL_POSITION'
+          fk_keys←fk_rows[;1] ⋄ fk_triples←↓fk_rows[;2 3 4]   ⍝ keys: TABLE_NAME; triples: (col ref_table ref_column) per FK column
+          fks←(≢##.GLOBAL.tables)⍴⊂⍬                          ⍝ one slot per table, default empty
+          fks[##.GLOBAL.tables⍳∪fk_keys]←fk_keys⊢∘⊂⌸fk_triples
+          ##.GLOBAL.foreign_keys←fks
           'Processed table information'
       }
 
