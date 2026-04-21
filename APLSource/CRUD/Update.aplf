@@ -1,5 +1,5 @@
  r←Update req;GBL;columns;eg;id;idx;our_cols;parameters;responses;schemas;table;values
- 
+
  :If 2=⎕NC'req'
      (schemas responses parameters)←##.SPEC.(schemas responses parameters)
  :EndIf
@@ -14,9 +14,9 @@
          responses: (
             ⍙200: (
                 description: 'Updated. Returns the updated record.'
-                content: (⍙application⍙47⍙json:
+                content: (⍙application⍙47⍙json:(
                     schema: schemas.crud_item
-                )
+                ))
             )
             ⍙400:(
                  description:'Invalid payload. Request body must be a JSON object.'
@@ -30,7 +30,7 @@
  :EndIf
 
  ##.Log'[REQ] POST /crud/',req.PathParams ⎕VGET⊂'table' ''
- 
+
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL
  :If 0∊⍴table
