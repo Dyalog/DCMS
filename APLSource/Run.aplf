@@ -21,6 +21,7 @@
      '/events'                              router.Get('QUERY.Events'                (QUERY.Events'⍠SPEC'))
 
      '/schema/{table}'    router.Get   ('CRUD.Schema' (CRUD.Schema'⍠SPEC'))
+     '/crud'              router.Get   ('CRUD.Tables' (CRUD.Tables'⍠SPEC'))
      '/crud/{table}'      router.Get   ('CRUD.Read'   (CRUD.Read'⍠SPEC'))
      '/crud/{table}'      router.Post  ('CRUD.Create' (CRUD.Create'⍠SPEC'))
      '/crud/{table}/{id}' router.Get   ('CRUD.Read'   (CRUD.Read'ID⍠SPEC'))

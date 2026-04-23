@@ -1,0 +1,41 @@
+ r←Test_07_Tables base_url;D;DoRequest;anchors;res;tables;token
+⍝ Test that GET /crud returns the list of tables served by the CRUD routes.
+
+ D←#.DCMS
+
+ DoRequest←{
+     ⍺←⍬
+     (method url)←⍵
+     h←⎕NEW #.HttpCommand method
+     h.TranslateData←1
+     h.URL←url
+     0∊⍴⍺:h.Run
+     _←'x-api-key'h.SetHeader ⍺
+     h.Run
+ }
+
+ r←1
+ token←##.##.Secrets'upload_token'
+
+ res←token DoRequest'GET'(base_url,'/crud')
+ :If 200≢res.HttpStatus
+ :OrIf 0=≢res.Data.tables
+     ⎕←'**    FAILED GET /crud returned ',⍕res.HttpStatus
+     r←0
+     :Return
+ :EndIf
+
+ tables←res.Data.tables
+ anchors←'person' 'event' 'youtube_video'
+ :If ~∧/anchors∊tables
+     ⎕←'**    FAILED /crud missing one of ',⍕anchors
+     r←0
+     :Return
+ :EndIf
+
+ res←DoRequest'GET'(base_url,'/crud')
+ :If 401≢res.HttpStatus
+     ⎕←'**    FAILED /crud without auth returned ',⍕res.HttpStatus
+     r←0
+     :Return
+ :EndIf

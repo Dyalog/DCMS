@@ -1,0 +1,26 @@
+ r←Tables req;responses
+
+ :If 2=⎕NC'req'
+     responses←##.SPEC.responses
+ :EndIf
+ :If req≡'⍠SPEC'
+     r←(
+         tags:,⊂'Table CRUD' ⋄ summary:'List available tables' ⋄ operationId:'listTables'
+         responses:(
+             ⍙200:(
+                 description:'Names of tables exposed under /crud/.'
+                 content:(⍙application⍙47⍙json:(schema:(
+                     type:'object'
+                     required:,⊂'tables'
+                     properties:(tables:(type:'array' ⋄ items:(type:'string')))
+                 )))
+             )
+             ⍙401:responses.unauthorized
+         )
+     )
+     :Return
+ :EndIf
+
+ ##.Log'[REQ] GET /crud'
+ r←(tables: ##.GLOBAL.tables)
+ 
