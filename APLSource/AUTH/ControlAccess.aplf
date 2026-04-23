@@ -1,5 +1,5 @@
  ControlAccess←{
-     restricted←⊆'/crud' '/teapot'
+     restricted←⊆'/crud' '/teapot' '/schema'
      ∨/restricted(⊃⍷)¨⊂⍵.Endpoint:r⊣##.Log'[AUTH] ',('allow' 'deny'⊃⍨1+r←VerifyToken ⍵),' ',⍵.Endpoint
      0 ⍝ 0 means success, continue
  }
