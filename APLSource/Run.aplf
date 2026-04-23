@@ -19,7 +19,8 @@
      '/videos'                              router.Get('QUERY.videos.Query'          (QUERY.videos.Query'⍠SPEC'))
      '/presenters'                          router.Get('QUERY.Presenters'            (QUERY.Presenters'⍠SPEC'))
      '/events'                              router.Get('QUERY.Events'                (QUERY.Events'⍠SPEC'))
-     ⍝ FIXME operationId for endpoints should reference the function that handles the request
+
+     '/schema/{table}'    router.Get   ('CRUD.Schema' (CRUD.Schema'⍠SPEC'))
      '/crud/{table}'      router.Get   ('CRUD.Read'   (CRUD.Read'⍠SPEC'))
      '/crud/{table}'      router.Post  ('CRUD.Create' (CRUD.Create'⍠SPEC'))
      '/crud/{table}/{id}' router.Get   ('CRUD.Read'   (CRUD.Read'ID⍠SPEC'))
