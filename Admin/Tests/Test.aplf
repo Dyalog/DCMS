@@ -1,4 +1,4 @@
- result←url (show_pass Test) ns;DoTest;F;LoadDependency;fn;r;suite;tests
+ result←url (show_pass Test) ns;DoTest;suite;tests
  tests⌿⍨←'Test'∘(⊃⍷)¨tests←'T'ns.⎕NL ¯3
  suite←⍕ns
  result←1
