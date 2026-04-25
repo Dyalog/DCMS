@@ -1,5 +1,13 @@
  ControlAccess←{
-     restricted←⊆'/crud' '/teapot' '/schema'
-     ∨/restricted(⊃⍷)¨⊂⍵.Endpoint:r⊣##.Log'[AUTH] ',('allow' 'deny'⊃⍨1+r←VerifyToken ⍵),' ',⍵.Endpoint
-     0 ⍝ 0 means success, continue
+⍝ ⍵: Jarvis request object
+⍝ ←: 0 for allowed, 1 for unauthorized
+⍝   public prefix → allow without auth
+⍝   authed prefix → require valid x-api-key
+⍝   neither       → 404 unregistered routes
+     public←⊆'/version' '/videos' '/presenters' '/events'
+     authed←⊆'/crud' '/schema' '/admin' '/teapot'
+     ∨/public(⊃⍷)¨⊂⍵.Endpoint:0
+     ∨/authed(⊃⍷)¨⊂⍵.Endpoint:r⊣##.Log'[AUTH] ',('allow' 'deny'⊃⍨1+r←VerifyToken ⍵),' ',⍵.Endpoint
+     ⍵.Response.Payload←(error:404 ⋄ message:'Not found')   ⍝ project-standard error body — pre-empts Stark._Dispatch's hardcoded (detail:'Not Found')
+     0⊣⍵.Fail 404
  }
