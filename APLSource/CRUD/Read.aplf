@@ -65,6 +65,6 @@
      :If 0=≢data
          ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
      :Else
-         r←##.QUERY.Table2JSON fields⍪data
+         r←⊃##.QUERY.Table2JSON fields⍪data
      :EndIf
  :EndIf
