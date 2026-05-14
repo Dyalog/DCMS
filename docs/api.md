@@ -18,6 +18,8 @@ Endpoints:
 - [presentation_type](#presentation_type)
 - [presenters](#presenters)
 - [dtv_events](#dtv_events)
+- [profile](#profile) (requires auth)
+- [profiling](#profiling) (requires auth)
 
 ### /version
 Returns a string of the running DCMS version.
@@ -259,6 +261,33 @@ Returns a list of objects. These are events which have at least one video associ
 }]
 ```
 
+### /profile
+Requires authentication. Returns the data collected by [`⎕PROFILE`](https://docs.dyalog.com/20.0/language-reference-guide/system-functions/profile/) since profiling was last turned on (or last cleared).
+
+One object per profiled line of code:
+
+```JSON5
+[{
+    fn_name:        "",   // Name of the function
+    line_no:         0,   // Line number within the function
+    n_calls:         0,   // Number of times this line was executed
+    exclusive_time:  0,   // Time spent on this line excluding called functions, in milliseconds
+    inclusive_time:  0    // Time spent on this line including called functions, in milliseconds
+}]
+```
+
+Returns `[]` when profiling has never been started or data has been cleared.
+
+### /profiling
+Requires authentication. Returns the current state of `⎕PROFILE`.
+
+```JSON5
+{
+    on:    false,
+    since: "YYYY-MM-DD hh:mm:ss"  // Timestamp of the most recent on/off transition; null if never started
+}
+```
+
 ## POST
 All POST requests require authentication.
 
@@ -355,3 +384,26 @@ Trigger pushing Team Dyalog Videos custom posts to website.
 `?n=` where `n` is a positive integer (default 10). Push up to `n` latest videos per person.
 
 This will get up to the `n` latest videos for each Team Dyalog member and list them on their team pages.
+
+## PUT
+All PUT requests require authentication.
+
+### /profiling
+Turn `⎕PROFILE` on or off.
+
+#### Query parameters
+
+##### on
+`?on=true` to start profiling, `?on=false` to stop it. Required.
+
+Idempotent: a request whose value matches the current state is a no-op (the existing data and `since` timestamp are preserved). Returns 400 if `on=` is missing or is not `true` or `false`.
+
+Returns 204 with an empty body on success; the new state can be read with [GET /profiling](#profiling).
+
+## DELETE
+All DELETE requests require authentication.
+
+### /profile
+Discard any profile data currently held by `⎕PROFILE`. Does not change the on/off state — if profiling was on, it remains on and continues collecting from zero.
+
+Returns 204 with an empty body on success.
