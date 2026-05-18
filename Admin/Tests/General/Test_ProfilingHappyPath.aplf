@@ -1,0 +1,31 @@
+ r←Test_ProfilingHappyPath url;token;Authed;Assert;res
+ r←0
+ token←##.##.Secrets'upload_token'
+ Assert←##.Assert
+ Authed←{
+     opt←⎕NS''
+     opt.url←url,⍵
+     opt.token←token
+     opt.data←''
+     ⍺ ##.##.upload.BuildRequest opt
+ }
+ :Trap 0
+     res←('PUT'Authed'/profiling?on=true').Run
+     Assert 204=res.HttpStatus
+     res←('GET'Authed'/profiling').Run
+     Assert 200=res.HttpStatus
+     Assert res.Data.on
+     res←('GET'Authed'/profile').Run
+     Assert 200=res.HttpStatus
+     res←('DELETE'Authed'/profile').Run
+     Assert 204=res.HttpStatus
+     res←('PUT'Authed'/profiling?on=false').Run
+     Assert 204=res.HttpStatus
+     res←('GET'Authed'/profiling').Run
+     Assert 200=res.HttpStatus
+     Assert ~res.Data.on
+     r←1
+ :EndTrap
+⍝ Teardown: ensure profiling is off and data cleared regardless of outcome
+ {}('PUT'Authed'/profiling?on=false').Run
+ {}('DELETE'Authed'/profile').Run

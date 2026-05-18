@@ -1,0 +1,28 @@
+ r←Test_PUTProfiling_Idempotent url;token;Authed;Assert;res;since1;since2
+ r←0
+ token←##.##.Secrets'upload_token'
+ Assert←##.Assert
+ Authed←{
+     opt←⎕NS''
+     opt.url←url,⍵
+     opt.token←token
+     opt.data←''
+     ⍺ ##.##.upload.BuildRequest opt
+ }
+ :Trap 0
+     res←('PUT'Authed'/profiling?on=true').Run
+     Assert 204=res.HttpStatus
+     res←('GET'Authed'/profiling').Run
+     Assert 200=res.HttpStatus
+     since1←res.Data.since
+     res←('PUT'Authed'/profiling?on=true').Run
+     Assert 204=res.HttpStatus
+     res←('GET'Authed'/profiling').Run
+     Assert 200=res.HttpStatus
+     since2←res.Data.since
+     Assert since1≡since2
+     r←1
+ :EndTrap
+⍝ Teardown: ensure profiling is off and data cleared regardless of outcome
+ {}('PUT'Authed'/profiling?on=false').Run
+ {}('DELETE'Authed'/profile').Run
