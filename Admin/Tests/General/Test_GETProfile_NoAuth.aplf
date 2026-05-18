@@ -1,0 +1,6 @@
+ Test_GETProfile_NoAuth←{
+     h←##.##.##.HttpCommand.New'GET'
+     h.URL←⍵,'/profile'
+     res←h.Run
+     403=res.HttpStatus
+ }
