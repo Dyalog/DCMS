@@ -6,7 +6,7 @@ r←''   ⍝ Default empty payload
     :Case 'GET'
         r←status
     :Case 'PUT'
-        req.Fail 204   ⍝ No Content, can retrieve status with GET
+        req.SetStatus 204   ⍝ No Content, can retrieve status with GET
         (q v)←↓⍉req.QueryParams
         new←(v,⊂'')[q⍳⊂'on']
         :If new≡status.on
@@ -19,9 +19,9 @@ r←''   ⍝ Default empty payload
             ⎕PROFILE'stop'
         :Else
             req.Fail 400   ⍝ Bad Request
+            :Return
         :EndIf
         status.since←⊃ISODateTime ⎕TS
-        r←''
     :Else
         req.Fail 405   ⍝ Method Not Allowed
 :EndSelect
