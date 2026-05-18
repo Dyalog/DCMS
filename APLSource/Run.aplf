@@ -27,4 +27,5 @@
      GLOBAL.data_refresh_timer.Interval←×/24 60 60 1000
      GLOBAL.data_refresh_timer.onTimer←'RefreshData'
  :EndIf
+ profiling.status←(on: ⊂'false' ⋄ since: ⊂'null' ⋄ last_cleared: ⊂'null')
  {}RefreshData''

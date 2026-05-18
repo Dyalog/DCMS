@@ -15,6 +15,10 @@
          r←CACHE⍎1↓req.Endpoint
      :ElseIf req.Endpoint≡'/version'
          r←Version
+     :ElseIf req.Endpoint≡'/profiling'
+         r←profiling.Status auth._Authed req
+     :ElseIf req.Endpoint≡'/profile'
+         r←profiling.Data auth._Authed req
      :ElseIf req.Endpoint≡'/teapot'
          req.Fail 418
      :Else

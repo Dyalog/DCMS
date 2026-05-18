@@ -1,0 +1,13 @@
+ r←Delete req;res
+ ⍝ Delete a resource
+ r←''   ⍝ Default empty payload in case of error
+ res←auth.VerifyToken req
+ :If ~∨/401 403∊res.Status
+     :Trap GLOBAL.debug↓0 0
+         :If '/profile'≡req.Endpoint
+             r←profiling.Clear req
+         :Else
+             req.Fail 404
+         :EndIf
+     :EndTrap
+ :EndIf
