@@ -283,8 +283,9 @@ Requires authentication. Returns the current state of `⎕PROFILE`.
 
 ```JSON5
 {
-    on:    false,
-    since: "YYYY-MM-DD hh:mm:ss"  // Timestamp of the most recent on/off transition; null if never started
+    on:           false,
+    since:        "YYYY-MM-DD hh:mm:ss",  // Timestamp of the most recent on/off transition; null if never started
+    last_cleared: "YYYY-MM-DD hh:mm:ss"   // Timestamp of the most recent DELETE /profile; null if never cleared
 }
 ```
 
@@ -404,6 +405,6 @@ Returns 204 with an empty body on success; the new state can be read with [GET /
 All DELETE requests require authentication.
 
 ### /profile
-Discard any profile data currently held by `⎕PROFILE`. Does not change the on/off state — if profiling was on, it remains on and continues collecting from zero.
+Discard any profile data currently held by `⎕PROFILE`. Does not change the on/off state or the `since` timestamp; updates `last_cleared` on the [GET /profiling](#profiling) payload to the current time.
 
 Returns 204 with an empty body on success.

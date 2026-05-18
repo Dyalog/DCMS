@@ -342,7 +342,7 @@
                 }
             },
             "delete": {
-                "summary": "Discard any profile data currently held by ⎕PROFILE. Does not change the on/off state.",
+                "summary": "Discard any profile data currently held by ⎕PROFILE. Does not change the on/off state or the since timestamp; updates last_cleared on GET /profiling.",
                 "operationId": "deleteProfile",
                 "security": [{ "bearerAuth": [] }],
                 "responses": {
@@ -359,14 +359,15 @@
                 "security": [{ "bearerAuth": [] }],
                 "responses": {
                     "200": {
-                        "description": "Current on/off state and the timestamp of the most recent transition.",
+                        "description": "Current on/off state, the timestamp of the most recent transition, and the timestamp of the most recent clear.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "on":    { "type": "boolean" },
-                                        "since": { "type": ["string", "null"], "description": "Timestamp of most recent on/off transition; null if never started." }
+                                        "on":           { "type": "boolean" },
+                                        "since":        { "type": ["string", "null"], "description": "Timestamp of most recent on/off transition; null if never started." },
+                                        "last_cleared": { "type": ["string", "null"], "description": "Timestamp of the most recent DELETE /profile; null if never cleared." }
                                     }
                                 }
                             }
