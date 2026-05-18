@@ -1,8 +1,7 @@
 r←(Function _Authed) req;res
 ⍝ Authorisation wrapper for API endpoints.
 r←'' ⍝ Default empty payload in case of error
-:If 0<GLOBAL.debug ⋄ last←req ⋄ :EndIf
-res←auth.VerifyToken req
+res←VerifyToken req
 :If ~∨/401 403∊res.Status
     r←Function req
 :EndIf

@@ -23,7 +23,7 @@
      Assert 204=res.HttpStatus
      res←('GET'Authed'/profiling').Run
      Assert 200=res.HttpStatus
-     Assert ~res.Data.on
+     Assert res.Data.on≡⊂'false'
      r←1
  :EndTrap
 ⍝ Teardown: ensure profiling is off and data cleared regardless of outcome

@@ -1,0 +1,7 @@
+r←Clear req
+r←''   ⍝ Empty payload
+⎕PROFILE'clear'
+req.Fail 204
+:If status.on≡⊂'true'
+    status.last_cleared←⊃ISODateTime ⎕TS
+:EndIf

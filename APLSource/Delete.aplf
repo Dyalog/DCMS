@@ -5,7 +5,7 @@
  :If ~∨/401 403∊res.Status
      :Trap GLOBAL.debug↓0 0
          :If '/profile'≡req.Endpoint
-             r←profiling.Delete req
+             r←profiling.Clear req
          :Else
              req.Fail 404
          :EndIf
