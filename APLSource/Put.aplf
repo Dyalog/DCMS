@@ -7,7 +7,7 @@
  :If ~∨/401 403∊res.Status
      ⎕←'> PUT REQUEST AT ',⍕⎕TS
      :Trap GLOBAL.debug↓0 0
-         :If '/profiling'≡10↑req.Endpoint
+         :If '/profiling'≡req.Endpoint
              r←profiling.Status req
          :Else
              req.Fail 404
