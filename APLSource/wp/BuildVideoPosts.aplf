@@ -13,7 +13,7 @@
      create.acf.thumbnail←create.title{'<img src="',⍵,'" title="',⍺,'" alt="',⍺,'" />'}¨create.acf.thumbnail   ⍝ Thumbnail as HTML <img> tag
      create.date←create.acf.presentation_date                                                                ⍝ Presentation date → post date
      create.acf.readable_date←'Mmmm YYYY'FormatDateTime 1 ⎕DT 2⊃¨'- :'∘⎕VFI¨create.acf.presentation_date     ⍝ Presentation date → human-readable datetime
-     create.id←{0=≢⍵:0 ⋄ (⍵.id,0)[⍵.acf.media_id⍳create.acf.media_id]}exists                                 ⍝ Set post ID to update existing posts.
+     create.id←{0=≢⍵:0 ⋄ (⍵.id,0)[⍵.acf.(media_id person_id)⍳create.acf.(media_id person_id)]}exists                                 ⍝ Set post ID to update existing posts.
      _←{0=≢⍵:'' ⋄ ⍵.⎕EX⊂'id'}(0=create.id)/create                                                              ⍝ Remove post ID to create new posts.
      create.status←⊂'publish'
      0∊⍴exists:create''
