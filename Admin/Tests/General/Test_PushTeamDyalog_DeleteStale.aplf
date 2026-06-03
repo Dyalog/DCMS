@@ -7,24 +7,24 @@
 
   ⍝ --- Arrange ------------------------------------------------------
      MakePerson←{(
-      id: ⊃⍵
-      acf: (dcms_id: ⊃⌽⍵)
-     )}
+             id:⊃⍵
+             acf:(dcms_id:⊃⌽⍵)
+         )}
      person←,MakePerson 1001 1
 
   ⍝ Current SQL result: one video (media_id 100) for this member.
-     row←{100 'abc123' 'Talk A' 'thumb.png' 'A description' '2024-01-01 10:00:00' 'dyalog24' 'Dyalog ''24' ⍵}
+     row←{100 'abc123' 'Talk A' 'thumb.png' 'A description' '2024-01-01 10:00:00' 'dyalog24' 'Dyalog ''24'⍵}
      vids←↑,⊂row 1
 
   ⍝ Existing posts: one current (media_id 100) → kept/updated,
   ⍝ one stale (media_id 200, not in the SQL result) → must be deleted.
      MakeExisting←{(
-      id←⊃⍵
-      acf: (
-         media_id: 2⊃⍵
-         person_id: 3⊃⍵
-      )
-     )}
+             id:⊃⍵
+             acf:(
+                 media_id:2⊃⍵
+                 person_id:3⊃⍵
+             )
+         )}
      exists←MakeExisting¨(5001 100 1)(5002 200 1)
 
   ⍝ --- Act ----------------------------------------------------------
