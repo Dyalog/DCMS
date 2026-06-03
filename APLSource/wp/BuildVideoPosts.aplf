@@ -2,21 +2,21 @@
 ⍝ Construct HTTP POST body for WordPress team-dyalog-videos custom post type, based on SQL query results and existing posts
 ⍝ ⍵: person (id ⋄ dcms_id); existing posts (id ⋄ acf.media_id ⋄ acf.dcms_id); SQL query results
 ⍝ ←: (create delete) post objects to create or update, post IDs to delete
-    (person exists vids)←⍵
-    fields←'acf.media_id' 'acf.url' 'title' 'acf.thumbnail' 'acf.description' 'acf.presentation_date' 'acf.event_slug' 'acf.event_title' 'acf.person_id'
-    create←Table2JSON fields⍪vids
-    create.acf.post_id←(person.id,0)[person.acf.dcms_id⍳create.acf.person_id]                               ⍝ Person ID → WordPress Team Dyalog post ID
-    create⌿⍨←0≠create.acf.post_id                                                                           ⍝ Remove videos with no Team Dyalog member post
-    EventURL←{'<a href="/video-library/search?event=',⍺,'">',⍵,'</a>'}
-    create.acf.event←create.acf.event_slug EventURL¨create.acf.event_title                                   ⍝ event_link → HTML <a> tag
-    create.acf.url←'/video-library/watch/?v='∘,¨create.acf.url                                              ⍝ YouTube ID → video library URL
-    create.acf.thumbnail←create.title{'<img src="',⍵,'" title="',⍺,'" alt="',⍺,'" />'}¨create.acf.thumbnail   ⍝ Thumbnail as HTML <img> tag
-    create.date←create.acf.presentation_date                                                                ⍝ Presentation date → post date
-    create.acf.readable_date←'Mmmm YYYY'FormatDateTime 1 ⎕DT 2⊃¨'- :'∘⎕VFI¨create.acf.presentation_date     ⍝ Presentation date → human-readable datetime
-    create.id←{0=≢⍵:0 ⋄ (⍵.id,0)[⍵.acf.media_id⍳create.acf.media_id]}exists                                 ⍝ Set post ID to update existing posts.
-    {0=≢⍵:'' ⋄ ⍵.⎕EX⊂'id'}(0=create.id)/create                                                              ⍝ Remove post ID to create new posts.
-    create.status←⊂'publish'
-    0∊⍴exists: create ''
-    delete←exists⌿⍨(≢create)<create.acf.(media_id person_id)⍳exists.acf.(media_id person_id)
-    (create delete)
+     (person exists vids)←⍵
+     fields←'acf.media_id' 'acf.url' 'title' 'acf.thumbnail' 'acf.description' 'acf.presentation_date' 'acf.event_slug' 'acf.event_title' 'acf.person_id'
+     create←Table2JSON fields⍪vids
+     create.acf.post_id←(person.id,0)[person.acf.dcms_id⍳create.acf.person_id]                               ⍝ Person ID → WordPress Team Dyalog post ID
+     create⌿⍨←0≠create.acf.post_id                                                                           ⍝ Remove videos with no Team Dyalog member post
+     EventURL←{'<a href="/video-library/search?event=',⍺,'">',⍵,'</a>'}
+     create.acf.event←create.acf.event_slug EventURL¨create.acf.event_title                                   ⍝ event_link → HTML <a> tag
+     create.acf.url←'/video-library/watch/?v='∘,¨create.acf.url                                              ⍝ YouTube ID → video library URL
+     create.acf.thumbnail←create.title{'<img src="',⍵,'" title="',⍺,'" alt="',⍺,'" />'}¨create.acf.thumbnail   ⍝ Thumbnail as HTML <img> tag
+     create.date←create.acf.presentation_date                                                                ⍝ Presentation date → post date
+     create.acf.readable_date←'Mmmm YYYY'FormatDateTime 1 ⎕DT 2⊃¨'- :'∘⎕VFI¨create.acf.presentation_date     ⍝ Presentation date → human-readable datetime
+     create.id←{0=≢⍵:0 ⋄ (⍵.id,0)[⍵.acf.media_id⍳create.acf.media_id]}exists                                 ⍝ Set post ID to update existing posts.
+     _←{0=≢⍵:'' ⋄ ⍵.⎕EX⊂'id'}(0=create.id)/create                                                              ⍝ Remove post ID to create new posts.
+     create.status←⊂'publish'
+     0∊⍴exists:create''
+     delete←exists⌿⍨(≢create)<create.acf.(media_id person_id)⍳exists.acf.(media_id person_id)
+     (create delete)
  }
