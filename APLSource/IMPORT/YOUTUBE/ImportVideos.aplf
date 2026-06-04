@@ -32,7 +32,7 @@
  opts.columns←'youtube_id' 'title' 'description' 'channel_id' 'channel' 'category_id' 'published_at' 'thumbnail' 'url'
  opts.types←opts.columns ##.ColumnInformation opts.table
  opts.(columns types),←⊂¨'updated_by' '<C128'                                     ⍝ Add updated_by column
- opts.values,←⊂'DCMS.import.youtube.ImportVideos'
+ opts.values,←⊂'DCMS.IMPORT.YOUTUBE.ImportVideos'
  opts.values[;7]←19∘↑¨opts.values[;7]                                             ⍝ Drop 'Z' from YT timestamp
 
  r←##.CreateUpdate opts
