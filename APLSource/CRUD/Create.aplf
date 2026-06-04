@@ -52,5 +52,7 @@
 
  values←↑req.Payload ⎕VGET columns
 
- r←##.QUERY.Table2JSON our_cols⍪##.SQL.Insert(table:table ⋄ columns:columns ⋄ values:values ⋄ returning:our_cols)
+ :Hold 'SQL.db'
+     r←##.QUERY.Table2JSON our_cols⍪##.SQL.Insert(table:table ⋄ columns:columns ⋄ values:values ⋄ returning:our_cols)
+ :EndHold
  req.SetStatus 201

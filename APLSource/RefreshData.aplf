@@ -1,8 +1,10 @@
  r←RefreshData timer
- :Trap 202 404
-     import.youtube.RefreshData''
- :Else
-     ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
- :EndTrap
- QUERY.BuildCache''
+ :Hold 'SQL.db'
+     :Trap 202 404
+         import.youtube.RefreshData''
+     :Else
+         ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
+     :EndTrap
+     QUERY.BuildCache''
+ :EndHold
  ⎕←r←'Refreshed data at ',⍕⎕TS

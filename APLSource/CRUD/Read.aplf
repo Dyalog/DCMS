@@ -54,17 +54,19 @@
  fields←idx⊃GBL.columns
  (id pg ppg)←req.PathParams ⎕VGET('id' '')('page' 1)('per_page' 20)
 
- :If 0=≢id
-    ⍝ return whole table
-     data←##.SQL.Select(table:table ⋄ columns:fields)
-     r←(('crud/',table)pg ppg)##.QUERY.(Paginate∘Table2JSON)fields⍪data
- :ElseIf ∨/~id∊⎕D
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
- :Else
-     data←##.SQL.Select(table:table ⋄ columns:fields ⋄ where:'id=',id)
-     :If 0=≢data
-         ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+ :Hold 'SQL.db'
+     :If 0=≢id
+        ⍝ return whole table
+         data←##.SQL.Select(table:table ⋄ columns:fields)
+         r←(('crud/',table)pg ppg)##.QUERY.(Paginate∘Table2JSON)fields⍪data
+     :ElseIf ∨/~id∊⎕D
+         ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
      :Else
-         r←⊃##.QUERY.Table2JSON fields⍪data
+         data←##.SQL.Select(table:table ⋄ columns:fields ⋄ where:'id=',id)
+         :If 0=≢data
+             ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+         :Else
+             r←⊃##.QUERY.Table2JSON fields⍪data
+         :EndIf
      :EndIf
- :EndIf
+ :EndHold

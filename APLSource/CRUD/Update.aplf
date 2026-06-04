@@ -52,4 +52,6 @@
  id←req.PathParams ⎕VGET 'id'
  values←(,req.Payload) ⎕VGET columns   ⍝ Quick fix for rank-compatibility with SQL CRUD functions. FIXME consider modifying Update path to allow bulk updates
 
- r←##.QUERY.Table2JSON our_cols⍪##.SQL.Update(table:table ⋄ columns:columns ⋄ values:values ⋄ where: 'id=',id ⋄ returning:our_cols)
+ :Hold 'SQL.db'
+     r←##.QUERY.Table2JSON our_cols⍪##.SQL.Update(table:table ⋄ columns:columns ⋄ values:values ⋄ where: 'id=',id ⋄ returning:our_cols)
+ :EndHold

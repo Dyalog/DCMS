@@ -38,11 +38,12 @@
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
  :EndIf
 
- record←##.SQL.Select(table:table ⋄ columns:,⊂'id' ⋄ where:'id=',id)
- :If 0=≢record
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
- :EndIf
-
- _←##.SQL.Delete(table:table ⋄ where:'id=',id)
+ :Hold 'SQL.db'
+     record←##.SQL.Select(table:table ⋄ columns:,⊂'id' ⋄ where:'id=',id)
+     :If 0=≢record
+         ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+     :EndIf
+     _←##.SQL.Delete(table:table ⋄ where:'id=',id)
+ :EndHold
  req.SetStatus 204
  r←''
