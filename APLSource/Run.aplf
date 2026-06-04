@@ -13,6 +13,11 @@
  :If 0=⎕NC'router'
      router←⎕NEW #.Stark
      router.Info←(title:'Dyalog Content Management System' ⋄ version:Version'')
+     router.Spec←(components: (securitySchemes: (ApiKeyAuth: (
+                type: 'apiKey'
+                name: 'X-API-Key'
+                in: 'header'
+     ))))
      '/version'                             router.Get('Version'                     (Version'⍠SPEC'))
      '/videos/{youtube_id}/recommendations' router.Get('QUERY.videos.Recommendations'(QUERY.videos.Recommendations'⍠SPEC'))
      '/videos/{youtube_id}'                 router.Get('QUERY.videos.Single'         (QUERY.videos.Single'⍠SPEC'))
@@ -28,6 +33,8 @@
      '/crud/{table}/{id}' router.Patch ('CRUD.Update' (CRUD.Update'⍠SPEC'))
      '/crud/{table}/{id}' router.Delete('CRUD.Delete' (CRUD.Delete'⍠SPEC'))
 
+     '/admin/refresh'     router.Post  ('ADMIN.RefreshData' (ADMIN.RefreshData'⍠SPEC'))
+
      Teapot←{⎕SIGNAL⊂('EN' 418)('Message' 'I am a teapot')('Vendor' 'DCMS')}
      '/teapot'            router.Get 'Teapot' (reponses: (⍙418: 'AM TEAPOT FIXME'))
 
@@ -40,11 +47,11 @@
      router.Debug←debug
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
- 
+
  ⎕←'Setting up data refresh timer...'
  :If 0=GLOBAL.⎕NC'data_refresh_timer'
      'data_refresh_timer'GLOBAL.⎕WC'Timer'
      GLOBAL.data_refresh_timer.Interval←×/24 60 60 1000
-     GLOBAL.data_refresh_timer.onTimer←'RefreshData'
+     GLOBAL.data_refresh_timer.onTimer←'ADMIN.RefreshData'
  :EndIf
- {}RefreshData''
+ {}ADMIN.RefreshData''

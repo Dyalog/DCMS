@@ -1,0 +1,20 @@
+ r←RefreshData arg
+⍝ When triggered by ⎕WC timer, argument is the timer object
+⍝ When called via HTTP request, argument is request object
+ :If '⍠SPEC'≡arg
+     r←(
+         tags:,⊂'Admin' ⋄ summary:'Refresh cached API data' ⋄ operationId:'refreshData'
+         description:'Fetches external API data, then rebuilds the cached joined views served by the public read endpoints.'
+         security:(ApiKeyAuth:'')
+     )
+     :Return
+ :EndIf
+ :Hold 'SQL.db'
+     :Trap 202 404
+         ##.IMPORT.YOUTUBE.RefreshData''
+     :Else
+         ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
+     :EndTrap
+     ##.QUERY.BuildCache''
+ :EndHold
+ ⎕←r←'Refreshed data at ',⍕⎕TS
