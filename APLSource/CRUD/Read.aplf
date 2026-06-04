@@ -1,5 +1,5 @@
  r←Read req;GBL;data;fields;id;idx;pg;ppg;responses;schemas;table
- 
+
  :If 2=⎕NC'req'
      (schemas responses parameters)←##.SPEC.(schemas responses parameters)
  :EndIf
@@ -52,7 +52,8 @@
  :EndIf
 
  fields←idx⊃GBL.columns
- (id pg ppg)←req.PathParams ⎕VGET('id' '')('page' 1)('per_page' 20)
+ id←req.PathParams ⎕VGET⊂('id' '')
+ (pg ppg)←2⊃∘⎕VFI¨req.QueryParams ⎕VGET('page' '1')('per_page' '20')
 
  :Hold 'SQL.db'
      :If 0=≢id
