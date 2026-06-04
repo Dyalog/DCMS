@@ -4,7 +4,7 @@
 ⍝   public prefix → allow without auth
 ⍝   authed prefix → require valid x-api-key
 ⍝   neither       → 404 unregistered routes
-     public←⊆'/version' '/videos' '/presenters' '/events'
+     public←⊆'/version' '/videos' '/presenters' '/events' '/openapi.json'
      authed←⊆'/crud' '/schema' '/admin' '/teapot'
      ∨/public(⊃⍷)¨⊂⍵.Endpoint:0
      ∨/authed(⊃⍷)¨⊂⍵.Endpoint:r⊣##.Log'[AUTH] ',('allow' 'deny'⊃⍨1+r←VerifyToken ⍵),' ',⍵.Endpoint
