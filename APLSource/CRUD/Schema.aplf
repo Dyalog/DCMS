@@ -1,8 +1,5 @@
  r←Schema req;GBL;JsonType;col_ns;cols;cols_out;fk_cols;fks;i;idx;lens;match;ref_ns;responses;table;triple;types
-#.last←req
- :If 2=⎕NC'req'
-     responses←##.SPEC.responses
- :EndIf
+ responses←##.SPEC.responses
  :If req≡'⍠SPEC'
      r←(
          tags:,⊂'Table CRUD' ⋄ summary:'Describe table columns' ⋄ operationId:'getTableSchema'
@@ -52,7 +49,7 @@
  GBL←##.GLOBAL
  :If 0∊⍴table
  :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(responses.not_found.description))
  :EndIf
 
  cols←idx⊃GBL.columns
