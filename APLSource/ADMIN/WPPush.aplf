@@ -1,0 +1,26 @@
+ r←WPPush req;responses
+ :If req≡'⍠SPEC'
+     responses←##.SPEC.responses
+     r←(
+         tags:,⊂'Admin' ⋄ summary:'Trigger a push of WordPress Team Dyalog video listings' ⋄ operationId:'triggerWPPush'
+         responses:(
+             ⍙200:(
+                 description:'Push processed. Returns the result of each WordPress post action.'
+                 content:(⍙application⍙47⍙json:(schema:(
+                     type:'array'
+                     items:(
+                         type:'object'
+                         properties:(
+                             post_id:(type:'integer')
+                             action:(type:'string' ⋄ enum:('create' 'delete' 'update'))
+                             success:(type:'boolean')
+                         )
+                     )
+                 )))
+             )
+             ⍙401:responses.unauthorized
+         )
+     )
+     :Return
+ :EndIf
+ r←##.WP.PushTeamDyalogVideos req

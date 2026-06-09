@@ -1,11 +1,11 @@
- r←PushTeamDyalogVideos req;JSONDemangle;person;exists;n;sql;vids;fields;posts;delete;create;p;req;SQL;EventURL;req;bulk
+ r←PushTeamDyalogVideos req;SQL;bulk;create;delete;exists;n;person;posted;responses;sql;vids
  SQL←##.SQL
 ⍝ Use WordPress API to get post IDs corresponding to Team Dyalog members via their DCMS ID custom field value
  person←Get'team-dyalog?_fields=id,acf.dcms_id'
 ⍝ Use WordPress API to get existing Team Dyalog Videos
  exists←Get'team-dyalog-videos?_fields=id,acf.media_id,acf.person_id'
 ⍝ Get n most recent videos for each team member (default 10)
- n←{(p v)←↓⍉⍵ ⋄ i←p⍳⊂,'n' ⋄ 2⊃⎕VFI i⊃v,⊂'10'}req.QueryParams
+ n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'10'
  sql←'SELECT r.media_id,r.ytid,r.title,r.thumbnail,r.description,r.presented_at,r.event_link,r.event_title,r.pers_id FROM '
  sql,←'(SELECT yt.id AS media_id, yt.youtube_id AS ytid, yt.title AS title, yt.thumbnail AS thumbnail, yt.description AS description, pres.presented_at AS presented_at, event.url_slug AS event_link, event.title AS event_title, per.id AS pers_id, '
  sql,←'ROW_NUMBER() OVER (PARTITION BY per.id ORDER BY pres.presented_at DESC) AS rank '
@@ -31,8 +31,15 @@
 ⍝ All posts from the SQL query will be created, or updated if they already exist
 
  :If ~0∊⍴delete
-     r,←Delete¨'/wp/v2/team-dyalog-videos/'∘,¨⍕¨delete.id
+     r,←Delete∘⍕¨delete.id
  :EndIf
- 
+
  bulk←'/wp/v2/team-dyalog-videos'DoBulk create
- r,←⊃,/bulk.responses
+ responses←⊃,/bulk.responses
+
+ posted←{()}¨responses
+ posted.action←'create' 'update'[1+0<⊃,/create.⎕NC⊂'id']
+ posted.post_id←responses.body.id
+ posted.success←(⊂¨'false' 'true')[1+responses.status∊201 200]
+
+ r,←posted
