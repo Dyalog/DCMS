@@ -34,6 +34,7 @@
      '/crud/{table}/{id}' router.Delete('CRUD.Delete' (CRUD.Delete'⍠SPEC'))
 
      '/admin/refresh'     router.Post  ('ADMIN.RefreshData' (ADMIN.RefreshData'⍠SPEC'))
+     '/admin/wp-push'     router.Post  ('ADMIN.WPPush'       (ADMIN.WPPush'⍠SPEC'))
 
      Teapot←{⎕SIGNAL⊂('EN' 418)('Message' 'I am a teapot')('Vendor' 'DCMS')}
      '/teapot'            router.Get 'Teapot' (reponses: (⍙418: 'AM TEAPOT FIXME'))
