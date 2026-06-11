@@ -1,31 +1,31 @@
- r←Test_ProfilingHappyPath url;token;Authed;Assert;res
+ r←Test_ProfilingHappyPath url;key;Authed;Assert;res
  r←0
- token←##.##.Secrets'upload_token'
+ key←##.##.Secrets'upload_token'
  Assert←##.Assert
  Authed←{
-     opt←⎕NS''
-     opt.url←url,⍵
-     opt.token←token
-     opt.data←''
-     ⍺ ##.##.upload.BuildRequest opt
+     h←##.##.##.HttpCommand.New ⍺
+     h.URL←url,⍵
+     h.TranslateData←1
+     _←'x-api-key'h.SetHeader key
+     h
  }
  :Trap 0
-     res←('PUT'Authed'/profiling?on=true').Run
+     res←('PUT'Authed'/admin/profiling?on=true').Run
      Assert 204=res.HttpStatus
-     res←('GET'Authed'/profiling').Run
+     res←('GET'Authed'/admin/profiling').Run
      Assert 200=res.HttpStatus
      Assert res.Data.on
-     res←('GET'Authed'/profile').Run
+     res←('GET'Authed'/admin/profile').Run
      Assert 200=res.HttpStatus
-     res←('DELETE'Authed'/profile').Run
+     res←('DELETE'Authed'/admin/profile').Run
      Assert 204=res.HttpStatus
-     res←('PUT'Authed'/profiling?on=false').Run
+     res←('PUT'Authed'/admin/profiling?on=false').Run
      Assert 204=res.HttpStatus
-     res←('GET'Authed'/profiling').Run
+     res←('GET'Authed'/admin/profiling').Run
      Assert 200=res.HttpStatus
-     Assert ~res.Data.on
+     Assert~res.Data.on
      r←1
  :EndTrap
 ⍝ Teardown: ensure profiling is off and data cleared regardless of outcome
- {}('PUT'Authed'/profiling?on=false').Run
- {}('DELETE'Authed'/profile').Run
+ {}('PUT'Authed'/admin/profiling?on=false').Run
+ {}('DELETE'Authed'/admin/profile').Run

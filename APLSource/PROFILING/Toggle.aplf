@@ -1,0 +1,35 @@
+ r←Toggle req;responses;new
+⍝ PUT /admin/profiling?on=true|false — turn ⎕PROFILE on or off (idempotent)
+ :If req≡'⍠SPEC'
+     responses←##.SPEC.responses
+     r←(
+         tags:,⊂'Admin' ⋄ summary:'Enable or disable profiling' ⋄ operationId:'setProfilingStatus'
+         parameters:(
+             (name:'on' ⋄ in:'query' ⋄ required:⊂'true' ⋄ schema:(type:'string' ⋄ enum:('true' 'false')) ⋄ description:'Set to true to enable profiling, false to disable.')
+         )
+         responses:(
+             ⍙204:(description:'State set (or already in the requested state). No response body.')
+             ⍙400:(description:'Missing on query parameter, or value is not true or false.' ⋄ content:(⍙application⍙47⍙json:(schema:##.SPEC.schemas.error)))
+             ⍙401:responses.unauthorized
+         )
+     )
+     :Return
+ :EndIf
+ r←''
+ new←req.QueryParams ⎕VGET⊂'on' ''
+ :If new≡'true'
+     :If ~status.on            ⍝ off→on; no-op (and since unchanged) if already on
+         status.on←1
+         ⎕PROFILE'start'
+         status.since←⊃ISODateTime ⎕TS
+     :EndIf
+ :ElseIf new≡'false'
+     :If status.on             ⍝ on→off; no-op (and since unchanged) if already off
+         status.on←0
+         ⎕PROFILE'stop'
+         status.since←⊃ISODateTime ⎕TS
+     :EndIf
+ :Else
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Query parameter "on" must be "true" or "false".')
+ :EndIf
+ req.SetStatus 204

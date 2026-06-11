@@ -1,7 +1,7 @@
  Test_GETProfile_BadToken←{
      h←##.##.##.HttpCommand.New'GET'
-     h.URL←⍵,'/profile'
-     _←'Authorization'h.SetHeader'Bearer wrong'
+     h.URL←⍵,'/admin/profile'
+     _←'x-api-key'h.SetHeader'wrong'
      res←h.Run
      401=res.HttpStatus
  }

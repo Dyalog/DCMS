@@ -36,6 +36,12 @@
      '/admin/refresh'     router.Post  ('ADMIN.RefreshData' (ADMIN.RefreshData'⍠SPEC'))
      '/admin/wp-push'     router.Post  ('ADMIN.WPPush'       (ADMIN.WPPush'⍠SPEC'))
 
+     '/admin/profiling'   router.Get   ('PROFILING.Status' (PROFILING.Status'⍠SPEC'))
+     '/admin/profiling'   router.Put   ('PROFILING.Toggle' (PROFILING.Toggle'⍠SPEC'))
+     '/admin/profile'     router.Get   ('PROFILING.Data'   (PROFILING.Data'⍠SPEC'))
+     '/admin/profile'     router.Delete('PROFILING.Clear'  (PROFILING.Clear'⍠SPEC'))
+     PROFILING.status←(on: 0 ⋄ since: ⊂'null' ⋄ last_cleared: ⊂'null')
+
      Teapot←{⎕SIGNAL⊂('EN' 418)('Message' 'I am a teapot')('Vendor' 'DCMS')}
      '/teapot'            router.Get 'Teapot' (reponses: (⍙418: 'AM TEAPOT FIXME'))
 

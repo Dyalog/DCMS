@@ -1,0 +1,17 @@
+ r←Clear req;responses
+⍝ DELETE /admin/profile — discard ⎕PROFILE data; on/off state and since unchanged
+ :If req≡'⍠SPEC'
+     responses←##.SPEC.responses
+     r←(
+         tags:,⊂'Admin' ⋄ summary:'Clear profile data' ⋄ operationId:'clearProfile'
+         responses:(
+             ⍙204:(description:'Profile data cleared. No response body.')
+             ⍙401:responses.unauthorized
+         )
+     )
+     :Return
+ :EndIf
+ r←''
+ ⎕PROFILE'clear'
+ req.SetStatus 204
+ status.last_cleared←⊃ISODateTime ⎕TS

@@ -1,4 +1,4 @@
- r←Test_PUTProfiling_Idempotent url;key;Authed;Assert;res;since1;since2
+ r←Test_Profile_Body url;key;Authed;Assert;res;fields;first
  r←0
  key←##.##.Secrets'upload_token'
  Assert←##.Assert
@@ -12,15 +12,15 @@
  :Trap 0
      res←('PUT'Authed'/admin/profiling?on=true').Run
      Assert 204=res.HttpStatus
+     ⍝ Generate some profile data via an authed GET
      res←('GET'Authed'/admin/profiling').Run
      Assert 200=res.HttpStatus
-     since1←res.Data.since
-     res←('PUT'Authed'/admin/profiling?on=true').Run
-     Assert 204=res.HttpStatus
-     res←('GET'Authed'/admin/profiling').Run
+     res←('GET'Authed'/admin/profile').Run
      Assert 200=res.HttpStatus
-     since2←res.Data.since
-     Assert since1≡since2
+     Assert 0<≢res.Data
+     first←⊃res.Data
+     fields←'fn_name' 'line_no' 'n_calls' 'exclusive_time' 'inclusive_time'
+     Assert ∧/0≠first.⎕NC fields
      r←1
  :EndTrap
 ⍝ Teardown: ensure profiling is off and data cleared regardless of outcome
