@@ -1,6 +1,7 @@
  r←RefreshData arg
 ⍝ When triggered by ⎕WC timer, argument is the timer object
 ⍝ When called via HTTP request, argument is request object
+⍝ Argument not used in either case
  :If '⍠SPEC'≡arg
      r←(
          tags:,⊂'Admin' ⋄ summary:'Refresh cached API data' ⋄ operationId:'refreshData'

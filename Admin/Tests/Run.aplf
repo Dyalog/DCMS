@@ -7,7 +7,7 @@
  result∧←DoTest General     ⍝ General tests should pass from clean start
  InsertDummyData
  :If 0<⎕NC'##.##.DCMS'
-     ##.##.DCMS.RefreshData''
+     #.DCMS.ADMIN.RefreshData''
  :Else
      ##.Refresh''
  :EndIf
