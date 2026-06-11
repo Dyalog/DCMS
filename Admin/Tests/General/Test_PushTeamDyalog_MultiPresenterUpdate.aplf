@@ -4,7 +4,7 @@
 ⍝ existing-post lookup on media_id only, so two presenters of one video both
 ⍝ resolve to the same existing id and collide.
      Assert←##.Assert
-     wp←#.DCMS.wp
+     WP←#.DCMS.WP
 
   ⍝ --- Arrange ------------------------------------------------------
      MakePerson←{(
@@ -27,7 +27,7 @@
      vids←↑(row 1)(row 2)
 
   ⍝ --- Act ----------------------------------------------------------
-     (create delete)←wp.BuildVideoPosts person exists vids
+     (create delete)←WP.BuildVideoPosts person exists vids
 
   ⍝ --- Assert -------------------------------------------------------
      Assert 2=≢create:                          ⍝ still one post per presenter

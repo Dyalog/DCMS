@@ -3,7 +3,7 @@
 ⍝ appears in the current SQL result must be returned for deletion, while a
 ⍝ still-current post is kept (updated) and not deleted.
      Assert←##.Assert
-     wp←#.DCMS.wp
+     WP←#.DCMS.WP
 
   ⍝ --- Arrange ------------------------------------------------------
      MakePerson←{(
@@ -28,7 +28,7 @@
      exists←MakeExisting¨(5001 100 1)(5002 200 1)
 
   ⍝ --- Act ----------------------------------------------------------
-     (create delete)←wp.BuildVideoPosts person exists vids
+     (create delete)←WP.BuildVideoPosts person exists vids
 
   ⍝ --- Assert -------------------------------------------------------
      Assert 1=≢create:                ⍝ only the current video is published

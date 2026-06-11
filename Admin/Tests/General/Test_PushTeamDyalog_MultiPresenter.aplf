@@ -2,7 +2,7 @@
 ⍝ Issue #108: a video presented by two Team Dyalog members must be
 ⍝ published as a post for BOTH members on a clean publish.
      Assert←##.Assert
-     wp←#.DCMS.wp
+     WP←#.DCMS.WP
 
   ⍝ --- Arrange ------------------------------------------------------
   ⍝ Two members. acf.dcms_id is the DCMS person id used by the SQL query;
@@ -24,7 +24,7 @@
      vids←↑(row 1)(row 2)
 
   ⍝ --- Act ----------------------------------------------------------
-     (create delete)←wp.BuildVideoPosts person exists vids
+     (create delete)←WP.BuildVideoPosts person exists vids
 
   ⍝ --- Assert -------------------------------------------------------
      Assert 2=≢create:                          ⍝ one post per presenter
