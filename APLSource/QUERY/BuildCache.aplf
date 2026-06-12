@@ -31,9 +31,6 @@
  vids.values,←(pname,⊂'')[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
  vids.values,←(pid,⊂⍬)[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
 
- ⍝ FIXME mock video titles are lists of chars rather than strings
- ⍝ ImportVideos opts.values
-
  :If (≢vids.fields)≠⊢/⍴vids.values
      'Videos endpoint number of fields does not match number of columns'⎕SIGNAL 42
  :EndIf

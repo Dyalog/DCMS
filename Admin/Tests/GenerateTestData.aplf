@@ -1,4 +1,4 @@
- data←GenerateTestData n;NotFixedKeys;event;event_type;keywords;lipsum;organisation;person;person_names;presentation;presentation_media;presentation_type;presenter;stems;thing_names;videos;youtube_video
+ data←GenerateTestData n;_NotFixedKeys;_Unique;event;event_type;fixed_keys;keywords;lipsum;organisation;person;person_names;presentation;presentation_media;presentation_type;presentation_video;presenter;stems;thing_names;videos;youtube_video
 ⍝ Insert dummy data into the database for testing
 ⍝ First tests considered:
 ⍝ - /videos?search= should return all videos with matching terms
@@ -17,25 +17,28 @@
 
 ⍝ GENERATE
  ⎕RL←42
+ _Unique←{⍺←⊢ ⋄ ∧/≠r←⍺ ⍺⍺ ⍵:r ⋄ ⍺ ∇ ⍵}
 
 ⍝ Use ⎕DF to give each namespace a name that can be used to look up into SQL table metadata
  event_type←(
      type:(vocab:keywords ⋄ max:1)generator.Name n
      description:(vocab:lipsum ⋄ max:65535)generator.Text n
-     url_slug:generator.URL n
+     url_slug:generator.URL _Unique n
  )
  event_type.⎕DF'event_type'
 
  event←()
- event.title←(vocab:thing_names ⋄ max:2)generator.Name⍣{∧/≠⍵}n
+ event.title←(vocab:thing_names ⋄ max:3)generator.Name n
  event.(start end)←generator.DateTime¨2⍴n
- event.type←?n⍴n
+ event.type_id←?n⍴n
  event.url_slug←'-'@(' '∘=)¨¯1 ⎕C event.title
+ event.url_slug,¨←'-',∘⍕¨⍳n
  event.⎕DF'event'
  example_event←⊃event.url_slug   ⍝ Use example_event in DummyData.TestGETVideos_EventShortname
 
  organisation←()
- organisation.name←(vocab:thing_names ⋄ max:1)generator.Name n
+ organisation.name←(vocab:thing_names ⋄ max:2)generator.Name n
+ organisation.name,¨←'-',∘⍕¨⍳n
  organisation.⎕DF'organisation'
 
  person←()
@@ -49,7 +52,8 @@
  presentation←()
  presentation.event_id←?n⍴n-1   ⍝ events 1..n-1 only; event n guaranteed no presentations → has_videos=0
  presentation.event_id[⍳6]←1    ⍝ presentation 1 → event 1; combined with fixed_keys, event 1 has has_videos=1
- presentation.code←(vocab:⎕A,⎕D ⋄ max:2 ⋄ unique:1)generator.Name n
+ presentation.code←n⍴⊂''
+ _←{presentation.code[⍵]←⍕¨⍳≢⍵}⌸presentation.event_id   ⍝ Unique codes within each event
  presentation.title←stems
  presentation.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
  presentation.title[1],←⊂' dolor'   ⍝ Ensure a keyword is present in search results
@@ -59,10 +63,12 @@
  presentation.⎕DF'presentation'
 
  presenter←()
- ⍝ Using fixed keys in the presenter and presentation_media tables ensures that stems are found in video results for testing
+ ⍝ Using fixed keys in the presenter and presentation_video tables ensures that stems are found in video results for testing
  presenter.(presentation_id person_id)←fixed_keys←(1 2 3 3)(1 2 3 4)   ⍝ presentation 1 has presenter 1; presentation 2 has presenter 2; presentation 3 has presenters 3 and 4
- NotFixedKeys←{~∨/,(⍉↑fixed_keys)⍷⍤1 2⊢⍵}
- presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0
+ _NotFixedKeys←{⍺←⊢ ⋄ ~∨/,(⍉↑fixed_keys)⍷⍤1 2⊢r←⍺ ⍺⍺ ⍵:r ⋄ ⍺ ∇ ⍵}
+ ⍝ FIXME not correct because ⍣ requires ←≡⍵
+ ⍝presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0
+ presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}_NotFixedKeys _Unique(n-≢fixed_keys)2⍴0
  presenter.⎕DF'presenter'
 
  ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
@@ -70,14 +76,22 @@
  example_search_term←'wombo'
  videos.title←example_search_term⊂⍛,stems   ⍝ Unique keyword for search testing
  videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-1+≢stems
- videos.description←(vocab: lipsum ⋄ max: 65535)generator.Text n
+ videos.description←(vocab:lipsum ⋄ max:65535)generator.Text n
  videos.description[2]←videos.description[1]   ⍝ Guarantee similar video for recommendations test
- videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}⍣{∧/≠⍺}n 11⍴0
+ videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}_Unique n 11⍴0
  example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
 
- presentation_media←(type:n⍴⊂'youtube_video')
- presentation_media.(presentation_id media_id)←fixed_keys←(⍳6)(⍳6)
- presentation_media.(presentation_id media_id),←↓⍉{?⍵⍴⍛⍴n n}⍣{(NotFixedKeys ⍺)∧(∧/1<⊢/⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
+ ⍝ presentation_video links presentations to youtube_videos
+ presentation_video←()
+ presentation_video.(presentation_id youtube_video_id)←fixed_keys←(⍳6)(⍳6)
+ presentation_video.(presentation_id youtube_video_id),←↓⍉{?⍵⍴⍛⍴n n}_NotFixedKeys{(∧/1<⊢/r)∧∧/≠r←⍺⍺ ⍵:r ⋄ ∇ ⍵}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
+ presentation_video.⎕DF'presentation_video'
+
+ ⍝ presentation_media now holds free-text links (slides, PDFs, …) directly on a presentation
+ presentation_media←()
+ presentation_media.presentation_id←?n⍴n
+ presentation_media.text←(vocab:lipsum ⋄ max:4)generator.Text n
+ presentation_media.url←generator.URL n
  presentation_media.⎕DF'presentation_media'
 
  youtube_video←(
@@ -90,4 +104,5 @@
 ⍝ All generator functions take a right arg of number of records to generate
 ⍝ Left argument is max size of data (length in bits), OR a special left argument for specific columns
 
- data←event_type event organisation person presentation_type presentation presenter presentation_media youtube_video
+⍝ Tables are inserted in this order, so each FK target must come before its referrer.
+ data←event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media

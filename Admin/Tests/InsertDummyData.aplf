@@ -1,16 +1,16 @@
- InsertDummyData;D;WrapBackticks;WrapColons;cid;col_spec;column;data;event;event_type;n;name;organisation;person;presentation;presentation_media;presentation_type;presenter;sql;table;tid;type;type_spec;youtube_video
+ InsertDummyData;D;WrapBackticks;WrapColons;cid;col_spec;column;data;event;event_type;n;name;organisation;person;presentation;presentation_media;presentation_type;presentation_video;presenter;sql;table;tid;type;type_spec;youtube_video
 
  D←#.DCMS
 
  n←100
 
  data←GenerateTestData n
- (event_type event organisation person presentation_type presentation presenter presentation_media youtube_video)←data
+ (event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media)←data
 
  WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
  WrapColons←(1↓∊)(',:',':',⍨⊢)¨
 
- :For table :In event_type event organisation person presentation_type presentation presenter presentation_media youtube_video
+ :For table :In event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media
      ⎕←name←⍕table
      table.id←⍳n
      tid←D.GLOBAL.tables⍳⊂name
