@@ -1,13 +1,13 @@
- r←Test_01_Create base_url;D;check_cols;cid;column;data;event;event_type;h;name;organisation;payload;person;presentation;presentation_media;presentation_type;presenter;res;table;tid;youtube_video
+ r←Test_01_Create base_url;D;check_cols;cid;column;data;event;event_type;h;name;organisation;payload;person;presentation;presentation_media;presentation_video;presentation_type;presenter;res;table;tid;youtube_video
 ⍝ Test that POST /crud/{table} creates a new record in the specified table and returns the created record with its new ID
 
  data←##.GenerateTestData 10
- (event_type event organisation person presentation_type presentation presenter presentation_media youtube_video)←data
+ (event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media)←data
 
  D←#.DCMS
 
  r←1
- :For table :In event_type event organisation person presentation_type presentation presenter youtube_video presentation_media
+ :For table :In event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media
      name←⍕table
      {}D.SQL.Do'DELETE from ',name
      {}D.SQL.Do'ALTER TABLE ',name,' AUTO_INCREMENT = 1'

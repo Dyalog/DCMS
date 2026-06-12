@@ -21,6 +21,7 @@
  :If ~Patch'person' 1(name:'Updated Person') ⋄ r←0 ⋄ :Return ⋄ :EndIf
  :If ~Patch'presentation_type' 1(type:'Updated Presentation Type') ⋄ r←0 ⋄ :Return ⋄ :EndIf
  :If ~Patch'presentation' 1(title:'Updated Presentation Title') ⋄ r←0 ⋄ :Return ⋄ :EndIf
- :If ~Patch'presenter' 1(affiliation: 3) ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'presenter' 1(organisation_id: 3) ⋄ r←0 ⋄ :Return ⋄ :EndIf
+ :If ~Patch'presentation_video' 1(updated_by:'test_runner') ⋄ r←0 ⋄ :Return ⋄ :EndIf
  :If ~Patch'presentation_media' 1(updated_by:'test_runner') ⋄ r←0 ⋄ :Return ⋄ :EndIf
  :If ~Patch'youtube_video' 1(title:'Updated Video Title') ⋄ r←0 ⋄ :Return ⋄ :EndIf

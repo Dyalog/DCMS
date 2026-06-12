@@ -3,6 +3,7 @@
 ⍝ keepalive: do not quit after running tests
 ⍝ show_pass: flag to print passing tests to output
  (keepalive show_pass)←2↑opts
+ ##.DCMS.debug←0   ⍝ Required for error handling to be active in Stark
  r←show_pass Tests.Run GetEnv'URL'
  :If keepalive
      :Return

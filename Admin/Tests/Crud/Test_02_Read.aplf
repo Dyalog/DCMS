@@ -4,7 +4,7 @@
  D←#.DCMS
 
  r←1
- :For name :In 'event_type' 'event' 'organisation' 'person' 'presentation_type' 'presentation' 'presenter' 'presentation_media' 'youtube_video'
+ :For name :In 'event_type' 'event' 'organisation' 'person' 'presentation_type' 'presentation' 'presenter' 'presentation_video' 'presentation_media' 'youtube_video'
      h←⎕NEW #.HttpCommand'GET'
      h.URL←base_url,'/crud/',name
      h.TranslateData←1

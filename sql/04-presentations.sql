@@ -1,6 +1,6 @@
 -- Presentations, their types/categories, presenters, and media links.
 -- Depends on: event (02), person + organisation (01), youtube_video (03).
---   presentation_videos : direct presentation <-> youtube_video link
+--   presentation_video : direct presentation <-> youtube_video link
 --                         (replaces polymorphic presentation_media type='youtube_video')
 --   presentation_media  : free-text link rows (slides, PDFs, …) attached directly
 --                         to a presentation (replaces media_general + the join)
@@ -67,7 +67,7 @@ CREATE TABLE `presenter` (
     REFERENCES `organisation`(`id`) ON DELETE SET NULL ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `presentation_videos` (
+CREATE TABLE `presentation_video` (
   `id`               int unsigned NOT NULL AUTO_INCREMENT,
   `presentation_id`  int unsigned NOT NULL,
   `youtube_video_id` int unsigned NOT NULL,
