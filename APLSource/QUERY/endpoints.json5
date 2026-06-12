@@ -1,11 +1,10 @@
 {
     presenters: {
         fields: ["name", "id"],
-        sql: "SELECT DISTINCT name, person_id FROM person\
-                LEFT JOIN presenter ON presenter.person_id = person.id\
-                LEFT JOIN presentation ON presenter.presentation_id = presentation.id\
-                LEFT JOIN presentation_media AS pm ON pm.presentation_id = presentation.id\
-                WHERE pm.type = \"youtube_video\""
+        sql: "SELECT name, person_id FROM person\
+                INNER JOIN presenter ON presenter.person_id = person.id\
+                INNER JOIN presentation ON presenter.presentation_id = presentation.id\
+                INNER JOIN presentation_video AS pv ON pv.presentation_id = presentation.id"
     },
 
     videos: {
@@ -14,31 +13,29 @@
         sql: "SELECT yt.title, e.title, e.url_slug, yt.description, p.presented_at, yt.published_at\
                     ,c.category, yt.url, yt.youtube_id, yt.thumbnail\
                 FROM presentation AS p\
-                LEFT JOIN event AS e ON e.id = p.event_id\
-                LEFT JOIN presentation_media AS m ON m.presentation_id = p.id\
-                LEFT JOIN youtube_video AS yt ON yt.id = m.media_id\
+                INNER JOIN event AS e ON e.id = p.event_id\
+                INNER JOIN presentation_video AS pv ON pv.presentation_id = p.id\
+                INNER JOIN youtube_video AS yt ON yt.id = pv.youtube_video_id\
                 LEFT JOIN presentation_category AS c ON c.id = p.category_id\
-                WHERE m.type = \"youtube_video\"\
                 :>C256,C256,C256,C65535,C19(S),C19(S),C256,C256,C11,C256:",
         presenter: {
-            sql: "SELECT DISTINCT yt.title,yt.youtube_id,per.name,per.id\
+            sql: "SELECT yt.title,yt.youtube_id,per.name,per.id\
                     FROM presentation AS p\
-                    RIGHT JOIN event AS e ON e.id = p.event_id\
-                    INNER JOIN presentation_media AS m ON m.presentation_id = p.id\
-                    INNER JOIN youtube_video AS yt ON yt.id = m.media_id\
-                    RIGHT JOIN presenter AS pres ON pres.presentation_id = p.id\
-                    RIGHT JOIN person AS per ON pres.person_id = per.id\
-                    WHERE m.type = \"youtube_video\""
+                    INNER JOIN event AS e ON e.id = p.event_id\
+                    INNER JOIN presentation_video AS pv ON pv.presentation_id = p.id\
+                    INNER JOIN youtube_video AS yt ON yt.id = pv.youtube_video_id\
+                    INNER JOIN presenter AS pres ON pres.presentation_id = p.id\
+                    INNER JOIN person AS per ON pres.person_id = per.id"
         }
     },
 
     events: {
         fields: ["id", "title", "type", "start", "end", "url_slug", "has_videos"],
-        sql: "SELECT DISTINCT e.id,e.title,etype.type,e.start,e.end,e.url_slug\
-                    ,EXISTS(SELECT 1 FROM presentation AS p2\
-                        INNER JOIN presentation_media AS pm ON pm.presentation_id = p2.id\
-                        WHERE p2.event_id = e.id AND pm.type = 'youtube_video') AS has_videos\
+        sql: "SELECT e.id,e.title,etype.type,e.start,e.end,e.url_slug\
+                    ,EXISTS(SELECT 1 FROM presentation AS p\
+                        INNER JOIN presentation_video AS pv ON pv.presentation_id = p.id\
+                        WHERE p.event_id = e.id) AS has_videos\
                 FROM event AS e\
-                INNER JOIN event_type AS etype ON e.type = etype.id"
+                LEFT JOIN event_type AS etype ON e.type_id = etype.id"
     }
 }
