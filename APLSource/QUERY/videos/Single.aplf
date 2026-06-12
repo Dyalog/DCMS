@@ -2,7 +2,7 @@
  
  :If '⍠SPEC'≡req
      schemas←##.##.SPEC.schemas
-     res←(tags:,⊂'Videos' ⋄ summary:'Get a single video' ⋄ operationId: 'getVideo'
+     res←(tags:,⊂'Videos' ⋄ summary:'Get a single video' ⋄ operationId: 'getVideo' ⋄ security:⍬
          responses:(
              ⍙200:(
                  description:'A single video object'

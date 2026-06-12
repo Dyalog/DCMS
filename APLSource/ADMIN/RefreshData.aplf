@@ -6,7 +6,6 @@
      r←(
          tags:,⊂'Admin' ⋄ summary:'Refresh cached API data' ⋄ operationId:'refreshData'
          description:'Fetches external API data, then rebuilds the cached joined views served by the public read endpoints.'
-         security:(ApiKeyAuth:'')
      )
      :Return
  :EndIf

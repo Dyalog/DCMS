@@ -2,7 +2,7 @@
  
  :If req≡'⍠SPEC'
      res←(
-        tags: ,⊂'Events' ⋄ summary:'List events' ⋄ operationId: 'getEvents'
+        tags: ,⊂'Events' ⋄ summary:'List events' ⋄ operationId: 'getEvents' ⋄ security:⍬
         parameters: (
             (name: 'has_videos' ⋄ in: 'query' ⋄ required: ⊂'false' ⋄ schema: (type: 'boolean') ⋄ description: 'Filter whether events have videos of presentations.')
         )
