@@ -13,11 +13,20 @@
  :If 0=⎕NC'router'
      router←⎕NEW #.Stark
      router.Info←(title:'Dyalog Content Management System' ⋄ version:Version'')
-     router.Spec←(components: (securitySchemes: (ApiKeyAuth: (
+     router.Spec←(
+                security:(,⊂(ApiKeyAuth:⍬))            ⍝ global default: require X-API-Key; public ops opt out with security:⍬
+                components: (securitySchemes: (ApiKeyAuth: (
                 type: 'apiKey'
                 name: 'X-API-Key'
                 in: 'header'
      ))))
+
+    ⍝ Public-facing API documentation: Swagger UI at / driven by /openapi.json.
+     '/'                             router.Get('WEB.Index'  (WEB.Index'⍠SPEC'))
+     '/swagger/swagger-ui.css'       router.Get('WEB.Static' (WEB.Static'CSS⍠SPEC'))
+     '/swagger/theme.css'            router.Get('WEB.Static' (WEB.Static'THEME⍠SPEC'))
+     '/swagger/swagger-ui-bundle.js' router.Get('WEB.Static' (WEB.Static'JS⍠SPEC'))
+      
      '/version'                             router.Get('Version'                     (Version'⍠SPEC'))
      '/videos/{youtube_id}/recommendations' router.Get('QUERY.videos.Recommendations'(QUERY.videos.Recommendations'⍠SPEC'))
      '/videos/{youtube_id}'                 router.Get('QUERY.videos.Single'         (QUERY.videos.Single'⍠SPEC'))

@@ -1,0 +1,7 @@
+ bytes←ReadBytes path;tn
+⍝ Read a static asset verbatim as an 8-bit byte string (char vector, code points 0-255).
+⍝ Not ⎕NGET. ⎕NGET rewrites the bytes and yields code points >255 which Conga can't send.
+⍝ A raw native read transmits the file exactly as stored; the browser decodes per charset.
+ tn←path ⎕NTIE 0
+ bytes←⎕UCS 256|⎕NREAD tn 83(⎕NSIZE tn)0
+ ⎕NUNTIE tn
