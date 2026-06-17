@@ -1,4 +1,0 @@
- Debug msg
- :If GLOBAL.debug
-     ⎕←msg
- :EndIf

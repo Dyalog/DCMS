@@ -1,7 +1,0 @@
-Restart
-⍝ Convenience function to restart services during development.
-:If 0≠⎕NC'router'
-    router.Stop
-    ⎕EX'router'
-:EndIf
-Run 1
