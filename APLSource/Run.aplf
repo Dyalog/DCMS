@@ -43,7 +43,7 @@
      PROFILING.status←(on: 0 ⋄ since: ⊂'null' ⋄ last_cleared: ⊂'null')
 
      Teapot←{⎕SIGNAL⊂('EN' 418)('Message' 'I am a teapot')('Vendor' 'DCMS')}
-     '/teapot'            router.Get 'Teapot' (reponses: (⍙418: 'AM TEAPOT FIXME'))
+     '/teapot'            router.Get 'Teapot' (responses: (⍙418: 'AM TEAPOT'))
 
      router.OnErrorFn←'HandleError'
     ⍝ Make sure Jarvis can find authentication function until Stark supports middleware or similar for pre-processing requests
