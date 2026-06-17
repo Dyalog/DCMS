@@ -8,12 +8,12 @@
      q,←'&part=snippet'
      q,←'&maxResults=100'
      r←#.HttpCommand.GetJSON'Get'q
-     0≠r.rc:⎕SIGNAL⊂('EN'202)('Message' r.msg)('Vendor' (#.DCMS.GetEnv'URL'))
-     200≠r.HttpStatus:r.HttpMessage ⎕SIGNAL r.HttpStatus
+     0≠r.rc:⎕SIGNAL⊂('EN'202)('Message' r.msg)('Vendor' 'DCMS')
+     200≠r.HttpStatus:⎕SIGNAL⊂('EN' r.HttpStatus)('Message' r.HttpMessage)('Vendor' 'DCMS')
     ⍝ ←: id  youtube_id  title  description  channel_id  channel  category_id  published_at  created_at  updated_at  updated_by
-     0=⎕NC'r.Data.items':⎕SIGNAL⊂('EN'404)('Message' 'No items received from YouTube API')('Vendor' (#.DCMS.GetEnv'URL'))
+     0=⎕NC'r.Data.items':⎕SIGNAL⊂('EN'404)('Message' 'No items received from YouTube API')('Vendor' 'DCMS')
      id←{0∊⍴⍵:⍬ ⋄ ⍵.id}r.Data.items
-     _←{0=≢⍵:'' ⋄ ⎕SIGNAL⊂('EN'404)('Message' ('YouTube videos ID= (',⍵,') not available.'))('Vendor' (#.DCMS.GetEnv'URL'))}1↓∊','∘,¨⍵/⍨~⍵∊id
+     _←{0=≢⍵:'' ⋄ ⎕SIGNAL⊂('EN'404)('Message' ('YouTube videos ID= (',⍵,') not available.'))('Vendor' 'DCMS')}1↓∊','∘,¨⍵/⍨~⍵∊id
      res←'maxres' 'medium' 'default' 'high' 'standard'
      r.Data.items.thumbnail←⍺∘,¨⊆⍵,¨⊂'.jpg'
      ↑r.Data.items.((⊂id),snippet.(title description channelId channelTitle ⍬ publishedAt),⊂thumbnail)   ⍝ ⍬ for category_id

@@ -12,8 +12,8 @@
  h.Params←info
  r←h.Run
  :If 0≠r.rc
-     420 ⎕SIGNAL⍨r.msg
+     ⎕SIGNAL⊂('EN' 502)('Message' r.msg)('Vendor' 'DCMS')
  :ElseIf 201 207(~∨/⍤∊)r.HttpStatus
-     512 ⎕SIGNAL⍨'WordPress CPTCreate POST FAILED: ',r.(⍕HttpStatus),' ',r.HttpMessage
+     ⎕SIGNAL⊂('EN' 502)('Message' ('WordPress CPTCreate POST FAILED: ',r.(⍕HttpStatus),' ',r.HttpMessage))('Vendor' 'DCMS')
  :EndIf
  r←r.Data

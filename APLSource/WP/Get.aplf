@@ -13,7 +13,7 @@
      h.TranslateData←1   ⍝ Automatically convert JSON response to namespace
      r←h.Run
      400=r.HttpStatus:''   ⍝ No more pages: return
-     200≠r.HttpStatus:r.HttpMessage ⎕SIGNAL r.HttpStatus   ⍝ ERROR
+     200≠r.HttpStatus:⎕SIGNAL⊂('EN' r.HttpStatus)('Message' r.HttpMessage)('Vendor' 'DCMS')   ⍝ ERROR
      0=≢r.Data:''
      r.Data,(⍺+1)∇ ⍵
  }
