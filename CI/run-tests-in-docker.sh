@@ -32,7 +32,7 @@ echo HOME=/data >> ${REPO_DIR}/env
 echo COMPOSE IS: $COMPOSE
 echo "Use docker inspect to get the IP of the running container"
 
-export PROJECT_DIR=$(sudo docker inspect $(hostname) --format '{{range .Mounts}}{{if eq .Destination "/projects"}}{{.Source}}{{end}}{{end}}')/DCMS
+export PROJECT_DIR=$PWD
 
 sudo -E $COMPOSE -f ${REPO_DIR}/docker-compose.yml pull
 sudo -E $COMPOSE -f ${REPO_DIR}/docker-compose.yml up install
