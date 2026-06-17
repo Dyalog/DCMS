@@ -1,11 +1,29 @@
- res←dmx HandleError req;NL;URLEncode;repo;reqline;params;detail;json;title;body;link;msg;⎕IO
- :If dmx.Vendor≡'DCMS'
- :AndIf dmx.EN∊400 404 418
-     res←(error:dmx.EN ⋄ message:dmx.Message)
-     req.Fail dmx.EN
- :Else
+ res←dmx HandleError req;NL;URLEncode;repo;reqline;params;detail;json;title;body;link;msg;trapping;⎕IO
+ NL←⎕UCS 10
+⍝ How many classes of error are trapped (default to production if not yet configured)
+ trapping←2
+ :If 2=GLOBAL.⎕NC'trapping'
+     trapping←GLOBAL.trapping
+ :EndIf
+ :If dmx.Vendor≡'DCMS'                             ⍝ Expected error deliberately signalled.
+     Log'[ERR] ',⍕dmx.(EN Vendor Message)
+     detail←dmx.Message
+     :If 0∊⍴detail                                 ⍝ fall back to the diagnostic message lines
+         detail←1↓∊NL,¨dmx.DM
+     :EndIf
+     :If (dmx.EN≥400)∧(dmx.EN<500)                 ⍝ client error → respond with that status
+         res←(error:dmx.EN ⋄ message:detail)
+         req.Fail dmx.EN
+     :Else                                         ⍝ server-side expected error → 500 with message
+         res←(error:500 ⋄ message:detail)
+         req.Fail 500
+     :EndIf
+ :Else                                             ⍝ Unexpected error.
      Log'[ERR] ',⍕dmx.(EN Vendor Message DM)
-     NL←⎕UCS 10
+     :If 1=trapping                                ⍝ development: leave the bug to suspend
+         ⎕SIGNAL⊂('EN' dmx.EN)('EM' dmx.EM)('Message' dmx.Message)
+     :EndIf
+ ⍝ trapping=2 (production): turn the bug into a generic 500 + a pre-filled issue link
      ⍝ Percent-encode a character vector (UTF-8) for use in a URL query value
      URLEncode←{
          unreserved←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~'

@@ -1,13 +1,17 @@
- Run debug;app_dir;LoadDependency
- GLOBAL.debug←debug
- GLOBAL.(logging log)←debug ⍬
+ Run cfg;logging;trapping;trace;app_dir;LoadDependency
+⍝ cfg: a preset scalar (0=production, 1=development, 2=strict)
+⍝      or an explicit (logging trapping trace) triple. See SetDebug.
+ :If 0=≢⍴cfg
+     (logging trapping trace)←(1+cfg)⊃(0 2 0)(1 1 0)(1 0 0)
+ :Else
+     (logging trapping trace)←cfg
+ :EndIf
 ⍝ Initialise SQL schema
  GLOBAL.secrets←ReadJSON GetEnv'SECRETS'
  ⎕←'Initialising SQAPL...'
  ⎕←SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
- SQL.debug←debug
 ⍝ Set up Stark router
  url←GetEnv'URL'
  :If 0=⎕NC'router'
@@ -51,9 +55,10 @@
      jarvis.AuthenticateFn←'##.##.AUTH.ControlAccess'
      jarvis.HTTPAuthentication←'x-api-key'
 
-     router.Debug←debug
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
+⍝ Apply debug controls (after router.Start so Stark does not overwrite jarvis.Debug)
+ SetDebug logging trapping trace
 
  ⎕←'Setting up data refresh timer...'
  :If 0=GLOBAL.⎕NC'data_refresh_timer'
