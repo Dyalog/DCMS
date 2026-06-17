@@ -19,8 +19,9 @@ done
 # The Docker daemon runs on the host, so volume bind-mounts need host paths,
 # not paths as seen from inside this dev container.
 CONTAINER_ID=$(hostname)
+echo $CONTAINER_ID
 HOST_PROJECT=$(sudo docker inspect "$CONTAINER_ID" \
-    --format '{{range .Mounts}}{{if eq .Destination "/projects"}}{{.Source}}{{end}}{{end}}')/DCMS
+    --format '{{range .Mounts}}{{if eq .Destination "/projects/DCMS"}}{{.Source}}{{end}}{{end}}')
 
 if [ -z "$HOST_PROJECT" ]; then
     echo "ERROR: Could not determine host path for /projects/DCMS."
