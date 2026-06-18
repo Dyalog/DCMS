@@ -14,7 +14,7 @@
      su←(⊂⍤⍋⍛⌷)pa←res.Data.data.presented_at
      su≢pa:0
 ⍝ search= required so Rank scores by term relevance, not natural index order
-     keyword←⊃##.generator.keywords
+     keyword←⊃##.GENERATE.keywords
      res←H.GetJSON'GET'(⍵,'/videos?search=',keyword,'&sort=relevance')
      200≠res.HttpStatus:0
      0∊⍴res.Data:0

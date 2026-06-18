@@ -9,11 +9,11 @@
 ⍝ Start by generating joined data and deconstructing it into the normalised database, then loop over each table and insert.
 
 ⍝ CONFIG
- keywords←generator.keywords
- stems←generator.stemmable[;2]
+ keywords←GENERATE.keywords
+ stems←GENERATE.stemmable[;2]
  person_names←'Geoff' 'Streeter' 'John' 'Scholes' 'Iverson' 'Dolor' 'Fugiat' 'Orange' 'Rich' 'Park' 'Jada' 'Andrade' 'Andy' 'Karen' 'Fiona' 'Jason' 'Peter' 'Silas'
  thing_names←'APL' 'Meeting' 'Seeds' 'Conference' 'Dyalog' 'Alpha' 'Omega'
- lipsum←generator.lipsum
+ lipsum←GENERATE.lipsum
 
 ⍝ GENERATE
  ⎕RL←42
@@ -21,15 +21,15 @@
 
 ⍝ Use ⎕DF to give each namespace a name that can be used to look up into SQL table metadata
  event_type←(
-     type:(vocab:keywords ⋄ max:1)generator.Name n
-     description:(vocab:lipsum ⋄ max:65535)generator.Text n
-     url_slug:generator.URL _Unique n
+     type:(vocab:keywords ⋄ max:1)GENERATE.Name n
+     description:(vocab:lipsum ⋄ max:65535)GENERATE.Text n
+     url_slug:GENERATE.URL _Unique n
  )
  event_type.⎕DF'event_type'
 
  event←()
- event.title←(vocab:thing_names ⋄ max:3)generator.Name n
- event.(start end)←generator.DateTime¨2⍴n
+ event.title←(vocab:thing_names ⋄ max:3)GENERATE.Name n
+ event.(start end)←GENERATE.DateTime¨2⍴n
  event.type_id←?n⍴n
  event.url_slug←'-'@(' '∘=)¨¯1 ⎕C event.title
  event.url_slug,¨←'-',∘⍕¨⍳n
@@ -37,12 +37,12 @@
  example_event←⊃event.url_slug   ⍝ Use example_event in DummyData.TestGETVideos_EventShortname
 
  organisation←()
- organisation.name←(vocab:thing_names ⋄ max:2)generator.Name n
+ organisation.name←(vocab:thing_names ⋄ max:2)GENERATE.Name n
  organisation.name,¨←'-',∘⍕¨⍳n
  organisation.⎕DF'organisation'
 
  person←()
- person.name←(vocab:person_names ⋄ max:3)generator.Name n
+ person.name←(vocab:person_names ⋄ max:3)GENERATE.Name n
  person.organisation_id←?n⍴n
  person.⎕DF'person'
 
@@ -55,11 +55,11 @@
  presentation.code←n⍴⊂''
  _←{presentation.code[⍵]←⍕¨⍳≢⍵}⌸presentation.event_id   ⍝ Unique codes within each event
  presentation.title←stems
- presentation.title,←(vocab:lipsum ⋄ max:30)generator.Text n-≢stems
+ presentation.title,←(vocab:lipsum ⋄ max:30)GENERATE.Text n-≢stems
  presentation.title[1],←⊂' dolor'   ⍝ Ensure a keyword is present in search results
  presentation.type_id←?n⍴n
- presentation.description←(vocab:lipsum ⋄ max:65535)generator.Text n
- presentation.presented_at←'2005-04-03 00:00:00' '2008-05-05 00:00:00' '2012-12-12 00:00:00',generator.DateTime n-3   ⍝ Fixed dates for testing date range filtering
+ presentation.description←(vocab:lipsum ⋄ max:65535)GENERATE.Text n
+ presentation.presented_at←'2005-04-03 00:00:00' '2008-05-05 00:00:00' '2012-12-12 00:00:00',GENERATE.DateTime n-3   ⍝ Fixed dates for testing date range filtering
  presentation.⎕DF'presentation'
 
  presenter←()
@@ -75,8 +75,8 @@
  videos←()
  example_search_term←'wombo'
  videos.title←example_search_term⊂⍛,stems   ⍝ Unique keyword for search testing
- videos.title,←(vocab:lipsum ⋄ max:30)generator.Text n-1+≢stems
- videos.description←(vocab:lipsum ⋄ max:65535)generator.Text n
+ videos.title,←(vocab:lipsum ⋄ max:30)GENERATE.Text n-1+≢stems
+ videos.description←(vocab:lipsum ⋄ max:65535)GENERATE.Text n
  videos.description[2]←videos.description[1]   ⍝ Guarantee similar video for recommendations test
  videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}_Unique n 11⍴0
  example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
@@ -90,8 +90,8 @@
  ⍝ presentation_media now holds free-text links (slides, PDFs, …) directly on a presentation
  presentation_media←()
  presentation_media.presentation_id←?n⍴n
- presentation_media.text←(vocab:lipsum ⋄ max:4)generator.Text n
- presentation_media.url←generator.URL n
+ presentation_media.text←(vocab:lipsum ⋄ max:4)GENERATE.Text n
+ presentation_media.url←GENERATE.URL n
  presentation_media.⎕DF'presentation_media'
 
  youtube_video←(
@@ -101,8 +101,8 @@
  )
  youtube_video.⎕DF'youtube_video'
 
-⍝ All generator functions take a right arg of number of records to generate
-⍝ Left argument is max size of data (length in bits), OR a special left argument for specific columns
+⍝ All GENERATE functions take a right arg of number of records to generate
+⍝ Left argument is max size of data (length in bits), OR a special left argument for specific settings
 
 ⍝ Tables are inserted in this order, so each FK target must come before its referrer.
  data←event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media

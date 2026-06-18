@@ -4,7 +4,7 @@
  ##.MockYT.Run
  DoTest←url∘(show_pass Test)
  result←1
- result∧←DoTest General     ⍝ General tests should pass from clean start
+ result∧←DoTest MAIN     ⍝ General tests should pass from clean start
  InsertDummyData
  :If 0<⎕NC'##.##.DCMS'
      #.DCMS.ADMIN.RefreshData''
@@ -13,6 +13,6 @@
  :EndIf
  :While ~#.isolate.Available'#.DCMS.QUERY.recommendations'   ⍝ Wait until recommendations ready
  :EndWhile
- result∧←DoTest DummyData   ⍝ Test insert and retrieve dummy data
- result∧←DoTest General     ⍝ General tests should still pass after populating database, cache etc.
- result∧←DoTest Crud        ⍝ Test Create Read Update Delete
+ result∧←DoTest MOCK   ⍝ Test insert and retrieve dummy data
+ result∧←DoTest MAIN   ⍝ General tests should still pass after populating database, cache etc.
+ result∧←DoTest CRUD   ⍝ Test Create Read Update Delete
