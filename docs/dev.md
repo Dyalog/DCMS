@@ -45,7 +45,7 @@ The services are defined in [docker-compose.yml](../docker-compose.yml):
 
 ## Configuration
 
-The `DEBUG` flag controls request handling behaviour from full error trapping to suspending execution for debugging. See [error-handling.md](error-handling.md) for the full scheme and [config.md](config.md) for all configuration parameters.
+The `SUSPEND` flag controls request handling behaviour from full error trapping to suspending execution for debugging. See [error-handling.md](error-handling.md) for the full scheme and [config.md](config.md) for all configuration parameters.
 
 ## Running tests
 

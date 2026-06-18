@@ -1,10 +1,12 @@
- r←RunTests opts;result;keepalive;show_pass
+ r←RunTests opts;keepalive;prev_debug;result;show_pass
 ⍝ (keepalive [show_pass])
 ⍝ keepalive: do not quit after running tests
 ⍝ show_pass: flag to print passing tests to output
  (keepalive show_pass)←2↑opts
- ##.DCMS.SetDebug 0 2 0
+ prev_debug←#.DCMS.GLOBAL.(logging suspend trace)
+ #.DCMS.SetDebug 0 0 0
  r←show_pass Tests.Run GetEnv'URL'
+ #.DCMS.SetDebug prev_debug
  :If keepalive
      :Return
  :EndIf

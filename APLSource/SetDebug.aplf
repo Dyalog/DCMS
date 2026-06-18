@@ -1,20 +1,20 @@
- {r}←SetDebug (logging trapping trace);logging;trapping;trace
+ {r}←SetDebug (logging suspend trace);logging;suspend;trace
 
 ⍝ Configure DCMS debug controls and propagate them to Stark (router) and Jarvis.
 ⍝
 ⍝ logging  ∈ 0 1     : whether Log lines print to the session
-⍝ trapping ∈ 0 1 2   : which classes of error are trapped:
-⍝                        2 = all      (expected → response, bugs → 500 response)
-⍝                        1 = expected (expected → response, bugs → suspend)
-⍝                        0 = none     (all errors suspend)
+⍝ suspend  ∈ 0 1 2   : which classes of error suspend (vs trap into a response):
+⍝                        0 = none     (expected → response, bugs → 500 response)
+⍝                        1 = bugs     (expected → response, bugs → suspend)
+⍝                        2 = all      (all errors suspend)
 ⍝ trace    ∈ 0 1     : whether to suspend on request entry to step through a request
 
- :If ~(logging∊0 1)∧(trapping∊0 1 2)∧(trace∊0 1)
-     ⎕SIGNAL⊂('EN' 11)('Message' 'SetDebug: settings must be (logging∊0 1)(trapping∊0 1 2)(trace∊0 1)')
+ :If ~(logging∊0 1)∧(suspend∊0 1 2)∧(trace∊0 1)
+     ⎕SIGNAL⊂('EN' 11)('Message' 'SetDebug: settings must be (logging∊0 1)(suspend∊0 1 2)(trace∊0 1)')
  :EndIf
 ⍝ DCMS-level controls (the values HandleError and Log read)
  GLOBAL.logging←logging
- GLOBAL.trapping←trapping
+ GLOBAL.suspend←suspend
  GLOBAL.trace←trace
  :If 0=GLOBAL.⎕NC'log'
      GLOBAL.log←⍬
@@ -26,14 +26,14 @@
 ⍝ Propagate to the framework if it is up. router.Debug / jarvis.Debug are bitmasks:
 ⍝   bit 1  (value 1)  — stop on error (disables :Trap so the error suspends)
 ⍝   bit 64 (value 64) — Stark: stop before routing (request-entry trace)
-⍝ Keep Stark's dispatch trap ON unless trapping=0, so HandleError still runs to
+⍝ Keep Stark's dispatch trap ON unless suspend=2, so HandleError still runs to
 ⍝ classify and respond to expected errors; route unexpected bugs to the debugger
-⍝ via Jarvis (bit 1) when trapping<2.
+⍝ via Jarvis (bit 1) when suspend>0.
  :If 0≠⎕NC'router'
-     router.Debug←(1×0=trapping)+(64×trace)
+     router.Debug←(1×2=suspend)+(64×trace)
  :EndIf
  :If 0≠⎕NC'jarvis'
-     jarvis.Debug←1×2>trapping   ⍝ MUST be set after router.Start (Stark forwards bit 1)
+     jarvis.Debug←1×suspend>0   ⍝ MUST be set after router.Start (Stark forwards bit 1)
  :EndIf
- ⎕←'[DEBUG] logging=',(⍕logging),' trapping=',(⍕trapping),' trace=',⍕trace
- r←logging trapping trace
+ ⎕←'[DEBUG] logging=',(⍕logging),' suspend=',(⍕suspend),' trace=',⍕trace
+ r←logging suspend trace

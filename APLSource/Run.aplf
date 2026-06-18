@@ -1,11 +1,12 @@
- Run cfg;logging;trapping;trace;app_dir;LoadDependency
+ Run cfg;logging;suspend;trace;app_dir;LoadDependency
 ⍝ cfg: a preset scalar (0=production, 1=development, 2=strict)
-⍝      or an explicit (logging trapping trace) triple. See SetDebug.
+⍝      or an explicit (logging suspend trace) triple. See SetDebug.
  :If 0=≢⍴cfg
-     (logging trapping trace)←(1+cfg)⊃(0 2 0)(1 1 0)(1 0 0)
+     (logging suspend trace)←(1+cfg)⊃(0 0 0)(1 1 0)(1 2 0)
  :Else
-     (logging trapping trace)←cfg
+     (logging suspend trace)←cfg
  :EndIf
+ GLOBAL.logging←logging   ⍝ Set here because used by SQL fns. SetDebug later to override Stark settings.
 ⍝ Initialise SQL schema
  GLOBAL.secrets←ReadJSON GetEnv'SECRETS'
  ⎕←'Initialising SQAPL...'
@@ -58,7 +59,7 @@
      router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
 ⍝ Apply debug controls (after router.Start so Stark does not overwrite jarvis.Debug)
- SetDebug logging trapping trace
+ SetDebug logging suspend trace
 
  ⎕←'Setting up data refresh timer...'
  :If 0=GLOBAL.⎕NC'data_refresh_timer'

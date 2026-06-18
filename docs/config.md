@@ -2,7 +2,7 @@
 
 ## Secrets
 
-Secrets are stored in `secrets/secrets.json5`. This file is gitignored — each developer creates their own locally, and in production the CI framework provides it separately.
+Secrets are stored in `secrets/secrets.json5`. This file is gitignored. Each developer creates their own locally, and in production the CI framework provides it separately.
 
 **secrets/secrets.json5**
 
@@ -25,15 +25,20 @@ Secrets are stored in `secrets/secrets.json5`. This file is gitignored — each 
 }
 ```
 
-## Debug flag
+## Debug controls
 
-Global debug flag stored in `#.GLOBAL.debug`.
+Error-handling and developer-debugging behaviour is governed by three **independent**
+configuration keys, applied at start-up to `#.GLOBAL.(logging suspend trace)` by
+`DCMS.SetDebug`:
 
-This controls error handling behaviour and developer debugging support. See [error-handling.md](error-handling.md) for the full scheme.
+```apl
+DCMS.SetDebug logging suspend trace   ⍝ 3-element integer vector
+```
 
-| Value | Behaviour |
-|---|---|
-| 0 | Production — all errors trapped, HTTP status code responses or 500 |
-| 1 | Development — expected errors respond normally, unexpected errors suspend |
-| 2 | Strict debugging — all errors suspend execution |
-| 3 | Tracing — suspend on request entry for step-through debugging |
+| Config key | `#.GLOBAL` | Values    | Meaning                                                                    |
+| ---------- | ---------- | --------- | -------------------------------------------------------------------------- |
+| `LOGGING`  | `logging`  | 0 / 1     | print `Log` lines to the session                                           |
+| `SUSPEND`  | `suspend`  | 0 / 1 / 2 | suspend on error: none / bugs only / all (rest are trapped into responses) |
+| `TRACE`    | `trace`    | 0 / 1     | suspend on request entry for step-through debugging                        |
+
+See [error-handling.md](error-handling.md) for the full scheme.

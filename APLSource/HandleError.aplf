@@ -1,9 +1,9 @@
- res←dmx HandleError req;NL;URLEncode;repo;reqline;params;detail;json;title;body;link;msg;trapping;⎕IO
+ res←dmx HandleError req;NL;URLEncode;repo;reqline;params;detail;json;title;body;link;msg;suspend;⎕IO
  NL←⎕UCS 10
-⍝ How many classes of error are trapped (default to production if not yet configured)
- trapping←2
- :If 2=GLOBAL.⎕NC'trapping'
-     trapping←GLOBAL.trapping
+⍝ How many classes of error suspend (default to production if not yet configured)
+ suspend←0
+ :If 2=GLOBAL.⎕NC'suspend'
+     suspend←GLOBAL.suspend
  :EndIf
  :If dmx.Vendor≡'DCMS'                             ⍝ Expected error deliberately signalled.
      Log'[ERR] ',⍕dmx.(EN Vendor Message)
@@ -20,10 +20,10 @@
      :EndIf
  :Else                                             ⍝ Unexpected error.
      Log'[ERR] ',⍕dmx.(EN Vendor Message DM)
-     :If 1=trapping                                ⍝ development: leave the bug to suspend
+     :If 1=suspend                                ⍝ development: leave the bug to suspend
          ⎕SIGNAL⊂('EN' dmx.EN)('EM' dmx.EM)('Message' dmx.Message)
      :EndIf
- ⍝ trapping=2 (production): turn the bug into a generic 500 + a pre-filled issue link
+ ⍝ suspend=0 (production): turn the bug into a generic 500 + a pre-filled issue link
      ⍝ Percent-encode a character vector (UTF-8) for use in a URL query value
      URLEncode←{
          unreserved←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~'
