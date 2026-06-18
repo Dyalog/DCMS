@@ -1,7 +1,7 @@
  res←Presenters req
  :If req≡'⍠SPEC'
      res←(
-         tags:,⊂'Presenters' ⋄ summary:'List presenter names' ⋄ operationId:'getPresenters'
+         tags:,⊂'Presenters' ⋄ summary:'List presenter names' ⋄ operationId:'getPresenters' ⋄ security:⍬
          responses: (
              ⍙200: (
                  description: 'List of presenter names and IDs'

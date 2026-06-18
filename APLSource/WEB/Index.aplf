@@ -1,0 +1,12 @@
+ html←Index req
+⍝ GET / — serve the Swagger UI documentation page (public).
+ :If req≡'⍠SPEC'
+     html←(
+         tags:,⊂'Web UI' ⋄ summary:'Swagger UI documentation page' ⋄ operationId:'getDocs' ⋄ security:⍬
+         responses:(⍙200:(description:'HTML page hosting the Swagger UI'))
+     )
+     :Return
+ :EndIf
+ ##.Log'[REQ] GET /'
+ 'content-type' req.SetHeader 'text/html; charset=utf-8'
+ html←(##.GLOBAL.web_asset_names⍳⊂'index.html')⊃##.GLOBAL.web_assets   ⍝ cached byte payload (see Run.aplf)
