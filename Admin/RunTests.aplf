@@ -5,6 +5,7 @@
  (keepalive show_pass)←2↑opts
  prev_debug←#.DCMS.GLOBAL.(logging suspend trace)
  #.DCMS.SetDebug 0 0 0
+ TESTS.ClearData
  r←show_pass TESTS.Run GetEnv'URL'
  #.DCMS.SetDebug prev_debug
  :If keepalive
