@@ -25,9 +25,9 @@
                 in: 'header'
      ))))
      '/version'                             router.Get('Version'                     (Version'⍠SPEC'))
-     '/videos/{youtube_id}/recommendations' router.Get('QUERY.videos.Recommendations'(QUERY.videos.Recommendations'⍠SPEC'))
-     '/videos/{youtube_id}'                 router.Get('QUERY.videos.Single'         (QUERY.videos.Single'⍠SPEC'))
-     '/videos'                              router.Get('QUERY.videos.Query'          (QUERY.videos.Query'⍠SPEC'))
+     '/videos/{youtube_id}/recommendations' router.Get('QUERY.VIDEOS.Recommendations'(QUERY.VIDEOS.Recommendations'⍠SPEC'))
+     '/videos/{youtube_id}'                 router.Get('QUERY.VIDEOS.Single'         (QUERY.VIDEOS.Single'⍠SPEC'))
+     '/videos'                              router.Get('QUERY.VIDEOS.Query'          (QUERY.VIDEOS.Query'⍠SPEC'))
      '/presenters'                          router.Get('QUERY.Presenters'            (QUERY.Presenters'⍠SPEC'))
      '/events'                              router.Get('QUERY.Events'                (QUERY.Events'⍠SPEC'))
 

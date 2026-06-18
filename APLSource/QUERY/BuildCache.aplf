@@ -53,9 +53,9 @@
 ⍝ Similarity computation is expensive, so we perform it in an isolate
 ⍝ See http://docs.dyalog.com/latest/Parallel%20Language%20Features.pdf
 ⍝ The recommendations variable (a future) is semi-global within the DCMS.read namespace
-⍝ so that the QUERY.videos.Recommendations function can access future values when they are available
+⍝ so that the QUERY.VIDEOS.Recommendations function can access future values when they are available
  II←##.##.II ⋄ Values←##.##.isolate.Values
- recommendations←videos.ComputeRecommendations II vids.index_cols⌷⍨⊂vids.fields⍳⊆'title' 'description' 'presenter'   ⍝ Not localised on purpose!
+ recommendations←VIDEOS.ComputeRecommendations II vids.index_cols⌷⍨⊂vids.fields⍳⊆'title' 'description' 'presenter'   ⍝ Not localised on purpose!
  :If 0=⎕NC'vids.recommendations' ⋄ vids.recommendations←(1⍴⍨⊢,0⌈¯1∘+)≢vids.values ⋄ :EndIf
  vids.recommendations←⊃vids.recommendations Values'recommendations'
  :If 0=⎕NC'CACHE.videos' ⋄ CACHE.videos←⎕NS'' ⋄ :EndIf
