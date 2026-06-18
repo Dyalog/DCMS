@@ -17,7 +17,7 @@
  GLOBAL.suspend←suspend
  GLOBAL.trace←trace
  :If 0=GLOBAL.⎕NC'log'
-     GLOBAL.log←⍬
+     GLOBAL.log←''
  :EndIf
 ⍝ SQL verbose output follows logging
  :If 0≠⎕NC'SQL'

@@ -7,6 +7,7 @@
      (logging suspend trace)←cfg
  :EndIf
  GLOBAL.logging←logging   ⍝ Set here because used by SQL fns. SetDebug later to override Stark settings.
+ GLOBAL.log←''
 ⍝ Initialise SQL schema
  GLOBAL.secrets←ReadJSON GetEnv'SECRETS'
  ⎕←'Initialising SQAPL...'
