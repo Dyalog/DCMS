@@ -10,7 +10,7 @@ CREATE TABLE `event_type` (
   `updated_by`  varchar(128),
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_event_type_slug` (`url_slug`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `event` (
   `id`         int unsigned NOT NULL AUTO_INCREMENT,
@@ -29,4 +29,4 @@ CREATE TABLE `event` (
   UNIQUE KEY `uq_event_slug` (`url_slug`),
   CONSTRAINT `fk_event_type` FOREIGN KEY (`type_id`)
     REFERENCES `event_type`(`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

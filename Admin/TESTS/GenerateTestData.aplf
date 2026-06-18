@@ -66,9 +66,7 @@
  ⍝ Using fixed keys in the presenter and presentation_video tables ensures that stems are found in video results for testing
  presenter.(presentation_id person_id)←fixed_keys←(1 2 3 3)(1 2 3 4)   ⍝ presentation 1 has presenter 1; presentation 2 has presenter 2; presentation 3 has presenters 3 and 4
  _NotFixedKeys←{⍺←⊢ ⋄ ~∨/,(⍉↑fixed_keys)⍷⍤1 2⊢r←⍺ ⍺⍺ ⍵:r ⋄ ⍺ ∇ ⍵}
- ⍝ FIXME not correct because ⍣ requires ←≡⍵
- ⍝presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}⍣{(NotFixedKeys ⍺)∧∧/≠⍺}(n-≢fixed_keys)2⍴0
- presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}_NotFixedKeys _Unique(n-≢fixed_keys)2⍴0
+ presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}_NotFixedKeys _Unique(n-≢⊃fixed_keys)2⍴0
  presenter.⎕DF'presenter'
 
  ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below
@@ -84,7 +82,8 @@
  ⍝ presentation_video links presentations to youtube_videos
  presentation_video←()
  presentation_video.(presentation_id youtube_video_id)←fixed_keys←(⍳6)(⍳6)
- presentation_video.(presentation_id youtube_video_id),←↓⍉{?⍵⍴⍛⍴n n}_NotFixedKeys{(∧/1<⊢/r)∧∧/≠r←⍺⍺ ⍵:r ⋄ ∇ ⍵}(n-≢fixed_keys)2⍴0   ⍝ Random unique pairs of numbers
+ presentation_video.presentation_id,←{?⍵}_NotFixedKeys(n-≢⊃fixed_keys)⍴≢presentation.title
+ presentation_video.youtube_video_id,←(≢⊃fixed_keys)↓⍳≢videos.youtube_id
  presentation_video.⎕DF'presentation_video'
 
  ⍝ presentation_media now holds free-text links (slides, PDFs, …) directly on a presentation

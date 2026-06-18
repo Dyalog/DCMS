@@ -8,7 +8,7 @@ CREATE TABLE `organisation` (
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `updated_by` varchar(128),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `person` (
   `id`              int unsigned NOT NULL AUTO_INCREMENT,
@@ -24,4 +24,4 @@ CREATE TABLE `person` (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_person_organisation` FOREIGN KEY (`organisation_id`)
     REFERENCES `organisation`(`id`) ON DELETE SET NULL ON UPDATE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

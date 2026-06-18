@@ -19,4 +19,4 @@ CREATE TABLE `youtube_video` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_youtube_id` (`youtube_id`),
   KEY `idx_youtube_published_at` (`published_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
