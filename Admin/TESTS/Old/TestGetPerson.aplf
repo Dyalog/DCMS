@@ -1,8 +1,0 @@
- TestGetPerson←{
-     ⎕←'Test GET person'
-     ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'person'
-     G←url∘HttpGet
-     fields←'id' 'name' 'organisation' 'location' 'description' 'role' 'role_summary' 'url_slug' 'updated_at' 'updated_by' 'created_at'
-     _←Assert∧/fields∊(G'')[1].⎕NL-⍳9   ⍝ all persons
-     1
- }

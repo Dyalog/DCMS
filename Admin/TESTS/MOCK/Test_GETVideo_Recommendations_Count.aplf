@@ -1,0 +1,16 @@
+ Test_GETVideo_Recommendations_Count←{
+⍝ ?n= controls how many recommendations are returned, and they are distinct
+     H←##.##.##.HttpCommand
+     Assert←##.Assert
+     G←{0 ⎕JSON(H.GetJSON'GET'(⍵,(⍺,'/recommendations'))⊣⍺⍺).Data}   ⍝ placeholder; see body below
+     base←⍵,'/videos/',##.example_video,'/recommendations'
+     r2←H.GetJSON'GET'(base,'?n=2')
+     r6←H.GetJSON'GET'(base,'?n=6')
+     Assert 200=r2.HttpStatus:
+     Assert 200=r6.HttpStatus:
+     Assert 2=≢r2.Data:                          ⍝ exact count (n=100 rows ⇒ enough recs)
+     Assert 6=≢r6.Data:
+     Assert(⊢≡∪)r6.Data.youtube_id:              ⍝ recommendations are distinct
+     1
+ }
+ 

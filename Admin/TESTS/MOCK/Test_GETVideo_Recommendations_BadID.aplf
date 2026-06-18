@@ -1,0 +1,6 @@
+ Test_GETVideo_Recommendations_BadID←{
+⍝ youtube_id not 11 chars ⇒ 400 (Recommendations.aplf signals EN 400)
+     res←##.##.##.HttpCommand.Get ⍵,'/videos/SHORT/recommendations'
+     400=res.HttpStatus
+ }
+ 

@@ -1,8 +1,0 @@
- TestGetDTVEvents←{
-     ⎕←'Test GET dtv_events'
-     ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'dtv_events'
-     G←url∘HttpGet
-     fields←'id' 'title' 'type' 'url_slug'
-     _←Assert∧/fields∊(G'')[1].⎕NL-⍳9   ⍝ all events
-     1
- }
