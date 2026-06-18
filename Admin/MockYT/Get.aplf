@@ -7,12 +7,12 @@
      items←NS¨id
      items.id←id
      items.snippet←NS⍨¨id
-     T←##.Tests
+     T←##.TESTS
      items.snippet.title←'Mock Video '∘,¨⍳≢id
-     items.snippet.description←(max:100)T.generator.Text≢id
+     items.snippet.description←(max:100)T.GENERATE.Text≢id
      items.snippet.channelId←{(⎕A,⎕C ⎕A)[?15⍴2×26]}¨id
      items.snippet.channelTitle←⊂'Mock YouTube'
-     items.snippet.publishedAt←T.generator.DateTime≢id
+     items.snippet.publishedAt←T.GENERATE.DateTime≢id
      items.snippet.thumbnails←{(maxres:(url:'/assets/placeholder.png'))}¨id
      (items:items)   ⍝ Return a namespace with a single member "items"
  }
