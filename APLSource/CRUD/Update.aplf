@@ -29,7 +29,7 @@
      :Return
  :EndIf
 
- ##.Log'[REQ] POST /crud/',req.PathParams ⎕VGET⊂'table' ''
+ ##.Log'[REQ] PATCH /crud/',req.PathParams ⎕VGET⊂'table' ''
 
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL
@@ -41,7 +41,7 @@
  :If 9≠⎕NC'eg'⊣eg←req.Payload
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request body must be a JSON object.')
  :EndIf
- columns←req.Payload.⎕NL ¯2
+ columns←(req.Payload.⎕NL ¯2)~⊂'id'
  our_cols←idx⊃GBL.columns
  :If 0∊⍴columns
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request payload must include columns to update.')
@@ -50,7 +50,7 @@
  :EndIf
 
  id←req.PathParams ⎕VGET 'id'
- values←(,req.Payload) ⎕VGET columns   ⍝ Quick fix for rank-compatibility with SQL CRUD functions. FIXME consider modifying Update path to allow bulk updates
+ values←,req.Payload ⎕VGET columns   ⍝ Quick fix for rank-compatibility with SQL CRUD functions. FIXME consider modifying Update path to allow bulk updates
 
  :Hold 'SQL.db'
      r←##.QUERY.Table2JSON our_cols⍪##.SQL.Update(table:table ⋄ columns:columns ⋄ values:values ⋄ where: 'id=',id ⋄ returning:our_cols)
