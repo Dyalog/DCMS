@@ -8,7 +8,7 @@
      h←⎕NEW #.HttpCommand'GET'
      h.URL←base_url,'/crud/',name
      h.TranslateData←1
-     'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
      res←h.Run
      :If 200≢res.HttpStatus
      :OrIf 1≥≢res.Data.data   ⍝ Should return a list of items
@@ -19,7 +19,7 @@
      h←⎕NEW #.HttpCommand'GET'
      h.URL←base_url,'/crud/',name,'/1'
      h.TranslateData←1
-     'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
      res←h.Run
      :If 200≢res.HttpStatus
      :OrIf 1≠res.Data.id

@@ -15,7 +15,7 @@
  }
 
  r←1
- token←##.##.Secrets'upload_token'
+ token←#.DCMS.GLOBAL.secrets.upload_token
 
  res←token DoRequest'GET'(base_url,'/crud')
  :If 200≢res.HttpStatus

@@ -16,7 +16,7 @@
      payload←Table2JSON(table.⎕NL ¯2)⍪⍉↑table ⎕VGET check_cols←table.⎕NL ¯2
      h←⎕NEW #.HttpCommand'POST'
      h.URL←base_url,'/crud/',name
-     'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
      h.ContentType←'application/json'
      h.Params←payload
      h.TranslateData←1

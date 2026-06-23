@@ -1,6 +1,6 @@
  r←Test_Profile_Body url;key;Authed;Assert;res;fields;first
  r←0
- key←##.##.Secrets'upload_token'
+ key←#.DCMS.GLOBAL.secrets.upload_token
  Assert←##.Assert
  Authed←{
      h←##.##.##.HttpCommand.New ⍺

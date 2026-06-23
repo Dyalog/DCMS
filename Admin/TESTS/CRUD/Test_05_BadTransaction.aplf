@@ -8,7 +8,7 @@
 
  h←⎕NEW #.HttpCommand'POST'
  h.URL←base_url,'/crud/event_type'
- 'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+ 'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
  h.ContentType←'application/json'
  h.Params←payload
  res←h.Run

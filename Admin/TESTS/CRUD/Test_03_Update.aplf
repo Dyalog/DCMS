@@ -4,7 +4,7 @@
      (name id fields)←⍵
      h←⎕NEW #.HttpCommand'Patch'
      h.URL←base_url,'/crud/',name,'/',⍕id
-     _←'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     _←'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
      h.ContentType←'application/json'
      h.Params←fields
      h.TranslateData←1

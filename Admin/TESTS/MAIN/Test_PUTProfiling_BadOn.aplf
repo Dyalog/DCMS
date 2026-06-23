@@ -1,7 +1,7 @@
  Test_PUTProfiling_BadOn←{
      h←##.##.##.HttpCommand.New'PUT'
      h.URL←⍵,'/admin/profiling?on=banana'
-     _←'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     _←'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
      res←h.Run
      400=res.HttpStatus
  }

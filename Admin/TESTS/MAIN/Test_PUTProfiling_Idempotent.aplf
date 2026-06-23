@@ -1,6 +1,6 @@
  r←Test_PUTProfiling_Idempotent url;key;Authed;Assert;res;since1;since2
  r←0
- key←##.##.Secrets'upload_token'
+ key←#.DCMS.GLOBAL.secrets.upload_token
  Assert←##.Assert
  Authed←{
      h←##.##.##.HttpCommand.New ⍺

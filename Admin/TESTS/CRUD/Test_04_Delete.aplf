@@ -8,7 +8,7 @@
      h←⎕NEW #.HttpCommand method
      h.TranslateData←1
      h.URL←url
-     _←'x-api-key'h.SetHeader ##.##.Secrets'upload_token'
+     _←'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
      h.Run
  }
 

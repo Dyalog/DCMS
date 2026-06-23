@@ -22,7 +22,7 @@
  }
 
  r←1
- token←##.##.Secrets'upload_token'
+ token←#.DCMS.GLOBAL.secrets.upload_token
 
  :For name :In 'event_type' 'event' 'organisation' 'person' 'presentation_type' 'presentation' 'presenter' 'presentation_video' 'presentation_media' 'youtube_video'
      res←token DoRequest'GET'(base_url,'/schema/',name)
