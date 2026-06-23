@@ -193,7 +193,7 @@
           set_clause←1↓∊columns SetPair¨set_types
           upd_sql←'UPDATE ',table,' SET ',set_clause,' WHERE ',where
           sel_sql←'SELECT ',(WrapColNames returning),' FROM ',table,' WHERE ',where,' ',WrapResultTypes return_types
-          nulls←(0∊⍴)¨⊆values
+          nulls←(0∊⍴)¨values
           values[⍸(set_types∊⊂'<S')(∧⍤1)nulls]←⊂19⍴''
           values[⍸(set_types∊⊂'<I')(∧⍤1)nulls]←0
           _←Do'START TRANSACTION'
