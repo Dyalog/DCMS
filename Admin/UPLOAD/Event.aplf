@@ -1,6 +1,0 @@
- Event←{
-     0=≢etype←(Get'event_type').Data:'No event types in database'⎕SIGNAL 5
-     data←⍵
-     (1↓data[;col])←1↓(etype.id,0)[etype.type⍳data[;col←data[1;]⍳⊂'type']]   ⍝ Set event type ID
-     'event'Table data
- }
