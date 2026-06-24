@@ -65,18 +65,8 @@ To run the full deployment testing scenario (install dependencies, start the sta
 ./CI/run-tests-in-docker.sh
 ```
 
-If you are inside the VS Code dev container, use the dev container variant instead:
-
-```sh
-./CI/run-tests-in-dev-container.sh
-```
-
-These scripts are for local testing only — the Jenkinsfile orchestrates Docker directly for CI.
+This script is for local testing only. The Jenkinsfile orchestrates Docker directly for CI.
 
 ## Deployment
 
 Deployment is handled automatically by a Jenkins job configured in the [Jenkinsfile](../Jenkinsfile). Commits to the `master` branch trigger a build and deploy to production.
-
-## VS Code dev container
-
-If you use VS Code, there is an optional [dev container](dev-container.md) setup. The dev container provides a consistent development toolbox without installing anything on your host beyond Docker Desktop and VS Code. See [dev-container.md](dev-container.md) for details.

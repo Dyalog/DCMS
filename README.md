@@ -8,7 +8,6 @@ DCMS is an APL application that supplies data for the upcoming Dyalog website an
 ## Documentation
 
 - [dev.md](docs/dev.md) — getting started, running tests, deployment
-- [dev-container.md](docs/dev-container.md) — VS Code dev container setup
 - [config.md](docs/config.md) — configuration parameters and debug flags
 - [database.md](docs/database.md) — ODBC drivers and host-native MariaDB setup
 - [dependencies.md](docs/dependencies.md) — Tatin and NuGet packages
