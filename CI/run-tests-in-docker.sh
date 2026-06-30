@@ -34,6 +34,6 @@ echo "Use docker inspect to get the IP of the running container"
 
 export PROJECT_DIR=$PWD
 
-sudo -E $COMPOSE -f ${REPO_DIR}/docker-compose.yml pull
-sudo -E $COMPOSE -f ${REPO_DIR}/docker-compose.yml up install
-sudo -E $COMPOSE -f ${REPO_DIR}/docker-compose.yml up db web --force-recreate --abort-on-container-exit
+$COMPOSE -f ${REPO_DIR}/docker-compose.yml pull
+$COMPOSE -f ${REPO_DIR}/docker-compose.yml up install
+$COMPOSE -f ${REPO_DIR}/docker-compose.yml up db web --force-recreate --abort-on-container-exit
