@@ -1,4 +1,5 @@
 #!/usr/bin/dyalogscript DYALOG_INITSESSION=1
+⍝ Install the Tatin and NuGet application dependencies
 ⎕←'Installing application dependencies...'
 
 root←2 ⎕NQ # 'GetEnvironment' 'APP_DIR'

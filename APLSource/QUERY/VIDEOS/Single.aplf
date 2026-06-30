@@ -1,0 +1,34 @@
+ res←Single req;CACHE;ytid;idx;id;schemas
+⍝ Serve GET /videos/{youtube_id}, returning one video or 404
+
+ :If '⍠SPEC'≡req
+     schemas←##.##.SPEC.schemas
+     res←(tags:,⊂'Videos' ⋄ summary:'Get a single video' ⋄ operationId: 'getVideo' ⋄ security:⍬
+         responses:(
+             ⍙200:(
+                 description:'A single video object'
+                 content:(⍙application⍙47⍙json:(schema: schemas.video))
+             )
+             ⍙404: (
+                 description:'Video not found'
+                 content:(⍙application⍙47⍙json:(schema: schemas.error))
+             )
+         )
+     )
+     :Return
+ :EndIf
+
+ ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id
+
+ CACHE←##.##.CACHE
+
+ id←req.PathParams.youtube_id
+
+ ytid←CACHE.videos.index_cols⊃⍨CACHE.videos.fields⍳⊂'youtube_id'
+ idx←ytid⍳id
+
+ :If idx>≢ytid
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Video not found.')
+ :Else
+     res←⊃##.Table2JSON CACHE.videos.fields⍪(CACHE.videos.values⍪⊂'')[,ytid⍳id;]
+ :EndIf

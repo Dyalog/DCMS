@@ -1,0 +1,14 @@
+ Test_GETPresenters←{
+⍝ Test that GET /presenters returns an array of presenters with the correct fields and types
+     H←##.##.##.HttpCommand
+     Assert←##.Assert
+     res←H.GetJSON'GET'(⍵,'/presenters')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     Assert 1=≢⍴res.Data:
+     d←res.Data[1]
+     Type←⊃0∘⍴
+     Assert 0=Type d.id:
+     Assert' '=Type d.name:
+     1
+ }

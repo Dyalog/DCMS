@@ -1,9 +1,0 @@
- TestGetVersion←{
-     ⎕←'Test GET version'
-     ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'version'
-     G←url∘HttpGet
-     r←G''
-     _←Assert{(1=≡⍵)∧(' '=⊃0⍴⍵)∧(1=≢⍴⍵)}G''   ⍝ Simple character vector
-     _←Assert∨/⎕D∊r                           ⍝ Contains a digit
-     1
- }

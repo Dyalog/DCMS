@@ -1,6 +1,0 @@
- HttpGet←{
-     ⍺←''
-     r←##.HttpCommand.GetJSON'GET'(⍺,⍵)
-     _←Assert 200=r.HttpStatus
-     r.Data
- }

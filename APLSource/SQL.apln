@@ -1,4 +1,4 @@
-:Namespace SQL
+:Namespace SQL   ⍝ SQAPL wrapper: connection, schema setup and query execution
 
     Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
     FromUTF8←'UTF-8'∘(⊣⎕UCS ⎕UCS)
@@ -17,19 +17,19 @@
       :EndIf
     ∇
 
-    ∇ msg←Catch msg;en
+    ∇ msg←Catch msg;en;w
       en←⊃msg
       :If 0<en       ⍝ Server error if database operation fails
-          SQA.Close cur
+          {}SQA.Close cur
           :If 2006=2 2⊃msg   ⍝ SQL server has gone away
               Debug'> SQL SERVER WAS AWAY FOR QUERY: ',⍕⎕TS
               SQA.Close db
               Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
           :Else
-              (3⊃msg)⎕SIGNAL 500
+              ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃msg))
           :EndIf
-      :ElseIf 0>en   ⍝ Print warnings to session and continue
-          ⎕←msg
+      :ElseIf 0>en
+          ⎕←msg←SQA.GetWarning cur   ⍝ Print and pass on warning
       :EndIf
     ∇
 
@@ -38,15 +38,19 @@
       :If 0=⊃src←SQA.DSN''
           src←2⊃src          ⍝ List of available ODBC data sources
       :Else
-          (2⊃src)⎕SIGNAL 500 ⍝ Error getting ODBC data sources
+          ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(2⊃src))   ⍝ Error getting ODBC data sources
       :EndIf
       :If ~(1⌷datasource)∊⍥⎕C⊣/src
           'opt'⎕NS ⍬ ⋄ opt.(wait timeout)←3 5 ⋄ opt.datasource←⊃datasource
           Reconnect opt
       :EndIf
       :If 0≠⊃r←SQA.Connect db,⍥⊆datasource
-          ⎕←r
-          ('Could not connect to ',⊃datasource)⎕SIGNAL⊃r
+          :If 10009=2⊃r
+              ⎕←'Already connected to ',⊃datasource
+          :Else
+              ⎕←r
+              ⎕SIGNAL⊂('EN'(⊃r))('Vendor' 'DCMS')('Message'('Could not connect to ',⊃datasource))
+          :EndIf
       :EndIf
       ⎕←Do'create database if not exists dyalog_cms'
       ⎕←Use'dyalog_cms'
@@ -61,7 +65,7 @@
           found←(1⌷datasource)∊⍥⎕C⊣/src
           opt.wait-←1 ⋄ timeout←opt.wait≤0
       :Until timeout∨found
-      500 ⎕SIGNAL⍨'Datasource ',(⊃datasource),' not found.'
+      ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Datasource ',(⊃datasource),' not found.'))
     ∇
 
     ∇ r←Use database
@@ -84,14 +88,126 @@
               r←3 1⊃r
               (ucs/r)←FromUTF8¨ucs/r
           :EndIf
-      :ElseIf '08S01'≡2 1⊃r           ⍝ SQL Server has gone away, attempt to reconnect
+      :ElseIf '08S01'≡⊃2⊃r           ⍝ SQL Server has gone away, attempt to reconnect
+                                     ⍝ ⊃2⊃ fail safe in case non-nested inner structure
           SQA.Close db
           Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
           r←ucs Do sql
       :Else
-          (1 ⎕JSON 3⊃r)⎕SIGNAL 501   ⍝ Other SQL error
+          ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(Print 3⊃r))   ⍝ Other SQL error
       :EndIf
     ∇
+
+    ⍝ ───────── CRUD functions ─────────
+    ⍝ Work around 16384-char SQA.Do result-buffer using low-level Prepare/Exec/Fetch
+    ⍝ with explicit SQAPL result-column type annotations
+    ⍝ Each CRUD function takes a single options namespace and returns the rows affected by the statement
+
+      TypesFor←{
+     ⍝ ⍺: table name. ⍵: column names.
+     ⍝ ←: SQAPL type strings (with leading '<') for those columns in ⍵'s order.
+          ti←##.GLOBAL.tables⍳⊂⍺
+          ti>≢##.GLOBAL.tables:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown table: ',⍺))
+          allcols←ti⊃##.GLOBAL.columns
+          alltypes←ti⊃##.GLOBAL.type_sqapl
+          ci←allcols⍳⍵
+          ∨/bad←ci>≢allcols:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown columns: ',⍕bad/⍵))
+          alltypes[ci]
+      }
+
+    WrapColNames←(1↓∊){',`',⍵,'`'}¨              ⍝ `a`,`b`
+    WrapValueTypes←(1↓∊){',:',⍵,':'}¨            ⍝ :<C10:,:<I:
+    WrapResultTypes←{':>',(1↓∊','∘,¨1↓¨⍵),':'}   ⍝ :>C10,I:   ⍝ FIXME if we store types without < don't need 1↓¨
+
+      Fetch←{
+     ⍝ ⍺ (optional): nested vector of bind values. ⍬ means no binds.
+     ⍝ ⍵: annotated SQL statement.
+     ⍝ ←: result matrix (2⊃ of SQA.Fetch), or ⎕SIGNAL on failure.
+          ⍺←⍬ ⋄ values←⍺ ⋄ sql←⍵
+          cur←2⊃SQA.CursorName db
+          Fail←{_←SQA.Close cur ⋄ ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃⍵))}
+          0≠⊃p←SQA.Prepare cur sql:Fail p
+          e←{0=≢values:SQA.Exec cur ⋄ SQA.Exec cur⊂⍛,values}⍬
+          0≠⊃e:Fail e
+          0≠⊃f←1 SQA.Fetch cur:Fail f
+          _←SQA.Close cur
+          2⊃f
+      }
+
+      ExecBind←{
+     ⍝ Like Fetch, but for statements that produce no result set.
+          ⍺←⍬ ⋄ values←⍺ ⋄ sql←⍵
+          cur←2⊃SQA.CursorName db
+          Fail←{_←SQA.Close cur ⋄ ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃⍵))}
+          0≠⊃p←SQA.Prepare cur sql:Fail p
+          e←{0=≢values:SQA.Exec cur ⋄ SQA.Exec cur⊂⍛,values}⍬
+          0≠⊃e:Fail ⎕←e
+          _←SQA.Close cur
+          0
+      }
+
+    ⍝ Crud functions Select/Insert/Update/Delete take a single options namespace. Fields:
+    ⍝   table     : table name (required)
+    ⍝   columns   : insert / set / get columns (Select, Insert, Update)
+    ⍝   values    : matrix of input tuples (Insert, Update)
+    ⍝   where     : literal WHERE clause, without the 'WHERE' keyword (Select, Update, Delete)
+    ⍝   returning : columns to return via RETURNING (Insert, Update)
+
+      Select←{
+     ⍝ Returns matrix of rows, columns in `columns` order.
+          (table where)←⍵ ⎕VGET('table')('where' '')
+          columns←⎕VGET⊂('columns'(Columns table))
+          return_types←table TypesFor columns
+          sql←'SELECT ',(WrapColNames columns),' FROM ',table,((0<≢where)/' WHERE '),where,' ',WrapResultTypes return_types
+          ⊃Fetch sql
+      }
+      
+      Insert←{
+     ⍝ Empty cells in `values` become SQL NULLs. Returns matrix of inserted rows with "RETURNING".
+          (table columns values returning)←⍵ ⎕VGET('table' '')('columns'⍬)('values'⍬)('returning'⍬)
+          insert_types←table TypesFor columns
+          return_types←table TypesFor returning
+          sql←'INSERT INTO ',table,' (',(WrapColNames columns),') VALUES (',(WrapValueTypes insert_types),') RETURNING ',(WrapColNames returning),' ',WrapResultTypes return_types
+          nulls←(0∊⍴)¨values
+          values[⍸(insert_types∊⊂'<S')(∧⍤1)nulls]←⊂19⍴''   ⍝ datetime placeholder for nulls
+          values[⍸(insert_types∊⊂'<I')(∧⍤1)nulls]←0        ⍝ integer placeholder for nulls
+          (values nulls) Transact sql
+      }
+
+      Transact←{
+          (values nulls)←⍺ ⋄ sql←⍵
+          _←Do'START TRANSACTION'
+          0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
+          ⊃⍪⌿(values,nulls)(Fetch⍤1)sql
+      }
+
+      Update←{
+     ⍝ Same `where` applied to every row of `values`. Returns matrix of
+     ⍝ affected rows projected through `returning`. MariaDB v10 does not support
+     ⍝ UPDATE...RETURNING, so the UPDATE and a follow-up SELECT are issued in
+     ⍝ a single transaction.
+          (table columns values where returning)←⍵ ⎕VGET('table' '')('columns'⍬)('values'⍬)('where' '')('returning'⍬)
+          set_types←table TypesFor columns
+          return_types←table TypesFor returning
+          SetPair←{',`',⍺,'`=:',⍵,':'}
+          set_clause←1↓∊columns SetPair¨set_types
+          upd_sql←'UPDATE ',table,' SET ',set_clause,' WHERE ',where
+          sel_sql←'SELECT ',(WrapColNames returning),' FROM ',table,' WHERE ',where,' ',WrapResultTypes return_types
+          nulls←(0∊⍴)¨values
+          values[⍸(set_types∊⊂'<S')(∧⍤1)nulls]←⊂19⍴''
+          values[⍸(set_types∊⊂'<I')(∧⍤1)nulls]←0
+          _←Do'START TRANSACTION'
+          0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
+          _←(values,nulls)(ExecBind⍤1)upd_sql
+          ⊃Fetch sel_sql
+      }
+
+      Delete←{
+          (table where)←⍵ ⎕VGET('table' '')('where' '')
+          Do'DELETE FROM ',table,' WHERE ',where
+      }
+
+    Print←{1⎕JSON 1↓,(⎕ucs 13),30(⌊∘≢↑⊢)⍕⍵}
 
     ∇ r←Columns table
       r←1↓4(⌷⍤1)2⊃Catch SQA.Columns db table
@@ -105,13 +221,13 @@
      ⍝ ⍵: Simple char vec        :: path to .sql file
      ⍝ ←: Nested vec of char vec :: SQL statements
           (txt enc nl)←⎕NGET ⍵
-          sql←'/\*.+\*/'⎕R''⍠'Greedy' 0⊢txt   ⍝ Remove comments
+          sql←'/\*.+\*/' '--[^\n]*'⎕R''⊢txt   ⍝ Remove comments
           sql←' '@(∊∘(⎕UCS nl))sql            ⍝ Replace newlines with spaces
           sql←' '∘(1↓,⊢⍤/⍨1(⊢∨⌽)0,≠)sql       ⍝ Remove leading, trailing, duplicate blanks
           ';'(≠⊆⊢)sql                         ⍝ Split on semicolons
       }
 
-    ∇ msg←SetupSchema dum;batch;create_migrations;folder;latest;migration;migrations;order;schema_definitions;sequence;sql
+    ∇ msg←SetupSchema dum;Run;batch;create_migrations;folder;latest;migration;migrations;order;schema_definitions;sequence;statements
       create_migrations←⊃⎕NGET ##.GLOBAL.app_dir,'/sql/migrations.sql'
       Do create_migrations
      
@@ -127,9 +243,16 @@
       :Else
           migrations←schema_definitions
       :EndIf
+      Run←{
+          0=⊃r←SQA.Do db ⍵:⍬
+          ⎕←'Migration failed: ',⍺
+          ⎕←'  Statement: ',⍵
+          ⎕←'  Error: ',,⍕3⊃r
+      }
       :For (migration batch) :InEach (migrations sequence)
-          sql←StatementsFromSchema migration
-          SQA.Do¨(⊂db)∘,¨⊂¨sql
+          ##.Log migration
+          statements←StatementsFromSchema migration
+          migration∘Run¨statements
           SQA.Do db'insert into migrations (`migration`,`batch`) values (:file<C255:,:num<I:);'migration batch
       :EndFor
       msg←'Finished SetupSchema'
@@ -143,7 +266,7 @@
           cz←d[;h⍳⊂'COLUMN_SIZE']
           tp←d[;h⍳⊂'DATA_TYPE']
           ti←(⊢/tc)⍳tp
-          ∨/ti>≢tc:('Unknown column types in rows ',⍕⍸ti>≢tc)⎕SIGNAL 101
+          ∨/ti>≢tc:⎕SIGNAL⊂('EN' 101)('Vendor' 'DCMS')('Message'('Unknown column types in rows ',⍕⍸ti>≢tc))
           tn←tc[ti;2]
           sqat←('<'∘=⊂⊢)∊(⍕¨cz/⍨'⎕'∘∊¨tn)@('⎕'∘=)∊tn   ⍝ Replace ⎕ with numeric field widths (COLUMN_SIZE) in SQAPL type definitions
           t←d[;h⍳⊂'TABLE_NAME']
@@ -152,6 +275,11 @@
           ##.GLOBAL.type_sqapl←t⊢∘⊂⌸sqat
           ##.GLOBAL.columns←t⊢∘⊂⌸d[;h⍳⊂'COLUMN_NAME']
           ##.GLOBAL.lengths←t⊢∘⊂⌸cz
+          fk_rows←Do'SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL ORDER BY TABLE_NAME, ORDINAL_POSITION'
+          fk_keys←fk_rows[;1] ⋄ fk_triples←↓fk_rows[;2 3 4]   ⍝ keys: TABLE_NAME; triples: (col ref_table ref_column) per FK column
+          fks←(≢##.GLOBAL.tables)⍴⊂⍬                          ⍝ one slot per table, default empty
+          fks[##.GLOBAL.tables⍳∪fk_keys]←fk_keys⊢∘⊂⌸fk_triples
+          ##.GLOBAL.foreign_keys←fks
           'Processed table information'
       }
 

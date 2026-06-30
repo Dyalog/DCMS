@@ -1,5 +1,0 @@
-r←Clear req
-r←''
-⎕PROFILE'clear'
-req.SetStatus 204
-status.last_cleared←⊃ISODateTime ⎕TS

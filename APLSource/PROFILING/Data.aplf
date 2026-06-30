@@ -1,0 +1,31 @@
+ r←Data req;responses;data
+⍝ GET /admin/profile — ⎕PROFILE data as JSON rows
+ :If req≡'⍠SPEC'
+     responses←##.SPEC.responses
+     r←(
+         tags:,⊂'Admin' ⋄ summary:'Get profile data collected by ⎕PROFILE' ⋄ operationId:'getProfile'
+         responses:(
+             ⍙200:(
+                 description:'A list of objects, one per profiled line of code. Empty array if profiling has never been started or data has been cleared.'
+                 content:(⍙application⍙47⍙json:(schema:(
+                     type:'array'
+                     items:(
+                         type:'object'
+                         properties:(
+                             fn_name:(type:'string')
+                             line_no:(type:'integer')
+                             n_calls:(type:'integer')
+                             exclusive_time:(type:'number' ⋄ format:'double' ⋄ description:'Milliseconds in this function, excluding called functions.')
+                             inclusive_time:(type:'number' ⋄ format:'double' ⋄ description:'Milliseconds in this function, including called functions.')
+                         )
+                     )
+                 )))
+             )
+             ⍙401:responses.unauthorized
+         )
+     )
+     :Return
+ :EndIf
+ data←⎕PROFILE'data'
+ data←'fn_name' 'line_no' 'n_calls' 'exclusive_time' 'inclusive_time'⍪data[;⍳5]
+ r←##.QUERY.Table2JSON data

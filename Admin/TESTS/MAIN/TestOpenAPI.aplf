@@ -1,0 +1,8 @@
+ r←TestOpenAPI url;h;res;ct
+⍝ Regression: Stark still serves /openapi.json as JSON (our HTML handling must not break it)
+ h←##.##.##.HttpCommand.New'GET'
+ h.URL←url,'/openapi.json'
+ res←h.Run
+ r←200=res.HttpStatus
+ ct←res.GetHeader'content-type'
+ r∧←∨/'application/json'⍷ct

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dyalog Content Management System &mdash; API</title>
+    <!-- All assets are served by DCMS itself (no CDN) to avoid leaking the
+         visitor's IP address to a third party (GDPR). -->
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/swagger/swagger-ui.css" />
+    <link rel="stylesheet" href="/swagger/theme.css" />
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="/swagger/swagger-ui-bundle.js" charset="UTF-8"></script>
+    <script>
+      window.onload = function () {
+        window.ui = SwaggerUIBundle({
+          url: "/openapi.json",
+          dom_id: "#swagger-ui",
+          layout: "BaseLayout",
+          deepLinking: true,
+          tryItOutEnabled: true,
+          persistAuthorization: true,
+          presets: [SwaggerUIBundle.presets.apis],
+        });
+      };
+    </script>
+  </body>
+</html>

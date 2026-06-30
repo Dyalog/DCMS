@@ -1,0 +1,9 @@
+ ClearData;D;table;tables
+
+ D←#.DCMS
+ tables←1↓3(⌷⍤1)2⊃#.DCMS.SQL.(SQA.Tables db)
+ tables~←⊆'migrations'
+
+ :For table :In tables
+     D.SQL.Do'DELETE from ',table
+ :EndFor

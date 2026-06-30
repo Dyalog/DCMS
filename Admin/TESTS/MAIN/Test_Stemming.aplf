@@ -1,0 +1,6 @@
+ Test_Stemming←{
+⍝ Check the Porter2 stemmer reduces words to word
+     stemmer←⎕NEW #.DCMS.Porter2Stemmer.EnglishPorter2Stemmer
+     word←stemmer.Stem⊂'words'
+     'word'≡word.Value
+ }

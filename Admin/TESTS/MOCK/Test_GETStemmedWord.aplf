@@ -1,0 +1,9 @@
+ Test_GETStemmedWord←{
+⍝ Test free text search results include result from stemmed word
+     H←##.##.##.HttpCommand
+     url←⍵,'/videos?search=fugiativity'
+     res←H.GetJSON'GET'url
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     'fugiat'(∨/⍷)1 ⎕JSON res.Data
+ }

@@ -1,9 +1,0 @@
- {r}←RefreshData timer;DCMS;GetEnv;ReadJSON;SQL;ep;idx;pres;title;videos;ytid
-⍝ Periodically refresh data from YouTube API
- DCMS←##.## ⋄ ReadJSON←DCMS.ReadJSON ⋄ SQL←DCMS.SQL ⋄ GetEnv←DCMS.GetEnv
- ep←ReadJSON(GetEnv'app_dir'),'/APLSource/read/endpoints.json5'
-
- (title ytid pres)←↓⍉SQL.Do ep.videos.presenter.sql
- (ytid title pres)←↓⍉(ytid,⍪title),∘⊂⌸pres
-
- r←(title pres)ImportVideos ytid

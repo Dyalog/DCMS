@@ -1,0 +1,32 @@
+ r←Test_ProfilingHappyPath url;key;Authed;Assert;res
+⍝ Check the full profiling enable, read, clear and disable cycle
+ r←0
+ key←#.DCMS.GLOBAL.secrets.upload_token
+ Assert←##.Assert
+ Authed←{
+     h←##.##.##.HttpCommand.New ⍺
+     h.URL←url,⍵
+     h.TranslateData←1
+     _←'x-api-key'h.SetHeader key
+     h
+ }
+ :Trap 0
+     res←('PUT'Authed'/admin/profiling?on=true').Run
+     Assert 204=res.HttpStatus
+     res←('GET'Authed'/admin/profiling').Run
+     Assert 200=res.HttpStatus
+     Assert res.Data.on
+     res←('GET'Authed'/admin/profile').Run
+     Assert 200=res.HttpStatus
+     res←('DELETE'Authed'/admin/profile').Run
+     Assert 204=res.HttpStatus
+     res←('PUT'Authed'/admin/profiling?on=false').Run
+     Assert 204=res.HttpStatus
+     res←('GET'Authed'/admin/profiling').Run
+     Assert 200=res.HttpStatus
+     Assert~res.Data.on
+     r←1
+ :EndTrap
+⍝ Teardown: ensure profiling is off and data cleared regardless of outcome
+ {}('PUT'Authed'/admin/profiling?on=false').Run
+ {}('DELETE'Authed'/admin/profile').Run

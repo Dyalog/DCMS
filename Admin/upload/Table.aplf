@@ -1,7 +1,0 @@
- Table←{
-     url←(##.GetEnv'service_url'),'/',¯1 ⎕C ⍺
-     opt←⎕NS'' ⋄ opt.url←url ⋄ opt.token←##.Secrets'upload_token'
-     opt.data←##.Table2JSON ⍵ ⍝⎕UCS'UTF-8'⎕UCS
-     h←BuildRequest opt
-     h.Run
- }

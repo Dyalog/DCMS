@@ -1,0 +1,23 @@
+ r←TestGetEndpoints url;GetEnv;api;c;d;e;ep;h;n;p;res;responses;t;url
+⍝ Test that GET endpoints respond with appropriate HTTP status as described in openapi.json spec
+⍝ FIXME add tests for endpoints with path parameters
+ GetEnv←##.##.GetEnv
+ res←#.HttpCommand.Get url,'/openapi.json'
+ :If 200≠res.HttpStatus
+     r←0
+     :Return
+ :EndIf
+ api←res.Data
+ (d n c t)←↓⍉0(⎕JSON ⎕OPT'Format' 'M')api   ⍝ Depth Node Content Type
+ 2{p[⍵]←⍺[⍺⍸⍵]}⌿⊂⍤⊢⌸d⊣p←⍳≢d     ⍝ Parent vector from depth
+ ep/⍨←~'{'∊¨ep←n[p⌿⍨n∊⊂'get']   ⍝ Endpoints except those with path parameters
+ responses←⍎¨¨1↓n⊢∘⊂⌸⍨(+\e)×(p∊⍸n∊⊂'responses')∧(⊢∨p∊⍸)⍣≡e←n∊ep
+
+ h←##.##.##.HttpCommand.New¨'GET'⍨¨ep
+ h.URL←url∘,¨ep
+ res←h.Run
+ r←res.HttpStatus∊¨responses
+ :If ∨/0=r
+     ⎕←(0=r)/'**TEST FAIL** '∘,¨ep
+ :EndIf
+ r←∧/r

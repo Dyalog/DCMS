@@ -1,0 +1,9 @@
+ Test_GETVideos_SearchSingle←{
+⍝ Test that ?search= with example_search_term returns only 1 video
+     H←##.##.##.HttpCommand
+     res←H.GetJSON'GET'(⍵,'/videos?search=',##.example_search_term)
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     1≠≢res.Data.data:0
+     res.Data.data[1].title≡##.example_search_term
+ }

@@ -1,0 +1,15 @@
+ ControlAccess←{
+⍝ Jarvis's AuthenticateFn (registered in Run.aplf).
+⍝ ⍵: Jarvis request object
+⍝ ←: 0 for allowed, 1 for unauthorized
+⍝   public prefix → allow without auth
+⍝   authed prefix → require valid x-api-key
+⍝   neither       → 404 unregistered routes
+     public←⊆'/version' '/videos' '/presenters' '/events' '/openapi.json' '/teapot' '/swagger/'
+     authed←⊆'/crud' '/schema' '/admin' '/teapot'
+     '/',⍛≡⍵.Endpoint:0                          ⍝ Swagger UI home page at root (Endpoint is ,'/' or ''); exact, not a prefix — '/' as a prefix would open everything
+     ∨/public(⊃⍷)¨⊂⍵.Endpoint:0
+     ∨/authed(⊃⍷)¨⊂⍵.Endpoint:r⊣##.Log'[AUTH] ',('allow' 'deny'⊃⍨1+r←VerifyToken ⍵),' ',⍵.Endpoint
+     ⍵.Response.Payload←(error:404 ⋄ message:'Not found')
+     0⊣⍵.Fail 404
+ }

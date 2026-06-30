@@ -1,0 +1,38 @@
+ payload←Static req;ep;name;ct
+⍝ Serve a bundled Swagger UI asset from assets/swagger-ui/.
+ :If req≡'CSS⍠SPEC'
+     payload←(
+         tags:,⊂'Web UI' ⋄ summary:'Swagger UI stylesheet' ⋄ operationId:'getSwaggerCss' ⋄ security:⍬
+         responses:(⍙200:(description:'CSS'))
+     )
+     :Return
+ :ElseIf req≡'THEME⍠SPEC'
+     payload←(
+         tags:,⊂'Web UI' ⋄ summary:'Dyalog theme stylesheet' ⋄ operationId:'getThemeCss' ⋄ security:⍬
+         responses:(⍙200:(description:'CSS'))
+     )
+     :Return
+ :ElseIf req≡'JS⍠SPEC'
+     payload←(
+         tags:,⊂'Web UI' ⋄ summary:'Swagger UI script bundle' ⋄ operationId:'getSwaggerBundle' ⋄ security:⍬
+         responses:(⍙200:(description:'JavaScript'))
+     )
+     :Return
+ :EndIf
+ ep←req.Endpoint
+ name←⊃⌽'/'(≠⊆⊢)ep                         ⍝ last path segment, e.g. 'swagger-ui.css'
+⍝ Allow-list: only known assets, each with its content type. Anything else → 404.
+ ct←''
+ :Select name
+     :Case 'swagger-ui.css'       ⋄ ct←'text/css; charset=utf-8'
+     :Case 'theme.css'            ⋄ ct←'text/css; charset=utf-8'
+     :Case 'swagger-ui-bundle.js' ⋄ ct←'application/javascript; charset=utf-8'
+ :EndSelect
+ :If 0∊⍴ct
+     req.Response.Payload←(error:404 ⋄ message:'Not found')
+     payload←''
+     req.Fail 404
+     :Return
+ :EndIf
+ 'content-type' req.SetHeader ct
+ payload←(##.GLOBAL.web_asset_names⍳⊂name)⊃##.GLOBAL.web_assets   ⍝ cached byte payload (see Run.apf)

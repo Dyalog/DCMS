@@ -1,0 +1,11 @@
+ r←TestGetRoot_ServesHTML url;h;res;ct
+⍝ GET / serves the Swagger UI page (public, HTML, driven by /openapi.json)
+ h←##.##.##.HttpCommand.New'GET'
+ h.URL←url,'/'
+ res←h.Run
+ r←200=res.HttpStatus                    ⍝ served, and public (no API key)
+ ct←res.GetHeader'content-type'
+ r∧←∨/'text/html'⍷ct                      ⍝ HTML, not JSON-encoded
+ r∧←∨/'SwaggerUIBundle'⍷res.Data          ⍝ Swagger UI bootstrapped
+ r∧←∨/'swagger-ui'⍷res.Data
+ r∧←∨/'/openapi.json'⍷res.Data            ⍝ points at the spec endpoint

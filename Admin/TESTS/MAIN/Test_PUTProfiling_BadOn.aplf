@@ -1,0 +1,8 @@
+ Test_PUTProfiling_BadOn←{
+⍝ Check PUT /admin/profiling rejects a non-boolean on with 400
+     h←##.##.##.HttpCommand.New'PUT'
+     h.URL←⍵,'/admin/profiling?on=banana'
+     _←'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
+     res←h.Run
+     400=res.HttpStatus
+ }

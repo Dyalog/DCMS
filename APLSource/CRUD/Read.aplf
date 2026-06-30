@@ -1,0 +1,74 @@
+ r←Read req;GBL;data;fields;id;idx;pg;ppg;responses;schemas;table
+⍝ Handles GET /crud/{table}; lists paginated rows or fetches one by id
+
+ :If 2=⎕NC'req'
+     (schemas responses parameters)←##.SPEC.(schemas responses parameters)
+ :EndIf
+ :If req≡'⍠SPEC'
+     r←(
+         tags:,⊂'Table CRUD' ⋄ summary:'List rows from table' ⋄ operationId:'listRows'
+         parameters:(parameters.Page ⋄ parameters.PerPage)
+         responses:(
+             ⍙200:(
+                 description:'Paginated list of table rows.'
+                 content:(⍙application⍙47⍙json:(schema:(allOf:(
+                                 schemas.pagination_envelope
+                                 (
+                                     type:'object'
+                                     properties:(data:(type:'array' ⋄ items:schemas.crud_item))
+                                 )
+                             ))))
+             )
+             ⍙401:responses.unauthorized
+             ⍙404:responses.not_found
+         )
+     )
+     :Return
+ :ElseIf req≡'ID⍠SPEC'
+     r←(
+         tags:,⊂'Table CRUD' ⋄ summary:'Get row by ID' ⋄ operationId:'getRow'
+         responses:(
+             ⍙200:(
+                 description:'A single table row.'
+                 content:(⍙application⍙47⍙json:(schema:schemas.crud_item))
+             )
+             ⍙400:(
+                 description:'Bad request, e.g. invalid ID parameter.'
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
+             )
+             ⍙401:responses.unauthorized
+             ⍙404:responses.not_found
+         )
+     )
+     :Return
+ :EndIf
+
+ ##.Log'[REQ] GET /crud/',req.PathParams ⎕VGET⊂'table' ''
+
+ table←req.PathParams ⎕VGET⊂'table' ''
+ GBL←##.GLOBAL
+ :If 0∊⍴table
+ :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+ :EndIf
+
+ fields←idx⊃GBL.columns
+ id←req.PathParams ⎕VGET⊂('id' '')
+ (pg ppg)←2⊃∘⎕VFI¨req.QueryParams ⎕VGET('page' '1')('per_page' '20')
+
+ :Hold 'SQL.db'
+     :If 0=≢id
+        ⍝ return whole table
+         data←##.SQL.Select(table:table ⋄ columns:fields)
+         r←(('crud/',table)pg ppg)##.QUERY.(Paginate∘Table2JSON)fields⍪data
+     :ElseIf ∨/~id∊⎕D
+         ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
+     :Else
+         data←##.SQL.Select(table:table ⋄ columns:fields ⋄ where:'id=',id)
+         :If 0=≢data
+             ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+         :Else
+             r←⊃##.QUERY.Table2JSON fields⍪data
+         :EndIf
+     :EndIf
+ :EndHold

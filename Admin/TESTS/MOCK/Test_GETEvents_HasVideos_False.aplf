@@ -1,0 +1,8 @@
+ Test_GETEvents_HasVideos_False←{
+⍝ Test that ?has_videos=false returns only events without videos, and at least one exists
+     H←##.##.##.HttpCommand
+     res←H.GetJSON'GET'(⍵,'/events?has_videos=false')
+     200≠res.HttpStatus:0
+     0∊⍴res.Data:0
+     ∧/(⊂'false')∘≡¨res.Data.has_videos
+ }

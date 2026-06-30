@@ -1,0 +1,46 @@
+ r←Recommendations req;Values;all_id;fid;fields;n;rec;schemas;this;vids;ytid
+⍝ List of video objects most related to video with youtube_id given by "youtube_id" path parameter
+ 
+ :If '⍠SPEC'≡req
+     schemas←##.##.SPEC.schemas
+     r←(tags:,⊂'Videos' ⋄ summary:'Get video recommendations' ⋄ operationId: 'getVideoRecommendations' ⋄ security:⍬
+         parameters:(
+             (name:'youtube_id' ⋄ in:'path' ⋄ required:⊂'true' ⋄ schema:(type:'string') ⋄ description:'11-character YouTube video ID')
+             (name:'n' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:5) ⋄ description:'Number of recommendations to return')
+         )
+         responses:(
+             ⍙200:(
+                 description:'List of recommended videos'
+                 content:(⍙application⍙47⍙json:(schema:(type:'array' ⋄ items:schemas.video)))
+             )
+             ⍙400:(
+                 description:'Bad request, e.g. invalid YouTube ID format'
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
+             )
+             ⍙404:(
+                 description:'Video not found'
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
+             )
+         )
+     )
+     :Return
+ :EndIf
+
+ ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id,'/recommendations'
+
+ ytid←req.PathParams ⎕VGET⊂'youtube_id' ''
+ n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'1'   ⍝ Number of results. Default 1.
+ vids←##.##.CACHE.videos
+ Values←#.isolate.Values
+ vids.recommendations←⊃vids.recommendations Values'##.recommendations'   ⍝ Use existing values unless the ComputeRecommended isolate has finished processing
+ all_id←vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id'
+ :If 11≠≢ytid
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'YouTube ID must be an 11-character string.')
+ :ElseIf (≢ytid)=⊢/⍴all_id
+     this←all_id⍳ytid
+ :AndIf this≤≢vids.values
+     rec←vids.recommendations[this;⍳n]
+     r←##.Table2JSON vids.fields⍪vids.values[rec;]
+ :Else
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Video not found.')
+ :EndIf

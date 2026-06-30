@@ -1,0 +1,24 @@
+ r←Status req;responses
+⍝ GET /admin/profiling — current ⎕PROFILE on/off state
+ :If req≡'⍠SPEC'
+     responses←##.SPEC.responses
+     r←(
+         tags:,⊂'Admin' ⋄ summary:'Get profiling status' ⋄ operationId:'getProfilingStatus'
+         responses:(
+             ⍙200:(
+                 description:'Current profiling status'
+                 content:(⍙application⍙47⍙json:(schema:(
+                     type:'object'
+                     properties:(
+                         on:(type:'boolean' ⋄ description:'Whether ⎕PROFILE is currently collecting.')
+                         since:(type:'string' ⋄ nullable:⊂'true' ⋄ description:'Timestamp of the most recent on/off transition; null if never started.')
+                         last_cleared:(type:'string' ⋄ nullable:⊂'true' ⋄ description:'Timestamp of the most recent DELETE /admin/profile; null if never cleared.')
+                     )
+                 )))
+             )
+             ⍙401:responses.unauthorized
+         )
+     )
+     :Return
+ :EndIf
+ r←status

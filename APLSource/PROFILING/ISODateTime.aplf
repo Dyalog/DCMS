@@ -1,0 +1,4 @@
+ ISODateTime←{
+⍝ Format a timestamp as an ISO datetime string
+    '%ISO%'(1200⌶)1⎕DT⊆⍵
+ }

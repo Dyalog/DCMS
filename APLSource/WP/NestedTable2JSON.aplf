@@ -1,0 +1,21 @@
+ NestedTable2JSON←{
+⍝ Table2JSON with nested fields using dot notation
+⍝ e.g. title.rendered is a field "rendered" within an object "title"
+⍝ returns a list of JSON objects with field names specified in the header row
+     ⍺←⎕NS¨(¯1+≢⍵)⍴⊂'' ⋄ ns←⍺                           ⍝ Default list of empty namespaces, pre-populated structure can be passed as left argument
+     h←1⌷⍵                                              ⍝ header
+
+     T2J←{0 ⎕JSON 1 ⎕JSON⊂2,⊂⍵}                         ⍝ docs: JSON Convert → JSON Export → Wrappers
+
+     1=≢⍵:T2J ⍵                                         ⍝ No items, return empty list
+     sub←'.'∊¨h                                         ⍝ Locate sub items
+     ~∨/sub:T2J ⍵                                        ⍝ No sub items, ⎕JSON convert
+     ∨/~sub:(T2J ⍵/⍨~sub)∇ sub/⍵                         ⍝ Convert top-level items to list of objects, recurse to inject sub items
+                                                        ⍝ If there are no top-level items, manually create top-level structure
+     (p v)←↓⍉↑'.'((⌽≤\⍤⌽⍤≠)⊆⊢)¨sub/h                     ⍝ get ns paths (head/body) and leaf-level (foot) value names
+     grp←p{⊂⍉⍵}⌸⍉v⍪1↓sub/⍵                               ⍝ group columns by path level
+     _←(∪p)∘.{r←⍵ ⋄ ('r.',⍺)⎕NS'' ⋄ r}ns                 ⍝ inject empty objects into ns using paths
+     _←⍎('ns.(',(⍕∪p),')'),'←{1=≢∪p:⊃⍵ ⋄ ↓⍉↑⍵}T2J¨grp'   ⍝ inject values
+
+     ns
+ }

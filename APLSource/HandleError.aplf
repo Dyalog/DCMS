@@ -1,0 +1,62 @@
+ res←dmx HandleError req;NL;URLEncode;repo;reqline;params;detail;json;title;body;link;msg;suspend;⎕IO
+⍝ Stark's OnErrorFn (registered in Run.aplf): converts any error raised while
+⍝ servicing a request into the HTTP response.
+⍝   dmx: the ⎕DMX caught by Stark
+⍝   req: the request object (Fail / Method / Endpoint / QueryParams)
+ NL←⎕UCS 10
+⍝ How many classes of error suspend (default to production if not yet configured)
+ suspend←0
+ :If 2=GLOBAL.⎕NC'suspend'
+     suspend←GLOBAL.suspend
+ :EndIf
+ :If dmx.Vendor≡'DCMS'                             ⍝ Expected error deliberately signalled.
+     Log'[ERR] ',⍕dmx.(EN Vendor Message)
+     detail←dmx.Message
+     :If 0∊⍴detail                                 ⍝ fall back to the diagnostic message lines
+         detail←1↓∊NL,¨dmx.DM
+     :EndIf
+     :If (dmx.EN≥400)∧(dmx.EN<500)                 ⍝ client error → respond with that status
+         res←(error:dmx.EN ⋄ message:detail)
+         req.Fail dmx.EN
+     :Else                                         ⍝ server-side expected error → 500 with message
+         res←(error:500 ⋄ message:detail)
+         req.Fail 500
+     :EndIf
+ :Else                                             ⍝ Unexpected error.
+     Log'[ERR] ',⍕dmx.(EN Vendor Message DM)
+     :If 1=suspend                                ⍝ development: leave the bug to suspend
+         ⎕SIGNAL⊂('EN' dmx.EN)('EM' dmx.EM)('Message' dmx.Message)
+     :EndIf
+ ⍝ suspend=0 (production): turn the bug into a generic 500 + a pre-filled issue link
+     ⍝ Percent-encode a character vector (UTF-8) for use in a URL query value
+     URLEncode←{
+         unreserved←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~'
+         hex←'0123456789ABCDEF'
+         ⎕IO←0
+         ∊{(⎕UCS ⍵)∊unreserved:⎕UCS ⍵ ⋄ '%',hex[16 16⊤⍵]}¨'UTF-8'⎕UCS ⍵
+     }
+     repo←'https://github.com/Dyalog/DCMS'
+     reqline←req.Method,' ',req.Endpoint
+     params←1 ⎕JSON req.QueryParams                ⍝ {} when no query parameters
+     detail←dmx.Message
+     :If 0∊⍴detail                                 ⍝ unexpected errors often carry no Message
+         detail←1↓∊NL,¨dmx.DM                      ⍝ fall back to the diagnostic message lines
+     :EndIf
+     json←1 ⎕JSON ⎕OPT'Compact' 0⊢dmx              ⍝ full, uncompacted error details
+     ⍝ Pre-fill a GitHub issue with the request context and the full error JSON
+     title←'API error: ',reqline
+     body←'**Request:** ',reqline,NL,NL
+     body,←'**Query parameters:** ',params,NL,NL
+     body,←'**Error message:** ',detail,NL,NL
+     body,←'**Full error details:**',NL,'```json',NL,json,NL,'```'
+     link←repo,'/issues/new?title=',(URLEncode title),'&body=',(URLEncode body)
+     ⍝ Human-readable message for the client
+     msg←'There was an error processing your request.'
+     msg,←NL,NL,reqline
+     msg,←NL,'Query parameters: ',params
+     msg,←NL,NL,detail
+     msg,←NL,NL,'To help us fix this, please open an issue:'
+     msg,←NL,link
+     res←(error:500 ⋄ message:msg)
+     req.Fail 500
+ :EndIf

@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.apl* linguist-language=APL
+*.apl* linguist-detectable=true
+*.dll binary
+*.pdb binary
+*.cache binary

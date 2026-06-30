@@ -1,4 +1,0 @@
- res←Table table;sql;col
- col←##.SQL.Columns table
- sql←'SELECT * FROM ',table
- res←Table2JSON col⍪##.SQL.Do sql

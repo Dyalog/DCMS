@@ -32,15 +32,15 @@ services:
           cpus: "0.50"
           memory: "1073741824"
     env_file: env
-    image: dyalog/techpreview:latest
+    image: dyalog/dyalog:20.0
     networks:
       dcms: null
       traefik-public: null
     tty: true
     volumes:
-    - appvol:/app
-    - appdatavol:/data
-    - appsecretsvol:/secrets
+      - appvol:/app
+      - appdatavol:/data
+      - appsecretsvol:/secrets
 
 networks:
   dcms:

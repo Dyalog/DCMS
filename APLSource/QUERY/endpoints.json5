@@ -1,0 +1,41 @@
+{
+    presenters: {
+        fields: ["name", "id"],
+        sql: "SELECT name, person_id FROM person\
+                INNER JOIN presenter ON presenter.person_id = person.id\
+                INNER JOIN presentation ON presenter.presentation_id = presentation.id\
+                INNER JOIN presentation_video AS pv ON pv.presentation_id = presentation.id"
+    },
+
+    videos: {
+        fields: ["title", "event", "event_shortname", "description", "presented_at", "published_at", "category", "url"
+                , "youtube_id", "thumbnail", "presenter", "presenter_id"],
+        sql: "SELECT yt.title, e.title, e.url_slug, yt.description, p.presented_at, yt.published_at\
+                    ,c.category, yt.url, yt.youtube_id, yt.thumbnail\
+                FROM presentation AS p\
+                INNER JOIN event AS e ON e.id = p.event_id\
+                INNER JOIN presentation_video AS pv ON pv.presentation_id = p.id\
+                INNER JOIN youtube_video AS yt ON yt.id = pv.youtube_video_id\
+                LEFT JOIN presentation_category AS c ON c.id = p.category_id\
+                :>C256,C256,C256,C65535,C19(S),C19(S),C256,C256,C11,C256:",
+        presenter: {
+            sql: "SELECT yt.title,yt.youtube_id,per.name,per.id\
+                    FROM presentation AS p\
+                    INNER JOIN event AS e ON e.id = p.event_id\
+                    INNER JOIN presentation_video AS pv ON pv.presentation_id = p.id\
+                    INNER JOIN youtube_video AS yt ON yt.id = pv.youtube_video_id\
+                    INNER JOIN presenter AS pres ON pres.presentation_id = p.id\
+                    INNER JOIN person AS per ON pres.person_id = per.id"
+        }
+    },
+
+    events: {
+        fields: ["id", "title", "type", "start", "end", "url_slug", "has_videos"],
+        sql: "SELECT e.id,e.title,etype.type,e.start,e.end,e.url_slug\
+                    ,EXISTS(SELECT 1 FROM presentation AS p\
+                        INNER JOIN presentation_video AS pv ON pv.presentation_id = p.id\
+                        WHERE p.event_id = e.id) AS has_videos\
+                FROM event AS e\
+                LEFT JOIN event_type AS etype ON e.type_id = etype.id"
+    }
+}

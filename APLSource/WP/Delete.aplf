@@ -1,0 +1,18 @@
+ r←Delete post_id;name;pass;h;wp
+ :If 0≡post_id ⋄ r←'' ⋄ →0 ⋄ :EndIf   ⍝ info is a prototype if the list is empty
+ wp←##.GLOBAL.secrets.wordpress
+ name←wp.user
+ pass←wp.token~' '
+ h←##.##.HttpCommand.New'DELETE'
+ h.URL←RemoveDuplicateSlashes wp.url,'/wp/v2/team-dyalog-videos/',post_id
+ h.Auth←name pass
+ h.TranslateData←1  ⍝ Automatically convert JSON response to namespace
+ r←h.Run
+ :If 0≠r.rc
+     success←0
+ :ElseIf 200 410(~∨/⍤∊)r.HttpStatus
+     success←0
+ :Else
+     success←1
+ :EndIf
+ r←(post_id: post_id ⋄ action: 'delete' ⋄ success: success)

@@ -1,0 +1,5 @@
+ TimeStamp2DDN←{
+⍝ Convert timestamp strings 'YYYY-MM-DD hh:mm:ss' to Dyalog Day Numbers
+     0=≢⍵:⊂⍬
+     1 ⎕DT 2⊃∘⎕VFI¨'(-|:)'⎕R' '¨⍵
+ }

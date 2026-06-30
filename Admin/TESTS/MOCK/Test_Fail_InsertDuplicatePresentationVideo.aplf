@@ -1,0 +1,14 @@
+ r←Test_Fail_InsertDuplicatePresentationVideo url;dmx
+⍝ Test that a duplicate presentation→video link cannot be inserted.
+⍝ Relies on the uq_presentation_video UNIQUE (presentation_id, youtube_video_id) constraint
+⍝ and the (1,1) link created from the fixed keys in GenerateTestData.
+ r←0
+
+ sql←'INSERT INTO presentation_video (`presentation_id`, `youtube_video_id`) VALUES (1, 1)'
+
+ :Trap 500
+     #.DCMS.SQL.Do sql
+ :Else
+     dmx←⎕DMX   ⍝ Save ⎕DMX for debugging
+     r←'Duplicate entry'(∨/⍷)dmx.Message
+ :EndTrap

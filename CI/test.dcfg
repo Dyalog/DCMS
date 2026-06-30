@@ -1,10 +1,13 @@
 {
     Extend: "../dcms.dcfg",
     Settings: {
+        LOGGING:      0,
+        SUSPEND:      0,
+        TRACE:        0,
         LX: "⎕TRAP ← 0 'C' '⎕←''Error during setup for test run'' ⋄ ⎕←1⎕JSON⎕OPT''Compact''0⊢⎕DMX ⋄ ⎕OFF 1' ⋄\
              ⎕SE.Link.Import 'DCMS' '[APP_DIR]/APLSource' ⋄\
              ⎕SE.Link.Import 'Admin' '[APP_DIR]/Admin' ⋄\
-             DCMS.Setup ⋄ DCMS.Run [DEBUG] ⋄\
+             DCMS.Setup ⋄ DCMS.Run [LOGGING] [SUSPEND] [TRACE] ⋄\
              Admin.RunTests 0"
     }
 }

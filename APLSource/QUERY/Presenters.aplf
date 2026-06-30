@@ -1,0 +1,20 @@
+ res←Presenters req
+⍝ Serve GET /presenters, returning presenter names and IDs
+ :If req≡'⍠SPEC'
+     res←(
+         tags:,⊂'Presenters' ⋄ summary:'List presenter names' ⋄ operationId:'getPresenters' ⋄ security:⍬
+         responses: (
+             ⍙200: (
+                 description: 'List of presenter names and IDs'
+                 content: (⍙application⍙47⍙json: (schema: (type:'object' ⋄ properties:(
+                     id: (type:'integer')
+                     name: (type:'string')
+                 ))))
+             )
+         )
+     )
+     :Return
+ :EndIf
+ ##.Log'[REQ] GET /presenters'
+
+ res←##.CACHE.presenters

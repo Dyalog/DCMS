@@ -1,0 +1,7 @@
+ Test_GETProfile_NoAuth←{
+⍝ Check GET /admin/profile rejects a missing api key with 401
+     h←##.##.##.HttpCommand.New'GET'
+     h.URL←⍵,'/admin/profile'
+     res←h.Run
+     401=res.HttpStatus
+ }

@@ -20,6 +20,9 @@
      ⎕←⍪⎕SE.Tatin.LoadDependencies (GetEnv'PKG') #
      ⎕←'Loading NuGet packages...'
      ⎕←⍪⎕USING←##.NuGet.Using GetEnv'PKG_NUGET'
+     ⎕←'Loading Swagger UI static assets...'
+     GLOBAL.web_asset_names←'index.html' 'swagger-ui.css' 'theme.css' 'swagger-ui-bundle.js'
+     GLOBAL.web_assets←WEB.ReadBytes¨(app_dir,'assets/swagger-ui/')∘,¨GLOBAL.web_asset_names
  :Else
      ⎕←'Could not set up DCMS'
      ⎕←1⎕JSON⎕OPT'Compact'0⊢⎕DMX

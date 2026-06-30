@@ -1,0 +1,78 @@
+/* Dyalog brand theme for Swagger UI.
+ *
+ * Swagger UI 5 ships compiled CSS with no public theming-variable API, so we
+ * override its selectors. Colours are the published Dyalog Ltd palette
+ * (https://dyalogprod.gos.dyalog.com/about/brand-guidelines/) - defined here as
+ * CSS custom properties so they live in one place. No external stylesheet is
+ * fetched; everything is served by DCMS. */
+
+:root {
+  --dyalog-midnight: #003b5c; /* primary brand */
+  --dyalog-orange: #ff6a13; /* retina searing orange */
+  --dyalog-lavender: #8986ca;
+  --dyalog-gunmetal: #2a3244;
+  --dyalog-orange-peel: #ffa300;
+  --dyalog-rose: #ca2e51;
+  --dyalog-lotion: #f2f1f0; /* light background */
+  --dyalog-raisin: #232222; /* body text */
+}
+
+body {
+  background: var(--dyalog-lotion);
+}
+
+/* Branded band across the top of the page. */
+.swagger-ui::before {
+  content: "";
+  display: block;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--dyalog-midnight) 0%,
+    var(--dyalog-lavender) 60%,
+    var(--dyalog-orange) 100%
+  );
+}
+
+.swagger-ui .topbar {
+  background: var(--dyalog-midnight);
+}
+
+/* Title and section headings. */
+.swagger-ui .info .title,
+.swagger-ui .info h1,
+.swagger-ui .info h2,
+.swagger-ui .scheme-container .schemes > label {
+  color: var(--dyalog-midnight);
+}
+
+.swagger-ui .info a,
+.swagger-ui a.nostyle,
+.swagger-ui .opblock-tag a {
+  color: var(--dyalog-midnight);
+}
+
+/* Primary action ("Execute") and Authorize buttons. */
+.swagger-ui .btn.execute {
+  background-color: var(--dyalog-orange);
+  border-color: var(--dyalog-orange);
+  color: #fff;
+}
+.swagger-ui .btn.execute:hover {
+  background-color: var(--dyalog-orange-peel);
+  border-color: var(--dyalog-orange-peel);
+}
+
+.swagger-ui .btn.authorize {
+  color: var(--dyalog-midnight);
+  border-color: var(--dyalog-midnight);
+}
+.swagger-ui .btn.authorize svg {
+  fill: var(--dyalog-midnight);
+}
+
+/* Tag groups. */
+.swagger-ui .opblock-tag {
+  color: var(--dyalog-gunmetal);
+  border-bottom-color: rgba(0, 59, 92, 0.2);
+}

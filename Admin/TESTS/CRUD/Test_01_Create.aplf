@@ -1,0 +1,30 @@
+ r←Test_01_Create base_url;D;check_cols;cid;column;data;event;event_type;h;name;organisation;payload;person;presentation;presentation_media;presentation_video;presentation_type;presenter;res;table;tid;youtube_video
+⍝ Test that POST /crud/{table} creates a new record in the specified table and returns the created record with its new ID
+
+ data←##.GenerateTestData 10
+ (event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media)←data
+
+ D←#.DCMS
+
+ r←1
+ :For table :In event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media
+     name←⍕table
+     {}D.SQL.Do'DELETE from ',name
+     {}D.SQL.Do'ALTER TABLE ',name,' AUTO_INCREMENT = 1'
+     tid←D.GLOBAL.tables⍳⊂name
+     cid←(column←tid⊃D.GLOBAL.columns)⍳table.⎕NL ¯2
+     payload←Table2JSON(table.⎕NL ¯2)⍪⍉↑table ⎕VGET check_cols←table.⎕NL ¯2
+     h←⎕NEW #.HttpCommand'POST'
+     h.URL←base_url,'/crud/',name
+     'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
+     h.ContentType←'application/json'
+     h.Params←payload
+     h.TranslateData←1
+     res←h.Run
+     :If 201≢res.HttpStatus
+     :OrIf (res.Data ⎕VGET check_cols)≢payload ⎕VGET check_cols
+         ⎕←'**     FAILED ',name
+         r←0
+         :Return
+     :EndIf
+ :EndFor

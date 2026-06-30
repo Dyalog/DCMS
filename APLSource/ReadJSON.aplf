@@ -1,1 +1,4 @@
- ReadJSON←{0 ⎕JSON ⎕OPT'Dialect' 'JSON5'⊃⎕NGET ⍵}
+ ReadJSON←{
+⍝ Parse a JSON5 file into an APL namespace    
+    0 ⎕JSON ⎕OPT'Dialect' 'JSON5'⊃⎕NGET ⍵
+ }

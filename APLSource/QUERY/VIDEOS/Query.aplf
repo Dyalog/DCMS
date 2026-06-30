@@ -1,0 +1,110 @@
+ res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;schemas;stemmer;terms;this;to;v
+⍝ Serve GET /videos: search, filter, rank, sort and paginate
+
+ :If req≡'⍠SPEC'
+     schemas←##.##.SPEC.schemas
+     res←(
+         tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId: 'getVideos' ⋄ security:⍬
+         description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
+         parameters:(
+             (name:'from' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
+             (name:'to' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
+             (name:'presenter' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'array' ⋄ items:(type:'integer')) ⋄ explode:⊂'false' ⋄ description:'Comma-separated list of presenter IDs, e.g. "123,456"')
+             (name:'event' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string') ⋄ description:'URL slug of event, e.g. "dyalog-23"')
+             (name:'search' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string') ⋄ description:'Full-text search across video titles, descriptions, presenter names, and event names')
+             (name:'sort' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ enum:('relevance' 'newest' 'oldest')) ⋄ description:'Sort order of results. Defaults to "relevance" when `search` is supplied, otherwise "newest".')
+             (name:'page' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:1) ⋄ description:'Page number for paginated results.')
+             (name:'per_page' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:20) ⋄ description:'Number of results per page for paginated results. Defaults to 20.')
+         )
+         responses:(
+             ⍙200:(
+                 description:'Paginated video results'
+                 content:(⍙application⍙47⍙json:(schema:(type:'object' ⋄ properties:(
+                     path:(type:'string' ⋄ description:'URL for this endpoint')
+                     per_page:(type:'integer')
+                     current_page:(type:'integer')
+                     data:(type:'array' ⋄ items: schemas.video)
+                     from:(type:'integer' ⋄ description:'Ordinal of the first result on this page')
+                     to:(type:'integer' ⋄ description:'Ordinal of the last result on this page')
+                     total:(type:'integer' ⋄ description:'Total count of results for this query, across all pages')
+                     first_page:(type:'integer' ⋄ description:'Page number of the first page of results (always 1)')
+                     last_page:(type:'integer' ⋄ description:'Page number of the last page of results')
+                     first_page_url:(type:'string' ⋄ format:'uri')
+                     prev_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                     next_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                     last_page_url:(type:'string' ⋄ format:'uri')
+                     links:(type:'array' ⋄ items:(
+                         type:'object'
+                         description:'Describes numbered, previous and next buttons for paginated results.'
+                         properties:(
+                             active:(type:'boolean')
+                             label:(type:'string')
+                             url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                         )
+                    ))
+                 ))))
+             )
+             ⍙404:(
+                 description:'No videos found matching the query parameters'
+                 content:(⍙application⍙47⍙json:(schema: schemas.error))
+             )
+                ⍙422:(
+                    description:'Invalid query parameters'
+                    content:(⍙application⍙47⍙json:(schema: schemas.error))
+                )
+                ⍙500:(
+                    description:'Internal server error'
+                    content:(⍙application⍙47⍙json:(schema: schemas.error))
+                )
+         )
+
+     )
+     :Return
+ :EndIf
+
+ ##.##.Log'[REQ] GET /videos ',1⎕JSON req.QueryParams
+
+ Q←req.QueryParams∘⎕VGET
+ CACHE←##.##.CACHE
+ C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
+
+⍝ Filter by date range
+ :Trap 11
+     (fm to)←##.TimeStamp2DDN Q('from' '')('to' '')
+ :Else
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Invalid date-time')('Vendor' 'DCMS')
+ :EndTrap
+ in_range←(fm to)FilterDateTimes ddn←C'presented_at'
+
+⍝ Filter by columns: presenter, event
+ presenter←(Q⊂'presenter' '')FilterPresenter C'presenter'
+ presenter_id←∧⌿∨/(2⊃','⎕VFI Q⊂'presenter_id' '')∘.=(C'presenter_id')
+ event←((''≡this)∨this≢⍛=+/∧\' '≠all)∧(⊃⍤1)(this←Q⊂'event_shortname' '')⍷all←C'event_shortname'
+ filter←in_range∧presenter∧event∧presenter_id
+
+ Norm←##.##.Unidecode.NormaliseText
+ stemmer←⎕NEW #.DCMS.Porter2Stemmer.EnglishPorter2Stemmer
+ Stem←{
+     stemmed←stemmer.Stem⊆⍵
+     stemmed.Value
+ }
+⍝ Rank by search terms
+ terms←Stem¨', '(~⍤∊⍨⊆⊢)Norm Q⊂'search' ''
+ i←terms Rank filter⌿CACHE.videos.index_all
+
+⍝ Sort
+ data←(filter⌿CACHE.videos.values)[i;]
+ :Select Q⊂'sort' ''   ⍝ FIXME should be newest unless search is not empty
+ :Case 'newest'
+     data←data[⍒(filter⌿ddn)[i];]   ⍝ newest
+ :Case 'oldest'
+     data←data[⍋(filter⌿ddn)[i];]   ⍝ oldest
+ :EndSelect
+
+⍝ Convert to JSON and paginate
+ res←##.Table2JSON CACHE.videos.fields⍪data
+ (pg ppg)←2⊃∘⎕VFI¨Q('page' '1')('per_page' '20')
+ :If 0≥pg
+     ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, page number must be a positive integer.')('Vendor' 'DCMS')
+ :EndIf
+ res←('videos'pg ppg)##.Paginate res

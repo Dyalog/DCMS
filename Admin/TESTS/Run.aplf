@@ -1,0 +1,14 @@
+ result←{show_pass}Run url;DoTest;F;LoadDependency;fn;r;tests
+ ⎕←'Testing ',url
+ show_pass←⎕VGET⊂'show_pass' 0
+ ##.MOCKYT.Run
+ DoTest←url∘(show_pass Test)
+ result←1
+ result∧←DoTest MAIN     ⍝ General tests should pass from clean start
+ InsertDummyData
+ #.DCMS.ADMIN.RefreshData''
+ :While ~#.isolate.Available'#.DCMS.QUERY.recommendations'   ⍝ Wait until recommendations ready
+ :EndWhile
+ result∧←DoTest MOCK   ⍝ Test insert and retrieve dummy data
+ result∧←DoTest MAIN   ⍝ General tests should still pass after populating database, cache etc.
+ result∧←DoTest CRUD   ⍝ Test Create Read Update Delete

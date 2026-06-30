@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(dirname "$SCRIPT_DIR")"
+
 if which docker-compose 2>/dev/null ;then
     COMPOSE=$(which docker-compose)
 else
@@ -7,28 +10,30 @@ else
 fi
 
 ## Populate env file
-rm ${PWD}/env
-echo YOUTUBE=http://localhost:8088/ >> ${PWD}/env
-echo APP_DIR=/app >> ${PWD}/env
-echo CONFIGFILE=/app/CI/test.dcfg >> ${PWD}/env
-echo RIDE_INIT=SERVE:*:4502 >> ${PWD}/env
-echo SQL_SERVER=db >> ${PWD}/env
-echo SQL_DATABASE=dyalog_cms >> ${PWD}/env
-echo SQL_USER=dcms >> ${PWD}/env
-echo SQL_PASSWORD=apl >> ${PWD}/env
-echo SQL_PORT=3306 >> ${PWD}/env
-echo MYSQL_SERVER=db >> ${PWD}/env
-echo MYSQL_DATABASE=dyalog_cms >> ${PWD}/env
-echo MYSQL_USER=dcms >> ${PWD}/env
-echo MYSQL_PASSWORD=apl >> ${PWD}/env
-echo MYSQL_PORT=3306 >> ${PWD}/env
-echo SECRETS=/app/secrets/secrets.json5 >> ${PWD}/env
-echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${PWD}/env
-echo HOME=/data >> ${PWD}/env
+rm ${REPO_DIR}/env
+echo YOUTUBE=http://localhost:8088/ >> ${REPO_DIR}/env
+echo APP_DIR=/app >> ${REPO_DIR}/env
+echo CONFIGFILE=/app/CI/test.dcfg >> ${REPO_DIR}/env
+echo RIDE_INIT=SERVE:*:4502 >> ${REPO_DIR}/env
+echo SQL_SERVER=db >> ${REPO_DIR}/env
+echo SQL_DATABASE=dyalog_cms >> ${REPO_DIR}/env
+echo SQL_USER=dcms >> ${REPO_DIR}/env
+echo SQL_PASSWORD=apl >> ${REPO_DIR}/env
+echo SQL_PORT=3306 >> ${REPO_DIR}/env
+echo MYSQL_SERVER=db >> ${REPO_DIR}/env
+echo MYSQL_DATABASE=dyalog_cms >> ${REPO_DIR}/env
+echo MYSQL_USER=dcms >> ${REPO_DIR}/env
+echo MYSQL_PASSWORD=apl >> ${REPO_DIR}/env
+echo MYSQL_PORT=3306 >> ${REPO_DIR}/env
+echo SECRETS=/app/secrets/secrets.json5 >> ${REPO_DIR}/env
+echo MYSQL_RANDOM_ROOT_PASSWORD=1 >> ${REPO_DIR}/env
+echo HOME=/data >> ${REPO_DIR}/env
 
 echo COMPOSE IS: $COMPOSE
 echo "Use docker inspect to get the IP of the running container"
 
-$COMPOSE pull
-$COMPOSE -f docker-compose.yml up install
-$COMPOSE -f docker-compose.yml up db web --force-recreate --abort-on-container-exit
+export PROJECT_DIR=$PWD
+
+$COMPOSE -f ${REPO_DIR}/docker-compose.yml pull
+$COMPOSE -f ${REPO_DIR}/docker-compose.yml up install
+$COMPOSE -f ${REPO_DIR}/docker-compose.yml up db web --force-recreate --abort-on-container-exit

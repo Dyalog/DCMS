@@ -1,9 +1,0 @@
- Test_PUTProfiling_BadOn←{
-     opt←⎕NS''
-     opt.url←⍵,'/profiling?on=banana'
-     opt.token←##.##.Secrets'upload_token'
-     opt.data←''
-     h←'PUT'##.##.upload.BuildRequest opt
-     res←h.Run
-     400=res.HttpStatus
- }

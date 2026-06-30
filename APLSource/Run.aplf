@@ -1,31 +1,80 @@
- Run debug;app_dir;LoadDependency
- GLOBAL.debug←debug
+ Run cfg;logging;suspend;trace;app_dir;LoadDependency
+⍝ cfg: a preset scalar (0=production, 1=development, 2=strict)
+⍝      or an explicit (logging suspend trace) triple. See SetDebug.
+ :If 0=≢⍴cfg
+     (logging suspend trace)←(1+cfg)⊃(0 0 0)(1 1 0)(1 2 0)
+ :Else
+     (logging suspend trace)←cfg
+ :EndIf
+ GLOBAL.logging←logging   ⍝ Set here because used by SQL fns. SetDebug later to override Stark settings.
+ GLOBAL.log←''
 ⍝ Initialise SQL schema
  GLOBAL.secrets←ReadJSON GetEnv'SECRETS'
  ⎕←'Initialising SQAPL...'
  ⎕←SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
- SQL.debug←debug
-⍝ Set up web service
- :If 0=⎕NC'service'
-     service←⎕NEW ##.Jarvis
-     service.CodeLocation←⎕THIS
-     service.Paradigm←'REST'
-     service.Port←2⊃⎕VFI GetEnv'service_port'
-     service.url←(GetEnv'service_url'),':',⍕service.Port
-     service.ErrorInfoLevel←2⌊debug
-     service.EnableCORS←1
-     service.CORS_Headers←'*'
-     service.CORS_Origin←'*'
-     service.Start
+⍝ Set up Stark router
+ url←GetEnv'URL'
+ :If 0=⎕NC'router'
+     router←⎕NEW #.Stark
+     router.Info←(title:'Dyalog Content Management System' ⋄ version:Version'')
+     router.Spec←(
+                security:(,⊂(ApiKeyAuth:⍬))            ⍝ global default: require X-API-Key; public ops opt out with security:⍬
+                components: (securitySchemes: (ApiKeyAuth: (
+                type: 'apiKey'
+                name: 'X-API-Key'
+                in: 'header'
+     ))))
+
+    ⍝ Public-facing API documentation: Swagger UI at / driven by /openapi.json.
+     '/'                             router.Get('WEB.Index'  (WEB.Index'⍠SPEC'))
+     '/swagger/swagger-ui.css'       router.Get('WEB.Static' (WEB.Static'CSS⍠SPEC'))
+     '/swagger/theme.css'            router.Get('WEB.Static' (WEB.Static'THEME⍠SPEC'))
+     '/swagger/swagger-ui-bundle.js' router.Get('WEB.Static' (WEB.Static'JS⍠SPEC'))
+      
+     '/version'                             router.Get('Version'                     (Version'⍠SPEC'))
+     '/videos/{youtube_id}/recommendations' router.Get('QUERY.VIDEOS.Recommendations'(QUERY.VIDEOS.Recommendations'⍠SPEC'))
+     '/videos/{youtube_id}'                 router.Get('QUERY.VIDEOS.Single'         (QUERY.VIDEOS.Single'⍠SPEC'))
+     '/videos'                              router.Get('QUERY.VIDEOS.Query'          (QUERY.VIDEOS.Query'⍠SPEC'))
+     '/presenters'                          router.Get('QUERY.Presenters'            (QUERY.Presenters'⍠SPEC'))
+     '/events'                              router.Get('QUERY.Events'                (QUERY.Events'⍠SPEC'))
+
+     '/schema/{table}'    router.Get   ('CRUD.Schema' (CRUD.Schema'⍠SPEC'))
+     '/crud'              router.Get   ('CRUD.Tables' (CRUD.Tables'⍠SPEC'))
+     '/crud/{table}'      router.Get   ('CRUD.Read'   (CRUD.Read'⍠SPEC'))
+     '/crud/{table}'      router.Post  ('CRUD.Create' (CRUD.Create'⍠SPEC'))
+     '/crud/{table}/{id}' router.Get   ('CRUD.Read'   (CRUD.Read'ID⍠SPEC'))
+     '/crud/{table}/{id}' router.Patch ('CRUD.Update' (CRUD.Update'⍠SPEC'))
+     '/crud/{table}/{id}' router.Delete('CRUD.Delete' (CRUD.Delete'⍠SPEC'))
+
+     '/admin/refresh'     router.Post  ('ADMIN.RefreshData' (ADMIN.RefreshData'⍠SPEC'))
+     '/admin/wp-push'     router.Post  ('ADMIN.WPPush'       (ADMIN.WPPush'⍠SPEC'))
+
+     '/admin/profiling'   router.Get   ('PROFILING.Status' (PROFILING.Status'⍠SPEC'))
+     '/admin/profiling'   router.Put   ('PROFILING.Toggle' (PROFILING.Toggle'⍠SPEC'))
+     '/admin/profile'     router.Get   ('PROFILING.Data'   (PROFILING.Data'⍠SPEC'))
+     '/admin/profile'     router.Delete('PROFILING.Clear'  (PROFILING.Clear'⍠SPEC'))
+     PROFILING.status←(on: 0 ⋄ since: ⊂'null' ⋄ last_cleared: ⊂'null')
+
+     Teapot←{⎕SIGNAL⊂('EN' 418)('Message' 'I am a teapot')('Vendor' 'DCMS')}
+     '/teapot'            router.Get 'Teapot' (responses: (⍙418: 'AM TEAPOT'))
+
+     router.OnErrorFn←'HandleError'
+    ⍝ Make sure Jarvis can find authentication function until Stark supports middleware or similar for pre-processing requests
+     jarvis←router.GetJarvis
+     jarvis.AuthenticateFn←'##.##.AUTH.ControlAccess'
+     jarvis.HTTPAuthentication←'x-api-key'
+
+     router.Start 2⊃⎕VFI GetEnv'SERVICE_PORT'
  :EndIf
- service.Debug←1⌊debug   ⍝ Only prevent Jarvis error trapping (1), do not pause on request when 1<DCMS.GLOBAL.debug
+⍝ Apply debug controls (after router.Start so Stark does not overwrite jarvis.Debug)
+ SetDebug logging suspend trace
+
  ⎕←'Setting up data refresh timer...'
  :If 0=GLOBAL.⎕NC'data_refresh_timer'
      'data_refresh_timer'GLOBAL.⎕WC'Timer'
      GLOBAL.data_refresh_timer.Interval←×/24 60 60 1000
-     GLOBAL.data_refresh_timer.onTimer←'RefreshData'
+     GLOBAL.data_refresh_timer.onTimer←'ADMIN.RefreshData'
  :EndIf
- profiling.status←(on: ⊂'false' ⋄ since: ⊂'null' ⋄ last_cleared: ⊂'null')
- {}RefreshData''
+ {}ADMIN.RefreshData''

@@ -1,0 +1,27 @@
+ InsertDummyData;D;WrapBackticks;WrapColons;cid;col_spec;column;data;event;event_type;n;name;organisation;person;presentation;presentation_media;presentation_type;presentation_video;presenter;sql;table;tid;type;type_spec;youtube_video
+⍝ Generate and insert dummy data into all tables
+
+ D←#.DCMS
+
+ n←100
+
+ data←GenerateTestData n
+ (event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media)←data
+
+ WrapBackticks←(2↓∊)'`'∘(', ',⊣,⊣,⍨⊢)¨
+ WrapColons←(1↓∊)(',:',':',⍨⊢)¨
+
+ :For table :In event_type event organisation person presentation_type presentation youtube_video presenter presentation_video presentation_media
+     ⎕←name←⍕table
+     table.id←⍳n
+     tid←D.GLOBAL.tables⍳⊂name
+     cid←(column←tid⊃D.GLOBAL.columns)⍳table.⎕NL ¯2
+     type←cid⊂⍛⌷tid⊃D.GLOBAL.type_sqapl
+     column←cid⊂⍛⌷column
+     col_spec←WrapBackticks column
+     type_spec←WrapColons type
+     sql←'INSERT INTO ',name,' (',col_spec,') VALUES (',type_spec,')'
+     data←⍉↑table ⎕VGET table.⎕NL ¯2
+     D.SQL.Do'DELETE from ',name
+     D.SQL.DoBulk sql data
+ :EndFor

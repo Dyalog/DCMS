@@ -1,0 +1,6 @@
+ Test_GETVideo_Recommendations_NotFound←{
+⍝ Valid-format but absent youtube_id ⇒ 404 (Recommendations.aplf signals EN 404)
+     res←##.##.##.HttpCommand.Get ⍵,'/videos/00000000000/recommendations'
+     404=res.HttpStatus
+ }
+ 

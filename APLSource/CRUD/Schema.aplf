@@ -1,0 +1,83 @@
+ r←Schema req;GBL;JsonType;col_ns;cols;cols_out;fk_cols;fks;i;idx;lens;match;ref_ns;responses;table;triple;types
+⍝ Handles GET /schema/{table}; returns column metadata and foreign keys
+ responses←##.SPEC.responses
+ :If req≡'⍠SPEC'
+     r←(
+         tags:,⊂'Table CRUD' ⋄ summary:'Describe table columns' ⋄ operationId:'getTableSchema'
+         responses:(
+             ⍙200:(
+                 description:'Column metadata for the table.'
+                 content:(⍙application⍙47⍙json:(schema:(
+                     type:'object'
+                     required:('table' ⋄ 'columns')
+                     properties:(
+                         table:(type:'string')
+                         columns:(
+                             type:'array'
+                             items:(
+                                 type:'object'
+                                 required:('name' ⋄ 'sqapl_type' ⋄ 'length' ⋄ 'json_type')
+                                 properties:(
+                                     name:(type:'string')
+                                     sqapl_type:(type:'string' ⋄ description:'SQAPL type annotation (e.g. <C100, <I, <D, <C19(S))')
+                                     length:(type:'integer')
+                                     json_type:(type:'string' ⋄ enum:('string' ⋄ 'integer'))
+                                     references:(
+                                         type:'object'
+                                         description:'Present iff the column is a foreign key. Absent otherwise.'
+                                         required:('table' ⋄ 'column')
+                                         properties:(
+                                             table:(type:'string' ⋄ description:'Referenced table name')
+                                             column:(type:'string' ⋄ description:'Referenced column name (typically "id")')
+                                         )
+                                     )
+                                 )
+                             )
+                         )
+                     )
+                 )))
+             )
+             ⍙401:responses.unauthorized
+             ⍙404:responses.not_found
+         )
+     )
+     :Return
+ :EndIf
+
+ ##.Log'[REQ] GET /crud/',(req.PathParams ⎕VGET⊂'table' ''),'/schema'
+
+ table←req.PathParams ⎕VGET⊂'table' ''
+ GBL←##.GLOBAL
+ :If 0∊⍴table
+ :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(responses.not_found.description))
+ :EndIf
+
+ cols←idx⊃GBL.columns
+ types←idx⊃GBL.type_sqapl
+ lens←idx⊃GBL.lengths
+ fks←idx⊃GBL.foreign_keys                  ⍝ vector of (col ref_table ref_column) triples; empty if none
+ fk_cols←⊃¨fks                             ⍝ FK-bearing column names
+ JsonType←{'I'=⍵[2]:'integer' ⋄ 'string'}  ⍝ SQAPL family letter → OpenAPI scalar type
+
+ cols_out←⍬
+ :For i :In ⍳≢cols
+     col_ns←⎕JSON'{}'
+     col_ns.name←i⊃cols
+     col_ns.sqapl_type←i⊃types
+     col_ns.length←i⊃lens
+     col_ns.json_type←JsonType i⊃types
+     match←fk_cols⍳⊂i⊃cols
+     :If match≤≢fks
+         triple←match⊃fks
+         ref_ns←⎕JSON'{}'
+         ref_ns.table←2⊃triple
+         ref_ns.column←3⊃triple
+         col_ns.references←ref_ns
+     :EndIf
+     cols_out,←⊂col_ns
+ :EndFor
+
+ r←⎕JSON'{}'
+ r.table←table
+ r.columns←cols_out

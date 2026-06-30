@@ -1,9 +1,0 @@
- TestGetEvents←{
-     ⎕←'Test GET events'
-     ⍺←'http://localhost:8081/' ⋄ url←(AddTrailingSlash ⍺),'event'
-     G←url∘HttpGet
-     fields←'id' 'title' 'location' 'url_slug' 'icon' 'logo' 'physical' 'digital'
-     fields,←'type' 'start' 'end' 'early_bird' 'signup_url' 'created_at' 'updated_at' 'updated_by'
-     _←Assert∧/fields∊(G'')[1].⎕NL-⍳9   ⍝ all events
-     1
- }

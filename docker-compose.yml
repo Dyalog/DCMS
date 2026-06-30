@@ -9,7 +9,7 @@ services:
         entrypoint: ""
 
     web:
-        image: dyalog/techpreview:latest
+        build: .
         volumes:
         - ${PROJECT_DIR}:/app
         - dcms_home:/data

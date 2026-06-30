@@ -1,8 +1,0 @@
- r←RefreshData timer
- :Trap 202 404
-     import.youtube.RefreshData''
- :Else
-     ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
- :EndTrap
- read.BuildCache''
- ⎕←r←'Refreshed data at ',⍕⎕TS

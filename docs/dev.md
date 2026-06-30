@@ -1,35 +1,72 @@
-# Development
-DCMS is developed using Dyalog in Docker. This allows us to develop and deploy with the same environment.
+# Developing DCMS
 
-## Development, Testing and Deployment
-[Configuration files](https://docs.dyalog.com/20.0/unix-installation-and-configuration-guide/configuration-parameters/configuration-files/) are used to launch the system for the purposes of development, testing and deployment.
+DCMS (Dyalog Content Management System) is an APL application that serves the Dyalog website and video library through a public API at https://dcms.dyalog.com. It runs as an HTTP service written in Dyalog APL with Jarvis, and stores its data in MariaDB.
 
-The base configuration is in [**dcms.dcfg**](../dcms.dcfg). Other configuration files use this as a base with the "Extend" keyword, and when run in Docker for testing and in production, Dyalog is launched using **dcms.dws** which automatically uses settings found in the base configuration file.
+The entire stack runs in Docker, so development, testing and production all use the same environment.
 
-The [**dev.dcfg**](../dev.dcfg) configuration is used for development. The script [**dev**](../dev) can be used on Linux to set required environment variables and launch Dyalog from this configuration file.
+## Getting Started
+
+### Prerequisites
+- Docker Desktop (or Docker Engine on Linux)
+- The DCMS repository cloned locally
+
+### First-Time Setup
+
+1. Create a secrets file at `secrets/secrets.json5` — see [config.md](config.md#secrets) for the format.
+
+2. Run the dev script with `-i` to install [dependencies](dependencies.md) (Tatin and NuGet packages):
+   ```sh
+   ./dev -i
+   ```
+   This activates Tatin, installs all packages, then starts the stack. You only need `-i` on first run or when dependencies change.
+
+### Day-to-Day Development
 
 ```sh
 ./dev
 ```
 
-> The first time you run **dev**, pass the `-i` flag to activate Tatin into the **data** folder and install [dependencies](./dependencies.md).  
-> `./dev -i`
+This starts the Dyalog web server and MariaDB. Connect to RIDE in your browser at `http://localhost:4502` to interact with the running APL session.
 
-To run tests during development, do:  
+## How `dev` Works
+
+1. Writes the `env` file with container configuration (database credentials, paths, RIDE port)
+2. Pulls the latest Docker images
+3. If `-i` was passed, runs the `install` service to activate Tatin and install dependencies
+4. Runs `docker compose up web db`
+
+The services are defined in [docker-compose.yml](../docker-compose.yml):
+
+| Service   | Image                       | Purpose                                    |
+|-----------|-----------------------------|--------------------------------------------|
+| `web`     | `dyalog/techpreview:latest` | Dyalog APL + Jarvis HTTP server            |
+| `db`      | `mariadb:10.8.2`            | MariaDB database                           |
+| `install` | Built from `Dockerfile`     | One-off dependency installer               |
+
+## Configuration
+
+The `SUSPEND` flag controls request handling behaviour from full error trapping to suspending execution for debugging. See [error-handling.md](error-handling.md) for the full scheme and [config.md](config.md) for all configuration parameters.
+
+## Running Tests
+
+### During Development
+
+In the RIDE session:
 
 ```apl
 Admin.(Tests.Run GetEnv'URL')
 ```
 
-The system is built as a binary workspace **dcms.dws** for testing and deployment. Use the build script [**CI/build-with-docker.sh**](../CI/build-with-docker.sh) to build the application workspace.
+### CI-Style Tests Locally
 
-Then, to run the deployment testing scenario locally, do:
+To run the full deployment testing scenario (install dependencies, start the stack, run tests):
 
 ```sh
 ./CI/run-tests-in-docker.sh
 ```
 
-## Packages
-This application depends on [Tatin and NuGet packages](./dependencies.md). During development, these are loaded using Tatin and the .NET SDK. For testing and production, the application source and dependencies are loaded into the active workspace which is saved as a binary workspace file.
+This script is for local testing only. The Jenkinsfile orchestrates Docker directly for CI.
 
-Using the built application workspace then only requires the .NET runtime.
+## Deployment
+
+Deployment is handled automatically by a Jenkins job configured in the [Jenkinsfile](../Jenkinsfile). Commits to the `master` branch trigger a build and deploy to production.

@@ -1,0 +1,63 @@
+ r←BuildCache opt;CACHE;II;RLTB;SQL;Values;dtcol;ep;nmat;norm;pid;pname;title;txtcol;vids;vp;ytid
+⍝ Store pre-joined tables for API endpoints and query results
+⍝ Store simple character matrices for search
+⍝ Create term-frequency inverse-document-frequency index for search
+ ep←##.ReadJSON(##.GetEnv'app_dir'),'/APLSource/QUERY/endpoints.json5'
+ '##.CACHE'⎕NS'' ⋄ CACHE←##.CACHE
+ SQL←##.SQL
+
+ CACHE.presenters←Table2JSON ep.presenters.fields⍪SQL.Do ep.presenters.sql
+ 'CACHE.events'⎕NS''
+ ⍝ has_videos is a derived column for filtering events with and without videos
+ ⍝ returned in the API response as enclosed strong for JSON boolean values
+ ⍝ stored in APL as numeric 0 and 1 for efficient filtering
+
+ CACHE.events.data←Table2JSON ep.events.fields⍪SQL.Do ep.events.sql
+ :If 0=≢CACHE.events.data
+     CACHE.events.has_videos←⍬
+     CACHE.events.data←''
+ :Else
+     CACHE.events.has_videos←CACHE.events.data.has_videos
+     CACHE.events.data.has_videos←⊂¨'false' 'true'[1+CACHE.events.has_videos]   ⍝ Convert APL Bool to JSON Bool
+ :EndIf
+
+ vids←⎕NS''
+ vids.fields←ep.videos.fields
+ vids.values←SQL.Do ep.videos.sql
+ (title ytid pname pid)←↓⍉##.SQL.Do ep.videos.presenter.sql   ⍝ YouTube ID, presenter name
+ :If 0<≢vids.values
+     (ytid pname pid)←↓⍉ytid{(pname pid)←↓⍉⍵ ⋄ ⍺,(⊃(⊣,', ',⊢)/pname)(pid)}⌸⍉↑pname pid
+ :EndIf
+ vids.values,←(pname,⊂'')[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
+ vids.values,←(pid,⊂⍬)[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
+
+ :If (≢vids.fields)≠⊢/⍴vids.values
+     'Videos endpoint number of fields does not match number of columns'⎕SIGNAL 42
+ :EndIf
+
+ RLTB←{⍵⌿⍤1⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}   ⍝ Remove Leading and Trailing Blanks
+⍝ For indexing, normalise all except those with YouTube IDs and convert datetimes to Dyalog Day Number
+⍝ Leave presenter index_col, but normalise for index_all
+ vids.index_all←vids.values
+ (norm/vids.index_all)←##.Unidecode.NormaliseText¨(norm←vids.fields(~∊)⊆'youtube_id' 'url' 'presenter')/vids.index_all
+ (dtcol txtcol)←(⍸,⍥⊂⍸∘~)vids.fields∊⊆'presented_at' 'published_at'
+ dtcol←vids.fields⍳⊆'presented_at' 'published_at'
+ nmat←vids.fields⍳⊆'presenter_id'
+ txtcol←(⍳≢vids.fields)~dtcol,nmat
+ vids.index_all[;dtcol]←TimeStamp2DDN vids.index_all[;dtcol]
+ vids.index_cols←↓⍉vids.index_all
+ vids.index_cols[txtcol]←RLTB¨⍕∘⍪¨vids.index_cols[txtcol]
+ vids.index_cols[nmat]←↑¨vids.index_cols[nmat] ⍝ Presenter IDs as numeric matrix
+ vids.index_all[;norm]←##.Unidecode.NormaliseText¨vids.index_all[;norm←vids.fields⍳⊂'presenter']
+ vids.index_all←⍕vids.index_all
+⍝ Similarity computation is expensive, so we perform it in an isolate
+⍝ See http://docs.dyalog.com/latest/Parallel%20Language%20Features.pdf
+⍝ The recommendations variable (a future) is semi-global within the DCMS.read namespace
+⍝ so that the QUERY.VIDEOS.Recommendations function can access future values when they are available
+ II←##.##.II ⋄ Values←##.##.isolate.Values
+ recommendations←VIDEOS.ComputeRecommendations II vids.index_cols⌷⍨⊂vids.fields⍳⊆'title' 'description' 'presenter'   ⍝ Not localised on purpose!
+ :If 0=⎕NC'vids.recommendations' ⋄ vids.recommendations←(1⍴⍨⊢,0⌈¯1∘+)≢vids.values ⋄ :EndIf
+ vids.recommendations←⊃vids.recommendations Values'recommendations'
+ :If 0=⎕NC'CACHE.videos' ⋄ CACHE.videos←⎕NS'' ⋄ :EndIf
+ CACHE.videos←vids
+ r←'Updating cache and video recommendations...'
