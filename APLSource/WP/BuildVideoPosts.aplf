@@ -4,7 +4,7 @@
 ⍝ ←: (create delete) post objects to create or update, post IDs to delete
      (person exists vids)←⍵
      fields←'acf.media_id' 'acf.url' 'title' 'acf.thumbnail' 'acf.description' 'acf.presentation_date' 'acf.event_slug' 'acf.event_title' 'acf.person_id'
-     create←Table2JSON fields⍪vids
+     create←NestedTable2JSON fields⍪vids
      create.acf.post_id←(person.id,0)[person.acf.dcms_id⍳create.acf.person_id]                               ⍝ Person ID → WordPress Team Dyalog post ID
      create⌿⍨←0≠create.acf.post_id                                                                           ⍝ Remove videos with no Team Dyalog member post
      EventURL←{'<a href="/video-library/search?event=',⍺,'">',⍵,'</a>'}

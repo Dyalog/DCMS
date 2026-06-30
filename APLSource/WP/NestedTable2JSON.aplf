@@ -1,4 +1,4 @@
- Table2JSON←{
+ NestedTable2JSON←{
 ⍝ Table2JSON with nested fields using dot notation
 ⍝ e.g. title.rendered is a field "rendered" within an object "title"
 ⍝ returns a list of JSON objects with field names specified in the header row
