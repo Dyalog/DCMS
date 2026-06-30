@@ -1,4 +1,5 @@
  r←Read req;GBL;data;fields;id;idx;pg;ppg;responses;schemas;table
+⍝ Handles GET /crud/{table}; lists paginated rows or fetches one by id
 
  :If 2=⎕NC'req'
      (schemas responses parameters)←##.SPEC.(schemas responses parameters)

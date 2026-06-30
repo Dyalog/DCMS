@@ -1,4 +1,5 @@
  r←Delete req;GBL;id;idx;responses;schemas;table;record
+⍝ Handles DELETE /crud/{table}/{id}; removes one row by id
  
  :If 2=⎕NC'req'
      (schemas responses)←##.SPEC.(schemas responses)

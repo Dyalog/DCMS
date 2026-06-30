@@ -1,4 +1,5 @@
  r←Test_PUTProfiling_Idempotent url;key;Authed;Assert;res;since1;since2
+⍝ Check repeating PUT /admin/profiling?on=true leaves since unchanged
  r←0
  key←#.DCMS.GLOBAL.secrets.upload_token
  Assert←##.Assert

@@ -1,4 +1,5 @@
  Test_PUTProfiling_NoOn←{
+⍝ Check PUT /admin/profiling rejects a missing on with 400
      h←##.##.##.HttpCommand.New'PUT'
      h.URL←⍵,'/admin/profiling'
      _←'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token

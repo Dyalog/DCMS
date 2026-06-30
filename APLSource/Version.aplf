@@ -1,4 +1,5 @@
  version←Version req
+⍝ Return the application version, or its OpenAPI spec
  :If req≡'⍠SPEC'
      openapi_spec←(
          tags:,⊂'System' ⋄ summary:'Get API version' ⋄ operationId: 'getVersion' ⋄ security:⍬

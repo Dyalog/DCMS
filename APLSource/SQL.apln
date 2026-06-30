@@ -1,4 +1,4 @@
-:Namespace SQL
+:Namespace SQL   ⍝ SQAPL wrapper: connection, schema setup and query execution
 
     Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
     FromUTF8←'UTF-8'∘(⊣⎕UCS ⎕UCS)

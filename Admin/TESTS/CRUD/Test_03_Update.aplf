@@ -1,4 +1,5 @@
  r←Test_03_Update base_url;Patch
+⍝ Check PATCH /crud/{table} updates each table's fields
 
  Patch←{
      (name id fields)←⍵

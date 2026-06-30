@@ -1,2 +1,3 @@
 #!/usr/bin/dyalogscript DYALOG_INITSESSION=1
+⍝ Make Tatin available from fresh Dyalog installation
 ⎕←⎕SE.UCMD'activate all -reset'

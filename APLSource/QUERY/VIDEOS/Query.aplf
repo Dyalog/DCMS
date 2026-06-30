@@ -1,5 +1,6 @@
  res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;schemas;stemmer;terms;this;to;v
- 
+⍝ Serve GET /videos: search, filter, rank, sort and paginate
+
  :If req≡'⍠SPEC'
      schemas←##.##.SPEC.schemas
      res←(

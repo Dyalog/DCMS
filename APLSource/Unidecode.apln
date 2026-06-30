@@ -1,4 +1,5 @@
 :Namespace Unidecode
+⍝ Normalise Unicode text to ASCII for search indexing
 
     ∇ MakeCharMap file
       charmap←0 ⎕JSON⊃⎕NGET file

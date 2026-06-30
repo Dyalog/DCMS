@@ -1,4 +1,5 @@
  r←WPPush req;responses
+⍝ Admin endpoint triggering a push of Team Dyalog video listings to WordPress
  :If req≡'⍠SPEC'
      responses←##.SPEC.responses
      r←(

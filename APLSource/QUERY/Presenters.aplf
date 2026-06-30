@@ -1,4 +1,5 @@
  res←Presenters req
+⍝ Serve GET /presenters, returning presenter names and IDs
  :If req≡'⍠SPEC'
      res←(
          tags:,⊂'Presenters' ⋄ summary:'List presenter names' ⋄ operationId:'getPresenters' ⋄ security:⍬

@@ -1,4 +1,5 @@
  r←Update req;GBL;columns;eg;id;idx;our_cols;parameters;responses;schemas;table;values
+⍝ Handles PATCH /crud/{table}/{id}; updates one row, returns updated record
 
  :If 2=⎕NC'req'
      (schemas responses parameters)←##.SPEC.(schemas responses parameters)

@@ -1,4 +1,5 @@
  r←Schema req;GBL;JsonType;col_ns;cols;cols_out;fk_cols;fks;i;idx;lens;match;ref_ns;responses;table;triple;types
+⍝ Handles GET /schema/{table}; returns column metadata and foreign keys
  responses←##.SPEC.responses
  :If req≡'⍠SPEC'
      r←(

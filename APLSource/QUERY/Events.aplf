@@ -1,5 +1,6 @@
  res←Events req
- 
+⍝ Serve GET /events, optionally filtered by has_videos
+
  :If req≡'⍠SPEC'
      res←(
         tags: ,⊂'Events' ⋄ summary:'List events' ⋄ operationId: 'getEvents' ⋄ security:⍬

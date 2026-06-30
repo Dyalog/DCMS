@@ -1,4 +1,5 @@
  FilterDateTimes←{
+⍝ Mask day numbers falling within an open or closed date range
      (fm to)←⍺
      ∧/dir←0>fm to:1⍨¨⍵
      1 0≡dir:to≥⍵

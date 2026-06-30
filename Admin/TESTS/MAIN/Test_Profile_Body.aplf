@@ -1,4 +1,5 @@
  r←Test_Profile_Body url;key;Authed;Assert;res;fields;first
+⍝ Check GET /admin/profile returns rows with the expected fields
  r←0
  key←#.DCMS.GLOBAL.secrets.upload_token
  Assert←##.Assert

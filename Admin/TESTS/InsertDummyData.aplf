@@ -1,4 +1,5 @@
  InsertDummyData;D;WrapBackticks;WrapColons;cid;col_spec;column;data;event;event_type;n;name;organisation;person;presentation;presentation_media;presentation_type;presentation_video;presenter;sql;table;tid;type;type_spec;youtube_video
+⍝ Generate and insert dummy data into all tables
 
  D←#.DCMS
 
