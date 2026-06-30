@@ -1,1 +1,4 @@
- ReadJSON←{0 ⎕JSON ⎕OPT'Dialect' 'JSON5'⊃⎕NGET ⍵}
+ ReadJSON←{
+⍝ Read a file and parse its JSON5/JSON content into an array
+    0 ⎕JSON ⎕OPT'Dialect' 'JSON5'⊃⎕NGET ⍵
+ }

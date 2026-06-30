@@ -1,3 +1,4 @@
  Table2JSON←{
+⍝ Convert APL table with headers (matrix ⍵) into JSON list of objects
      0 ⎕JSON 1 ⎕JSON⊂2,⊂⍵
  }
