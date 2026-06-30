@@ -27,8 +27,8 @@ do
     fi
 done
 
-# Previous version
-V0=`git show HEAD~1:${VERSION_SOURCE} | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+'" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+"`
+# Previous version (latest on master branch)
+V0=`git show origin/master:${VERSION_SOURCE} | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+'" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+"`
 # New version
 V1=`cat ${VERSION_SOURCE} | grep -o "^\s*version\s\?←'[0-9]\+\.[0-9]\+\.[0-9]\+'" | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+"`
 
