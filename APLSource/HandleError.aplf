@@ -1,4 +1,8 @@
  res←dmx HandleError req;NL;URLEncode;repo;reqline;params;detail;json;title;body;link;msg;suspend;⎕IO
+⍝ Stark's OnErrorFn (registered in Run.aplf): converts any error raised while
+⍝ servicing a request into the HTTP response.
+⍝   dmx: the ⎕DMX caught by Stark
+⍝   req: the request object (Fail / Method / Endpoint / QueryParams)
  NL←⎕UCS 10
 ⍝ How many classes of error suspend (default to production if not yet configured)
  suspend←0

@@ -1,4 +1,5 @@
  ControlAccess←{
+⍝ Jarvis's AuthenticateFn (registered in Run.aplf).
 ⍝ ⍵: Jarvis request object
 ⍝ ←: 0 for allowed, 1 for unauthorized
 ⍝   public prefix → allow without auth
