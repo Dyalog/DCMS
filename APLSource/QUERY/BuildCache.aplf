@@ -2,7 +2,7 @@
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Store simple character matrices for search
 ⍝ Create term-frequency inverse-document-frequency index for search
- ep←ReadJSON(##.GetEnv'app_dir'),'/APLSource/QUERY/endpoints.json5'
+ ep←##.ReadJSON(##.GetEnv'app_dir'),'/APLSource/QUERY/endpoints.json5'
  '##.CACHE'⎕NS'' ⋄ CACHE←##.CACHE
  SQL←##.SQL
 
