@@ -44,7 +44,7 @@
  dtcol←vids.fields⍳⊆'presented_at' 'published_at'
  nmat←vids.fields⍳⊆'presenter_id'
  txtcol←(⍳≢vids.fields)~dtcol,nmat
- vids.index_all[;dtcol]←TS2DDN vids.index_all[;dtcol]
+ vids.index_all[;dtcol]←TimeStamp2DDN vids.index_all[;dtcol]
  vids.index_cols←↓⍉vids.index_all
  vids.index_cols[txtcol]←RLTB¨⍕∘⍪¨vids.index_cols[txtcol]
  vids.index_cols[nmat]←↑¨vids.index_cols[nmat] ⍝ Presenter IDs as numeric matrix

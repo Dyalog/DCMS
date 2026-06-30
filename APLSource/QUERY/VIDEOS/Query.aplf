@@ -70,7 +70,7 @@
 
 ⍝ Filter by date range
  :Trap 11
-     (fm to)←DT2DDN Q('from' '')('to' '')
+     (fm to)←##.TimeStamp2DDN Q('from' '')('to' '')
  :Else
      ⎕SIGNAL⊂('EN' 400)('Message' 'Invalid date-time')('Vendor' 'DCMS')
  :EndTrap
