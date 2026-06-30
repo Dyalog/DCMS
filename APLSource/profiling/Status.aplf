@@ -1,0 +1,27 @@
+r←Status req
+⍝ Return profiling status information
+r←''   ⍝ Default empty payload
+⍝ FIXME empty payload or no payload for 204?
+:Select 1⎕C req.Method
+    :Case 'GET'
+        r←status
+    :Case 'PUT'
+        req.SetStatus 204   ⍝ No Content, can retrieve status with GET
+        (q v)←↓⍉req.QueryParams
+        new←(v,⊂'')[q⍳⊂'on']
+        :If new≡status.on
+            :Return
+        :ElseIf new≡⊂'true'
+            status.on←⊂'true'
+            ⎕PROFILE'start'
+        :ElseIf new≡⊂'false'
+            status.on←⊂'false'
+            ⎕PROFILE'stop'
+        :Else
+            req.Fail 400   ⍝ Bad Request
+            :Return
+        :EndIf
+        status.since←⊃ISODateTime ⎕TS
+    :Else
+        req.Fail 405   ⍝ Method Not Allowed
+:EndSelect

@@ -1,0 +1,4 @@
+r←Data req;data
+data←⎕PROFILE'data'
+data←'fn_name' 'line_no' 'n_calls' 'exclusive_time' 'inclusive_time'⍪data[;⍳5]
+r←##.read.Table2JSON data
