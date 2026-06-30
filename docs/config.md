@@ -25,17 +25,17 @@ Secrets are stored in `secrets/secrets.json5`. This file is gitignored. Each dev
 }
 ```
 
-## Debug controls
+## Debug Controls
 
 Error-handling and developer-debugging behaviour is governed by three **independent**
-configuration keys, applied at start-up to `#.GLOBAL.(logging suspend trace)` by
+configuration keys, applied at start-up to `DCMS.GLOBAL.(logging suspend trace)` by
 `DCMS.SetDebug`:
 
 ```apl
 DCMS.SetDebug logging suspend trace   ⍝ 3-element integer vector
 ```
 
-| Config key | `#.GLOBAL` | Values    | Meaning                                                                    |
+| Config key | `DCMS.GLOBAL` | Values    | Meaning                                                                    |
 | ---------- | ---------- | --------- | -------------------------------------------------------------------------- |
 | `LOGGING`  | `logging`  | 0 / 1     | print `Log` lines to the session                                           |
 | `SUSPEND`  | `suspend`  | 0 / 1 / 2 | suspend on error: none / bugs only / all (rest are trapped into responses) |

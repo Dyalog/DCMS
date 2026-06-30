@@ -1,16 +1,16 @@
 # Developing DCMS
 
-DCMS (Dyalog Content Management System) is an APL application that supplies data for the Dyalog website and video library via a publicly available API hosted on https://dcms.dyalog.com. It runs as an HTTP service powered by Dyalog APL and Jarvis, backed by MariaDB.
+DCMS (Dyalog Content Management System) is an APL application that serves the Dyalog website and video library through a public API at https://dcms.dyalog.com. It runs as an HTTP service written in Dyalog APL with Jarvis, and stores its data in MariaDB.
 
 The entire stack runs in Docker, so development, testing and production all use the same environment.
 
-## Getting started
+## Getting Started
 
 ### Prerequisites
 - Docker Desktop (or Docker Engine on Linux)
 - The DCMS repository cloned locally
 
-### First-time setup
+### First-Time Setup
 
 1. Create a secrets file at `secrets/secrets.json5` — see [config.md](config.md#secrets) for the format.
 
@@ -20,7 +20,7 @@ The entire stack runs in Docker, so development, testing and production all use 
    ```
    This activates Tatin, installs all packages, then starts the stack. You only need `-i` on first run or when dependencies change.
 
-### Day-to-day development
+### Day-to-Day Development
 
 ```sh
 ./dev
@@ -28,7 +28,7 @@ The entire stack runs in Docker, so development, testing and production all use 
 
 This starts the Dyalog web server and MariaDB. Connect to RIDE in your browser at `http://localhost:4502` to interact with the running APL session.
 
-## How `dev` works
+## How `dev` Works
 
 1. Writes the `env` file with container configuration (database credentials, paths, RIDE port)
 2. Pulls the latest Docker images
@@ -47,9 +47,9 @@ The services are defined in [docker-compose.yml](../docker-compose.yml):
 
 The `SUSPEND` flag controls request handling behaviour from full error trapping to suspending execution for debugging. See [error-handling.md](error-handling.md) for the full scheme and [config.md](config.md) for all configuration parameters.
 
-## Running tests
+## Running Tests
 
-### During development
+### During Development
 
 In the RIDE session:
 
@@ -57,7 +57,7 @@ In the RIDE session:
 Admin.(Tests.Run GetEnv'URL')
 ```
 
-### CI-style tests locally
+### CI-Style Tests Locally
 
 To run the full deployment testing scenario (install dependencies, start the stack, run tests):
 
