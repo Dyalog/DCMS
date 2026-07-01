@@ -1,22 +1,15 @@
- r←Test_Profile_Body url;key;Authed;Assert;res;fields;first
+ r←Test_Profile_Body url;key;Assert;res;fields;first
 ⍝ Check GET /admin/profile returns rows with the expected fields
  r←0
  key←#.DCMS.GLOBAL.secrets.upload_token
  Assert←##.Assert
- Authed←{
-     h←##.##.##.HttpCommand.New ⍺
-     h.URL←url,⍵
-     h.TranslateData←1
-     _←'x-api-key'h.SetHeader key
-     h
- }
  :Trap 0
-     res←('PUT'Authed'/admin/profiling?on=true').Run
+     res←('PUT'Authed url,'/admin/profiling?on=true').Run
      Assert 204=res.HttpStatus
      ⍝ Generate some profile data via an authed GET
-     res←('GET'Authed'/admin/profiling').Run
+     res←('GET'Authed url,'/admin/profiling').Run
      Assert 200=res.HttpStatus
-     res←('GET'Authed'/admin/profile').Run
+     res←('GET'Authed url,'/admin/profile').Run
      Assert 200=res.HttpStatus
      Assert 0<≢res.Data
      first←⊃res.Data
@@ -25,5 +18,5 @@
      r←1
  :EndTrap
 ⍝ Teardown: ensure profiling is off and data cleared regardless of outcome
- {}('PUT'Authed'/admin/profiling?on=false').Run
- {}('DELETE'Authed'/admin/profile').Run
+ {}('PUT'Authed url,'/admin/profiling?on=false').Run
+ {}('DELETE'Authed url,'/admin/profile').Run
