@@ -1,0 +1,11 @@
+ Authed←{
+⍝ Create authenticated service request
+⍝ ⍺: HTTP Method
+⍝ ⍵: URL
+⍝ ←: HttpCommand request instance
+     h←##.##.##.HttpCommand.New ⍺
+     h.URL←⍵
+     h.TranslateData←1
+     _←'x-api-key'h.SetHeader #.DCMS.GLOBAL.secrets.upload_token
+     h
+ }
