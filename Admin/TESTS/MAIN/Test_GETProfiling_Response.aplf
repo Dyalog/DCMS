@@ -8,8 +8,8 @@
      2≠≡res.Data.on:0
      dt←1 1 1 1 2 1 1 2 1 1 3 1 1 4 1 1 4 1 1   ⍝ DateTime type signature
      IsDT←{dt≡1 2 3 4+.×⍨⍵∘.∊⎕D'-' 'T' ':'}
-     ~IsDT d.since:0
-     ~IsDT d.last_cleared:0
+     ~(IsDT≠≡∘(⊂'null'))d.since:0   ⍝ Is either DT or NULL
+     ~(IsDT≠≡∘(⊂'null'))d.since:0
      IsJSONBool←{⍵∊'true' 'false'}
      ~IsJSONBool d.on:0
      1

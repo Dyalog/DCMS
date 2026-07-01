@@ -78,6 +78,13 @@
  videos.description[2]←videos.description[1]   ⍝ Guarantee similar video for recommendations test
  videos.youtube_id←↓{(⎕A,⎕C ⎕A)[?⍵⍴⍛⍴2×26]}_Unique n 11⍴0
  example_video←⊃videos.youtube_id   ⍝ Use example_video in DummyData.TestGETVideo
+ :If 9=⎕NC'##.MOCKYT.j'
+ :AndIf ##.MOCKYT.j.Running
+    ⍝ Make sure MOCKYT service returns deliberately set descriptions
+    ⍝ Required so that example_video gets at least one constructed recommendation (presentation[2]) with all fields needed for test
+     ##.MOCKYT.youtube_id←videos.youtube_id
+     ##.MOCKYT.description←videos.description
+ :EndIf
 
  ⍝ presentation_video links presentations to youtube_videos
  presentation_video←()
