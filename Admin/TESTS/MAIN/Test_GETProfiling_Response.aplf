@@ -1,0 +1,16 @@
+ Test_GETProfiling_Response←{
+⍝ Check GET /admin/profiling returns object with correct type
+     Assert←##.Assert
+     h←'GET'Authed ⍵,'/admin/profiling'
+     res←h.Run
+     200≠res.HttpStatus:0
+     d←res.Data
+     2≠≡res.Data.on:0
+     dt←1 1 1 1 2 1 1 2 1 1 3 1 1 4 1 1 4 1 1   ⍝ DateTime type signature
+     IsDT←{dt≡1 2 3 4+.×⍨⍵∘.∊⎕D'-' 'T' ':'}
+     ~IsDT d.since:0
+     ~IsDT d.last_cleared:0
+     IsJSONBool←{⍵∊'true' 'false'}
+     ~IsJSONBool d.on:0
+     1
+ }
