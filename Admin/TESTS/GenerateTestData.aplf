@@ -82,6 +82,7 @@
  :AndIf ##.MOCKYT.j.Running
     ⍝ Make sure MOCKYT service returns deliberately set descriptions
     ⍝ Required so that example_video gets at least one constructed recommendation (presentation[2]) with all fields needed for test
+     ##.MOCKYT.title←videos.title
      ##.MOCKYT.youtube_id←videos.youtube_id
      ##.MOCKYT.description←videos.description
  :EndIf
