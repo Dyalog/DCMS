@@ -15,7 +15,7 @@
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
 ⍝ Set up Stark router
- url←GetEnv'URL'
+ url←GetEnv'PUBLIC_URL'
  :If 0=⎕NC'router'
      router←⎕NEW #.Stark
      router.Info←(title:'Dyalog Content Management System' ⋄ version:Version'')
