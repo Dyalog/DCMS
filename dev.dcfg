@@ -1,8 +1,8 @@
 {
 	Extend: "dcms.dcfg",
 	Settings: {
-		PUBLIC_URL:    "http://localhost:8081",   // For pagination links
-		SERVICE_PORT:  8081,                      // Used to start Stark/Jarvis server
+		PUBLIC_URL:    "http://test.url",   // For pagination links
+		SERVICE_PORT:  8081,                // Used to start Stark/Jarvis server
 		LOGGING:      1,
 		SUSPEND:      1,
 
