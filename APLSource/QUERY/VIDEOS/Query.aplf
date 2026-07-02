@@ -89,7 +89,7 @@
      stemmed.Value
  }
 ⍝ Rank by search terms
- terms←Stem¨', '(~⍤∊⍨⊆⊢)Norm Q⊂'search' ''
+ terms←∪terms,Stem¨', '(~⍤∊⍨⊆⊢)terms←Norm Q'search'
  i←terms Rank filter⌿CACHE.videos.index_all
 
 ⍝ Sort
