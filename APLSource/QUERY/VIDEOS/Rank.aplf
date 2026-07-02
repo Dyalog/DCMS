@@ -5,11 +5,11 @@
 ⍝    Only results which contain at least one instance of one of the search terms
 ⍝    Ranked descending term-frequency inverse-document-frequency
      0∊⍴⍺:⍳≢⍵   ⍝ No search terms provided, return all results
-     trm←⍺
-     loc←trm⍷¨⊂⍵
-     idx←(any←⊃∨/∨/¨loc)⌿⍵
-     loc←any∘⌿¨loc
-     tf←+/¨loc ⋄ df←+/¨∨/¨loc
-     tf_idf←⊃tf+.÷df
-     (⍸any)[⍒tf_idf]
+     terms←⍺ ⋄ docs←⍵
+     term_count←⍉↑(+/⍷∘docs)¨terms
+     relevant_vids←⍸∨/0<term_count
+     tf←term_count[relevant_vids;]
+     df←+⌿tf
+     tf_idf←tf+.÷df
+     relevant_vids[⍒tf_idf]
  }
