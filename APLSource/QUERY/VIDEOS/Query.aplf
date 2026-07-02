@@ -1,4 +1,4 @@
- res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;schemas;stemmer;terms;this;to;v
+ res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;presenter_id;schemas;stemmer;terms;this;to;v
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
 
  :If req≡'⍠SPEC'
@@ -62,7 +62,7 @@
      :Return
  :EndIf
 
- ##.##.Log'[REQ] GET /videos ',1⎕JSON req.QueryParams
+ ##.##.Log'[REQ] GET /videos ',1 ⎕JSON req.QueryParams
 
  Q←req.QueryParams∘⎕VGET
  CACHE←##.##.CACHE
@@ -89,7 +89,7 @@
      stemmed.Value
  }
 ⍝ Rank by search terms
- terms←Stem¨', '(~⍤∊⍨⊆⊢)Norm Q⊂'search' ''
+ terms←∪terms⊆⍛,Stem¨', '(~⍤∊⍨⊆⊢)terms←Norm Q⊂'search' ''
  i←terms Rank filter⌿CACHE.videos.index_all
 
 ⍝ Sort
