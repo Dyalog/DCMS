@@ -1,7 +1,7 @@
  r←PushTeamDyalogVideos req;SQL;bulk;create;delete;exists;n;person;posted;responses;sql;vids
  SQL←##.SQL
 ⍝ Use WordPress API to get post IDs corresponding to Team Dyalog members via their DCMS ID custom field value
- person←Get'team-dyalog?_fields=id,acf.dcms_id'
+ person←Get'team-dyalog?status=any&_fields=id,acf.dcms_id'
 ⍝ Use WordPress API to get existing Team Dyalog Videos
  exists←Get'team-dyalog-videos?_fields=id,acf.media_id,acf.person_id'
 ⍝ Get n most recent videos for each team member (default 10)
@@ -12,9 +12,8 @@
  sql,←'FROM person AS per LEFT JOIN presenter ON per.id = presenter.person_id '
  sql,←'LEFT JOIN presentation AS pres ON presenter.presentation_id = pres.id '
  sql,←'LEFT JOIN event ON pres.event_id = event.id '
- sql,←'LEFT JOIN presentation_media AS pm ON pres.id = pm.presentation_id '
- sql,←'LEFT JOIN youtube_video AS yt ON pm.media_id = yt.id '
- sql,←'WHERE pm.type = "youtube_video") r '
+ sql,←'LEFT JOIN presentation_video AS pv ON pres.id = pv.presentation_id '
+ sql,←'INNER JOIN youtube_video AS yt ON pv.youtube_video_id = yt.id) r '
  sql,←'WHERE r.rank <= ',⍕n
 
  vids←SQL.Do sql
@@ -39,7 +38,7 @@
 
  posted←{()}¨responses
  posted.action←'create' 'update'[1+0<⊃,/create.⎕NC⊂'id']
- posted.post_id←responses.body.id
+ posted.post_id←responses.body ⎕VGET⊂'id' 0
  posted.success←(⊂¨'false' 'true')[1+responses.status∊201 200]
 
  r,←posted
