@@ -2,7 +2,7 @@
 ⍝ Check GET /version returns the CORS allow-origin header
  h←##.##.##.HttpCommand.New'GET'
  h.URL←url,'/version'
- 'origin'h.SetHeader ##.##.GetEnv'URL'
+ 'origin'h.SetHeader ##.##.GetEnv'LOCAL_URL'
  res←h.Run
  r←200=res.HttpStatus
  r∧←(≢res.Headers)≥res.Headers⍳'Access-Control-Allow-Origin'(,'*')

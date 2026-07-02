@@ -1,0 +1,9 @@
+ Test_GETVideos_PaginationLinks←{
+⍝ Check GET /videos pagination links use PUBLIC_URL
+     h←##.##.##.HttpCommand.New'GET'
+     h.URL←⍵,'/videos'
+     h.TranslateData←1
+     res←h.Run
+     200≠res.HttpStatus:0
+     (#.DCMS.GetEnv'PUBLIC_URL')(⊃⍷)res.Data.next_page_url
+ }
