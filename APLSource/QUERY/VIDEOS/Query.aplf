@@ -1,6 +1,6 @@
  res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;presenter_id;schemas;stemmer;terms;this;to;v
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
-
+#.last←req
  :If req≡'⍠SPEC'
      schemas←##.##.SPEC.schemas
      res←(
@@ -79,7 +79,7 @@
 ⍝ Filter by columns: presenter, event
  presenter←(Q⊂'presenter' '')FilterPresenter C'presenter'
  presenter_id←∧⌿∨/(2⊃','⎕VFI Q⊂'presenter_id' '')∘.=(C'presenter_id')
- event←((''≡this)∨this≢⍛=+/∧\' '≠all)∧(⊃⍤1)(this←Q⊂'event_shortname' '')⍷all←C'event_shortname'
+ event←((''≡this)∨this≢⍛=+/∧\' '≠all)∧(⊃⍤1)(this←Q⊂'event' '')⍷all←C'event_shortname'
  filter←in_range∧presenter∧event∧presenter_id
 
  Norm←##.##.Unidecode.NormaliseText
