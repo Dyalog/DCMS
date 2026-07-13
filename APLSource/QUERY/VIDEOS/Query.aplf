@@ -10,7 +10,7 @@
              (name:'from' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
              (name:'to' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
              (name:'presenter' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'array' ⋄ items:(type:'integer')) ⋄ explode:⊂'false' ⋄ description:'Comma-separated list of presenter IDs, e.g. "123,456"')
-             (name:'event' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string') ⋄ description:'URL slug of event, e.g. "dyalog-23"')
+             (name:'event' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ default:'') ⋄ description:'URL slug of event, e.g. "dyalog-23", used to filter results. Defaults to "all events / any event".')
              (name:'search' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string') ⋄ description:'Full-text search across video titles, descriptions, presenter names, and event names')
              (name:'sort' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ enum:('relevance' 'newest' 'oldest')) ⋄ description:'Sort order of results. Defaults to "relevance" when `search` is supplied, otherwise "newest".')
              (name:'page' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:1) ⋄ description:'Page number for paginated results.')
