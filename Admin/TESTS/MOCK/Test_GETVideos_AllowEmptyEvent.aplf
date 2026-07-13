@@ -1,0 +1,19 @@
+ Test_GETVideos_AllowEmptyEvent←{
+⍝ Check GET /videos interprets ?event, ?event= and omission as the same: result for all events
+     url←⍵
+     h←##.##.##.HttpCommand.New'GET'
+     h.URL←url,'/videos'
+     _←'origin'h.SetHeader ##.##.GetEnv'URL'
+     res←h.Run
+     200≠res.HttpStatus:0
+     baseline←res.Data
+     h.URL←url,'/videos?event'
+     res←h.Run
+     200≠res.HttpStatus:0
+     res.Data≢baseline:0
+     h.URL←url,'/videos?event='
+     res←h.Run
+     200≠res.HttpStatus:0
+     res.Data≢baseline:0
+     1
+ }
