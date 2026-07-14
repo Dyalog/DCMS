@@ -39,7 +39,28 @@
 ⍝ For indexing, normalise all except those with YouTube IDs and convert datetimes to Dyalog Day Number
 ⍝ Leave presenter index_col, but normalise for index_all
  vids.index_all←vids.values
- (norm/vids.index_all)←##.Unidecode.NormaliseText¨(norm←vids.fields(~∊)⊆'youtube_id' 'url' 'presenter')/vids.index_all
+ (norm/vids.index_all)←##.Unidecode.NormaliseText¨(norm←vids.fields(~∊)⊆'presented_at' 'published_at' 'url' 'youtube_id' 'thumbnail' 'presenter_id')/vids.index_all
+
+⍝ Need to choose search query index fields a priori
+
+ tokens←{w←(⎕C ⎕A)(∊⍨⊆⊢)⍵ ⋄ nw←(' ',⎕C ⎕A)(~⍤∊⍨⊆⊢)⍵ ⋄ ↑w,nw}('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕norm/vids.index_all
+ index←∪tokens
+
+
+ (norm/vids.index_all)←{w←(⎕C ⎕A)(∊⍨⊆⊢)⍵ ⋄ nw←(' ',⎕C ⎕A)(~⍤∊⍨⊆⊢)⍵ ⋄ ↑w,nw}¨{('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵}¨norm/vids.index_all
+⍝ FIXME tokenising twice
+ tf←{⍺,≢⍵}⌸¨norm/vids.index_all
+ Lookup←index∘⍳
+ (norm/vids.index_all)←{Lookup(≢⍵)(⊢/⍴index)↑⍵}¨norm/vids.index_all
+ tc←¯1+↑{{≢⍵}⌸(⍳≢index)⍪⍵}¨norm/vids.index_all   ⍝ Compute 3D term count: doc × field × term
+                                                                  ⍝ Might be faster to only compute against tokens with each field, then unifying, but maybe not
+                                                                  ⍝ Also might be better to do index-of against index to get indices for use with Key ⌸
+ W←3 2 1 1 0 3 ⍝ norm fields weights FIXME do term count for all relevant fields, maybe including youtube ID?
+ ⍝ FIXME length normalisation B parameter
+ tf←W+.×2 1 3⍉tc       ⍝ field-dependent normalised term-frequency
+ rw←(⍟≢÷+⌿)0<∨/[2]tc   ⍝ relevance weight (inverse document frequency for now, RSJ relevance weight in general)
+
+
  (dtcol txtcol)←(⍸,⍥⊂⍸∘~)vids.fields∊⊆'presented_at' 'published_at'
  dtcol←vids.fields⍳⊆'presented_at' 'published_at'
  nmat←vids.fields⍳⊆'presenter_id'
@@ -48,8 +69,34 @@
  vids.index_cols←↓⍉vids.index_all
  vids.index_cols[txtcol]←RLTB¨⍕∘⍪¨vids.index_cols[txtcol]
  vids.index_cols[nmat]←↑¨vids.index_cols[nmat] ⍝ Presenter IDs as numeric matrix
- vids.index_all[;norm]←##.Unidecode.NormaliseText¨vids.index_all[;norm←vids.fields⍳⊂'presenter']
+⍝ FIXME something weird about normalising all but presenter, then doing presenter
+⍝       it's because the presenter index column needs to be exact for the ?presenter= parameter
+⍝       but normalised for general search queries
+⍝       this can be improved by making front ends use the presenter IDs
+⍝       but not a backwards-compatibile change
+⍝       ?presenter=1,2,3 and then the 'presenter' index_col should be normalised
+ vids.index_all[;norm]←##.Unidecode.NormaliseText¨vids.index_all[;norm←vids.fields⍳⊂'presenter']   ⍝ isn't this already normalised above?
  vids.index_all←⍕vids.index_all
+
+⍝ Tokenised best-match
+⍝ Pre-compute BSM25F best-match score for all tokens in corpus across all documents
+⍝ Zaragoza, H., Craswell, N., Taylor, M.J., Saria, S. and Robertson, S.E., 2004, November. Microsoft Cambridge at TREC 13: Web and Hard Tracks. In Trec (Vol. 4, pp. 1-1).
+⍝ Then, search queries become a fast lookup into the BSM25 scores table to rank relevancy
+ B←0.5              ⍝ Field length normalisation parameter: 0 none, 1 full
+ W←1⍨¨vids.fields   ⍝ Field weight parameters
+ W[vids.fields⍳'title' 'event' 'presenter' 'youtube_id' 'description']←3 2 3 5 2
+
+ ⍝ Tokenised document fields
+ index_cols
+ ⍝ Corpus of tokens from all documents
+ ⍝ Term frequency of tokens in fields - worth computing only on terms in fields, or for all terms across all fields?
+ ⍝
+ ⍝ What about stems? We could also fuzz the index, or do fuzzy-matching on the index? Maybe work for later...
+ ⍝ FIXME pre-computed index of tokens
+ ⍝words←∪(⎕C ⎕A)(∊⍨⊆⊢),vids.index_all   ⍝ Word tokens index
+ ⍝non_words←∪(' ',⎕c⎕a)(~⍤∊⍨⊆⊢),vids.index_all
+ ⍝ idx←↑words,non_words
+
 ⍝ Similarity computation is expensive, so we perform it in an isolate
 ⍝ See http://docs.dyalog.com/latest/Parallel%20Language%20Features.pdf
 ⍝ The recommendations variable (a future) is semi-global within the DCMS.read namespace
