@@ -1,9 +1,9 @@
- r←BuildCache opt;CACHE;II;RLTB;SQL;Values;dtcol;ep;nmat;norm;pid;pname;title;txtcol;vids;vp;ytid
+ r←BuildCache opt;B;CACHE;SQL;Tokenise;dt_fields;dtcol;ep;fl;index;n_fields;nmat;norm;pid;pname;rw;search_columns;search_fields;search_index;tc;term_count;tf;title;vids;weights;ytid
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Store simple character matrices for search
 ⍝ Create term-frequency inverse-document-frequency index for search
  ep←##.ReadJSON(##.GetEnv'app_dir'),'/APLSource/QUERY/endpoints.json5'
- '##.CACHE'⎕NS'' ⋄ CACHE←##.CACHE
+ CACHE←⍎'##.CACHE'⎕NS''
  SQL←##.SQL
 
  CACHE.presenters←Table2JSON ep.presenters.fields⍪SQL.Do ep.presenters.sql
@@ -32,70 +32,58 @@
  vids.values,←(pid,⊂⍬)[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
 
  :If (≢vids.fields)≠⊢/⍴vids.values
-     'Videos endpoint number of fields does not match number of columns'⎕SIGNAL 42
+     'Videos endpoint number of fields does not match number of columns'⎕SIGNAL 42   ⍝ FIXME this should follow SIGNAL Format
  :EndIf
 
- RLTB←{⍵⌿⍤1⍨(∨\∧∘⌽∨\∘⌽)' '≠⍵}   ⍝ Remove Leading and Trailing Blanks
 ⍝ For indexing, normalise all except those with YouTube IDs and convert datetimes to Dyalog Day Number
 ⍝ Leave presenter index_col, but normalise for index_all
+ vids.values⌷⍨←⊂⍒vids.values[;vids.fields⍳⊂'presented_at']   ⍝ Recency bias https://github.com/Dyalog/DCMS/issues/153
  vids.index_all←vids.values
+
+⍝ Normalise text fields
  (norm/vids.index_all)←##.Unidecode.NormaliseText¨(norm←vids.fields(~∊)⊆'presented_at' 'published_at' 'url' 'youtube_id' 'thumbnail' 'presenter_id')/vids.index_all
 
-⍝ Need to choose search query index fields a priori
-
- tokens←{w←(⎕C ⎕A)(∊⍨⊆⊢)⍵ ⋄ nw←(' ',⎕C ⎕A)(~⍤∊⍨⊆⊢)⍵ ⋄ ↑w,nw}('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕norm/vids.index_all
- index←∪tokens
-
-
- (norm/vids.index_all)←{w←(⎕C ⎕A)(∊⍨⊆⊢)⍵ ⋄ nw←(' ',⎕C ⎕A)(~⍤∊⍨⊆⊢)⍵ ⋄ ↑w,nw}¨{('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵}¨norm/vids.index_all
-⍝ FIXME tokenising twice
- tf←{⍺,≢⍵}⌸¨norm/vids.index_all
- Lookup←index∘⍳
- (norm/vids.index_all)←{Lookup(≢⍵)(⊢/⍴index)↑⍵}¨norm/vids.index_all
- tc←¯1+↑{{≢⍵}⌸(⍳≢index)⍪⍵}¨norm/vids.index_all   ⍝ Compute 3D term count: doc × field × term
-                                                                  ⍝ Might be faster to only compute against tokens with each field, then unifying, but maybe not
-                                                                  ⍝ Also might be better to do index-of against index to get indices for use with Key ⌸
- W←3 2 1 1 0 3 ⍝ norm fields weights FIXME do term count for all relevant fields, maybe including youtube ID?
- ⍝ FIXME length normalisation B parameter
- tf←W+.×2 1 3⍉tc       ⍝ field-dependent normalised term-frequency
- rw←(⍟≢÷+⌿)0<∨/[2]tc   ⍝ relevance weight (inverse document frequency for now, RSJ relevance weight in general)
-
-
- (dtcol txtcol)←(⍸,⍥⊂⍸∘~)vids.fields∊⊆'presented_at' 'published_at'
- dtcol←vids.fields⍳⊆'presented_at' 'published_at'
- nmat←vids.fields⍳⊆'presenter_id'
- txtcol←(⍳≢vids.fields)~dtcol,nmat
- vids.index_all[;dtcol]←TimeStamp2DDN vids.index_all[;dtcol]
- vids.index_cols←↓⍉vids.index_all
- vids.index_cols[txtcol]←RLTB¨⍕∘⍪¨vids.index_cols[txtcol]
- vids.index_cols[nmat]←↑¨vids.index_cols[nmat] ⍝ Presenter IDs as numeric matrix
-⍝ FIXME something weird about normalising all but presenter, then doing presenter
-⍝       it's because the presenter index column needs to be exact for the ?presenter= parameter
-⍝       but normalised for general search queries
-⍝       this can be improved by making front ends use the presenter IDs
-⍝       but not a backwards-compatibile change
-⍝       ?presenter=1,2,3 and then the 'presenter' index_col should be normalised
- vids.index_all[;norm]←##.Unidecode.NormaliseText¨vids.index_all[;norm←vids.fields⍳⊂'presenter']   ⍝ isn't this already normalised above?
- vids.index_all←⍕vids.index_all
+⍝ Tokenise search fields
+ search_fields←'title' 'event' 'event_shortname' 'description' 'youtube_id' 'presenter'
+ weights←100 50 1 10 1 20
+ Tokenise←{
+     text←('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵
+     words←(⎕C ⎕A)(∊⍨⊆⊢)text
+     non_words←(' ',⎕C ⎕A)(~⍤∊⍨⊆⊢)text
+     ↑words,non_words
+ }
+ search_columns←Tokenise¨(vids.fields∊search_fields)/vids.index_all
+ VIDEOS.index_width←⊢/⊃⌈/⍴¨,search_columns
+ search_columns←{(≢⍵)(VIDEOS.index_width)↑⍵}¨search_columns
+ index←∪⊃⍪/,search_columns
 
 ⍝ Tokenised best-match
 ⍝ Pre-compute BSM25F best-match score for all tokens in corpus across all documents
 ⍝ Zaragoza, H., Craswell, N., Taylor, M.J., Saria, S. and Robertson, S.E., 2004, November. Microsoft Cambridge at TREC 13: Web and Hard Tracks. In Trec (Vol. 4, pp. 1-1).
 ⍝ Then, search queries become a fast lookup into the BSM25 scores table to rank relevancy
- B←0.5              ⍝ Field length normalisation parameter: 0 none, 1 full
- W←1⍨¨vids.fields   ⍝ Field weight parameters
- W[vids.fields⍳'title' 'event' 'presenter' 'youtube_id' 'description']←3 2 3 5 2
 
- ⍝ Tokenised document fields
- index_cols
- ⍝ Corpus of tokens from all documents
- ⍝ Term frequency of tokens in fields - worth computing only on terms in fields, or for all terms across all fields?
- ⍝
- ⍝ What about stems? We could also fuzz the index, or do fuzzy-matching on the index? Maybe work for later...
- ⍝ FIXME pre-computed index of tokens
- ⍝words←∪(⎕C ⎕A)(∊⍨⊆⊢),vids.index_all   ⍝ Word tokens index
- ⍝non_words←∪(' ',⎕c⎕a)(~⍤∊⍨⊆⊢),vids.index_all
- ⍝ idx←↑words,non_words
+ ⍝ FIXME check whether we need to do :Hold on BuildCache semi-global probably :Hold VIDEOS ? Can you :Hold a whole namespace?
+ VIDEOS.Lookup←index∘⍳   ⍝ Semi-global within QUERY.VIDEOS for use in query ranking
+ search_index←VIDEOS.Lookup¨search_columns
+ term_count←¯1+↑{{≢⍵}⌸(⍳≢index)⍪⍵}¨search_index   ⍝ Compute 3D term count: doc × field × term
+ fl←≢¨search_columns ⍝ field lengths
+ B←1   ⍝ Field length normalisation parameter: 0 for none, 1 for full
+ tc←term_count÷[1 2]1+B×¯1+fl÷[2](+⌿÷≢)fl   ⍝ term_count(÷⍤1 0)1+B×¯1+fl(÷⍤1)(+⌿÷≢)fl
+ tf←weights+.×2 1 3⍉term_count   ⍝ field-dependent normalised Term-Frequency
+ rw←(⍟≢÷+⌿)0<∨/[2]term_count   ⍝ Relevance Weight (inverse document frequency for now, RSJ relevance weight in general)
+ VIDEOS.BM25F←tf(×⍤1)rw
+
+⍝ FIXME for identical scores, prefer recent
+⍝ FIXME we're completely changing the index_cols representation: check Recommendations still works
+
+⍝ Format numeric and datetime fields
+ dt_fields←⊆'presented_at' 'published_at'
+ n_fields←⊆'presenter_id'
+ dtcol←vids.fields⍳dt_fields
+ nmat←vids.fields⍳n_fields
+ vids.index_all[;dtcol]←TimeStamp2DDN vids.index_all[;dtcol]
+ vids.index_cols←↓⍉vids.index_all
+ vids.index_cols[nmat]←↑¨vids.index_cols[nmat] ⍝ Presenter IDs as numeric matrix
 
 ⍝ Similarity computation is expensive, so we perform it in an isolate
 ⍝ See http://docs.dyalog.com/latest/Parallel%20Language%20Features.pdf

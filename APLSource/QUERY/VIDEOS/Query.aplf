@@ -1,10 +1,10 @@
- res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;presenter_id;schemas;stemmer;terms;this;to;v
+ res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;presenter_id;q_event;schemas;stemmer;terms;this;to;v
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
-#.last←req
+
  :If req≡'⍠SPEC'
      schemas←##.##.SPEC.schemas
      res←(
-         tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId: 'getVideos' ⋄ security:⍬
+         tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId:'getVideos' ⋄ security:⍬
          description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
          parameters:(
              (name:'from' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
@@ -20,42 +20,42 @@
              ⍙200:(
                  description:'Paginated video results'
                  content:(⍙application⍙47⍙json:(schema:(type:'object' ⋄ properties:(
-                     path:(type:'string' ⋄ description:'URL for this endpoint')
-                     per_page:(type:'integer')
-                     current_page:(type:'integer')
-                     data:(type:'array' ⋄ items: schemas.video)
-                     from:(type:'integer' ⋄ description:'Ordinal of the first result on this page')
-                     to:(type:'integer' ⋄ description:'Ordinal of the last result on this page')
-                     total:(type:'integer' ⋄ description:'Total count of results for this query, across all pages')
-                     first_page:(type:'integer' ⋄ description:'Page number of the first page of results (always 1)')
-                     last_page:(type:'integer' ⋄ description:'Page number of the last page of results')
-                     first_page_url:(type:'string' ⋄ format:'uri')
-                     prev_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
-                     next_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
-                     last_page_url:(type:'string' ⋄ format:'uri')
-                     links:(type:'array' ⋄ items:(
-                         type:'object'
-                         description:'Describes numbered, previous and next buttons for paginated results.'
-                         properties:(
-                             active:(type:'boolean')
-                             label:(type:'string')
-                             url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
-                         )
-                    ))
-                 ))))
+                                 path:(type:'string' ⋄ description:'URL for this endpoint')
+                                 per_page:(type:'integer')
+                                 current_page:(type:'integer')
+                                 data:(type:'array' ⋄ items:schemas.video)
+                                 from:(type:'integer' ⋄ description:'Ordinal of the first result on this page')
+                                 to:(type:'integer' ⋄ description:'Ordinal of the last result on this page')
+                                 total:(type:'integer' ⋄ description:'Total count of results for this query, across all pages')
+                                 first_page:(type:'integer' ⋄ description:'Page number of the first page of results (always 1)')
+                                 last_page:(type:'integer' ⋄ description:'Page number of the last page of results')
+                                 first_page_url:(type:'string' ⋄ format:'uri')
+                                 prev_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                                 next_page_url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                                 last_page_url:(type:'string' ⋄ format:'uri')
+                                 links:(type:'array' ⋄ items:(
+                                         type:'object'
+                                         description:'Describes numbered, previous and next buttons for paginated results.'
+                                         properties:(
+                                             active:(type:'boolean')
+                                             label:(type:'string')
+                                             url:(type:'string' ⋄ format:'uri' ⋄ nullable:⊂'true')
+                                         )
+                                     ))
+                             ))))
              )
              ⍙404:(
                  description:'No videos found matching the query parameters'
-                 content:(⍙application⍙47⍙json:(schema: schemas.error))
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
              )
-                ⍙422:(
-                    description:'Invalid query parameters'
-                    content:(⍙application⍙47⍙json:(schema: schemas.error))
-                )
-                ⍙500:(
-                    description:'Internal server error'
-                    content:(⍙application⍙47⍙json:(schema: schemas.error))
-                )
+             ⍙422:(
+                 description:'Invalid query parameters'
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
+             )
+             ⍙500:(
+                 description:'Internal server error'
+                 content:(⍙application⍙47⍙json:(schema:schemas.error))
+             )
          )
 
      )
@@ -79,7 +79,7 @@
 ⍝ Filter by columns: presenter, event
  presenter←(Q⊂'presenter' '')FilterPresenter C'presenter'
  presenter_id←∧⌿∨/(2⊃','⎕VFI Q⊂'presenter_id' '')∘.=(C'presenter_id')
- event←((''≡this)∨this≢⍛=+/∧\' '≠all)∧(⊃⍤1)(this←Q⊂'event' '')⍷all←C'event_shortname'
+ event←(q_event∘≡¨C'event_shortname')∨0∊⍴q_event←Q⊂'event' ''
  filter←in_range∧presenter∧event∧presenter_id
 
  Norm←##.##.Unidecode.NormaliseText
@@ -90,7 +90,7 @@
  }
 ⍝ Rank by search terms
  terms←∪terms⊆⍛,Stem¨', '(~⍤∊⍨⊆⊢)terms←Norm Q⊂'search' ''
- i←terms Rank filter⌿CACHE.videos.index_all
+ i←terms Rank filter⌿BM25F
 
 ⍝ Sort
  data←(filter⌿CACHE.videos.values)[i;]
