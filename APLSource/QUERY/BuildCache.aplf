@@ -76,8 +76,9 @@
  B←0.6                                            ⍝ Field length normalisation parameter: 0 for none, 1 for full
  tc←term_count÷[1 2]1+B×¯1+fl÷[2](+⌿÷≢)fl         ⍝ Field length normalised term count
  tf←weights+.×2 1 3⍉tc                            ⍝ field-dependent normalised Term-Frequency
- rw←(⍟≢÷+⌿)0<∨/[2]tc                              ⍝ Relevance Weight (inverse document frequency for now, RSJ relevance weight in general)
- VIDEOS.BM25F←tf(×⍤1)rw
+ rw←(⍟≢÷+⌿)+/[2]0<tc                              ⍝ Relevance Weight (inverse document frequency for now, RSJ relevance weight in general)
+⍝ 1+rw ensures videos still appear in results if they contain a term, even if the term doesn't affect relative ranking because it is ubiquitous
+ VIDEOS.BM25F←tf(×⍤1)1+rw
 
 ⍝ Format numeric and datetime fields
  dt_fields←vids.fields⍳⊆'presented_at' 'published_at'
