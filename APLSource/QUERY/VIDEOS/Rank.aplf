@@ -6,5 +6,6 @@
 ⍝    Ranked descending BM25F (see QUERY.BuildCache)
      0∊⍴⍺:⍳≢⍵   ⍝ No search terms provided, return all results
      terms←⍺ ⋄ BM25F←⍵
-     {(0<⍵)/⍒⍵}+/(BM25F,0)[;Lookup(≢terms)(index_width)↑↑terms]
+     score←+/(BM25F,0)[;Lookup(≢terms)(index_width)↑↑terms]
+     order/⍨0<score[order←⍒score]
  }
