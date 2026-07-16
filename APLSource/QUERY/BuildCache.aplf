@@ -79,8 +79,8 @@
  dt_fields←vids.fields⍳⊆'presented_at' 'published_at'
  vids.index_all[;dt_fields]←TimeStamp2DDN vids.index_all[;dt_fields]
  vids.index_cols←↓⍉vids.index_all
-⍝ Store fields as matrices for filter queries and recommendations
- mat_fields←vids.fields⍳⊆'title' 'description' 'youtube_id' 'presenter' 'presenter_id'
+⍝ Store fields as matrices for filter queries
+ mat_fields←vids.fields⍳⊆'youtube_id' 'presenter_id'
  vids.index_cols[mat_fields]←↑¨vids.index_cols[mat_fields]
 
 ⍝ Similarity computation is expensive, so we perform it in an isolate
@@ -88,7 +88,7 @@
 ⍝ The recommendations variable (a future) is semi-global within the DCMS.QUERY.VIDEOS namespace
 ⍝ so that the QUERY.VIDEOS.Recommendations function can access future values when they are available
  II←##.##.II ⋄ Values←##.##.isolate.Values
- VIDEOS.recommendations←VIDEOS.ComputeRecommendations II vids.index_cols⌷⍨⊂vids.fields⍳⊆'title' 'description' 'presenter'
+ VIDEOS.recommendations←VIDEOS.ComputeRecommendations II VIDEOS.BM25F
  :If 0=⎕NC'vids.recommendations' ⋄ vids.recommendations←(1⍴⍨⊢,0⌈¯1∘+)≢vids.values ⋄ :EndIf
  vids.recommendations←⊃vids.recommendations Values'VIDEOS.recommendations'
  :If 0=⎕NC'CACHE.videos' ⋄ CACHE.videos←⎕NS'' ⋄ :EndIf
