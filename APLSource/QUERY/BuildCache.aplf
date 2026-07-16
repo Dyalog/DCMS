@@ -1,15 +1,18 @@
  r←BuildCache opt;B;CACHE;II;SQL;Tokenise;Values;dt_fields;dtcol;ep;fl;index;n_fields;nmat;norm;pid;pname;rw;search_columns;search_fields;search_index;tc;term_count;tf;title;vids;weights;ytid
 ⍝ Store pre-joined tables for API endpoints and query results
-⍝ Store simple character matrices for search
-⍝ Create term-frequency inverse-document-frequency index for search
+⍝ Create character and numeric matrices for filters
+⍝ Compute BM25F score matrix for search
+
+ :Hold '#.DCMS.CACHE' '#.DCMS.QUERY.VIDEOS'
+
  ep←##.ReadJSON(##.GetEnv'app_dir'),'/APLSource/QUERY/endpoints.json5'
- CACHE←⍎'##.CACHE'⎕NS''
+ CACHE←⍎'#.DCMS.CACHE'⎕NS''
  SQL←##.SQL
 
  CACHE.presenters←Table2JSON ep.presenters.fields⍪SQL.Do ep.presenters.sql
  'CACHE.events'⎕NS''
  ⍝ has_videos is a derived column for filtering events with and without videos
- ⍝ returned in the API response as enclosed strong for JSON boolean values
+ ⍝ returned in the API response as enclosed string which translates to JSON boolean values
  ⍝ stored in APL as numeric 0 and 1 for efficient filtering
 
  CACHE.events.data←Table2JSON ep.events.fields⍪SQL.Do ep.events.sql
@@ -36,7 +39,6 @@
  :EndIf
 
 ⍝ For indexing, normalise all except those with YouTube IDs and convert datetimes to Dyalog Day Number
-⍝ Leave presenter index_col, but normalise for index_all
  vids.values⌷⍨←⊂⍒vids.values[;vids.fields⍳⊂'presented_at']   ⍝ Recency bias https://github.com/Dyalog/DCMS/issues/153
  vids.index_all←vids.values
 
@@ -54,7 +56,7 @@
      ↑words,non_words
  }
  search_columns←Tokenise¨(vids.fields∊search_fields)/vids.index_all
- VIDEOS.index_width←⊢/⊃⌈/⍴¨,search_columns
+ VIDEOS.index_width←⌈/(⊢/⍴)¨,search_columns
  search_columns←{(≢⍵)(VIDEOS.index_width)↑⍵}¨search_columns
  index←∪⊃⍪/,search_columns
 
@@ -95,4 +97,7 @@
  vids.recommendations←⊃vids.recommendations Values'VIDEOS.recommendations'
  :If 0=⎕NC'CACHE.videos' ⋄ CACHE.videos←⎕NS'' ⋄ :EndIf
  CACHE.videos←vids
+
+ :EndHold
+
  r←'Updating cache and video recommendations...'
