@@ -35,7 +35,7 @@
  vids.values,←(pid,⊂⍬)[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
 
  :If (≢vids.fields)≠⊢/⍴vids.values
-     'Videos endpoint number of fields does not match number of columns'⎕SIGNAL 42   ⍝ FIXME this should follow SIGNAL Format
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'endpoints.json5 videos endpoint number of fields does not match number of columns')
  :EndIf
 
 ⍝ For indexing, normalise all except those with YouTube IDs and convert datetimes to Dyalog Day Number
