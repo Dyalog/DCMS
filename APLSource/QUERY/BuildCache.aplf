@@ -1,4 +1,4 @@
- r←BuildCache opt;B;CACHE;SQL;Tokenise;dt_fields;dtcol;ep;fl;index;n_fields;nmat;norm;pid;pname;rw;search_columns;search_fields;search_index;tc;term_count;tf;title;vids;weights;ytid
+ r←BuildCache opt;B;CACHE;II;SQL;Tokenise;Values;dt_fields;dtcol;ep;fl;index;n_fields;nmat;norm;pid;pname;rw;search_columns;search_fields;search_index;tc;term_count;tf;title;vids;weights;ytid
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Store simple character matrices for search
 ⍝ Create term-frequency inverse-document-frequency index for search
@@ -45,7 +45,8 @@
 
 ⍝ Tokenise search fields
  search_fields←'title' 'event' 'event_shortname' 'description' 'youtube_id' 'presenter'
- weights←100 50 1 10 1 20
+ weights←           2       2                 1             2            1           3
+
  Tokenise←{
      text←('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵
      words←(⎕C ⎕A)(∊⍨⊆⊢)text
@@ -67,15 +68,14 @@
  search_index←VIDEOS.Lookup¨search_columns
  term_count←¯1+↑{{≢⍵}⌸(⍳≢index)⍪⍵}¨search_index   ⍝ Compute 3D term count: doc × field × term
  fl←≢¨search_columns ⍝ field lengths
- B←1   ⍝ Field length normalisation parameter: 0 for none, 1 for full
- tc←term_count÷[1 2]1+B×¯1+fl÷[2](+⌿÷≢)fl   ⍝ term_count(÷⍤1 0)1+B×¯1+fl(÷⍤1)(+⌿÷≢)fl
- tf←weights+.×2 1 3⍉term_count   ⍝ field-dependent normalised Term-Frequency
- rw←(⍟≢÷+⌿)0<∨/[2]term_count   ⍝ Relevance Weight (inverse document frequency for now, RSJ relevance weight in general)
+ B←0.6   ⍝ Field length normalisation parameter: 0 for none, 1 for full
+ tc←term_count÷[1 2]1+B×¯1+fl÷[2](+⌿÷≢)fl
+ tf←weights+.×2 1 3⍉tc   ⍝ field-dependent normalised Term-Frequency
+ rw←(⍟≢÷+⌿)0<∨/[2]tc   ⍝ Relevance Weight (inverse document frequency for now, RSJ relevance weight in general)
  VIDEOS.BM25F←tf(×⍤1)rw
 
 ⍝ FIXME for identical scores, prefer recent
 ⍝ FIXME we're completely changing the index_cols representation: check Recommendations still works
-
 ⍝ Format numeric and datetime fields
  dt_fields←⊆'presented_at' 'published_at'
  n_fields←⊆'presenter_id'
