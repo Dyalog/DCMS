@@ -7,7 +7,7 @@
  result∧←DoTest MAIN     ⍝ General tests should pass from clean start
  InsertDummyData
  #.DCMS.ADMIN.RefreshData''
- :While ~#.isolate.Available'#.DCMS.QUERY.recommendations'   ⍝ Wait until recommendations ready
+ :While ~#.isolate.Available'#.DCMS.QUERY.VIDEOS.recommendations'   ⍝ Wait until recommendations ready
  :EndWhile
  result∧←DoTest MOCK   ⍝ Test insert and retrieve dummy data
  result∧←DoTest MAIN   ⍝ General tests should still pass after populating database, cache etc.
