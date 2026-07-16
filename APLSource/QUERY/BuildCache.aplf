@@ -1,4 +1,4 @@
- r←BuildCache opt;B;CACHE;II;SQL;Tokenise;Values;dt_fields;ep;fl;index;mat_fields;n_fields;nmat;norm;pid;pname;rw;search_columns;search_fields;search_index;tc;term_count;tf;title;vids;weights;ytid
+ r←BuildCache opt;B;CACHE;II;SQL;Stem;Tokenise;Values;dt_fields;ep;fl;index;mat_fields;n_fields;nmat;norm;pid;pname;rw;search_columns;search_fields;search_index;stemmer;tc;term_count;tf;title;vids;weights;ytid
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Create character and numeric matrices for filters
 ⍝ Compute BM25F score matrix for search
@@ -48,12 +48,16 @@
 ⍝ Tokenise search fields
  search_fields←'title' 'event' 'event_shortname' 'description' 'youtube_id' 'presenter'
  weights←           2       2                 1             2            1           3
-
+ stemmer←⎕NEW #.DCMS.Porter2Stemmer.EnglishPorter2Stemmer
+ Stem←{
+     stemmed←stemmer.Stem⊆⍵
+     stemmed.Value
+ }
  Tokenise←{
      text←('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵
      words←(⎕C ⎕A)(∊⍨⊆⊢)text
      non_words←(' ',⎕C ⎕A)(~⍤∊⍨⊆⊢)text
-     ↑words,non_words
+     ↑non_words,(⊢,Stem¨)words
  }
  search_columns←Tokenise¨(vids.fields∊search_fields)/vids.index_all
  VIDEOS.index_width←⌈/(⊢/⍴)¨,search_columns
