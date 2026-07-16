@@ -28,7 +28,7 @@
 
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id,'/recommendations'
 
- ytid←req.PathParams ⎕VGET⊂'youtube_id' ''
+ ytid←req.PathParams.youtube_id
  n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'1'   ⍝ Number of results. Default 1.
  vids←##.##.CACHE.videos
  Values←#.isolate.Values
