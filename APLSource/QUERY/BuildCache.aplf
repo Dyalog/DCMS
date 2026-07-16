@@ -39,7 +39,7 @@
  :EndIf
 
 ⍝ For indexing, normalise all except those with YouTube IDs and convert datetimes to Dyalog Day Number
- vids.values⌷⍨←⊂⍒vids.values[;vids.fields⍳⊂'presented_at']   ⍝ Recency bias https://github.com/Dyalog/DCMS/issues/153
+ vids.values⌷⍨←⊂⍒vids.values[;vids.fields⍳⊂'presented_at']   ⍝ Given equal rankings, prefer recent videos
  vids.index_all←vids.values
 
 ⍝ Normalise text fields
