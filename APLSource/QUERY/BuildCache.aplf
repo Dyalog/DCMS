@@ -1,4 +1,4 @@
- r←BuildCache opt;B;CACHE;II;SQL;Tokenise;Values;dt_fields;dtcol;ep;fl;index;n_fields;nmat;norm;pid;pname;rw;search_columns;search_fields;search_index;tc;term_count;tf;title;vids;weights;ytid
+ r←BuildCache opt;B;CACHE;II;SQL;Tokenise;Values;dt_fields;ep;fl;index;mat_fields;n_fields;nmat;norm;pid;pname;rw;search_columns;search_fields;search_index;tc;term_count;tf;title;vids;weights;ytid
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Create character and numeric matrices for filters
 ⍝ Compute BM25F score matrix for search
@@ -75,16 +75,13 @@
  rw←(⍟≢÷+⌿)0<∨/[2]tc                              ⍝ Relevance Weight (inverse document frequency for now, RSJ relevance weight in general)
  VIDEOS.BM25F←tf(×⍤1)rw
 
-⍝ FIXME for identical scores, prefer recent
-⍝ FIXME we're completely changing the index_cols representation: check Recommendations still works
 ⍝ Format numeric and datetime fields
- dt_fields←⊆'presented_at' 'published_at'
- n_fields←⊆'presenter_id'
- dtcol←vids.fields⍳dt_fields
- nmat←vids.fields⍳n_fields
- vids.index_all[;dtcol]←TimeStamp2DDN vids.index_all[;dtcol]
+ dt_fields←vids.fields⍳⊆'presented_at' 'published_at'
+ vids.index_all[;dt_fields]←TimeStamp2DDN vids.index_all[;dt_fields]
  vids.index_cols←↓⍉vids.index_all
- vids.index_cols[nmat]←↑¨vids.index_cols[nmat] ⍝ Presenter IDs as numeric matrix
+⍝ Store fields as matrices for filter queries and recommendations
+ mat_fields←vids.fields⍳⊆'title' 'description' 'youtube_id' 'presenter' 'presenter_id'
+ vids.index_cols[mat_fields]←↑¨vids.index_cols[mat_fields]
 
 ⍝ Similarity computation is expensive, so we perform it in an isolate
 ⍝ See http://docs.dyalog.com/latest/Parallel%20Language%20Features.pdf
