@@ -60,7 +60,7 @@
      ↑non_words,(⊢,Stem¨)words
  }
  search_columns←Tokenise¨(vids.fields∊search_fields)/vids.index_all
- VIDEOS.index_width←⌈/(⊢/⍴)¨,search_columns
+ VIDEOS.index_width←0⌈⌈/(⊢/⍴)¨,search_columns
  search_columns←{(≢⍵)(VIDEOS.index_width)↑⍵}¨search_columns
  index←∪⊃⍪/,search_columns
 
