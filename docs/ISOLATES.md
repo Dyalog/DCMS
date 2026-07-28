@@ -5,6 +5,7 @@ Computing the search index and video recommendations tables is expensive, so to 
 The raw data comes from the SQL database. It is not clear whether database operations are also a source of delay for HTTP requests. We are already undertaking significant refactoring for `BuildCache` to happen in isolates, so we should consider whether its SQL operations should also occur in the isolate process or whether SQL should happen in the main process and the data just transferred to the isolate as function arguments. If SQL queries are significant, then all CRUD operations should be moved to isolate processes as well.
 
 ## Development plan
+The change in core functionality is backwards compatible with version 4 of the API, but changes to the **/admin/refresh** and new **/admin/refresh/status** will cause a major version increase.
 
 The use of isolates for SQL queries and cache building will be done in incremental stages, so that existing behaviour continues to work throughout.
 
