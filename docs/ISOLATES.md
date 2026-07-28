@@ -1,9 +1,57 @@
 # ISOLATES
+
 Computing the search index and video recommendations tables is expensive, so to make sure that HTTP requests continue to be served in a timely manner while these are being computed, we compute them in separate CPU processes using the Isolates workspace.
 
 The raw data comes from the SQL database. It is not clear whether database operations are also a source of delay for HTTP requests. We are already undertaking significant refactoring for `BuildCache` to happen in isolates, so we should consider whether its SQL operations should also occur in the isolate process or whether SQL should happen in the main process and the data just transferred to the isolate as function arguments. If SQL queries are significant, then all CRUD operations should be moved to isolate processes as well.
 
+## Development plan
+
+The use of isolates for SQL queries and cache building will be done in incremental stages, so that existing behaviour continues to work throughout.
+
+What is the end result going to look like? What is the current architecture? Then plan for smoothest migration from here to there.
+
+Current:
+
+- CRUD endpoints run in main process
+- Refresh data (re-import YouTube data, rebuild cache) runs in main process
+- BM25F search index computed in main process
+- Video recommendations cosine similarity computed in isolate process
+
+Outcome:
+
+- Endpoint functions run in main process
+- `CRUD` functions use an operator in SQL.apln that call SQAPL in a singleton isolate. Subsequent requests before some timeout run in the same isolate.
+  - Run a small test to check that main process fns waiting for isolates to complete do not block other requests
+- `QUERY.BuildCache` runs a function in an isolate and calls SQAPL from there
+  - child isolates spawned to compute BM25F and cosine similarity recommendations
+  - atomic update of full cache is safe across threads
+- `IMPORT` functions run in an isolate for concurrent external API and SQL database access
+- **/admin/refresh** endpoint triggers `IMPORT` youtube update and `BuildCache`, but returns 202 Accepted HTTP response. Another refresh on already running job returns 202 with message "refresh pending" and sets a "pending" flag. Once a refresh job finishes, clear the pending flag and trigger 1 new job. At most 1 new refresh job can be pending at a time.
+  - response includes a **/admin/refresh/status** URL that can be used to monitor the status of an ongoing refresh job, and whether there is a pending job or not.
+    ```
+    202 Accepted
+    {
+      "message": "Request accepted. Refresh task started. View status at monitorUrl" | "Request accepted. One refresh task is pending and will begin once the current task is finished. View status at monitorUrl",
+      "monitorUrl": "http://PUBLIC_URL/admin/refresh/status"
+    }
+    ```
+  - **/admin/refresh/status**
+
+    ```
+    200 OK
+    {
+      "status": "idle|running",
+      "pending": 0|1,
+      "started_at": null|"YYYY-MM-DD hh:mm:ss", "finished_at": null|"YYYY-MM-DD hh:mm:ss",
+      "last_success_at": null|"YYYY-MM-DD hh:mm:ss", "last_error_at": null | "YYYY-MM-DD hh:mm:ss",
+      "last_error_message": ""
+    }
+    ```
+
+- Public endpoints that use cached resources (`/events`, `/presenters`, `/videos`) supply `Last-Modified` header HTTP-date updated when `BuildCache` swaps the global cache variable. Implement `If-Modified-Since` header detection and return 304 (Not Modified message, empty body, Last-Modified header) if there have been no updates.
+
 ## Test SQL vs HTTP queries.
+
 Start the service.
 Use apache benchmark to get request timings.
 Run `Admin.TESTS.InsertDummyData` while running 2nd set of timings.
@@ -14,27 +62,30 @@ If SQL queries cause significant delays, make a plan for migrating all CACHE mak
 Running `DCMS.IMPORT.YOUTUBE.RefreshData` while running request timings might give more insight into this potential cost. It might be that tight, heavy loops in index computations causes more thread blocking than SQL queries.
 
 ### Test results
+
 Summary of results of testing with `ab`.
 
 #### Requests only
 
-|# concurrent requests|time (ms)|
-|---------------------|---------|
-|                   1 |      75 |
-|                  10 |     559 |
-|                  20 |    1038 |
-|                  30 |    1524 |
-|                  40 |    2340 |
-|                  50 |    2873 |
+| # concurrent requests | time (ms) |
+| --------------------- | --------- |
+| 1                     | 75        |
+| 10                    | 559       |
+| 20                    | 1038      |
+| 30                    | 1524      |
+| 40                    | 2340      |
+| 50                    | 2873      |
 
 Quite slow, although most time is now taken converting between JSON. There is already an open issue to address this.
 
 #### While using SQL
+
 Mean requests time jumped to 1005ms for 10 concurrent requests while inserting 300 records. This rose to 2456ms while inserting 1000 records.
 
 Now, in general updates to the main database should be infrequent. At most, daily updates pulled from the YouTube API will cause a slowdown in requests once at the same time every day. However, the slowdown is evident and database interactions should also be run in separate CPU processes to prevent it.
 
 ### Raw results
+
 These are the output of running `ab`on the service running locally on the same machine.
 
 #### Requests only
