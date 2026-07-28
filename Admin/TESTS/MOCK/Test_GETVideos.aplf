@@ -38,7 +38,7 @@
      Assert ' '=Type v.url:
      Assert ' '=Type v.youtube_id:
 
-     pid←v.presenter_id[1]
+     pid←v.presenter_id
      Assert 0=Type pid:
 
      l←d.links[1]
