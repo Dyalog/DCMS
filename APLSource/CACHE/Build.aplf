@@ -75,5 +75,5 @@
  search_columns←{(≢⍵)(vids.index_width)↑⍵}¨search_columns
  vids.index←∪⊃⍪/,search_columns
 
- vids.search←vids.index ComputeSearch vids.search_columns
+ vids.search←vids.index ComputeSearch weights search_columns
  vids.recommendations←ComputeRecommendations vids.search

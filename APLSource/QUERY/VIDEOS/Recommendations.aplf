@@ -30,9 +30,7 @@
 
  ytid←req.PathParams.youtube_id
  n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'1'   ⍝ Number of results. Default 1.
- vids←##.##.CACHE.videos
- Values←#.isolate.Values
- vids.recommendations←⊃vids.recommendations Values'recommendations'   ⍝ Use existing values unless the ComputeRecommended isolate has finished processing
+ vids←#.DCMS.GLOBAL.cache.videos
  all_id←vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id'
  :If 11≠≢ytid
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'YouTube ID must be an 11-character string.')

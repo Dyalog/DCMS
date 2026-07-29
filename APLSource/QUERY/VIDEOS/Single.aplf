@@ -20,7 +20,7 @@
 
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id
 
- CACHE←##.##.CACHE
+ CACHE←#.DCMS.GLOBAL.cache
 
  id←req.PathParams.youtube_id
 

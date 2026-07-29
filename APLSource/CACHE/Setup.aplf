@@ -1,14 +1,12 @@
  r←Setup opt;File2Ref;Import;ImportFile;ImportItem;get_file
-⍝ ## cannot be used as a reference in Build.
-⍝ Maybe, unless we do aim to fully recreate the DCMS tree?
-⍝ I think I'd rather inject things ready-to-go for CACHE.Build tbh
+⍝ Import dependencies for CACHE modules
+⍝ Imported names and ⎕USING must not be localised
  ImportItem←⍎⍤{
     ⍺: ImportFile ⍵
     File2Ref ⍵
  }
  ImportFile←{⊃2⎕FIX'file://',opt.app_dir,'/APLSource/',⍵}
  File2Ref←{'##.',1↓∊'.',¨'/'(≠⊆⊢)⍵/⍨~∨\'.'=⍵}
-
  get_file ← #.isolate.isSlave
  Import←get_file∘ImportItem
 
@@ -19,6 +17,7 @@
  SQL←Import'SQL.apln'
  Table2JSON←Import'QUERY/Table2JSON.aplf'
  TimeStamp2DDN←Import'QUERY/TimeStamp2DDN.aplf'
+ ComputeSearch←Import'CACHE/ComputeSearch.aplf'
  ComputeRecommendations←Import'CACHE/ComputeRecommendations.aplf'
 
  ⎕USING←opt.using   ⍝ Load .NET / NuGet DLLs. Defines names in ⎕THIS.

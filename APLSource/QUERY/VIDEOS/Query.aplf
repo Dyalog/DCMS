@@ -1,6 +1,6 @@
- res←Query req;C;CACHE;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;p;pg;ppg;presenter;presenter_id;q_event;schemas;stemmer;terms;this;to;v
+ res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;index_width;p;pg;ppg;presenter;presenter_id;q_event;schemas;search;stemmer;terms;this;to;v
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
- 
+
  :If req≡'⍠SPEC'
      schemas←##.##.SPEC.schemas
      res←(
@@ -65,7 +65,7 @@
  ##.##.Log'[REQ] GET /videos ',1 ⎕JSON req.QueryParams
 
  Q←req.QueryParams∘⎕VGET
- CACHE←##.##.CACHE
+ CACHE←#.DCMS.GLOBAL.cache
  C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
 
 ⍝ Filter by date range
@@ -89,8 +89,11 @@
      stemmed.Value
  }
 ⍝ Rank by search terms
- terms←∪terms⊆⍛,Stem¨terms←', '(~⍤∊⍨⊆⊢)Norm Q⊂'search' ''
- i←terms Rank filter⌿BM25F
+ index_width←#.DCMS.GLOBAL.cache.videos.index_width
+ terms←(≢terms)(index_width)↑↑terms←∪terms⊆⍛,Stem¨terms←', '(~⍤∊⍨⊆⊢)Norm Q⊂'search' ''
+ search←#.DCMS.GLOBAL.cache.videos.search
+ Lookup←#.DCMS.GLOBAL.cache.videos.Lookup
+ i←terms Lookup _Rank filter⌿search
 
 ⍝ Sort
  data←(filter⌿CACHE.videos.values)[i;]

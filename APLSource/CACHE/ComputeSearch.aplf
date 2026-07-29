@@ -1,7 +1,9 @@
  ComputeSearch←{
-⍝ ⍺: unique search terms       :: character matrix
-⍝ ⍵: tokenised document fields :: nested vector of character matrices, each the same width as index. ⍺≡⍥(⊢/⍴)⍵
-     index←⍺ ⋄ search_columns←⍵
+⍝ ⍺: unique search terms                       :: character matrix
+⍝ ⍵: (weights search_columns)
+⍝    weights: influence factor for each field  :: simple numeric vector
+⍝    search_columns: tokenised document fields :: nested vector of character matrices, each the same width as index. ⍺≡⍥(⊢/⍴)⍵
+     index←⍺ ⋄ (weights search_columns)←⍵
 
 ⍝ Tokenised best-match
 ⍝ Pre-compute BM25F best-match score for all tokens in corpus across all documents
@@ -11,7 +13,7 @@
 
      Lookup←vids.index∘⍳   ⍝ Cannot pass derived function across isolate boundary, so hashed Lookup function used here and recreated in main process
      search_index←Lookup¨search_columns
-     term_count←¯1+↑{{≢⍵}⌸(⍳≢vids.index)⍪⍵}¨search_index   ⍝ 3D term count: doc × field × term
+     term_count←¯1+↑{{≢⍵}⌸(⍳≢index)⍪⍵}¨search_index   ⍝ 3D term count: doc × field × term
      fl←≢¨search_columns                                   ⍝ Field lengths
      B←0.6                                                 ⍝ Field length normalisation parameter: 0 for none, 1 for full
      tc←term_count÷[1 2]1+B×¯1+fl÷[2](+⌿÷≢)fl              ⍝ Field length normalised term count

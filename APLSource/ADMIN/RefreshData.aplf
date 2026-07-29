@@ -1,4 +1,4 @@
- r←RefreshData arg
+ r←RefreshData arg;new
 ⍝ When triggered by ⎕WC timer, argument is the timer object
 ⍝ When called via HTTP request, argument is request object
 ⍝ Argument not used in either case
@@ -9,13 +9,17 @@
      )
      :Return
  :EndIf
- :Hold 'SQL.db'
-     :Trap 202 404
-         ##.IMPORT.YOUTUBE.RefreshData''
-     :Else
-         ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
-     :EndTrap
-     ##.CACHE.Setup(using:##.⎕USING ⋄ app_dir:##.app_dir)
-     ##.CACHE.Build()
+ ⍝:Hold 'SQL.db' ⍝ FIXME DB operations are being moved to isolate processes
+ :Trap 202 404
+     ##.IMPORT.YOUTUBE.RefreshData''
+ :Else
+     ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
+ :EndTrap
+ ##.CACHE.Setup(using:##.⎕USING ⋄ app_dir:##.app_dir)   ⍝ FIXME the Setup requirement will be documented once isolate processing fully implemented
+ new←##.CACHE.Build()
+ :Hold '#.DCMS.GLOBAL.cache'
+     #.DCMS.GLOBAL.cache←new
+     #.DCMS.GLOBAL.cache.videos.(Lookup←index∘⍳)
  :EndHold
+ ⍝:EndHold
  ⎕←r←'Refreshed data at ',⍕⎕TS

@@ -1,0 +1,13 @@
+ _Rank←{
+⍝  ⍺: search terms       :: simple character matrix
+⍝  ⍵: BM25F score matrix :: simple numeric matrix ⍴(≢documents) × (≢terms)
+⍝ ⍺⍺: hashed lookup into index terms :: derived function
+⍝  ←: Indices of rows in results
+⍝    Only results which contain at least one instance of one of the search terms
+⍝    Ranked descending BM25F (see QUERY.BuildCache)
+     0∊⍴⍺:⍳≢⍵   ⍝ No search terms provided, return all results
+     terms←⍺ ⋄ BM25F←⍵
+     Lookup←⍺⍺
+     score←+/(BM25F,0)[;Lookup terms]
+     order/⍨0<score[order←⍒score]
+ }
