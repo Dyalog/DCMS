@@ -15,6 +15,7 @@
      :Else
          ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
      :EndTrap
-     ##.QUERY.BuildCache''
+     ##.CACHE.Setup(using:##.⎕USING ⋄ app_dir:##.app_dir)
+     ##.CACHE.Build()
  :EndHold
  ⎕←r←'Refreshed data at ',⍕⎕TS

@@ -3,10 +3,11 @@
     Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
     FromUTF8←'UTF-8'∘(⊣⎕UCS ⎕UCS)
 
-    db←'db'      ⍝ SQAPL connector identifier
-    cur←'db.i'   ⍝ Cursor for bulk operations
-    SQA←⍬        ⍝ SQAPL API reference set on Connect
-    debug←0      ⍝ debug flag
+    db←'db'                   ⍝ SQAPL connector identifier
+    cur←'db.i'                ⍝ Cursor for bulk operations    
+    debug←0                   ⍝ Debug flag
+    GLOBAL←()                 ⍝ Source of table information for lookups
+    'SQA'⎕CY'sqapl'           ⍝ Establish SQA namespace reference to SQAPL API
 
     :section SQAPL
 
