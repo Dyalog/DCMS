@@ -1,0 +1,8 @@
+ cache←Build opt;stemmer;Stem
+ ⎕USING←opt.using
+ stemmer←⎕NEW Porter2Stemmer.EnglishPorter2Stemmer
+ Stem←{
+     stemmed←stemmer.Stem⊆⍵
+     stemmed.Value
+ }
+ cache←Stem⊆opt ⎕VGET⊂'word' 'defaulted'
