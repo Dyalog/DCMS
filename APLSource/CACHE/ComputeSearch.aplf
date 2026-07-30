@@ -11,7 +11,7 @@
 ⍝ Zaragoza, H., Craswell, N., Taylor, M.J., Saria, S. and Robertson, S.E., 2004, November. Microsoft Cambridge at TREC 13: Web and Hard Tracks. In Trec (Vol. 4, pp. 1-1).
 ⍝ Then, search queries become a fast lookup into the BM25 scores table to rank relevancy
 
-     Lookup←vids.index∘⍳   ⍝ Cannot pass derived function across isolate boundary, so hashed Lookup function used here and recreated in main process
+     Lookup←index∘⍳   ⍝ Cannot pass derived function across isolate boundary, so hashed Lookup function used here and recreated in main process
      search_index←Lookup¨search_columns
      term_count←¯1+↑{{≢⍵}⌸(⍳≢index)⍪⍵}¨search_index   ⍝ 3D term count: doc × field × term
      fl←≢¨search_columns                                   ⍝ Field lengths

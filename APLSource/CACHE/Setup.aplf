@@ -1,20 +1,23 @@
- r←Setup opt;File2Ref;Import;ImportFile;ImportItem;get_file
+ r←Setup opt;File2Ref;Import;ImportFile;ImportItem;in_isolate
 ⍝ Import dependencies for CACHE modules
 ⍝ Imported names and ⎕USING must not be localised
  ImportItem←⍎⍤{
-    ⍺: ImportFile ⍵
-    File2Ref ⍵
+     ⍺:ImportFile ⍵
+     File2Ref ⍵
  }
- ImportFile←{⊃2⎕FIX'file://',opt.app_dir,'/APLSource/',⍵}
+ ImportFile←{⊃2 ⎕FIX'file://',opt.app_dir,'/APLSource/',⍵}
  File2Ref←{'##.',1↓∊'.',¨'/'(≠⊆⊢)⍵/⍨~∨\'.'=⍵}
- get_file ← #.isolate.isSlave
- Import←get_file∘ImportItem
+ in_isolate←#.isolate.isSlave
+ Import←in_isolate∘ImportItem
 
  GetEnv←Import'GetEnv.aplf'
  ReadJSON←Import'ReadJSON.aplf'
  Unidecode←Import'Unidecode.apln'
  Unidecode.MakeCharMap opt.app_dir,'/APLSource/charmap.json'
  SQL←Import'SQL.apln'
+ :If in_isolate
+     SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
+ :EndIf
  Table2JSON←Import'QUERY/Table2JSON.aplf'
  TimeStamp2DDN←Import'QUERY/TimeStamp2DDN.aplf'
  ComputeSearch←Import'CACHE/ComputeSearch.aplf'

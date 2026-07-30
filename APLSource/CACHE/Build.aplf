@@ -1,4 +1,5 @@
  cache←Build opt;Stem;Tokenise;dt_fields;ep;mat_fields;norm;pid;pname;search_columns;search_fields;stemmer;title;vids;weights;ytid
+ ;GetEnv;ReadJSON;Unidecode;SQL;Table2JSON;TimeStamp2DDN
 ⍝ opt: options namespace (currently unused)
 ⍝ cache: cache namespace for wholesale replacement
 ⍝ Store pre-joined tables for API endpoints and query results
@@ -8,9 +9,11 @@
 
 ⍝ One day we'll have modules and do ⎕IMPORT'SQL' etc. Not today.
 ⍝ CACHE.Build is callable from the main process and in an isolate. CACHE.Setup imports dependencies into the CACHE namespace.
+ {}Setup opt
 
- ep←ReadJSON(GetEnv'app_dir'),'/APLSource/QUERY/endpoints.json5'
  'cache'⎕NS''
+
+ ep←ReadJSON opt.app_dir,'APLSource/QUERY/endpoints.json5'
 
  cache.presenters←Table2JSON ep.presenters.fields⍪SQL.Do ep.presenters.sql
 
