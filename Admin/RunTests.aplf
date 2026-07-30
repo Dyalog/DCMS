@@ -4,7 +4,7 @@
 ⍝ show_pass: flag to print passing tests to output
  (keepalive show_pass)←2↑opts
  prev_debug←#.DCMS.GLOBAL.(logging suspend trace)
- #.DCMS.SetDebug 0 1 0
+ #.DCMS.SetDebug 1 1 0
  TESTS.ClearData
  r←show_pass TESTS.Run GetEnv'LOCAL_URL'
  #.DCMS.SetDebug prev_debug
