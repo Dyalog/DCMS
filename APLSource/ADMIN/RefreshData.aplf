@@ -1,4 +1,4 @@
- r←RefreshData arg;new
+ r←RefreshData arg;new;⍙CACHE
 ⍝ When triggered by ⎕WC timer, argument is the timer object
 ⍝ When called via HTTP request, argument is request object
 ⍝ Argument not used in either case
