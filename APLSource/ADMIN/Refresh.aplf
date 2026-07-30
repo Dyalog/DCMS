@@ -1,0 +1,16 @@
+ r←Refresh req
+⍝ Stark endpoint function, argument is request object or spec sigil
+ :If '⍠SPEC'≡req
+     r←(
+         tags:,⊂'Admin' ⋄ summary:'Refresh cached API data' ⋄ operationId:'refreshData'
+         description:'Fetches external API data, then rebuilds the cached joined views served by the public read endpoints.'
+     )
+     :Return
+ :EndIf
+ :Trap 202 404
+     ##.IMPORT.YOUTUBE.RefreshData''
+ :Else
+     ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
+ :EndTrap
+ RefreshData&1   ⍝ Trigger cache build in new thread, so GET /admin/refresh can return immediately
+ ⎕←r←'Refreshed data at ',⍕⎕TS
