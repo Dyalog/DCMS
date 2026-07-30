@@ -1,5 +1,8 @@
  cache←Build opt;Stem;Tokenise;dt_fields;ep;mat_fields;norm;pid;pname;search_columns;search_fields;stemmer;title;vids;weights;ytid
  ;GetEnv;ReadJSON;Unidecode;SQL;Table2JSON;TimeStamp2DDN
+⍝ The external dependencies above are localised so that Setup's assignments appear as
+⍝ Build's locals and vanish on return, otherwise certain names (e.g. .NET class instances)
+⍝ prevent the CACHE namespace from being serialised into isolate processes.
 ⍝ opt: options namespace (currently unused)
 ⍝ cache: cache namespace for wholesale replacement
 ⍝ Store pre-joined tables for API endpoints and query results

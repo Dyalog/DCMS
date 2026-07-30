@@ -1,6 +1,11 @@
  r←Setup opt;File2Ref;Import;ImportFile;ImportItem;in_isolate
 ⍝ Import dependencies for CACHE modules
 ⍝ Imported names and ⎕USING must not be localised
+⍝ Dual-mode: inside an isolate (a runtime interpreter with no session, so no
+⍝ ⎕SE.Link or ⎕SE.Tatin) each dependency is fixed from source with 2 ⎕FIX
+⍝ 'file://…'; in the main process the existing ##.X object is bound instead.
+⍝ Add a new CACHE dependency to the Import list below.
+⍝ ⎕USING (.NET / Porter2Stemmer) arrives as opt.using, computed in the main process.
  ImportItem←⍎⍤{
      ⍺:ImportFile ⍵
      File2Ref ⍵

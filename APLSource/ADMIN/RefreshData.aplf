@@ -19,8 +19,7 @@
      using:##.⎕USING           ⍝ Must deep clone 'new'⎕NS ref because result ref from namespace-returning isolate cannot be dotted into (interpreter bug)
      app_dir:##.app_dir
  )
- :Hold '#.DCMS.GLOBAL.cache'   ⍝ One-shot update is safe across threads. Readers take snapshots to get complete cache view.
-     #.DCMS.GLOBAL.cache←new
-     #.DCMS.GLOBAL.cache.videos.(Lookup←index∘⍳)
+ :Hold '#.DCMS.GLOBAL.cache'   ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
+     #.DCMS.GLOBAL.cache←new ⋄ #.DCMS.GLOBAL.cache.videos.(Lookup←index∘⍳)
  :EndHold
  ⎕←r←'Refreshed data at ',⍕⎕TS
