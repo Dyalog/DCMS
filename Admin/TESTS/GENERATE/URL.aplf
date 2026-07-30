@@ -2,6 +2,6 @@
 ⍝ ⍵: How many
 ⍝ ←: Nested list of URLs
      tld←'.org' '.com' '.biz'
-     domain←{(⎕C ⎕A)[?⍵⍴26]}¨?⍵⍴12
+     domain←↓⍉⎕A[1+26⊥⍣¯1⊢¯1+⍳⍵]
      'http://'∘,¨domain,¨tld[?⍵⍴≢tld]
  }

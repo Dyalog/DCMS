@@ -1,4 +1,4 @@
- Run cfg;logging;suspend;trace;app_dir;LoadDependency
+ Run cfg;logging;suspend;trace;LoadDependency
 ⍝ cfg: a preset scalar (0=production, 1=development, 2=strict)
 ⍝      or an explicit (logging suspend trace) triple. See SetDebug.
  :If 0=≢⍴cfg
@@ -14,6 +14,10 @@
  ⎕←SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
+
+⍝ Initialise search and recommendations cache in main process.
+ ADMIN.RefreshData 0
+
 ⍝ Set up Stark router
  url←GetEnv'PUBLIC_URL'
  :If 0=⎕NC'router'
@@ -32,7 +36,7 @@
      '/swagger/swagger-ui.css'       router.Get('WEB.Static' (WEB.Static'CSS⍠SPEC'))
      '/swagger/theme.css'            router.Get('WEB.Static' (WEB.Static'THEME⍠SPEC'))
      '/swagger/swagger-ui-bundle.js' router.Get('WEB.Static' (WEB.Static'JS⍠SPEC'))
-      
+
      '/version'                             router.Get('Version'                     (Version'⍠SPEC'))
      '/videos/{youtube_id}/recommendations' router.Get('QUERY.VIDEOS.Recommendations'(QUERY.VIDEOS.Recommendations'⍠SPEC'))
      '/videos/{youtube_id}'                 router.Get('QUERY.VIDEOS.Single'         (QUERY.VIDEOS.Single'⍠SPEC'))
@@ -48,7 +52,7 @@
      '/crud/{table}/{id}' router.Patch ('CRUD.Update' (CRUD.Update'⍠SPEC'))
      '/crud/{table}/{id}' router.Delete('CRUD.Delete' (CRUD.Delete'⍠SPEC'))
 
-     '/admin/refresh'     router.Post  ('ADMIN.RefreshData' (ADMIN.RefreshData'⍠SPEC'))
+     '/admin/refresh'     router.Post  ('ADMIN.RefreshData' (ADMIN.Refresh'⍠SPEC'))
      '/admin/wp-push'     router.Post  ('ADMIN.WPPush'       (ADMIN.WPPush'⍠SPEC'))
 
      '/admin/profiling'   router.Get   ('PROFILING.Status' (PROFILING.Status'⍠SPEC'))
@@ -75,6 +79,5 @@
  :If 0=GLOBAL.⎕NC'data_refresh_timer'
      'data_refresh_timer'GLOBAL.⎕WC'Timer'
      GLOBAL.data_refresh_timer.Interval←×/24 60 60 1000
-     GLOBAL.data_refresh_timer.onTimer←'ADMIN.RefreshData'
+     GLOBAL.data_refresh_timer.onTimer←'ADMIN.Refresh'
  :EndIf
- {}ADMIN.RefreshData''

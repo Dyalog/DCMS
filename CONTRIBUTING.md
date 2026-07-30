@@ -17,7 +17,7 @@ The whole stack runs in Docker. From a local clone:
    ```sh
    ./dev -i
    ```
-   Drop `-i` on later runs. Connect to RIDE at `http://localhost:4502` to work
+   Drop `-i` on later runs. Connect to Ride at `http://localhost:4502` to work
    in the running session. See **[docs/dev.md](docs/dev.md)** for what `dev` does
    and the day-to-day workflow.
 
@@ -26,7 +26,7 @@ The whole stack runs in Docker. From a local clone:
 In the RIDE session, against the running server:
 
 ```apl
-Admin.(Tests.Run GetEnv'URL')
+Admin.(Tests.Run GetEnv'LOCAL_URL')
 ```
 
 The full CI scenario (install dependencies, start the stack, run the suite):
@@ -154,14 +154,21 @@ and how the controls map onto the Stark and Jarvis debug bitmasks, are in
 
 ## Search and Recommendations
 
-Both features read from an in-memory cache (`DCMS.CACHE`) instead of querying SQL
-per request. **[QUERY/BuildCache.aplf](APLSource/QUERY/BuildCache.aplf)** builds
-it: it pulls the joined video, presenter, and event tables from SQL, normalises
-the searchable text (`Unidecode.NormaliseText`, with datetimes converted to
-Dyalog Day Numbers), and stores the result under `CACHE.videos`. The cache is
-rebuilt by **[ADMIN/RefreshData.aplf](APLSource/ADMIN/RefreshData.aplf)** on a
-24-hour timer and on `POST /admin/refresh`, after fresh data is imported from
-YouTube.
+Both features read from an in-memory cache held in `DCMS.GLOBAL.cache`, instead of
+querying SQL per request. The **[DCMS.CACHE](APLSource/CACHE)** module builds it:
+**[CACHE/Build.aplf](APLSource/CACHE/Build.aplf)** pulls the joined video,
+presenter, and event tables from SQL, normalises the searchable text
+(`Unidecode.NormaliseText`, with datetimes converted to Dyalog Day Numbers), and
+precomputes the search and recommendation matrices.
+
+Building the cache is expensive, so it runs in a **separate CPU process** (a Dyalog
+[isolate](https://docs.dyalog.com/20.0/files/Parallel_Language_Features.pdf)) to
+keep HTTP serving responsive while the cache is rebuilt.
+**[ADMIN/RefreshData.aplf](APLSource/ADMIN/RefreshData.aplf)** rebuilds it on a
+24-hour timer and on `POST /admin/refresh` (after fresh data is imported from
+YouTube): it seeds the isolate with the module, runs `CACHE.Build` there, and swaps
+`GLOBAL.cache` in atomically. For debugging, `DCMS.CACHE.Build` also runs in the
+main process; both files' comments cover the isolate-boundary details.
 
 ### Search
 
@@ -171,26 +178,24 @@ The `GET /videos` handler is **[QUERY/VIDEOS/Query.aplf](APLSource/QUERY/VIDEOS/
    (**[FilterDateTimes.aplf](APLSource/QUERY/VIDEOS/FilterDateTimes.aplf)**),
    presenter (**[FilterPresenter.aplf](APLSource/QUERY/VIDEOS/FilterPresenter.aplf)**),
    and event.
-2. **Rank** the survivors against the `search` terms with
-   **[Rank.aplf](APLSource/QUERY/VIDEOS/Rank.aplf)**, which scores each row by how
-   often the terms occur, weighted down by how common each term is across all
-   videos (a TF-IDF measure), and returns the rows in descending score order.
-   Terms are normalised and stemmed (`Porter2Stemmer`) first; with no `search`
-   term, every filtered row is kept.
+2. **Rank** the survivors against the `search` terms. Per-term relevance is a BM25F
+   measure — how often the terms occur, weighted down by how common each term is
+   across all videos — precomputed for the whole corpus during the cache build
+   (**[CACHE/ComputeSearch.aplf](APLSource/CACHE/ComputeSearch.aplf)**). At request
+   time **[\_Rank.aplo](APLSource/QUERY/VIDEOS/_Rank.aplo)** looks the terms up in
+   that matrix and returns the rows in descending score order. Terms are normalised
+   and stemmed (`Porter2Stemmer`) first; with no `search` term, every filtered row
+   is kept.
 3. **Sort** (`newest` / `oldest`) and paginate, then return JSON.
-
-**[RLTB.aplf](APLSource/QUERY/VIDEOS/RLTB.aplf)** ("remove leading and trailing
-blanks") is a small helper used while building the text index.
 
 ### Recommendations
 
 Per-video recommendations are precomputed, not calculated per request.
-**[ComputeRecommendations.aplf](APLSource/QUERY/VIDEOS/ComputeRecommendations.aplf)**
-tokenises each video's title, description, and presenter, then computes a cosine
-similarity matrix across all videos; each row lists the most similar videos by
-index. This is expensive, so `BuildCache` runs it in an
-[isolate](http://docs.dyalog.com/latest/Parallel%20Language%20Features.pdf) and
-stores the result (a future) in `CACHE.videos.recommendations`.
+**[CACHE/ComputeRecommendations.aplf](APLSource/CACHE/ComputeRecommendations.aplf)**
+takes the BM25F score matrix and computes a cosine similarity across all videos;
+each row lists the most similar videos by index. It runs inside the cache build (in
+the isolate), so `GLOBAL.cache.videos.recommendations` holds concrete data — there
+is no per-request computation.
 
 The `GET /videos/{youtube_id}/recommendations` handler,
 **[Recommendations.aplf](APLSource/QUERY/VIDEOS/Recommendations.aplf)**, looks up

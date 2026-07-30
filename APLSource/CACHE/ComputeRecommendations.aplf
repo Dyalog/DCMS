@@ -1,0 +1,9 @@
+ ComputeRecommendations←{
+⍝ ⍵: BM25F score matrix. Shape is ≢documents × ≢terms
+⍝ ←: integer matrix
+⍝    each row corresponds to one video in CACHE.videos
+⍝    the numbers are indices into CACHE.videos of those with closest cosine similarity based on alphabet words found in fields ⍵
+     0∊⍴⍵:0 0⍴''
+     sim←(⍵+.×⍉⍵)÷∘.×⍨0.5*⍨+/⍵*2
+     1(↓⍤1)(⍒⍤1)sim
+ }

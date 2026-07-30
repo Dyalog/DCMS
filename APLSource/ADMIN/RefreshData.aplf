@@ -1,20 +1,26 @@
- r←RefreshData arg
-⍝ When triggered by ⎕WC timer, argument is the timer object
-⍝ When called via HTTP request, argument is request object
-⍝ Argument not used in either case
- :If '⍠SPEC'≡arg
-     r←(
-         tags:,⊂'Admin' ⋄ summary:'Refresh cached API data' ⋄ operationId:'refreshData'
-         description:'Fetches external API data, then rebuilds the cached joined views served by the public read endpoints.'
-     )
-     :Return
+ r←RefreshData opt
+⍝ opt: whether to build cache in isolate or main process :: Boolean
+⍝   r: information about when data refresh was triggered :: simple character vector
+ :Trap 202 404
+     ##.IMPORT.YOUTUBE.RefreshData''
+ :Else
+     ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
+ :EndTrap
+ build_opt←(
+     using:##.⎕USING
+     app_dir:##.app_dir
+ )
+ :If opt
+     ⍙CACHE←#.ø #.DCMS.CACHE         ⍝ Spawn isolate to build cache in separate process
+     result←⍙CACHE.Build build_opt   ⍝ Build new cache in isolate. Does not block threads in main process despite waiting for future to resolve.
+     ##.Log'⍙CACHE isolate running:',#.isolate.Running'result'
+     'new'⎕NS result                 ⍝ Must deep clone 'new'⎕NS ref because result ref from namespace-returning isolate cannot be dotted into (interpreter bug)
+ :Else
+     new←#.DCMS.CACHE.Build build_opt
  :EndIf
- :Hold 'SQL.db'
-     :Trap 202 404
-         ##.IMPORT.YOUTUBE.RefreshData''
-     :Else
-         ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
-     :EndTrap
-     ##.QUERY.BuildCache''
+
+ :Hold '#.DCMS.GLOBAL.cache'   ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
+     #.DCMS.GLOBAL.cache←new ⋄ #.DCMS.GLOBAL.cache.videos.(Lookup←index∘⍳)
  :EndHold
+
  ⎕←r←'Refreshed data at ',⍕⎕TS

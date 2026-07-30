@@ -10,6 +10,8 @@
 
 		LX:           "⎕←⎕SE.Link.Create 'DCMS' '[APP_DIR]/APLSource' ⋄\
 					   ⎕←⎕SE.Link.Create 'Admin' '[APP_DIR]/Admin'    ⋄\
-					   DCMS.Setup ⋄ DCMS.Run [LOGGING] [SUSPEND] [TRACE]"
+					   DCMS.Setup ⋄\
+					   Admin.MOCKYT.Run ⋄\
+					   DCMS.Run [LOGGING] [SUSPEND] [TRACE]"
 	}
 }

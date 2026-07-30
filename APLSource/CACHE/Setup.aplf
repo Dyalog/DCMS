@@ -1,0 +1,33 @@
+ r←Setup opt;File2Ref;Import;ImportFile;ImportItem;in_isolate
+⍝ Import dependencies for CACHE modules
+⍝ Imported names and ⎕USING must not be localised
+⍝ Dual-mode: inside an isolate (a runtime interpreter with no session, so no
+⍝ ⎕SE.Link or ⎕SE.Tatin) each dependency is fixed from source with 2 ⎕FIX
+⍝ 'file://…'; in the main process the existing ##.X object is bound instead.
+⍝ Add a new CACHE dependency to the Import list below.
+⍝ ⎕USING (.NET / Porter2Stemmer) arrives as opt.using, computed in the main process.
+ ImportItem←⍎⍤{
+     ⍺:ImportFile ⍵
+     File2Ref ⍵
+ }
+ ImportFile←{⊃2 ⎕FIX'file://',opt.app_dir,'/APLSource/',⍵}
+ File2Ref←{'##.',1↓∊'.',¨'/'(≠⊆⊢)⍵/⍨~∨\'.'=⍵}
+ in_isolate←#.isolate.isSlave
+ Import←in_isolate∘ImportItem
+
+ GetEnv←Import'GetEnv.aplf'
+ ReadJSON←Import'ReadJSON.aplf'
+ Unidecode←Import'Unidecode.apln'
+ Unidecode.MakeCharMap opt.app_dir,'/APLSource/charmap.json'
+ SQL←Import'SQL.apln'
+ :If in_isolate
+     SQL.Connect GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
+ :EndIf
+ Table2JSON←Import'QUERY/Table2JSON.aplf'
+ TimeStamp2DDN←Import'QUERY/TimeStamp2DDN.aplf'
+ ComputeSearch←Import'CACHE/ComputeSearch.aplf'
+ ComputeRecommendations←Import'CACHE/ComputeRecommendations.aplf'
+
+ ⎕USING←opt.using   ⍝ Load .NET / NuGet DLLs. Defines names in ⎕THIS.
+
+ r←0

@@ -2,7 +2,7 @@
 ⍝ Test that /videos?from=&to= returns videos within the specified date range
      H←##.##.##.HttpCommand
      from←'2005-04-03' ⋄ to←'2012-12-12'
-     res←H.GetJSON'GET'(⍵,'/videos?from=',from,'&to=',to)
+     res←H.GetJSON'GET'(⍵,'/videos?from=',from,'&to=',to,'&sort=oldest')
      200≠res.HttpStatus:0
      0∊⍴res.Data:0
      1≥≢res.Data.data:0

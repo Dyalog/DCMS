@@ -1,0 +1,85 @@
+ cache←Build opt;Stem;Tokenise;dt_fields;ep;mat_fields;norm;pid;pname;search_columns;search_fields;stemmer;title;vids;weights;ytid
+ ;GetEnv;ReadJSON;Unidecode;SQL;Table2JSON;TimeStamp2DDN
+⍝ The external dependencies above are localised so that Setup's assignments appear as
+⍝ Build's locals and vanish on return, otherwise certain names (e.g. .NET class instances)
+⍝ prevent the CACHE namespace from being serialised into isolate processes.
+⍝ opt: options namespace (currently unused)
+⍝ cache: cache namespace for wholesale replacement
+⍝ Store pre-joined tables for API endpoints and query results
+⍝ Create character and numeric matrices for filters
+⍝ Compute BM25F score matrix for search
+⍝ Compute cosine similarity matrix for recommendations
+
+⍝ One day we'll have modules and do ⎕IMPORT'SQL' etc. Not today.
+⍝ CACHE.Build is callable from the main process and in an isolate. CACHE.Setup imports dependencies into the CACHE namespace.
+ {}Setup opt
+
+ 'cache'⎕NS''
+
+ ep←ReadJSON opt.app_dir,'APLSource/QUERY/endpoints.json5'
+
+ cache.presenters←Table2JSON ep.presenters.fields⍪SQL.Do ep.presenters.sql
+
+ 'cache.events'⎕NS''
+ cache.events.data←Table2JSON ep.events.fields⍪SQL.Do ep.events.sql
+⍝ has_videos is a derived column for filtering events with and without videos
+⍝ returned in the API response as enclosed string which translates to JSON boolean values
+⍝ stored in APL as numeric 0 and 1 for efficient filtering
+ :If 0=≢cache.events.data
+     cache.events.has_videos←⍬
+     cache.events.data←''
+ :Else
+     cache.events.has_videos←cache.events.data.has_videos
+     cache.events.data.has_videos←⊂¨'false' 'true'[1+cache.events.has_videos]   ⍝ Convert APL Bool to JSON Bool
+ :EndIf
+
+ vids←cache.videos←⎕NS''   ⍝ Namespaces pass by reference, so assignment to vids shorthand updates cache namespace
+ vids.fields←ep.videos.fields
+ vids.values←SQL.Do ep.videos.sql
+ (title ytid pname pid)←↓⍉SQL.Do ep.videos.presenter.sql   ⍝ YouTube ID, presenter name
+ :If 0<≢vids.values
+     (ytid pname pid)←↓⍉ytid{(pname pid)←↓⍉⍵ ⋄ ⍺,(⊃(⊣,', ',⊢)/pname)(pid)}⌸⍉↑pname pid
+ :EndIf
+ vids.values,←(pname,⊂'')[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
+ vids.values,←(pid,⊂⍬)[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
+
+ :If (≢vids.fields)≠⊢/⍴vids.values
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'endpoints.json5 videos endpoint number of fields does not match number of columns')
+ :EndIf
+
+⍝ For indexing, normalise all except those with YouTube IDs and convert datetimes to Dyalog Day Number
+ vids.values⌷⍨←⊂⍒vids.values[;vids.fields⍳⊂'presented_at']   ⍝ Given equal rankings, prefer recent videos
+ vids.index_all←vids.values
+
+⍝ Normalise text fields
+ (norm/vids.index_all)←Unidecode.NormaliseText¨(norm←vids.fields(~∊)⊆'presented_at' 'published_at' 'url' 'youtube_id' 'thumbnail' 'presenter_id')/vids.index_all
+
+⍝ Format numeric and datetime fields
+ dt_fields←vids.fields⍳⊆'presented_at' 'published_at'
+ vids.index_all[;dt_fields]←TimeStamp2DDN vids.index_all[;dt_fields]
+ vids.index_cols←↓⍉vids.index_all
+⍝ Store fields as matrices for filter queries
+ mat_fields←vids.fields⍳⊆'youtube_id' 'presenter_id'
+ vids.index_cols[mat_fields]←↑¨vids.index_cols[mat_fields]
+
+⍝ Tokenise search fields
+ search_fields←'title' 'event' 'event_shortname' 'description' 'youtube_id' 'presenter'
+ weights←2 2 1 2 1 3
+ stemmer←⎕NEW Porter2Stemmer.EnglishPorter2Stemmer
+ Stem←{
+     stemmed←stemmer.Stem⊆⍵
+     stemmed.Value
+ }
+ Tokenise←{
+     text←('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵
+     words←(⎕C ⎕A)(∊⍨⊆⊢)text
+     non_words←(' ',⎕C ⎕A)(~⍤∊⍨⊆⊢)text
+     ↑non_words,(⊢,Stem¨)words
+ }
+ search_columns←Tokenise¨(vids.fields∊search_fields)/vids.index_all
+ vids.index_width←0⌈⌈/(⊢/⍴)¨,search_columns
+ search_columns←{(≢⍵)(vids.index_width)↑⍵}¨search_columns
+ vids.index←∪⊃⍪/,search_columns
+
+ vids.search←vids.index ComputeSearch weights search_columns
+ vids.recommendations←ComputeRecommendations vids.search

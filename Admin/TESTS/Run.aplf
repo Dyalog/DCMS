@@ -6,9 +6,15 @@
  result←1
  result∧←DoTest MAIN     ⍝ General tests should pass from clean start
  InsertDummyData
- #.DCMS.ADMIN.RefreshData''
- :While ~#.isolate.Available'#.DCMS.QUERY.recommendations'   ⍝ Wait until recommendations ready
- :EndWhile
+
+ ⍝ Refresh search and recommendations cache
+ ⍝ FIXME Performing the cache build in the main process for the tests suite as workaround.
+ ⍝ For some reason on Jenkins the isolate never finishes.
+ #.DCMS.ADMIN.RefreshData 0
+
+ ⍝ FIXME once RefreshData builds cache in isolate, reinstate wait til ready for tests
+ ⍝:While ~#.isolate.Available'#.DCMS.QUERY.VIDEOS.recommendations'   ⍝ Wait until recommendations ready
+ ⍝:EndWhile
  result∧←DoTest MOCK   ⍝ Test insert and retrieve dummy data
  result∧←DoTest MAIN   ⍝ General tests should still pass after populating database, cache etc.
  result∧←DoTest CRUD   ⍝ Test Create Read Update Delete

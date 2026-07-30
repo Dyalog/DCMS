@@ -17,4 +17,4 @@
  :EndIf
  ##.Log'[REQ] GET /presenters'
 
- res←##.CACHE.presenters
+ res←#.DCMS.GLOBAL.cache.presenters

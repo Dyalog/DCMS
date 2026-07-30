@@ -21,7 +21,8 @@ connects to the database, registers the routes, and starts the server;
 | Module | Responsibility |
 | ------ | -------------- |
 | **[AUTH](../APLSource/AUTH)** | Authenticates each request and gates it by path prefix (`ControlAccess`). |
-| **[QUERY](../APLSource/QUERY)** | Read-optimised public endpoints (video search, recommendations, events, presenters), served from an in-memory cache (`BuildCache`). |
+| **[QUERY](../APLSource/QUERY)** | Read-optimised public endpoints (video search, recommendations, events, presenters), served from an in-memory cache (`GLOBAL.cache`). |
+| **[CACHE](../APLSource/CACHE)** | Builds that cache — the joined tables, the BM25F search index, and the recommendation matrix — in a separate CPU process (a Dyalog isolate), so rebuilds do not block request handling. `Build` also runs in the main process, for debugging. |
 | **[CRUD](../APLSource/CRUD)** | Generic create/read/update/delete over the database tables. |
 | **[IMPORT](../APLSource/IMPORT)** | Fetches external data into the database; `IMPORT/YOUTUBE` pulls video metadata from the YouTube Data API. |
 | **[ADMIN](../APLSource/ADMIN)** | Operational endpoints: refresh cached data, push content to WordPress. |
@@ -59,7 +60,8 @@ YouTube Data API ─▶ IMPORT ─▶ MariaDB ─▶ QUERY cache ─▶ read end
 
 - **Ingest** — `ADMIN.RefreshData` (a 24-hour timer, or `POST /admin/refresh`)
   calls `IMPORT.YOUTUBE.RefreshData` to fetch video metadata into MariaDB, then
-  `QUERY.BuildCache` rebuilds the cache the read endpoints serve from.
+  runs `DCMS.CACHE.Build` in an isolate subprocess and swaps the rebuilt cache in
+  atomically for the read endpoints to serve from.
 - **Serve** — read endpoints answer from the cache; CRUD endpoints read and
   write MariaDB directly.
 - **Publish** — `ADMIN.WPPush` (`POST /admin/wp-push`) pushes video posts to the

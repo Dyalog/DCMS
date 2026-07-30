@@ -11,8 +11,8 @@
          #.DRC←#.Conga.Init''
          ⎕←'Conga initalised'
      :EndIf
-     'SQA'SQL.⎕CY'sqapl'
-     ⎕←'SQAPL loaded into SQL.SQA'
+     ⍝'SQA'SQL.⎕CY'sqapl' FIXME remove once confirmed OK
+     ⍝⎕←'SQAPL loaded into SQL.SQA'
      #.⎕CY'isolate'
      ⎕←'Isolate loaded into #'
      Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
