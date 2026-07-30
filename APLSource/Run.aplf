@@ -1,4 +1,4 @@
- Run cfg;logging;suspend;trace;app_dir;LoadDependency
+ Run cfg;logging;suspend;trace;LoadDependency
 ⍝ cfg: a preset scalar (0=production, 1=development, 2=strict)
 ⍝      or an explicit (logging suspend trace) triple. See SetDebug.
  :If 0=≢⍴cfg
