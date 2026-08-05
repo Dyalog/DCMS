@@ -4,6 +4,8 @@
         LOGGING:      0,
         SUSPEND:      0,
         TRACE:        0,
+        BUILD_IN_ISOLATE: 0,   // Isolate build never finishes on Jenkins; build in main process for tests
+
         LX: "⎕TRAP ← 0 'C' '⎕←''Error during setup for test run'' ⋄ ⎕←1⎕JSON⎕OPT''Compact''0⊢⎕DMX ⋄ ⎕OFF 1' ⋄\
              ⎕SE.Link.Import 'DCMS' '[APP_DIR]/APLSource' ⋄\
              ⎕SE.Link.Import 'Admin' '[APP_DIR]/Admin' ⋄\
