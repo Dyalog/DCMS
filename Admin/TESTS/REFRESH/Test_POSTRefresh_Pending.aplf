@@ -1,7 +1,8 @@
- r←Test_POSTRefresh_Pending url;Assert;live;res;state
+ r←Test_POSTRefresh_Pending url;Assert;Authed;live;res;state
 ⍝ Check a trigger arriving while a refresh runs queues instead of starting a second build
  r←0
  Assert←##.Assert
+ Authed←##.MAIN.Authed
  state←#.DCMS.GLOBAL.refresh
  :Trap 0
      'Refresh already running at start of test'Assert ##.WaitRefreshIdle 150
