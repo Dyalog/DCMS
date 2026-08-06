@@ -1,0 +1,31 @@
+ r←RefreshStatus req;responses;ts
+⍝ GET /admin/refresh/status — current and most recent data refresh state
+ :If req≡'⍠SPEC'
+     responses←##.SPEC.responses
+     ts←{(type:'string' ⋄ format:'date-time' ⋄ nullable:⊂'true' ⋄ description:⍵)}
+     r←(
+         tags:,⊂'Admin' ⋄ summary:'Get data refresh status' ⋄ operationId:'getRefreshStatus'
+         responses:(
+             ⍙200:(
+                 description:'Current and most recent data refresh state'
+                 content:(⍙application⍙47⍙json:(schema:(
+                     type:'object'
+                     properties:(
+                         status:(type:'string' ⋄ enum:('idle' 'running') ⋄ description:'Whether a refresh is running now.')
+                         pending:(type:'integer' ⋄ enum:(0 1) ⋄ description:'1 if a refresh is queued behind the running one.')
+                         started_at:ts'When the current or most recent refresh began; null if none has run.'
+                         finished_at:ts'When the most recent refresh ended; null while one is running.'
+                         last_success_at:ts'When a refresh most recently completed without error.'
+                         last_error_at:ts'When a refresh most recently failed.'
+                         last_error_message:(type:'string' ⋄ description:'Message from the most recent failure; empty if the last refresh succeeded.')
+                     )
+                 )))
+             )
+             ⍙401:responses.unauthorized
+         )
+     )
+     :Return
+ :EndIf
+ 'r'⎕NS ##.GLOBAL.refresh                      ⍝ Deep copy: a swap mid-serialisation must not tear the response
+ r.status←(1+r.running)⊃'idle' 'running'
+ r.⎕EX'running' 'thread'                       ⍝ Internal fields are not part of the API

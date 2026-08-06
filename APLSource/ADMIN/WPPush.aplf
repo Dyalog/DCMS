@@ -20,6 +20,10 @@
                  )))
              )
              ⍙401:responses.unauthorized
+             ⍙502:(
+                 description:'WordPress rejected the request or was unreachable. Signalled by WP.Post.'
+                 content:(⍙application⍙47⍙json:(schema:##.SPEC.schemas.error))
+             )
          )
      )
      :Return

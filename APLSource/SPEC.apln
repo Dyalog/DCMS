@@ -102,6 +102,15 @@
             )
         ))
 
+        unavailable←(
+            description: 'Cache has not been built yet. Retry shortly.'
+            content: (⍙application⍙47⍙json: (schema: ##.schemas.error))
+            example: (
+                error: 503
+                message: 'Cache is being built. Retry shortly.'
+            )
+        )
+
    :EndNamespace
 
 :EndNamespace

@@ -1,6 +1,7 @@
- res←Presenters req
+ res←Presenters req;responses
 ⍝ Serve GET /presenters, returning presenter names and IDs
  :If req≡'⍠SPEC'
+     responses←##.SPEC.responses
      res←(
          tags:,⊂'Presenters' ⋄ summary:'List presenter names' ⋄ operationId:'getPresenters' ⋄ security:⍬
          responses: (
@@ -11,10 +12,15 @@
                      name: (type:'string')
                  ))))
              )
+             ⍙503:responses.unavailable
          )
      )
      :Return
  :EndIf
  ##.Log'[REQ] GET /presenters'
+
+ :If 0=#.DCMS.GLOBAL.⎕NC'cache'
+     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+ :EndIf
 
  res←#.DCMS.GLOBAL.cache.presenters

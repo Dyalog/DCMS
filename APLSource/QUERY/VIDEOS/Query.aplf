@@ -1,8 +1,8 @@
- res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;index_width;p;pg;ppg;presenter;presenter_id;q_event;schemas;search;stemmer;terms;this;to;v
+ res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;index_width;p;pg;ppg;presenter;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
 
  :If req≡'⍠SPEC'
-     schemas←##.##.SPEC.schemas
+     (schemas responses)←##.##.SPEC.(schemas responses)
      res←(
          tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId:'getVideos' ⋄ security:⍬
          description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
@@ -56,6 +56,7 @@
                  description:'Internal server error'
                  content:(⍙application⍙47⍙json:(schema:schemas.error))
              )
+             ⍙503:responses.unavailable
          )
 
      )
@@ -63,6 +64,10 @@
  :EndIf
 
  ##.##.Log'[REQ] GET /videos ',1 ⎕JSON req.QueryParams
+
+ :If 0=#.DCMS.GLOBAL.⎕NC'cache'
+     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+ :EndIf
 
  Q←req.QueryParams∘⎕VGET
  CACHE←#.DCMS.GLOBAL.cache
@@ -89,10 +94,10 @@
      stemmed.Value
  }
 ⍝ Rank by search terms
- index_width←#.DCMS.GLOBAL.cache.videos.index_width
+ index_width←CACHE.videos.index_width
  terms←(≢terms)(index_width)↑↑terms←∪terms⊆⍛,Stem¨terms←', '(~⍤∊⍨⊆⊢)Norm Q⊂'search' ''
- search←#.DCMS.GLOBAL.cache.videos.search
- Lookup←#.DCMS.GLOBAL.cache.videos.Lookup
+ search←CACHE.videos.search
+ Lookup←CACHE.videos.Lookup
  i←terms Lookup _Rank filter⌿search
 
 ⍝ Sort

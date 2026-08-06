@@ -5,6 +5,15 @@
      'GLOBAL'⎕NS''
      GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'APP_DIR'
      ⎕←'App directory is ',app_dir
+    ⍝ Data refresh state. running/thread are the refresh serialisation lock; the rest is served by /admin/refresh/status.
+     GLOBAL.refresh←(
+         running:0 ⋄ thread:¯1 ⋄ pending:0
+         started_at:⊂'null' ⋄ finished_at:⊂'null'
+         last_success_at:⊂'null' ⋄ last_error_at:⊂'null'
+         last_error_message:''
+     )
+    ⍝ Whether the cache is built in an isolate (production) or the main process (tests)
+     GLOBAL.build_in_isolate←⊃(2⊃⎕VFI GetEnv'BUILD_IN_ISOLATE'),1
      ⎕←'Loading dependencies...'
      :If 0=#.⎕NC'Conga'
          'Conga'#.⎕CY'conga'

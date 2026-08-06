@@ -1,8 +1,8 @@
- res←Single req;CACHE;ytid;idx;id;schemas
+ res←Single req;CACHE;id;idx;responses;schemas;ytid
 ⍝ Serve GET /videos/{youtube_id}, returning one video or 404
 
  :If '⍠SPEC'≡req
-     schemas←##.##.SPEC.schemas
+     (schemas responses)←##.##.SPEC.(schemas responses)
      res←(tags:,⊂'Videos' ⋄ summary:'Get a single video' ⋄ operationId: 'getVideo' ⋄ security:⍬
          responses:(
              ⍙200:(
@@ -13,12 +13,17 @@
                  description:'Video not found'
                  content:(⍙application⍙47⍙json:(schema: schemas.error))
              )
+             ⍙503:responses.unavailable
          )
      )
      :Return
  :EndIf
 
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id
+
+ :If 0=#.DCMS.GLOBAL.⎕NC'cache'
+     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+ :EndIf
 
  CACHE←#.DCMS.GLOBAL.cache
 

@@ -1,0 +1,24 @@
+ r←Test_GETRefreshStatus_Fields url;Assert;Authed;IsDT;NullOrDT;d;dt;res
+⍝ Check GET /admin/refresh/status returns the documented fields with correct types
+ r←0
+ Assert←##.Assert
+ Authed←##.MAIN.Authed
+ dt←1 1 1 1 2 1 1 2 1 1 3 1 1 4 1 1 4 1 1         ⍝ DateTime type signature, as Test_GETProfiling_Response
+ IsDT←{dt≡1 2 3 4+.×⍨⍵∘.∊⎕D'-' 'T' ':'}
+ NullOrDT←{((⊂'null')≡⍵)∨IsDT ⍵}                  ⍝ Timestamps are an ISO string until first set, then null
+ :Trap 0
+     res←('GET'Authed url,'/admin/refresh/status').Run
+     'Expected 200 OK'Assert 200=res.HttpStatus
+     d←res.Data
+     'status must be idle or running'Assert(⊂d.status)∊'idle' 'running'
+     'pending must be 0 or 1'Assert d.pending∊0 1
+     'started_at must be null or a datetime'Assert NullOrDT d.started_at
+     'finished_at must be null or a datetime'Assert NullOrDT d.finished_at
+     'last_success_at must be null or a datetime'Assert NullOrDT d.last_success_at
+     'last_error_at must be null or a datetime'Assert NullOrDT d.last_error_at
+     'last_error_message must be a character vector'Assert 1≥≡d.last_error_message
+    ⍝ running and thread are the lock itself, not part of the API
+     'running must not be exposed'Assert 0=d.⎕NC'running'
+     'thread must not be exposed'Assert 0=d.⎕NC'thread'
+     r←1
+ :EndTrap

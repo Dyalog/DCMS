@@ -15,7 +15,7 @@
      :If 0∊⍴detail                                 ⍝ fall back to the diagnostic message lines
          detail←1↓∊NL,¨dmx.DM
      :EndIf
-     :If (dmx.EN≥400)∧(dmx.EN<500)                 ⍝ client error → respond with that status
+     :If (dmx.EN≥400)∧(dmx.EN<600)                 ⍝ client error → respond with that status
          res←(error:dmx.EN ⋄ message:detail)
          req.Fail dmx.EN
      :Else                                         ⍝ server-side expected error → 500 with message
@@ -27,8 +27,8 @@
      :If 1=suspend                                ⍝ development: leave the bug to suspend
          ⎕SIGNAL⊂('EN' dmx.EN)('EM' dmx.EM)('Message' dmx.Message)
      :EndIf
- ⍝ suspend=0 (production): turn the bug into a generic 500 + a pre-filled issue link
-     ⍝ Percent-encode a character vector (UTF-8) for use in a URL query value
+    ⍝ suspend=0 (production): turn the bug into a generic 500 + a pre-filled issue link
+    ⍝ Percent-encode a character vector (UTF-8) for use in a URL query value
      URLEncode←{
          unreserved←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~'
          hex←'0123456789ABCDEF'
