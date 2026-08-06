@@ -1,0 +1,25 @@
+ r←Test_RefreshStaleLock url;Assert;dead;res;state
+⍝ Check a refresh serialisation lock orphaned by a dead worker thread does not
+⍝ wedge refresh permanently. Forges the lock state directly: the test suite shares
+⍝ the interpreter with the application, so #.DCMS.GLOBAL is reachable.
+ r←0
+ Assert←##.Assert
+ state←#.DCMS.GLOBAL.refresh
+ :Trap 0
+     'Refresh already running at start of test'Assert ##.WaitRefreshIdle 150
+    ⍝ Forge a lock held by a thread number far above any the interpreter would
+    ⍝ allocate (new threads take the lowest free number), so it cannot be live.
+     dead←1000+⌈/0,⎕TNUMS
+     state.(running thread pending)←1 dead 0
+     res←('POST'Authed url,'/admin/refresh').Run
+     'Expected 202 Accepted'Assert 202=res.HttpStatus
+     'Orphaned lock wedged refresh: trigger was queued behind a dead thread'Assert~∨/'pending'⍷res.Data.message
+     'Lock not transferred off the dead thread'Assert state.thread≠dead
+     'Refresh did not complete'Assert ##.WaitRefreshIdle 300
+     r←1
+ :EndTrap
+⍝ Teardown: never leave a forged or orphaned lock behind for later tests
+ {}##.WaitRefreshIdle 300
+ :If state.running∧~state.thread∊⎕TNUMS
+     state.(running thread pending)←0 ¯1 0
+ :EndIf

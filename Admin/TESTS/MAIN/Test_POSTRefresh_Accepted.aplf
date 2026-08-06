@@ -1,0 +1,15 @@
+ r←Test_POSTRefresh_Accepted url;Assert;res;suffix
+⍝ Check POST /admin/refresh returns 202 with a message and a status monitor URL
+ r←0
+ Assert←##.Assert
+ suffix←'/admin/refresh/status'
+ :Trap 0
+     'Refresh already running at start of test'Assert ##.WaitRefreshIdle 150
+     res←('POST'Authed url,'/admin/refresh').Run
+     'Expected 202 Accepted'Assert 202=res.HttpStatus
+     'message must be a character vector'Assert 1=≡res.Data.message
+     'monitorUrl must point at the status endpoint'Assert suffix≡(-≢suffix)↑res.Data.monitorUrl
+     r←1
+ :EndTrap
+⍝ Teardown: never leak a refresh worker into the next test
+ {}##.WaitRefreshIdle 300

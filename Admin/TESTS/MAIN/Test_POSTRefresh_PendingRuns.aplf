@@ -1,0 +1,19 @@
+ r←Test_POSTRefresh_PendingRuns url;Assert;first;state
+⍝ Check a queued refresh actually runs once the current one finishes.
+⍝ started_at is re-stamped at the top of every cycle, so a change proves a second
+⍝ cycle ran, whether the second trigger queued or started its own build after the first.
+ r←0
+ Assert←##.Assert
+ state←#.DCMS.GLOBAL.refresh
+ :Trap 0
+     'Refresh already running at start of test'Assert ##.WaitRefreshIdle 150
+     {}('POST'Authed url,'/admin/refresh').Run
+     first←state.started_at
+     {}('POST'Authed url,'/admin/refresh').Run
+     'Refresh did not return to idle'Assert ##.WaitRefreshIdle 300
+     'Second refresh cycle never ran'Assert first≢state.started_at
+     'Pending flag not cleared'Assert 0=state.pending
+     r←1
+ :EndTrap
+⍝ Teardown: never leak a refresh worker into the next test
+ {}##.WaitRefreshIdle 300

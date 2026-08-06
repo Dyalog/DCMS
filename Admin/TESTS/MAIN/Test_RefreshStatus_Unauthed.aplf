@@ -1,0 +1,12 @@
+ Test_RefreshStatus_Unauthed←{
+⍝ Check the refresh endpoints reject a missing api key with 401.
+⍝ ControlAccess rejects before routing, so the POST cannot trigger a refresh.
+     Status←{
+         h←##.##.##.HttpCommand.New ⍺
+         h.URL←⍵
+         res←h.Run
+         res.HttpStatus
+     }
+     401≠'POST'Status ⍵,'/admin/refresh':0
+     401='GET'Status ⍵,'/admin/refresh/status'
+ }

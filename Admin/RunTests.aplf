@@ -5,6 +5,11 @@
  (keepalive show_pass)←2↑opts
  prev_debug←#.DCMS.GLOBAL.(logging suspend trace)
  #.DCMS.SetDebug 1 1 0
+⍝ Startup triggers an asynchronous cache build, bail if the cache takes too long.
+ :If ~TESTS.WaitRefreshIdle 300
+     ⎕←'Startup cache build did not complete; aborting test run.'
+     ⎕OFF 1
+ :EndIf
  TESTS.ClearData
  r←show_pass TESTS.Run GetEnv'LOCAL_URL'
  #.DCMS.SetDebug prev_debug
