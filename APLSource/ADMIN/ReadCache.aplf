@@ -1,0 +1,16 @@
+ r←ReadCache file;cache;tie
+ :If ⎕NEXISTS file
+     :Trap 20 24
+         tie←file ⎕FTIE 0
+         cache←⎕FREAD tie 1
+         r←'Loaded existing cache. Cache was created at ',⊃##.ISODateTime 13 ⎕NINFO file
+     :Case 20
+         r←'Cache file exists but could not be loaded. File exists but component does not.'
+     :Case 24
+         r←'Cache file exists but could not be loaded. File was already tied.'
+     :EndTrap
+     ⎕FUNTIE tie
+     #.DCMS.GLOBAL.cache←cache   ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
+ :Else
+     r←'Cache file does not exist. It will be created once the cache is built.'
+ :EndIf

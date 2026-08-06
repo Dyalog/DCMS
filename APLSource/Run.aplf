@@ -25,6 +25,8 @@
      GLOBAL.data_refresh_timer.onTimer←'ADMIN.Refresh'
  :EndIf
 
+ ⎕←ADMIN.ReadCache GetEnv'CACHE_FILE'
+
 ⍝ Set up Stark router
  url←GetEnv'PUBLIC_URL'
  :If 0=⎕NC'router'
