@@ -12,11 +12,6 @@
     ⍝ Blanket trap: this thread has no request and no OnErrorFn, so an escaping error
     ⍝ would hold the lock forever.
      :Trap 0
-         :Trap 202 404
-             ##.IMPORT.YOUTUBE.RefreshData''
-         :Else
-             ##.Log'[REFRESH] DATA NOT REFRESHED. ',⎕DMX.Message
-         :EndTrap
          RefreshData ##.GLOBAL.build_in_isolate
          state.last_success_at←⊃ISODateTime ⎕TS
          state.last_error_message←''

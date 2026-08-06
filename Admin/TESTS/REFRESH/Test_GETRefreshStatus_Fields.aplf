@@ -17,9 +17,8 @@
      'last_success_at must be null or a datetime'Assert NullOrDT d.last_success_at
      'last_error_at must be null or a datetime'Assert NullOrDT d.last_error_at
      'last_error_message must be a character vector'Assert 1≥≡d.last_error_message
-    ⍝ running and thread are the lock itself; cycles is internal bookkeeping
+    ⍝ running and thread are the lock itself, not part of the API
      'running must not be exposed'Assert 0=d.⎕NC'running'
      'thread must not be exposed'Assert 0=d.⎕NC'thread'
-     'cycles must not be exposed'Assert 0=d.⎕NC'cycles'
      r←1
  :EndTrap

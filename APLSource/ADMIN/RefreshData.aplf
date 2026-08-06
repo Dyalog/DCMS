@@ -1,4 +1,4 @@
- r←RefreshData opt
+ r←RefreshData opt;build_opt;new;result;⍙CACHE
 ⍝ opt: whether to build cache in isolate or main process :: Boolean
 ⍝   r: information about when data refresh was triggered :: simple character vector
  :Trap 202 404
@@ -19,8 +19,12 @@
      new←#.DCMS.CACHE.Build build_opt
  :EndIf
 
+ new.videos.(index←1500⌶index)   ⍝ Prime index for hashing
+ new.videos.(Lookup←index∘⍳)     ⍝ Create index function
+ {}new.videos.(Lookup 1⌷index)   ⍝ First use of lookup function causes hash to build
+
  :Hold '#.DCMS.GLOBAL.cache'   ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
-     #.DCMS.GLOBAL.cache←new ⋄ #.DCMS.GLOBAL.cache.videos.(Lookup←index∘⍳)
+     #.DCMS.GLOBAL.cache←new
  :EndHold
 
  ⎕←r←'Refreshed data at ',⍕⎕TS
