@@ -1,10 +1,10 @@
  r←RefreshData opt;build_opt;new;result;⍙CACHE
 ⍝ opt: whether to build cache in isolate or main process :: Boolean
-⍝   r: information about when data refresh was triggered :: simple character vector
+⍝   r: when the cache rebuild completed, for interactive callers :: simple character vector
  :Trap 202 404
      ##.IMPORT.YOUTUBE.RefreshData''
  :Else
-     ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
+     ##.Log'[REFRESH] DATA NOT REFRESHED. ',⎕DMX.Message
  :EndTrap
  build_opt←(
      using:##.⎕USING
@@ -13,7 +13,7 @@
  :If opt
      ⍙CACHE←#.ø #.DCMS.CACHE         ⍝ Spawn isolate to build cache in separate process
      result←⍙CACHE.Build build_opt   ⍝ Build new cache in isolate. Does not block threads in main process despite waiting for future to resolve.
-     ##.Log'⍙CACHE isolate running:',#.isolate.Running'result'
+     ##.Log'[REFRESH] ⍙CACHE isolate running:',#.isolate.Running'result'
      'new'⎕NS result                 ⍝ Must deep clone 'new'⎕NS ref because result ref from namespace-returning isolate cannot be dotted into (interpreter bug)
  :Else
      new←#.DCMS.CACHE.Build build_opt
@@ -23,8 +23,6 @@
  new.videos.(Lookup←index∘⍳)     ⍝ Create index function
  {}new.videos.(Lookup 1⌷index)   ⍝ First use of lookup function causes hash to build
 
- :Hold '#.DCMS.GLOBAL.cache'   ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
-     #.DCMS.GLOBAL.cache←new
- :EndHold
+ #.DCMS.GLOBAL.cache←new         ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
 
- ⎕←r←'Refreshed data at ',⍕⎕TS
+ ##.Log'[REFRESH] ',r←'Refreshed data at ',⍕⎕TS
