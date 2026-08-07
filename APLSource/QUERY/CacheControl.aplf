@@ -1,0 +1,26 @@
+ req←CacheControl req;GetETag;cache;requested_ddn;requested_etag
+⍝ Request helper for cache validation headers
+⍝ Modifies the Stark/Jarvis request in-place
+⍝ req: Stark request namespace :: namespace reference
+
+ :If 0=#.DCMS.GLOBAL.⎕NC'cache'
+     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+ :EndIf
+
+ cache←#.DCMS.GLOBAL.cache
+ FormatDateTime←#.DCMS.DT.FormatDateTime
+ HTTPDate2DDN←#.DCMS.DT.HTTPDate2DDN
+ 'ETag'req.SetHeader cache.etag
+ 'Last-Modified'req.SetHeader⊃'Ddd, DD Mmm YYYY hh:mm:ss "GMT"'FormatDateTime cache.last_updated
+ 'Cache-Control'req.SetHeader'public, no-cache'   ⍝ Downstream caches should always validate
+
+ requested_ddn←HTTPDate2DDN req.GetHeader'Last-Modified'
+ requested_etag←req.GetHeader'If-None-Match'
+ GetETag←{⍵⊆⍨¯1(⊢∧⌽)≠\'"'=⍵}   ⍝ Weak ETag supported
+⍝ FIXME invalid ddn returns 200
+ :If cache.last_updated≡requested_ddn
+⍝ If-None-Match ETag has precedence over Last-Modified, so check it after
+ :ElseIf ~0∊⍴GetETag requested_etag
+ :AndIf cache.etag∊⍥GetETag requested_etag
+     req.Fail 304
+ :EndIf

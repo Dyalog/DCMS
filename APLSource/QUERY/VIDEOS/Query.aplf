@@ -1,8 +1,8 @@
- res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;index_width;p;pg;ppg;presenter;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
+ res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;index_width;p;parameters;pg;ppg;presenter;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
 
  :If req≡'⍠SPEC'
-     (schemas responses)←##.##.SPEC.(schemas responses)
+     (schemas responses parameters)←##.##.SPEC.(schemas responses parameters)
      res←(
          tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId:'getVideos' ⋄ security:⍬
          description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
@@ -19,6 +19,7 @@
          responses:(
              ⍙200:(
                  description:'Paginated video results'
+                 parameters: parameters.cache
                  content:(⍙application⍙47⍙json:(schema:(type:'object' ⋄ properties:(
                                  path:(type:'string' ⋄ description:'URL for this endpoint')
                                  per_page:(type:'integer')
@@ -44,6 +45,7 @@
                                      ))
                              ))))
              )
+             ⍙304: responses.not_modified
              ⍙404:(
                  description:'No videos found matching the query parameters'
                  content:(⍙application⍙47⍙json:(schema:schemas.error))
@@ -65,8 +67,12 @@
 
  ##.##.Log'[REQ] GET /videos ',1 ⎕JSON req.QueryParams
 
- :If 0=#.DCMS.GLOBAL.⎕NC'cache'
-     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+#.last←req
+
+ req←##.CacheControl req
+ :If 304=req.Response.Status
+     res←''
+     :Return
  :EndIf
 
  Q←req.QueryParams∘⎕VGET

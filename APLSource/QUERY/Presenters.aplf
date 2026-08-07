@@ -1,17 +1,19 @@
- res←Presenters req;responses
+ res←Presenters req;parameters;responses
 ⍝ Serve GET /presenters, returning presenter names and IDs
  :If req≡'⍠SPEC'
-     responses←##.SPEC.responses
+     (responses parameters)←##.SPEC.(responses parameters)
      res←(
          tags:,⊂'Presenters' ⋄ summary:'List presenter names' ⋄ operationId:'getPresenters' ⋄ security:⍬
          responses: (
              ⍙200: (
                  description: 'List of presenter names and IDs'
+                 parameters: parameters.cache
                  content: (⍙application⍙47⍙json: (schema: (type:'object' ⋄ properties:(
                      id: (type:'integer')
                      name: (type:'string')
                  ))))
              )
+             ⍙304: responses.not_modified
              ⍙503:responses.unavailable
          )
      )
@@ -19,8 +21,10 @@
  :EndIf
  ##.Log'[REQ] GET /presenters'
 
- :If 0=#.DCMS.GLOBAL.⎕NC'cache'
-     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+ req←CacheControl req
+ :If 304=req.Response.Status
+     res←''
+     :Return
  :EndIf
 
  res←#.DCMS.GLOBAL.cache.presenters

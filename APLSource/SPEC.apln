@@ -84,6 +84,12 @@
             description: 'Page number.'
         )
 
+        cache←(
+                (name:'ETag' ⋄ in:'header' ⋄ schema:(type:'string') ⋄ description:'Datetime of last successful cache build YYYYMMDDhhmmssfff by convention. Updates only when cache content changes.')
+                (name:'Last-Modified' ⋄ in:'header' ⋄ schema:(type:'string') ⋄ description:'HTTP Date of the last time the cache data changed.')
+                (name:'Cache-Control' ⋄ in:'header' ⋄ schema:(type:'string') ⋄ description:'Instructions for downstream caches (browsers, proxies, CDNs etc.)')
+        )
+
    :EndNamespace
 
    :Namespace responses
@@ -101,6 +107,11 @@
                 message: 'Missing or invalid X-API-Key header'
             )
         ))
+
+        not_modified←(
+            description: 'Cache was not modified since this ETag or Last-Modified datetime'
+            parameters: ##.parameters.cache
+        )
 
         unavailable←(
             description: 'Cache has not been built yet. Retry shortly.'

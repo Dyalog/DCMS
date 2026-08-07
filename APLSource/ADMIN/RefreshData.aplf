@@ -1,4 +1,4 @@
- new←RefreshData opt;build_opt;result;⍙CACHE
+ new←RefreshData opt;build_opt;result;⍙CACHE;Content
 ⍝ opt: whether to build cache in isolate or main process :: Boolean
 ⍝ new: newly built cache namespace                       :: namespace
  :Trap 202 404
@@ -22,6 +22,15 @@
  new.presenters←⎕NS¨new.presenters
  new.events.data←⎕NS¨new.events.data
  new.videos←⎕NS new.videos
+ 
+ Content←{1(220⌶)(⍵.videos.(fields values))(⍵.events.data)(⍵.events.has_videos)(⍵.presenters)}
+ :If (Content new)≡Content #.DCMS.GLOBAL.cache
+     new.last_updated←#.DCMS.GLOBAL.cache.last_updated
+ :Else
+     new.last_updated←1 ⎕DT'Z'
+ :EndIf
+
+ new.etag←'W/"','"',⍨'0'@(' '∘=)∊4 2 2 2 2 2 3-⍛↑∘⍕¨⊃1 ¯1 ⎕DT new.last_updated
 
  new←#.DCMS.CACHE.Rehydrate new      ⍝ Hash the index and bind the lookup function over it
 
