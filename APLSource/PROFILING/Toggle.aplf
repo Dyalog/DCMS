@@ -21,13 +21,13 @@
      :If ~status.on            ⍝ off→on; no-op (and since unchanged) if already on
          status.on←1
          ⎕PROFILE'start'
-         status.since←⊃##.ISODateTime 1⎕DT'Z'
+         status.since←⊃##.DT.ISODateTime 1⎕DT'Z'
      :EndIf
  :ElseIf new≡'false'
      :If status.on             ⍝ on→off; no-op (and since unchanged) if already off
          status.on←0
          ⎕PROFILE'stop'
-         status.since←⊃##.ISODateTime 1⎕DT'Z'
+         status.since←⊃##.DT.ISODateTime 1⎕DT'Z'
      :EndIf
  :Else
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Query parameter "on" must be "true" or "false".')

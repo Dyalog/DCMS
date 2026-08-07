@@ -3,7 +3,7 @@
 ⍝ Holds the refresh serialisation lock. If the pending flag
 ⍝ is set by the end of a refresh, this function loops and refreshes again.
 ⍝ dummy: ignored
- ISODateTime←##.ISODateTime
+ ISODateTime←#.DCMS.DT.ISODateTime
  state←##.GLOBAL.refresh
  :Repeat
      state.pending←0                  ⍝ This cycle satisfies any trigger queued so far

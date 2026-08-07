@@ -20,7 +20,7 @@
  'ETag header missing'Assert~0∊⍴etag
  'Last-Modified header missing'Assert~0∊⍴modified
  'Cache-Control header missing'Assert~0∊⍴cache_control
- mod_ddn←#.DCMS.HTTPDate2DDN modified
+ mod_ddn←#.DCMS.DT.HTTPDate2DDN modified
  'Last-Modified is not a valid HTTP-date'Assert 1=≢mod_ddn
 
  h←New''
