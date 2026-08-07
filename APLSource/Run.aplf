@@ -15,6 +15,9 @@
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
 
+⍝ Serve the last persisted cache.
+ ⎕←ADMIN.ReadCache GetEnv'CACHE_FILE'
+
  ⎕←'Building search and recommendations indexes in the background...'
  {}ADMIN.Refresh ⍬
 
@@ -24,8 +27,6 @@
      GLOBAL.data_refresh_timer.Interval←×/24 60 60 1000
      GLOBAL.data_refresh_timer.onTimer←'ADMIN.Refresh'
  :EndIf
-
- ⎕←ADMIN.ReadCache GetEnv'CACHE_FILE'
 
 ⍝ Set up Stark router
  url←GetEnv'PUBLIC_URL'

@@ -1,0 +1,8 @@
+ cache←Rehydrate cache
+⍝ Hash the search index and define the lookup function of a cache namespace so it is ready for query functions.
+⍝ cache: cache namespace, updated in place :: namespace ref
+ cache.videos.(index←1500⌶index)       ⍝ Prime index for hashing
+ cache.videos.(Lookup←index∘⍳)         ⍝ Create index function
+ :If 0<≢cache.videos.index
+     {}cache.videos.(Lookup 1⌷index)   ⍝ First use of lookup function causes hash to build
+ :EndIf

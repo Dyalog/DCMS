@@ -1,6 +1,6 @@
- r←RefreshData opt;build_opt;new;result;⍙CACHE;cache_file;tie
+ new←RefreshData opt;build_opt;result;⍙CACHE
 ⍝ opt: whether to build cache in isolate or main process :: Boolean
-⍝   r: when the cache rebuild completed, for interactive callers :: simple character vector
+⍝ new: newly built cache namespace                       :: namespace
  :Trap 202 404
      ##.IMPORT.YOUTUBE.RefreshData''
  :Else
@@ -18,35 +18,16 @@
  :Else
      'new'⎕NS #.DCMS.CACHE.Build build_opt
  :EndIf
-⍝ Must deep clone any sub-namespaces of cache to make cache self-contained and serialisable
+⍝ Replace sub-namespace references with local copies, so the cache is self-contained and can be written to a component file.
  new.presenters←⎕NS¨new.presenters
  new.events.data←⎕NS¨new.events.data
  new.videos←⎕NS new.videos
 
-⍝ Write out newly created cache to file, so a future deployment can instantly pick up
-⍝ the built cache and start serving responses.
- cache_file←##.GetEnv'CACHE_FILE'
- :Trap 11 20 24   ⍝ Namespace not self-contained
-     :If ⎕NEXISTS cache_file
-         tie←cache_file ⎕FTIE 0
-         new ⎕FREPLACE tie 1
-     :Else
-         tie←cache_file ⎕FCREATE 0
-         new ⎕FAPPEND tie
-     :EndIf
- :Case 11
-     ⎕←'Could not write ',cache_file,'. New cache namespace is new self-contained.'
- :Case 20
-     ⎕←'Could not write ',cache_file,'. File exists but component was not created.'
- :Case 24
-     ⎕←'Could not write ',cache_file,'. File already tied.'
- :EndTrap
- ⎕FUNTIE tie
-
- new.videos.(index←1500⌶index)   ⍝ Prime index for hashing
- new.videos.(Lookup←index∘⍳)     ⍝ Create index function
- {}new.videos.(Lookup 1⌷index)   ⍝ First use of lookup function causes hash to build
+ new←#.DCMS.CACHE.Rehydrate new      ⍝ Hash the index and bind the lookup function over it
 
  #.DCMS.GLOBAL.cache←new         ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
 
- ##.Log'[REFRESH] ',r←'Refreshed #.DCMS.GLOBAL.cache'
+⍝ Persist the cache we are now serving, so the next cold start can serve it immediately.
+ (##.GetEnv'CACHE_FILE')WriteCache new
+
+ ##.Log'[REFRESH] Refreshed #.DCMS.GLOBAL.cache'
