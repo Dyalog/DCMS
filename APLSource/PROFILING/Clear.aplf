@@ -14,4 +14,4 @@
  r←''
  ⎕PROFILE'clear'
  req.SetStatus 204
- status.last_cleared←⊃##.ISODateTime ⎕TS
+ status.last_cleared←⊃##.ISODateTime 1⎕DT'Z'
