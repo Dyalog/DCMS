@@ -1,4 +1,6 @@
  Assert←{
+⍝ ⍺: what was expected :: simple character vector
+⍝ ⍵: condition         :: Boolean
      ⍺←'assertion failure'
      0∊⍵:⍺ ⎕SIGNAL 8
      shy←0}
