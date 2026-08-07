@@ -15,6 +15,9 @@
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
 
+⍝ Serve the last persisted cache.
+ ⎕←ADMIN.ReadCache GetEnv'CACHE_FILE'
+
  ⎕←'Building search and recommendations indexes in the background...'
  {}ADMIN.Refresh ⍬
 

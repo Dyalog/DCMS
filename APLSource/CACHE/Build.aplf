@@ -34,6 +34,7 @@
  :EndIf
 
  vids←cache.videos←⎕NS''   ⍝ Namespaces pass by reference, so assignment to vids shorthand updates cache namespace
+
  vids.fields←ep.videos.fields
  vids.values←SQL.Do ep.videos.sql
  (title ytid pname pid)←↓⍉SQL.Do ep.videos.presenter.sql   ⍝ YouTube ID, presenter name

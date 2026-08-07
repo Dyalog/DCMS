@@ -1,18 +1,28 @@
- r←Test_POSTRefresh_PendingRuns url;Assert;Authed;state
-⍝ Check a refresh worker releases the lock and clears the pending flag.
-⍝ The only test that runs a worker to completion, so the only cover for the release path:
-⍝ if the release breaks, refresh wedges permanently after the first refresh.
+ r←Test_POSTRefresh_PendingRuns url;Assert;Authed;cache;file;state;tie
+⍝ Check a refresh worker releases the lock and clears the pending flag, and that the
+⍝ completed refresh leaves behind a cache file a later cold start could actually serve.
  r←0
  Assert←##.Assert
  Authed←##.MAIN.Authed
  state←#.DCMS.GLOBAL.refresh
+ file←##.##.GetEnv'CACHE_FILE'
  :Trap 0
      'Refresh already running at start of test'Assert ##.WaitRefreshIdle 150
+    ⍝ Delete first, so the assertions below cannot be satisfied by a file an earlier run left
+     :If ⎕NEXISTS file
+         {}⎕NDELETE file
+     :EndIf
      'Expected 202 Accepted'Assert 202=('POST'Authed url,'/admin/refresh').Run.HttpStatus
      'Expected 202 Accepted'Assert 202=('POST'Authed url,'/admin/refresh').Run.HttpStatus
      'Refresh did not return to idle'Assert ##.WaitRefreshIdle 600
      'Pending flag not cleared'Assert 0=state.pending
+     'Cache file not written'Assert ⎕NEXISTS file
+     tie←file ⎕FTIE 0
+     cache←⎕FREAD tie 1
+     ⎕FUNTIE tie
+     'Cache file does not hold a servable cache'Assert #.DCMS.CACHE.Valid cache
      r←1
  :EndTrap
-⍝ Teardown: never leak a refresh worker into the next test
+⍝ Teardown: never leak a refresh worker, or a tie, into the next test
+ {0::⍬ ⋄ ⎕FUNTIE tie}⍬
  {}##.WaitRefreshIdle 600

@@ -1,0 +1,22 @@
+ file WriteCache cache;tie;tmp
+⍝ Persist the cache namespace so the next cold start can serve immediately.
+⍝  file: component file path            :: simple character vector
+⍝ cache: self-contained cache namespace :: namespace ref
+ tmp←file,'.tmp'
+ :Trap 0
+     :If ⎕NEXISTS tmp
+         {}⎕NDELETE tmp    ⍝ Discard a temporary file left by an interrupted write
+     :EndIf
+     tie←tmp ⎕FCREATE 0    ⍝ Create temporary file and move so reader cannot read half-written file
+     cache ⎕FAPPEND tie
+     ⎕FUNTIE tie 
+     :If ⎕NEXISTS file     ⍝ ⎕NMOVE does not overwrite.
+         {}⎕NDELETE file
+     :EndIf
+     {}file ⎕NMOVE tmp
+     ##.Log'[REFRESH] Wrote cache to ',file
+ :Else
+     ⎕←'Could not write ',file,'. Cache not persisted. ',⎕DMX.(EM,': ',Message)
+     {0::⍬ ⋄ ⎕FUNTIE tie}⍬             ⍝ tie is unassigned if ⎕FCREATE failed
+     {0::⍬ ⋄ {}⎕NDELETE tmp}⍬
+ :EndTrap

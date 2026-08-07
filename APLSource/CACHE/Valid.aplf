@@ -1,0 +1,18 @@
+ r←Valid cache;ep;vids
+⍝ Is a cache namespace read back from file valid? DCMS should not serve an invalid cache namespace.
+⍝ cache: candidate cache namespace :: namespace ref
+⍝     r: is cache valid            :: Boolean
+ r←0
+ :Trap 0
+     vids←cache.videos
+     r←0≠⎕NC'cache.presenters'
+     r∧←0≠⎕NC'cache.events.data'
+     ep←##.ReadJSON ##.app_dir,'APLSource/QUERY/endpoints.json5'
+     r∧←ep.videos.fields≡vids.fields           ⍝ We have the endpoint fields
+     r∧←(≢vids.fields)=⊢/⍴vids.values          ⍝ And as many columns
+     r∧←(≢vids.fields)=≢vids.index_cols
+     r∧←(⍴vids.search)≡≢¨vids.(values index)   ⍝ BM25F is ≢documents × ≢terms
+     r∧←vids.values =⍥≢ vids.recommendations   ⍝ One row per video
+ :Else
+     r←0
+ :EndTrap

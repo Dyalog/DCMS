@@ -8,7 +8,7 @@
      'Refresh already running at start of test'Assert ##.WaitRefreshIdle 150
     ⍝ A live stand-in worker: satisfies thread∊⎕TNUMS without doing a build, so the
     ⍝ assertions do not depend on how long a real cache build happens to take.
-     live←{⎕DL ⍵}&30
+     live←{⎕DL ⍵}&10
      state.(running thread pending)←1 live 0
      res←('POST'Authed url,'/admin/refresh').Run
      'Expected 202 Accepted'Assert 202=res.HttpStatus
