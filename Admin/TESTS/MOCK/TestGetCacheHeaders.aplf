@@ -1,0 +1,77 @@
+ r←TestGetCacheHeaders url;Assert;New;_TestIfNoneMatch;cache_control;etag;h;mod_ddn;modified;old;res
+⍝ Check GET QUERY endpoints return the correct headers related to the cache
+⍝ No :Trap here: there is nothing to tear down, so an unexpected error reaches _Test,
+⍝ which reports the failing statement.
+ r←0
+ Assert←##.Assert
+
+ New←{
+     h←#.HttpCommand.New'GET'⍵
+     _←'origin'h.SetHeader url
+     h
+ }
+
+⍝ Deep test on /videos
+ h←New(url,'/videos')
+ res←h.Run
+ 'Expected 200 OK from /videos'Assert 200=res.HttpStatus
+
+ (etag modified cache_control)←res.GetHeader'ETag' 'Last-Modified' 'Cache-Control'
+ 'ETag header missing'Assert~0∊⍴etag
+ 'Last-Modified header missing'Assert~0∊⍴modified
+ 'Cache-Control header missing'Assert~0∊⍴cache_control
+ mod_ddn←#.DCMS.HTTPDate2DDN modified
+ 'Last-Modified is not a valid HTTP-date'Assert 1=≢mod_ddn
+
+ h←New''
+ 'If-None-Match'h.SetHeader etag
+
+ ⍝ Shallow test on other endpoints: each must call the shared helper
+ _TestIfNoneMatch←{
+⍝  ⍵: URL to request :: simple character vector
+⍝ ⍺⍺: HttpCommand instance with 'If-None-Match' header set
+⍝  ←: Success :: Boolean
+     ⍺⍺.URL←⍵
+     res←⍺⍺.Run
+     r←304=res.HttpStatus
+     r∧←0∊⍴res.Data
+     r
+ }
+
+ 'If-None-Match on /videos gave no empty 304'Assert h _TestIfNoneMatch(url,'/videos')
+ 'If-None-Match on /videos/{id} gave no empty 304'Assert h _TestIfNoneMatch(url,'/videos/',##.example_video)
+ 'If-None-Match on /videos/{id}/recommendations gave no empty 304'Assert h _TestIfNoneMatch(url,'/videos/',##.example_video,'/recommendations')
+ 'If-None-Match on /events gave no empty 304'Assert h _TestIfNoneMatch(url,'/events')
+ 'If-None-Match on /presenters gave no empty 304'Assert h _TestIfNoneMatch(url,'/presenters')
+
+⍝ Invalid routes: a 304 stands in for a 200, never for an error
+ h.URL←(url,'/videos/noexist1234')
+ res←h.Run
+ 'Conditional GET for an unknown video must be 404, not 304'Assert 404=res.HttpStatus
+ h.URL←(url,'/videos/short/recommendations')
+ res←h.Run
+ 'Conditional GET with a malformed id must be 400, not 304'Assert 400=res.HttpStatus
+
+ h←New(url,'/videos')
+ 'If-Modified-Since'h.SetHeader modified
+ res←h.Run
+ 'If-Modified-Since with our own Last-Modified must be 304'Assert 304=res.HttpStatus
+ 'A 304 must have an empty body'Assert 0∊⍴res.Data
+
+⍝ Get fresh data if modified since a month ago
+ old←⊃'Ddd, DD Mmm YYYY hh:mm:ss "GMT"'#.DCMS.WP.FormatDateTime mod_ddn-30
+ 'If-Modified-Since'h.SetHeader old
+ res←h.Run
+ 'If-Modified-Since a month ago must be 200'Assert 200=res.HttpStatus
+
+ 'If-Modified-Since'h.SetHeader'invalid-date'
+ res←h.Run
+ 'A malformed If-Modified-Since must be 200'Assert 200=res.HttpStatus
+
+⍝ Authenticated endpoints must never be stored by a shared cache
+ h←'GET'##.MAIN.Authed(url,'/crud/event')
+ res←h.Run
+ 'Expected 200 OK from /crud/event'Assert 200=res.HttpStatus
+ 'Authenticated responses must be no-store'Assert'no-store'≡res.GetHeader'Cache-Control'
+
+ r←1
