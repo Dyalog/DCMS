@@ -32,7 +32,7 @@
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id,'/recommendations'
  
  ytid←req.PathParams.youtube_id
- n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'1'   ⍝ Number of results. Default 1.
+ n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'5'   ⍝ Number of results. Default 5.
  vids←#.DCMS.GLOBAL.cache.videos
  all_id←vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id'
  :If 11≠≢ytid
@@ -40,6 +40,7 @@
  :ElseIf (≢ytid)=⊢/⍴all_id
      this←all_id⍳ytid
  :AndIf this≤≢vids.values
+     n←n⌊⊢/⍴vids.recommendations   ⍝ Corpus may hold fewer than n
      rec←vids.recommendations[this;⍳n]
      res←##.Table2JSON vids.fields⍪vids.values[rec;]
  :Else

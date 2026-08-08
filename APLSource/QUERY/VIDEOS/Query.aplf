@@ -7,14 +7,14 @@
          tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId:'getVideos' ⋄ security:⍬
          description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
          parameters:(
-             (name:'from' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
-             (name:'to' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
+             (name:'from' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'string' ⋄ format:'date-time'))
+             (name:'to' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'string' ⋄ format:'date-time'))
              (name:'presenter_id' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'array' ⋄ items:(type:'integer')) ⋄ explode:⊂'false' ⋄ description:'Comma-separated list of presenter IDs from GET /presenters, e.g. "123,456". A video matches only if it has every listed presenter.')
-             (name:'event' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ default:'') ⋄ description:'URL slug of event, e.g. "dyalog-23", used to filter results. Defaults to "all events / any event".')
-             (name:'search' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string') ⋄ description:'Full-text search across video titles, descriptions, presenter names, and event names')
-             (name:'sort' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ enum:('relevance' 'newest' 'oldest')) ⋄ description:'Sort order of results. Defaults to "relevance" when `search` is supplied, otherwise "newest".')
-             (name:'page' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:1) ⋄ description:'Page number for paginated results.')
-             (name:'per_page' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:20) ⋄ description:'Number of results per page for paginated results. Defaults to 20.')
+             (name:'event' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'string' ⋄ default:'') ⋄ description:'URL slug of event, e.g. "dyalog-23", used to filter results. Defaults to "all events / any event".')
+             (name:'search' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'string') ⋄ description:'Full-text search across video titles, descriptions, presenter names, and event names')
+             (name:'sort' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'string' ⋄ enum:('relevance' 'newest' 'oldest')) ⋄ description:'Sort order of results. Defaults to "relevance" when `search` is supplied, otherwise "newest".')
+             (name:'page' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:1) ⋄ description:'Page number for paginated results.')
+             (name:'per_page' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:20) ⋄ description:'Number of results per page for paginated results. Defaults to 20.')
          ),parameters.conditional
          responses:(
              ⍙200:(
@@ -46,11 +46,7 @@
                              ))))
              )
              ⍙304: responses.not_modified
-             ⍙404:(
-                 description:'No videos found matching the query parameters'
-                 content:(⍙application⍙47⍙json:(schema:schemas.error))
-             )
-             ⍙422:(
+             ⍙400:(
                  description:'Invalid query parameters'
                  content:(⍙application⍙47⍙json:(schema:schemas.error))
              )
