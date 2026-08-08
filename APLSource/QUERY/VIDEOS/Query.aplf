@@ -1,4 +1,4 @@
- res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;headers;i;in_range;index_width;p;parameters;pg;ppg;presenter;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
+ res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;headers;i;in_range;index_width;p;parameters;pg;ppg;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
 
  :If req≡'⍠SPEC'
@@ -9,7 +9,7 @@
          parameters:(
              (name:'from' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
              (name:'to' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ format:'date-time'))
-             (name:'presenter' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'array' ⋄ items:(type:'integer')) ⋄ explode:⊂'false' ⋄ description:'Comma-separated list of presenter IDs, e.g. "123,456"')
+             (name:'presenter_id' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'array' ⋄ items:(type:'integer')) ⋄ explode:⊂'false' ⋄ description:'Comma-separated list of presenter IDs from GET /presenters, e.g. "123,456". A video matches only if it has every listed presenter.')
              (name:'event' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ default:'') ⋄ description:'URL slug of event, e.g. "dyalog-23", used to filter results. Defaults to "all events / any event".')
              (name:'search' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string') ⋄ description:'Full-text search across video titles, descriptions, presenter names, and event names')
              (name:'sort' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ enum:('relevance' 'newest' 'oldest')) ⋄ description:'Sort order of results. Defaults to "relevance" when `search` is supplied, otherwise "newest".')
@@ -92,11 +92,10 @@
 ⍝ Filter by date range
  in_range←(fm to)FilterDateTimes ddn←C'presented_at'
 
-⍝ Filter by columns: presenter, event
- presenter←(Q⊂'presenter' '')FilterPresenter C'presenter'
+⍝ Filter by columns: presenter_id, event
  presenter_id←∧⌿∨/(2⊃','⎕VFI Q⊂'presenter_id' '')∘.=(C'presenter_id')
  event←(q_event∘≡¨C'event_shortname')∨0∊⍴q_event←Q⊂'event' ''
- filter←in_range∧presenter∧event∧presenter_id
+ filter←in_range∧event∧presenter_id
 
  Norm←##.##.Unidecode.NormaliseText
  stemmer←⎕NEW #.DCMS.Porter2Stemmer.EnglishPorter2Stemmer
