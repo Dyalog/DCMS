@@ -1,4 +1,4 @@
- new←RefreshData opt;build_opt;result;⍙CACHE;Content
+ {new}←RefreshData opt;build_opt;result;⍙CACHE;Content
 ⍝ opt: whether to build cache in isolate or main process :: Boolean
 ⍝ new: newly built cache namespace                       :: namespace
  :Trap 202 404
