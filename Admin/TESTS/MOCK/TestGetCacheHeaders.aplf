@@ -59,6 +59,15 @@
  'Conditional GET with a bad date must be 400, not 304'Assert 400=res.HttpStatus
 
  h←New(url,'/videos')
+ 'If-None-Match'h.SetHeader,'*'
+ res←h.Run
+ 'If-None-Match: * must be 304 when a representation exists'Assert 304=res.HttpStatus
+ 'A 304 must have an empty body'Assert 0∊⍴res.Data
+ h.URL←(url,'/videos/noexist1234')
+ res←h.Run
+ 'If-None-Match: * must still be 404 for a video that does not exist'Assert 404=res.HttpStatus
+
+ h←New(url,'/videos')
  'If-Modified-Since'h.SetHeader modified
  res←h.Run
  'If-Modified-Since with our own Last-Modified must be 304'Assert 304=res.HttpStatus
@@ -69,6 +78,10 @@
  'If-Modified-Since'h.SetHeader old
  res←h.Run
  'If-Modified-Since a month ago must be 200'Assert 200=res.HttpStatus
+ 
+ 'If-Modified-Since'h.SetHeader⊃'Ddd, DD Mmm YYYY hh:mm:ss "GMT"'#.DCMS.DT.FormatDateTime mod_ddn+30
+ res←h.Run
+ 'If-Modified-Since a month ahead must be 304'Assert 304=res.HttpStatus
 
  'If-Modified-Since'h.SetHeader'invalid-date'
  res←h.Run

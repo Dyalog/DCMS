@@ -13,16 +13,21 @@
  'ETag'req.SetHeader cache.etag
  'Last-Modified'req.SetHeader⊃'Ddd, DD Mmm YYYY hh:mm:ss "GMT"'FormatDateTime cache.last_updated
  'Cache-Control'req.SetHeader'public, no-cache'   ⍝ Downstream caches should always validate
+ 'Vary'req.SetHeader'Accept-Encoding, Origin'     ⍝ Jarvis gzips payloads over a certain size
 
- requested_ddn←HTTPDate2DDN req.GetHeader'If-Modified-Since'
  requested_etag←req.GetHeader'If-None-Match'
  GetETag←{⍵⊆⍨¯1(⊢∧⌽)≠\'"'=⍵}   ⍝ Weak ETag supported
 
- not_modified←cache.last_updated≡requested_ddn
-⍝ If-None-Match ETag has precedence over Last-Modified, so check it after
- :If ~0∊⍴GetETag requested_etag
-     not_modified∨←cache.etag∊⍥GetETag requested_etag
+⍝ If-None-Match takes precedence.
+ :If 0∊⍴requested_etag
+     requested_ddn←HTTPDate2DDN req.GetHeader'If-Modified-Since'
+     not_modified←∨/requested_ddn≥cache.last_updated   ⍝ ∨/⍬ gives 0 so invalid dates fall through to 200
+ :ElseIf (,'*')≡requested_etag~' '
+     not_modified←1
+ :Else
+     not_modified←cache.etag∊⍥GetETag requested_etag
  :EndIf
+
  :If not_modified
      req.Fail 304
  :EndIf
