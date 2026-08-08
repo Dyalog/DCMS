@@ -14,7 +14,7 @@
      :If #.DCMS.CACHE.Valid cache
          #.DCMS.CACHE.Rehydrate cache
          #.DCMS.GLOBAL.cache←cache   ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
-         r←'Loaded cache written at ',(⊃##.ISODateTime 13 ⎕NINFO file),' UTC'
+         r←'Loaded cache written at ',(⊃##.DT.ISODateTime 13 ⎕NINFO file),' UTC'
      :Else
          ⎕←'Cache file ',file,' is not the shape this version of DCMS expects.'
      :EndIf

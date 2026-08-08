@@ -46,6 +46,8 @@
 
  ##.Log'[REQ] GET /crud/',(req.PathParams ⎕VGET⊂'table' ''),'/schema'
 
+ 'Cache-Control' req.SetHeader 'no-store'
+
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL
  :If 0∊⍴table

@@ -1,16 +1,17 @@
- res←Events req;responses
+ res←Events req;events;has_videos;headers;parameters;responses
 ⍝ Serve GET /events, optionally filtered by has_videos
 
  :If req≡'⍠SPEC'
-     responses←##.SPEC.responses
+     (responses parameters headers)←##.SPEC.(responses parameters headers)
      res←(
         tags: ,⊂'Events' ⋄ summary:'List events' ⋄ operationId: 'getEvents' ⋄ security:⍬
         parameters: (
             (name: 'has_videos' ⋄ in: 'query' ⋄ required: ⊂'false' ⋄ schema: (type: 'boolean') ⋄ description: 'Filter whether events have videos of presentations.')
-        )
+        ),parameters.conditional
         responses: (
             ⍙200: (
                 description: 'List of events'
+                headers: headers.cache
                 content: (⍙application⍙47⍙json: (schema: (type: 'array' ⋄ items: (type: 'object' ⋄ properties: (
                     id: (type: 'integer')
                     title: (type: 'string')
@@ -21,6 +22,7 @@
                     has_videos: (type: 'boolean')
                 )))))
             )
+            ⍙304: responses.not_modified
             ⍙503:responses.unavailable
         )
      )
@@ -28,9 +30,11 @@
  :EndIf
 
  ##.Log'[REQ] GET /events ',1⎕JSON req.QueryParams
-
- :If 0=#.DCMS.GLOBAL.⎕NC'cache'
-     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+ 
+ req←CacheControl req
+ :If 304=req.Response.Status
+     res←''
+     :Return
  :EndIf
 
  ⍝ has_videos ← one of (0 1 2)

@@ -84,6 +84,22 @@
             description: 'Page number.'
         )
 
+       ⍝ Request headers a client sends to make a conditional request.
+        conditional←(
+                (name:'If-None-Match' ⋄ in:'header' ⋄ required:⊂'false' ⋄ schema:(type:'string') ⋄ description:'ETag from an earlier response. Returns 304 if it still matches, so the body is not re-sent.')
+                (name:'If-Modified-Since' ⋄ in:'header' ⋄ required:⊂'false' ⋄ schema:(type:'string') ⋄ description:'Last-Modified HTTP-date from an earlier response. Returns 304 if the data has not changed since. Ignored when If-None-Match is also supplied.')
+        )
+
+   :EndNamespace
+
+   :Namespace headers   ⍝ Response headers. A Header Object is a Parameter Object without "name" and "in".
+
+        cache←(
+            ETag: (schema:(type:'string') ⋄ description:'Datetime of last successful cache build YYYYMMDDhhmmssfff by convention. Updates only when cache content changes.')
+            ⍙Last⍙45⍙Modified: (schema:(type:'string') ⋄ description:'HTTP-date of the last time the cache data changed.')
+            ⍙Cache⍙45⍙Control: (schema:(type:'string') ⋄ description:'Instructions for downstream caches (browsers, proxies, CDNs etc.)')
+        )
+
    :EndNamespace
 
    :Namespace responses
@@ -101,6 +117,11 @@
                 message: 'Missing or invalid X-API-Key header'
             )
         ))
+
+        not_modified←(
+            description: 'Cache was not modified since this ETag or Last-Modified datetime'
+            headers: ##.headers.cache
+        )
 
         unavailable←(
             description: 'Cache has not been built yet. Retry shortly.'

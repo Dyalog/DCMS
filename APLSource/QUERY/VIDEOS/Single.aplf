@@ -1,14 +1,17 @@
- res←Single req;CACHE;id;idx;responses;schemas;ytid
+ res←Single req;CACHE;headers;id;idx;parameters;responses;schemas;ytid
 ⍝ Serve GET /videos/{youtube_id}, returning one video or 404
 
  :If '⍠SPEC'≡req
-     (schemas responses)←##.##.SPEC.(schemas responses)
+     (schemas responses parameters headers)←##.##.SPEC.(schemas responses parameters headers)
      res←(tags:,⊂'Videos' ⋄ summary:'Get a single video' ⋄ operationId: 'getVideo' ⋄ security:⍬
+         parameters: parameters.conditional
          responses:(
              ⍙200:(
                  description:'A single video object'
+                 headers: headers.cache
                  content:(⍙application⍙47⍙json:(schema: schemas.video))
              )
+             ⍙304: responses.not_modified
              ⍙404: (
                  description:'Video not found'
                  content:(⍙application⍙47⍙json:(schema: schemas.error))
@@ -21,10 +24,6 @@
 
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id
 
- :If 0=#.DCMS.GLOBAL.⎕NC'cache'
-     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
- :EndIf
-
  CACHE←#.DCMS.GLOBAL.cache
 
  id←req.PathParams.youtube_id
@@ -36,4 +35,10 @@
      ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Video not found.')
  :Else
      res←⊃##.Table2JSON CACHE.videos.fields⍪(CACHE.videos.values⍪⊂'')[,ytid⍳id;]
+ :EndIf
+
+ req←##.CacheControl req
+ :If 304=req.Response.Status
+     res←''
+     :Return
  :EndIf

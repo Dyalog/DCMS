@@ -32,6 +32,8 @@
 
  ##.Log'[REQ] PATCH /crud/',req.PathParams ⎕VGET⊂'table' ''
 
+ 'Cache-Control' req.SetHeader 'no-store'
+
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL
  :If 0∊⍴table

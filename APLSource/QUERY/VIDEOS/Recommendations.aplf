@@ -1,18 +1,20 @@
- r←Recommendations req;Values;all_id;fid;fields;n;rec;responses;schemas;this;vids;ytid
+ res←Recommendations req;Values;all_id;fid;fields;headers;n;parameters;rec;responses;schemas;this;vids;ytid
 ⍝ List of video objects most related to video with youtube_id given by "youtube_id" path parameter
 
  :If '⍠SPEC'≡req
-     (schemas responses)←##.##.SPEC.(schemas responses)
-     r←(tags:,⊂'Videos' ⋄ summary:'Get video recommendations' ⋄ operationId:'getVideoRecommendations' ⋄ security:⍬
+     (schemas responses parameters headers)←##.##.SPEC.(schemas responses parameters headers)
+     res←(tags:,⊂'Videos' ⋄ summary:'Get video recommendations' ⋄ operationId:'getVideoRecommendations' ⋄ security:⍬
          parameters:(
              (name:'youtube_id' ⋄ in:'path' ⋄ required:⊂'true' ⋄ schema:(type:'string') ⋄ description:'11-character YouTube video ID')
              (name:'n' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:5) ⋄ description:'Number of recommendations to return')
-         )
+         ),parameters.conditional
          responses:(
              ⍙200:(
                  description:'List of recommended videos'
+                 headers: headers.cache
                  content:(⍙application⍙47⍙json:(schema:(type:'array' ⋄ items:schemas.video)))
              )
+             ⍙304: responses.not_modified
              ⍙400:(
                  description:'Bad request, e.g. invalid YouTube ID format'
                  content:(⍙application⍙47⍙json:(schema:schemas.error))
@@ -28,11 +30,7 @@
  :EndIf
 
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id,'/recommendations'
-
- :If 0=#.DCMS.GLOBAL.⎕NC'cache'
-     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
- :EndIf
-
+ 
  ytid←req.PathParams.youtube_id
  n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'1'   ⍝ Number of results. Default 1.
  vids←#.DCMS.GLOBAL.cache.videos
@@ -43,7 +41,13 @@
      this←all_id⍳ytid
  :AndIf this≤≢vids.values
      rec←vids.recommendations[this;⍳n]
-     r←##.Table2JSON vids.fields⍪vids.values[rec;]
+     res←##.Table2JSON vids.fields⍪vids.values[rec;]
  :Else
      ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Video not found.')
+ :EndIf
+
+ req←##.CacheControl req
+ :If 304=req.Response.Status
+     res←''
+     :Return
  :EndIf

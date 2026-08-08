@@ -3,24 +3,24 @@
 ⍝ Holds the refresh serialisation lock. If the pending flag
 ⍝ is set by the end of a refresh, this function loops and refreshes again.
 ⍝ dummy: ignored
- ISODateTime←##.ISODateTime
+ ISODateTime←#.DCMS.DT.ISODateTime
  state←##.GLOBAL.refresh
  :Repeat
      state.pending←0                  ⍝ This cycle satisfies any trigger queued so far
-     state.started_at←⊃ISODateTime ⎕TS
+     state.started_at←⊃ISODateTime 1⎕DT'Z'
      state.finished_at←⊂'null'
     ⍝ Blanket trap: this thread has no request and no OnErrorFn, so an escaping error
     ⍝ would hold the lock forever.
      :Trap 0
          RefreshData ##.GLOBAL.build_in_isolate
-         state.last_success_at←⊃ISODateTime ⎕TS
+         state.last_success_at←⊃ISODateTime 1⎕DT'Z'
          state.last_error_message←''
      :Else
-         state.last_error_at←⊃ISODateTime ⎕TS
+         state.last_error_at←⊃ISODateTime 1⎕DT'Z'
          state.last_error_message←⎕DMX.(EM,': ',Message)
          ##.Log'[REFRESH] ',state.last_error_message
      :EndTrap
-     state.finished_at←⊃ISODateTime ⎕TS
+     state.finished_at←⊃ISODateTime 1⎕DT'Z'
      :Hold '#.DCMS.GLOBAL.refresh'
          :If again←state.pending
              state.pending←0

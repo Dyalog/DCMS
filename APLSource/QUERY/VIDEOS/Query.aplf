@@ -1,8 +1,8 @@
- res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;index_width;p;pg;ppg;presenter;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
+ res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;headers;i;in_range;index_width;p;parameters;pg;ppg;presenter;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
 
  :If req≡'⍠SPEC'
-     (schemas responses)←##.##.SPEC.(schemas responses)
+     (schemas responses parameters headers)←##.##.SPEC.(schemas responses parameters headers)
      res←(
          tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId:'getVideos' ⋄ security:⍬
          description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
@@ -15,10 +15,11 @@
              (name:'sort' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ enum:('relevance' 'newest' 'oldest')) ⋄ description:'Sort order of results. Defaults to "relevance" when `search` is supplied, otherwise "newest".')
              (name:'page' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:1) ⋄ description:'Page number for paginated results.')
              (name:'per_page' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:20) ⋄ description:'Number of results per page for paginated results. Defaults to 20.')
-         )
+         ),parameters.conditional
          responses:(
              ⍙200:(
                  description:'Paginated video results'
+                 headers: headers.cache
                  content:(⍙application⍙47⍙json:(schema:(type:'object' ⋄ properties:(
                                  path:(type:'string' ⋄ description:'URL for this endpoint')
                                  per_page:(type:'integer')
@@ -44,6 +45,7 @@
                                      ))
                              ))))
              )
+             ⍙304: responses.not_modified
              ⍙404:(
                  description:'No videos found matching the query parameters'
                  content:(⍙application⍙47⍙json:(schema:schemas.error))
@@ -64,21 +66,30 @@
  :EndIf
 
  ##.##.Log'[REQ] GET /videos ',1 ⎕JSON req.QueryParams
-
- :If 0=#.DCMS.GLOBAL.⎕NC'cache'
-     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
- :EndIf
-
+ 
  Q←req.QueryParams∘⎕VGET
- CACHE←#.DCMS.GLOBAL.cache
- C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
 
-⍝ Filter by date range
+⍝ Validate query parameters that can 400 before the cache control check. A 304 stands in for a 200 so malformed requests must fail first.
  :Trap 11
      (fm to)←##.TimeStamp2DDN Q('from' '')('to' '')
  :Else
      ⎕SIGNAL⊂('EN' 400)('Message' 'Invalid date-time')('Vendor' 'DCMS')
  :EndTrap
+ (pg ppg)←2⊃∘⎕VFI¨Q('page' '1')('per_page' '20')
+ :If 0≥pg
+     ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, page number must be a positive integer.')('Vendor' 'DCMS')
+ :EndIf
+
+ req←##.CacheControl req
+ :If 304=req.Response.Status
+     res←''
+     :Return
+ :EndIf
+
+ CACHE←#.DCMS.GLOBAL.cache
+ C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
+
+⍝ Filter by date range
  in_range←(fm to)FilterDateTimes ddn←C'presented_at'
 
 ⍝ Filter by columns: presenter, event
@@ -111,8 +122,4 @@
 
 ⍝ Convert to JSON and paginate
  res←##.Table2JSON CACHE.videos.fields⍪data
- (pg ppg)←2⊃∘⎕VFI¨Q('page' '1')('per_page' '20')
- :If 0≥pg
-     ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, page number must be a positive integer.')('Vendor' 'DCMS')
- :EndIf
  res←('videos'pg ppg)##.Paginate res

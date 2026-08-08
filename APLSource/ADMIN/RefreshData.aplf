@@ -1,4 +1,4 @@
- new←RefreshData opt;build_opt;result;⍙CACHE
+ {new}←RefreshData opt;build_opt;result;⍙CACHE;Content
 ⍝ opt: whether to build cache in isolate or main process :: Boolean
 ⍝ new: newly built cache namespace                       :: namespace
  :Trap 202 404
@@ -23,9 +23,19 @@
  new.events.data←⎕NS¨new.events.data
  new.videos←⎕NS new.videos
 
- new←#.DCMS.CACHE.Rehydrate new      ⍝ Hash the index and bind the lookup function over it
+ Content←{1(220⌶)(⍵.videos.(fields values))(⍵.events.data)(⍵.events.has_videos)(⍵.presenters)}
+ :If (Content new)≡Content #.DCMS.GLOBAL.cache
+     new.last_updated←#.DCMS.GLOBAL.cache.last_updated
+ :Else
+     new.last_updated←1 ⎕DT'Z'
+ :EndIf
 
- #.DCMS.GLOBAL.cache←new         ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
+ new.etag←'W/"','"',⍨'0'@(' '∘=)∊4 2 2 2 2 2 3-⍛↑∘⍕¨⊃1 ¯1 ⎕DT new.last_updated
+ new.last_updated←¯1 1 ⎕DT⊂6↑⊃1 ¯1 ⎕DT new.last_updated   ⍝ Only second precision for HTTP-date
+
+ new←#.DCMS.CACHE.Rehydrate new        ⍝ Hash the index and bind the lookup function over it
+
+ #.DCMS.GLOBAL.cache←new               ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
 
 ⍝ Persist the cache we are now serving, so the next cold start can serve it immediately.
  (##.GetEnv'CACHE_FILE')WriteCache new

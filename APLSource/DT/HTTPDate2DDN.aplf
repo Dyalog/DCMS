@@ -1,0 +1,18 @@
+ HTTPDate2DDN←{
+⍝ Convert a valid RFC 9110 IMF-fixdate to Dyalog Day Number
+⍝ ⍵: e.g. 'Fri, 07 Aug 2026 07:54:15 GMT' :: simple character vector
+⍝ ←: Dyalog day number, ⍬ if ⍵ invalid    :: scalar number
+     days←'Mon' 'Tue' 'Wed' 'Thu' 'Fri' 'Sat' 'Sun'
+     months←'Jan' 'Feb' 'Mar' 'Apr' 'May' 'Jun' 'Jul' 'Aug' 'Sep' 'Oct' 'Nov' 'Dec'
+     fail←⍬
+     6≠≢parts←' '(≠⊆⊢)⍵:fail
+     (day d mon year time zone)←parts
+     ~(⊂¯1↓day)∊days:fail
+     zone≢'GMT':fail
+     m←months⍳⊂mon
+     t←∊2⊃∘⎕VFI¨':'(≠⊆⊢)time
+     (d y)←2⊃∘⎕VFI¨d year
+     6≠≢ts←∊y m d t:fail                  ⍝ ⎕DT accepts a short ⎕TS; an HTTP-date must be complete
+     ~0 ⎕DT⊂ts:fail                       ⍝ 0 ⎕DT validates the calendar, leap years included
+     ¯1 1 ⎕DT⊂ts
+ }
