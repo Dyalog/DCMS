@@ -44,13 +44,19 @@
  'If-None-Match on /events gave no empty 304'Assert h _TestIfNoneMatch(url,'/events')
  'If-None-Match on /presenters gave no empty 304'Assert h _TestIfNoneMatch(url,'/presenters')
 
-⍝ Invalid routes: a 304 stands in for a 200, never for an error
+⍝ Invalid routes and parameters: a 304 stands in for a 200, never for an error (RFC 9110 §15.4.5)
  h.URL←(url,'/videos/noexist1234')
  res←h.Run
  'Conditional GET for an unknown video must be 404, not 304'Assert 404=res.HttpStatus
  h.URL←(url,'/videos/short/recommendations')
  res←h.Run
  'Conditional GET with a malformed id must be 400, not 304'Assert 400=res.HttpStatus
+ h.URL←(url,'/videos?page=abc')
+ res←h.Run
+ 'Conditional GET with a bad page must be 400, not 304'Assert 400=res.HttpStatus
+ h.URL←(url,'/videos?from=notadate')
+ res←h.Run
+ 'Conditional GET with a bad date must be 400, not 304'Assert 400=res.HttpStatus
 
  h←New(url,'/videos')
  'If-Modified-Since'h.SetHeader modified

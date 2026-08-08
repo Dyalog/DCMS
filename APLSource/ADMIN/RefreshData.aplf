@@ -31,7 +31,7 @@
  :EndIf
 
  new.etag←'W/"','"',⍨'0'@(' '∘=)∊4 2 2 2 2 2 3-⍛↑∘⍕¨⊃1 ¯1 ⎕DT new.last_updated
- new.last_updated←¯1 1 ⎕DT⊂6↑⊃1 ¯1 ⎕DT new.last_updated   ⍝ Only second precision for HTTP Date
+ new.last_updated←¯1 1 ⎕DT⊂6↑⊃1 ¯1 ⎕DT new.last_updated   ⍝ Only second precision for HTTP-date
 
  new←#.DCMS.CACHE.Rehydrate new        ⍝ Hash the index and bind the lookup function over it
 

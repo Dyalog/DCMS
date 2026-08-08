@@ -67,22 +67,29 @@
 
  ##.##.Log'[REQ] GET /videos ',1 ⎕JSON req.QueryParams
  
+ Q←req.QueryParams∘⎕VGET
+
+⍝ Validate query parameters that can 400 before the cache control check. A 304 stands in for a 200 so malformed requests must fail first.
+ :Trap 11
+     (fm to)←##.TimeStamp2DDN Q('from' '')('to' '')
+ :Else
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Invalid date-time')('Vendor' 'DCMS')
+ :EndTrap
+ (pg ppg)←2⊃∘⎕VFI¨Q('page' '1')('per_page' '20')
+ :If 0≥pg
+     ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, page number must be a positive integer.')('Vendor' 'DCMS')
+ :EndIf
+
  req←##.CacheControl req
  :If 304=req.Response.Status
      res←''
      :Return
  :EndIf
 
- Q←req.QueryParams∘⎕VGET
  CACHE←#.DCMS.GLOBAL.cache
  C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
 
 ⍝ Filter by date range
- :Trap 11
-     (fm to)←##.TimeStamp2DDN Q('from' '')('to' '')
- :Else
-     ⎕SIGNAL⊂('EN' 400)('Message' 'Invalid date-time')('Vendor' 'DCMS')
- :EndTrap
  in_range←(fm to)FilterDateTimes ddn←C'presented_at'
 
 ⍝ Filter by columns: presenter, event
@@ -115,8 +122,4 @@
 
 ⍝ Convert to JSON and paginate
  res←##.Table2JSON CACHE.videos.fields⍪data
- (pg ppg)←2⊃∘⎕VFI¨Q('page' '1')('per_page' '20')
- :If 0≥pg
-     ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, page number must be a positive integer.')('Vendor' 'DCMS')
- :EndIf
  res←('videos'pg ppg)##.Paginate res
