@@ -176,8 +176,7 @@ The `GET /videos` handler is **[QUERY/VIDEOS/Query.aplf](APLSource/QUERY/VIDEOS/
 
 1. **Filter** the cached rows by the query parameters: date range
    (**[FilterDateTimes.aplf](APLSource/QUERY/VIDEOS/FilterDateTimes.aplf)**),
-   presenter (**[FilterPresenter.aplf](APLSource/QUERY/VIDEOS/FilterPresenter.aplf)**),
-   and event.
+   `presenter_id`, and `event`.
 2. **Rank** the survivors against the `search` terms. Per-term relevance is a BM25F
    measure — how often the terms occur, weighted down by how common each term is
    across all videos — precomputed for the whole corpus during the cache build

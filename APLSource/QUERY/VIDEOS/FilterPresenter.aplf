@@ -1,7 +1,0 @@
- FilterPresenter←{
-⍝ ⍺: space-separated presenter names
-⍝ ⍵: presenter name fields
-⍝ ←: Boolean vector rows in ⍵ which contain all names in ⍺
-     nm←' '(≠⊆⊢)⍺
-     ⊃∧/nm(∨/⍷)¨⊂⍵
- }

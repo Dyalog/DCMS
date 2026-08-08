@@ -1,0 +1,9 @@
+ Test_GETVideo_Recommendations_DefaultCount←{
+⍝ Test that omitting ?n= returns the documented default of 5 recommendations
+     H←##.##.##.HttpCommand
+     Assert←##.Assert
+     res←H.GetJSON'GET'(⍵,'/videos/',##.example_video,'/recommendations')
+     'Expected 200 OK from /videos/{id}/recommendations'Assert 200=res.HttpStatus:
+     'Omitting n must return the default 5 recommendations'Assert 5=≢res.Data:
+     1
+ }
