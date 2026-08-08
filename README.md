@@ -40,7 +40,7 @@ To work against live YouTube data instead of `MockYT`, obtain a [YouTube Data AP
 
 ## Calling The API
 
-`GET /videos` searches the video library. It needs no authentication and returns a paginated JSON result. Query parameters include `search` (full-text), `event`, `presenter`, `from`, `to`, `sort` (`relevance`, `newest`, `oldest`), `page`, and `per_page`. The [Swagger UI](https://dcms.dyalog.com) and [OpenAPI spec](https://dcms.dyalog.com/openapi.json) document every endpoint and field.
+`GET /videos` searches the video library. It needs no authentication and returns a paginated JSON result. Query parameters include `search` (full-text), `event`, `presenter_id`, `from`, `to`, `sort` (`relevance`, `newest`, `oldest`), `page`, and `per_page`. The [Swagger UI](https://dcms.dyalog.com) and [OpenAPI spec](https://dcms.dyalog.com/openapi.json) document every endpoint and field.
 
 The examples below hit the local stack. Against the live service, replace `http://localhost:8081` with `https://dcms.dyalog.com`.
 

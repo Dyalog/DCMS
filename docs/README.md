@@ -58,10 +58,14 @@ YouTube Data API ─▶ IMPORT ─▶ MariaDB ─▶ QUERY cache ─▶ read end
                                 WP ─▶ Dyalog WordPress site
 ```
 
-- **Ingest** — `ADMIN.RefreshData` (a 24-hour timer, or `POST /admin/refresh`)
-  calls `IMPORT.YOUTUBE.RefreshData` to fetch video metadata into MariaDB, then
-  runs `DCMS.CACHE.Build` in an isolate subprocess and swaps the rebuilt cache in
-  atomically for the read endpoints to serve from.
+- **Ingest** — `ADMIN.Refresh` (a 24-hour timer, or `POST /admin/refresh`) takes the
+  refresh serialisation lock and spawns `ADMIN.RunRefresh`, which calls
+  `IMPORT.YOUTUBE.RefreshData` to fetch video metadata into MariaDB, then runs
+  `DCMS.CACHE.Build` in an isolate subprocess and swaps the rebuilt cache in
+  atomically for the read endpoints to serve from. The **refresh serialisation
+  lock** ensures only one thread is doing a cache refresh at a time, to prevent
+  race conditions and clobbering that could cause system lockups or a request
+  reading a half-updated cache.
 - **Serve** — read endpoints answer from the cache; CRUD endpoints read and
   write MariaDB directly.
 - **Publish** — `ADMIN.WPPush` (`POST /admin/wp-push`) pushes video posts to the

@@ -2,7 +2,7 @@
 ⍝ Insert dummy data into the database for testing
 ⍝ First tests considered:
 ⍝ - /videos?search= should return all videos with matching terms
-⍝ - /videos?presenter=p_name should return all videos by presenter p_name
+⍝ - /videos?presenter_id= should return all videos by those presenters
 ⍝ - /videos?search=p_name       should include videos by presenter p_name
 ⍝ FIXME this is not comprehensive. Fields essential to the video library are used, but many are not.
 
