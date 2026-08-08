@@ -181,11 +181,12 @@ The `GET /videos` handler is **[QUERY/VIDEOS/Query.aplf](APLSource/QUERY/VIDEOS/
    measure — how often the terms occur, weighted down by how common each term is
    across all videos — precomputed for the whole corpus during the cache build
    (**[CACHE/ComputeSearch.aplf](APLSource/CACHE/ComputeSearch.aplf)**). At request
-   time **[\_Rank.aplo](APLSource/QUERY/VIDEOS/_Rank.aplo)** looks the terms up in
-   that matrix and returns the rows in descending score order. Terms are normalised
-   and stemmed (`Porter2Stemmer`) first; with no `search` term, every filtered row
-   is kept.
-3. **Sort** (`newest` / `oldest`) and paginate, then return JSON.
+   time **[Rank.aplf](APLSource/QUERY/VIDEOS/Rank.aplf)** scores the survivors against
+   the terms' columns of that matrix and returns them in descending score order. Terms
+   are normalised and stemmed (`Porter2Stemmer`) first; with no `search` term, every
+   filtered row is kept.
+3. **Sort** (`newest` / `oldest`) and paginate. Only row indices are passed to **[Paginate.aplf](APLSource/QUERY/Paginate.aplf)**, which selects the page
+   before **[Table2JSON.aplf](APLSource/QUERY/Table2JSON.aplf)** converts it.
 
 ### Recommendations
 

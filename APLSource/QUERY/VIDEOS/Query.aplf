@@ -1,4 +1,4 @@
- res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;headers;i;in_range;index_width;p;parameters;pg;ppg;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
+ res←Query req;C;CACHE;Norm;Q;Stem;ddn;event;filter;fm;headers;in_range;index_width;parameters;pg;ppg;presenter;presenter_id;q_event;responses;rows;schemas;stemmer;terms;to
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
 
  :If req≡'⍠SPEC'
@@ -72,6 +72,7 @@
      ⎕SIGNAL⊂('EN' 400)('Message' 'Invalid date-time')('Vendor' 'DCMS')
  :EndTrap
  (pg ppg)←2⊃∘⎕VFI¨Q('page' '1')('per_page' '20')
+ (pg ppg)←⊃¨(pg,1)(ppg,20)   ⍝ ?page= / ?per_page= with no value take the defaults
  :If 0≥pg
      ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, page number must be a positive integer.')('Vendor' 'DCMS')
  :EndIf
@@ -102,19 +103,19 @@
 ⍝ Rank by search terms
  index_width←CACHE.videos.index_width
  terms←(≢terms)(index_width)↑↑terms←∪terms⊆⍛,Stem¨terms←', '(~⍤∊⍨⊆⊢)Norm Q⊂'search' ''
- search←CACHE.videos.search
- Lookup←CACHE.videos.Lookup
- i←terms Lookup _Rank filter⌿search
+ rows←⍸filter   ⍝ Rows matching the filters
+ :If 0<≢terms
+     rows←(CACHE.videos.Lookup terms)Rank CACHE.videos.search rows
+ :EndIf
 
 ⍝ Sort
- data←(filter⌿CACHE.videos.values)[i;]
  :Select Q⊂'sort' ''   ⍝ FIXME should be newest unless search is not empty
  :Case 'newest'
-     data←data[⍒(filter⌿ddn)[i];]   ⍝ newest
+     rows←rows[⍒ddn[rows]]   ⍝ newest
  :Case 'oldest'
-     data←data[⍋(filter⌿ddn)[i];]   ⍝ oldest
+     rows←rows[⍋ddn[rows]]   ⍝ oldest
  :EndSelect
 
-⍝ Convert to JSON and paginate
- res←##.Table2JSON CACHE.videos.fields⍪data
- res←('videos'pg ppg)##.Paginate res
+⍝ Paginate row ordinals, then convert only this page to JSON
+ res←('videos'pg ppg)##.Paginate ⍳≢rows
+ res.data←##.Table2JSON CACHE.videos.fields⍪CACHE.videos.values[rows[res.data];]
