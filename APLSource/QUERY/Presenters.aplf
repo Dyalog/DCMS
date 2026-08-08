@@ -1,13 +1,14 @@
- res←Presenters req;parameters;responses
+ res←Presenters req;headers;parameters;responses
 ⍝ Serve GET /presenters, returning presenter names and IDs
  :If req≡'⍠SPEC'
-     (responses parameters)←##.SPEC.(responses parameters)
+     (responses parameters headers)←##.SPEC.(responses parameters headers)
      res←(
          tags:,⊂'Presenters' ⋄ summary:'List presenter names' ⋄ operationId:'getPresenters' ⋄ security:⍬
+         parameters: parameters.conditional
          responses: (
              ⍙200: (
                  description: 'List of presenter names and IDs'
-                 parameters: parameters.cache
+                 headers: headers.cache
                  content: (⍙application⍙47⍙json: (schema: (type:'object' ⋄ properties:(
                      id: (type:'integer')
                      name: (type:'string')

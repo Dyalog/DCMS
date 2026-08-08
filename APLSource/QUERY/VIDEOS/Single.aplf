@@ -1,13 +1,14 @@
- res←Single req;CACHE;id;idx;parameters;responses;schemas;ytid
+ res←Single req;CACHE;headers;id;idx;parameters;responses;schemas;ytid
 ⍝ Serve GET /videos/{youtube_id}, returning one video or 404
 
  :If '⍠SPEC'≡req
-     (schemas responses parameters)←##.##.SPEC.(schemas responses parameters)
+     (schemas responses parameters headers)←##.##.SPEC.(schemas responses parameters headers)
      res←(tags:,⊂'Videos' ⋄ summary:'Get a single video' ⋄ operationId: 'getVideo' ⋄ security:⍬
+         parameters: parameters.conditional
          responses:(
              ⍙200:(
                  description:'A single video object'
-                 parameters: parameters.cache
+                 headers: headers.cache
                  content:(⍙application⍙47⍙json:(schema: schemas.video))
              )
              ⍙304: responses.not_modified

@@ -1,17 +1,17 @@
- res←Events req;parameters;responses;has_videos
+ res←Events req;events;has_videos;headers;parameters;responses
 ⍝ Serve GET /events, optionally filtered by has_videos
 
  :If req≡'⍠SPEC'
-     (responses parameters)←##.SPEC.(responses parameters)
+     (responses parameters headers)←##.SPEC.(responses parameters headers)
      res←(
         tags: ,⊂'Events' ⋄ summary:'List events' ⋄ operationId: 'getEvents' ⋄ security:⍬
         parameters: (
             (name: 'has_videos' ⋄ in: 'query' ⋄ required: ⊂'false' ⋄ schema: (type: 'boolean') ⋄ description: 'Filter whether events have videos of presentations.')
-        )
+        ),parameters.conditional
         responses: (
             ⍙200: (
                 description: 'List of events'
-                parameters: parameters.cache
+                headers: headers.cache
                 content: (⍙application⍙47⍙json: (schema: (type: 'array' ⋄ items: (type: 'object' ⋄ properties: (
                     id: (type: 'integer')
                     title: (type: 'string')

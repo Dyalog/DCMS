@@ -1,8 +1,8 @@
- res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;i;in_range;index_width;p;parameters;pg;ppg;presenter;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
+ res←Query req;C;CACHE;Lookup;Norm;Q;Stem;all;data;ddn;event;filter;fm;headers;i;in_range;index_width;p;parameters;pg;ppg;presenter;presenter_id;q_event;responses;schemas;search;stemmer;terms;this;to;v
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
 
  :If req≡'⍠SPEC'
-     (schemas responses parameters)←##.##.SPEC.(schemas responses parameters)
+     (schemas responses parameters headers)←##.##.SPEC.(schemas responses parameters headers)
      res←(
          tags:,⊂'Videos' ⋄ summary:'Search and list videos' ⋄ operationId:'getVideos' ⋄ security:⍬
          description:'Returns a paginated envelope of video results. All responses use the envelope format with data, pagination metadata, and navigation links.'
@@ -15,11 +15,11 @@
              (name:'sort' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'string' ⋄ enum:('relevance' 'newest' 'oldest')) ⋄ description:'Sort order of results. Defaults to "relevance" when `search` is supplied, otherwise "newest".')
              (name:'page' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:1) ⋄ description:'Page number for paginated results.')
              (name:'per_page' ⋄ in:'query' ⋄ required:0 ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:20) ⋄ description:'Number of results per page for paginated results. Defaults to 20.')
-         )
+         ),parameters.conditional
          responses:(
              ⍙200:(
                  description:'Paginated video results'
-                 parameters: parameters.cache
+                 headers: headers.cache
                  content:(⍙application⍙47⍙json:(schema:(type:'object' ⋄ properties:(
                                  path:(type:'string' ⋄ description:'URL for this endpoint')
                                  per_page:(type:'integer')
