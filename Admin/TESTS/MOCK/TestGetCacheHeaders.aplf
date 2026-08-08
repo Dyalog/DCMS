@@ -59,7 +59,7 @@
  'A 304 must have an empty body'Assert 0∊⍴res.Data
 
 ⍝ Get fresh data if modified since a month ago
- old←⊃'Ddd, DD Mmm YYYY hh:mm:ss "GMT"'#.DCMS.WP.FormatDateTime mod_ddn-30
+ old←⊃'Ddd, DD Mmm YYYY hh:mm:ss "GMT"'#.DCMS.DT.FormatDateTime mod_ddn-30
  'If-Modified-Since'h.SetHeader old
  res←h.Run
  'If-Modified-Since a month ago must be 200'Assert 200=res.HttpStatus

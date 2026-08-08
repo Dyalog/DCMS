@@ -3,7 +3,7 @@
 
  :If '⍠SPEC'≡req
      (schemas responses parameters)←##.##.SPEC.(schemas responses parameters)
-     r←(tags:,⊂'Videos' ⋄ summary:'Get video recommendations' ⋄ operationId:'getVideoRecommendations' ⋄ security:⍬
+     res←(tags:,⊂'Videos' ⋄ summary:'Get video recommendations' ⋄ operationId:'getVideoRecommendations' ⋄ security:⍬
          parameters:(
              (name:'youtube_id' ⋄ in:'path' ⋄ required:⊂'true' ⋄ schema:(type:'string') ⋄ description:'11-character YouTube video ID')
              (name:'n' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'integer' ⋄ minimum:1 ⋄ default:5) ⋄ description:'Number of recommendations to return')

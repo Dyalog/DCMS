@@ -1,4 +1,4 @@
- res←Events req;parameters;responses
+ res←Events req;parameters;responses;has_videos
 ⍝ Serve GET /events, optionally filtered by has_videos
 
  :If req≡'⍠SPEC'

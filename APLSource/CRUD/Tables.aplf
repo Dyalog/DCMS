@@ -23,5 +23,5 @@
  :EndIf
 
  ##.Log'[REQ] GET /crud'
+ 'Cache-Control' req.SetHeader 'no-store'
  r←(tables: ##.GLOBAL.tables)
- 

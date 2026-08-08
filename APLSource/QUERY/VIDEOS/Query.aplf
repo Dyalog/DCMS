@@ -66,9 +66,7 @@
  :EndIf
 
  ##.##.Log'[REQ] GET /videos ',1 ⎕JSON req.QueryParams
-
-#.last←req
-
+ 
  req←##.CacheControl req
  :If 304=req.Response.Status
      res←''
