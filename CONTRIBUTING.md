@@ -1,7 +1,5 @@
 # Contributing to DCMS
 
-<!-- Banner image slot: drop a contributor banner here once it has been sourced (REPO.md, step 11). -->
-
 This guide covers getting set up, the change workflow, and where to look in the
 code for the most common contributions. For the full development setup see
 **[docs/dev.md](docs/dev.md)**; for the architecture overview and a guide to the
@@ -26,7 +24,7 @@ The whole stack runs in Docker. From a local clone:
 In the RIDE session, against the running server:
 
 ```apl
-Admin.(Tests.Run GetEnv'LOCAL_URL')
+Admin.(TESTS.Run GetEnv'LOCAL_URL')
 ```
 
 The full CI scenario (install dependencies, start the stack, run the suite):

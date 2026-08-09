@@ -18,19 +18,19 @@ The application is a set of namespaces under `#.DCMS`, linked from
 connects to the database, registers the routes, and starts the server;
 **[Setup.aplf](../APLSource/Setup.aplf)** loads dependencies.
 
-| Module | Responsibility |
-| ------ | -------------- |
-| **[AUTH](../APLSource/AUTH)** | Authenticates each request and gates it by path prefix (`ControlAccess`). |
-| **[QUERY](../APLSource/QUERY)** | Read-optimised public endpoints (video search, recommendations, events, presenters), served from an in-memory cache (`GLOBAL.cache`). |
-| **[CACHE](../APLSource/CACHE)** | Builds that cache — the joined tables, the BM25F search index, and the recommendation matrix — in a separate CPU process (a Dyalog isolate), so rebuilds do not block request handling. `Build` also runs in the main process, for debugging. |
-| **[CRUD](../APLSource/CRUD)** | Generic create/read/update/delete over the database tables. |
-| **[IMPORT](../APLSource/IMPORT)** | Fetches external data into the database; `IMPORT/YOUTUBE` pulls video metadata from the YouTube Data API. |
-| **[ADMIN](../APLSource/ADMIN)** | Operational endpoints: refresh cached data, push content to WordPress. |
-| **[WP](../APLSource/WP)** | WordPress REST client that publishes video posts to the Dyalog website (internal use, see [wp.md](wp.md)). |
-| **[WEB](../APLSource/WEB)** | Serves the Swagger UI at `/`. |
-| **[PROFILING](../APLSource/PROFILING)** | Request-profiling toggle and data endpoints. |
-| **[SQL.apln](../APLSource/SQL.apln)** | SQAPL wrapper: connection, schema setup, query execution. |
-| **[SPEC.apln](../APLSource/SPEC.apln)** | OpenAPI schema components shared across endpoint specifications. |
+| Module                                  | Responsibility                                                                                                                                                                                                                                |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **[AUTH](../APLSource/AUTH)**           | Authenticates each request and gates it by path prefix (`ControlAccess`).                                                                                                                                                                     |
+| **[QUERY](../APLSource/QUERY)**         | Read-optimised public endpoints (video search, recommendations, events, presenters), served from an in-memory cache (`GLOBAL.cache`).                                                                                                         |
+| **[CACHE](../APLSource/CACHE)**         | Builds that cache — the joined tables, the BM25F search index, and the recommendation matrix — in a separate CPU process (a Dyalog isolate), so rebuilds do not block request handling. `Build` also runs in the main process, for debugging. |
+| **[CRUD](../APLSource/CRUD)**           | Generic create/read/update/delete over the database tables.                                                                                                                                                                                   |
+| **[IMPORT](../APLSource/IMPORT)**       | Fetches external data into the database; `IMPORT/YOUTUBE` pulls video metadata from the YouTube Data API.                                                                                                                                     |
+| **[ADMIN](../APLSource/ADMIN)**         | Operational endpoints: refresh cached data, push content to WordPress.                                                                                                                                                                        |
+| **[WP](../APLSource/WP)**               | WordPress REST client that publishes video posts to the Dyalog website (internal use, see [wp.md](wp.md)).                                                                                                                                    |
+| **[WEB](../APLSource/WEB)**             | Serves the Swagger UI at `/`.                                                                                                                                                                                                                 |
+| **[PROFILING](../APLSource/PROFILING)** | Request-profiling toggle and data endpoints.                                                                                                                                                                                                  |
+| **[SQL.apln](../APLSource/SQL.apln)**   | SQAPL wrapper: connection, schema setup, query execution.                                                                                                                                                                                     |
+| **[SPEC.apln](../APLSource/SPEC.apln)** | OpenAPI schema components shared across endpoint specifications.                                                                                                                                                                              |
 
 ### Request Lifecycle
 
@@ -89,33 +89,31 @@ numbers. **[database.md](database.md)** has the setup and the ODBC details;
 ## Tests
 
 Test code lives in **[../Admin](../Admin)**, loaded as the `Admin` namespace in
-development. `Admin.TESTS` holds three suites, run in order against a clean
-database:
+development. `Admin.TESTS` holds four suites, run against a clean database:
 
-| Suite  | Covers |
-| ------ | ------ |
-| `MAIN` | General endpoint behaviour, from a clean start and again after data is loaded. |
-| `MOCK` | Queries against inserted dummy data, with `Admin.MOCKYT` standing in for YouTube. |
-| `CRUD` | Create, read, update, and delete round-trips. |
+| Suite     | Covers                                                                            |
+| --------- | --------------------------------------------------------------------------------- |
+| `MAIN`    | General endpoint behaviour, from a clean start and again after data is loaded.    |
+| `MOCK`    | Queries against inserted dummy data, with `Admin.MOCKYT` standing in for YouTube. |
+| `CRUD`    | Create, read, update, and delete round-trips.                                     |
+| `REFRESH` | `POST /admin/refresh`, its status endpoint, and the refresh serialisation lock.   |
 
 `Admin.TESTS.GENERATE` produces the dummy data; `InsertDummyData` loads it.
 
 - **In a development session**, against the running server:
   ```apl
-  Admin.(Tests.Run GetEnv'URL')
+  Admin.(TESTS.Run GetEnv'LOCAL_URL')
   ```
 - **Full local CI run** — **[CI/run-tests-in-docker.sh](../CI/run-tests-in-docker.sh)**
   builds the stack in Docker, runs the suites, and exits with the test status.
-- **Endpoint smoke test** — **[CI/test-endpoints.sh](../CI/test-endpoints.sh)**
-  curls a running server and checks the HTTP status code.
 
 ## Continuous Integration
 
-| Pipeline | Role |
-| -------- | ---- |
-| **[.github/workflows/check-version.yml](../.github/workflows/check-version.yml)** | On pull requests to `master`, runs `CI/check_version.sh` to require that `APLSource/Version.aplf` is bumped above the version on `master`. |
-| **[Jenkinsfile](../Jenkinsfile)** | The deploy pipeline: build the Dyalog image, install dependencies, run the test service (posting a GitHub comment on failure), publish over FTP, and on `master` deploy with Docker Swarm. |
-| **[service.yml](../service.yml)** | The production Docker Swarm stack: the `web` service (behind Traefik at `dcms.dyalog.com`) and `db`, on NFS-backed volumes. |
+| Pipeline                                                                          | Role                                                                                                                                                                                       |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **[.github/workflows/check-version.yml](../.github/workflows/check-version.yml)** | On pull requests to `master`, runs `CI/check_version.sh` to require that `APLSource/Version.aplf` is bumped above the version on `master`.                                                 |
+| **[Jenkinsfile](../Jenkinsfile)**                                                 | The deploy pipeline: build the Dyalog image, install dependencies, run the test service (posting a GitHub comment on failure), publish over FTP, and on `master` deploy with Docker Swarm. |
+| **[service.yml](../service.yml)**                                                 | The production Docker Swarm stack: the `web` service (behind Traefik at `dcms.dyalog.com`) and `db`, on NFS-backed volumes.                                                                |
 
 ## Documentation
 

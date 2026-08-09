@@ -26,7 +26,7 @@ grant all privileges on dyalog_cms.* to dcms;
 > You must use the [MySQL ODBC Driver](https://dev.mysql.com/downloads/connector/odbc/), as the type conversions in `sql/type_conversions.csv` and consequently `#.DCMS.GLOBAL.type_conversions` and `#.DCMS.GLOBAL.type_sqapl` (set in `#.DCMS.SQL.ProcessTableInformation`) rely on the numbers in the `DATA_TYPE` column of `#.(SQA.Columns DCMS.SQL.db)`.
 
 > [!CAUTION]
-> If a type which has no conversion defined in `sql/type_conversions.csv` is present in the database, setup fails with error 106 "Unknown column type in rows: ", listing the row numbers in `1↓2⊃#.SQA.Columns #.DCMS.SQL.db` (`d` in ProcessTableInformation) with the problem data types.
+> If a type which has no conversion defined in `sql/type_conversions.csv` is present in the database, setup fails with error 101 "Unknown column types in rows", listing the row numbers in `1↓2⊃#.SQA.Columns #.DCMS.SQL.db` (`d` in ProcessTableInformation) with the problem data types.
 
 If you use a different driver, check the output of `#.SQA.Columns #.DCMS.SQL.db` and change the numeric values in the 3rd column of `sql/type_conversions.csv`.
 

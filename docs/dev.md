@@ -39,7 +39,7 @@ The services are defined in [docker-compose.yml](../docker-compose.yml):
 
 | Service   | Image                       | Purpose                                    |
 |-----------|-----------------------------|--------------------------------------------|
-| `web`     | `dyalog/techpreview:latest` | Dyalog APL + Jarvis HTTP server            |
+| `web`     | `dyalog/dyalog:20.0`        | Dyalog APL + Jarvis HTTP server            |
 | `db`      | `mariadb:10.8.2`            | MariaDB database                           |
 | `install` | Built from `Dockerfile`     | One-off dependency installer               |
 
@@ -54,7 +54,7 @@ The `SUSPEND` flag controls request handling behaviour from full error trapping 
 In the RIDE session:
 
 ```apl
-Admin.(Tests.Run GetEnv'URL')
+Admin.(TESTS.Run GetEnv'LOCAL_URL')
 ```
 
 ### CI-Style Tests Locally
