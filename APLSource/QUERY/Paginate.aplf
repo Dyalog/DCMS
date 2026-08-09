@@ -62,4 +62,3 @@
  response.next_page_url←nu
  response.path←#.DCMS.url,'/',ep
  response.links←Link¨↓⍉↑lu ll la
-⍝ response FIXME was tradfn'd due to bug in Ride

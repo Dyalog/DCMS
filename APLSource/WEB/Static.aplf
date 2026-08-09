@@ -32,4 +32,4 @@
      ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Not found')   ⍝ HandleError builds the envelope
  :EndIf
  'content-type' req.SetHeader ct
- payload←(##.GLOBAL.web_asset_names⍳⊂name)⊃##.GLOBAL.web_assets   ⍝ cached byte payload (see Run.apf)
+ payload←(##.GLOBAL.web_asset_names⍳⊂name)⊃##.GLOBAL.web_assets   ⍝ cached byte payload (see Run.aplf)

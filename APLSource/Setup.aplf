@@ -18,10 +18,8 @@
      :If 0=#.⎕NC'Conga'
          'Conga'#.⎕CY'conga'
          #.DRC←#.Conga.Init''
-         ⎕←'Conga initalised'
+         ⎕←'Conga initialised'
      :EndIf
-     ⍝'SQA'SQL.⎕CY'sqapl' FIXME remove once confirmed OK
-     ⍝⎕←'SQAPL loaded into SQL.SQA'
      #.⎕CY'isolate'
      ⎕←'Isolate loaded into #'
      Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'

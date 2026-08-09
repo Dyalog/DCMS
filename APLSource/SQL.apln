@@ -1,6 +1,5 @@
 :Namespace SQL   ⍝ SQAPL wrapper: connection, schema setup and query execution
 
-    Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
     FromUTF8←'UTF-8'∘(⊣⎕UCS ⎕UCS)
 
     db←'db'                   ⍝ SQAPL connector identifier
@@ -270,7 +269,6 @@
       ProcessTableInformation←{
           table_information←2⊃SQA.Columns db
           h←1⌷table_information ⋄ d←1↓table_information   ⍝ Header; Data
-          ##.GLOBAL.tables←∪d[;h⍳⊂'TABLE_NAME']
           tc←⎕CSV(##.GLOBAL.app_dir,'/sql/type_conversions.csv')⍬ 4  ⍝ Type conversions matrix
           cz←d[;h⍳⊂'COLUMN_SIZE']
           tp←d[;h⍳⊂'DATA_TYPE']

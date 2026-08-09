@@ -1,4 +1,4 @@
- res←Query req;C;CACHE;Norm;Q;Stem;ddn;event;filter;fm;headers;in_range;index_width;parameters;pg;ppg;presenter;presenter_id;q_event;responses;rows;schemas;stemmer;terms;to
+ res←Query req;C;CACHE;Norm;Q;Stem;ddn;event;filter;fm;headers;in_range;index_width;parameters;pg;ppg;presenter_id;q_event;responses;rows;schemas;stemmer;terms;to
 ⍝ Serve GET /videos: search, filter, rank, sort and paginate
 
  :If req≡'⍠SPEC'
