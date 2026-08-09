@@ -1,6 +1,0 @@
- r←Test opt;GetEnv;Using;using
-⍝ Test use of .NET package in runtime isolate
- GetEnv←#.DCMS.GetEnv ⋄ Using←#.NuGet.Using
- using←Using GetEnv'PKG_NUGET'
- ⎕←Build #.II(using:using ⋄ word:'running')
- ⍝
