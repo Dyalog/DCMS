@@ -2,11 +2,10 @@
 ⍝ ⍵: Jarvis HTTP request object
 ⍝ ←: Jarvis authentication result (0 for success, non-zero to fail request)
      h←⍵.Headers
-     r←⍵.Response
      i←(⊣/h)⍳⊂'x-api-key'
-     i>≢h:1      ⍝ FAIL 'No x-api-key header found'
+     i>≢h:Reject ⍵      ⍝ FAIL 'No x-api-key header found'
      try←h⊃⍨⊂2,⍨i
      key←##.GLOBAL.secrets.upload_token
-     try≢key:1   ⍝ FAIL 'Invalid x-api-key'
+     try≢key:Reject ⍵   ⍝ FAIL 'Invalid x-api-key'
      0
  }

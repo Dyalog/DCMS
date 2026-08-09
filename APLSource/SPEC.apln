@@ -21,10 +21,27 @@
 
        error←(
         type: 'object'
-        required: ('error' ⋄ 'message')
+        description: 'Every error uses this envelope. Sections are separate so a client can format each as it likes.'
+        required: ('error' ⋄ 'message' ⋄ 'request' ⋄ 'query_parameters')
         properties: (
-            error: (type: 'string' ⋄ description: 'Machine-readable error code')
-            message: (type: 'string' ⋄ description: 'Human-readable description')
+            error:   (type: 'integer' ⋄ description: 'HTTP status code, matching the status line')
+            message: (type: 'string' ⋄ description: 'Human-readable description, safe to show a user')
+            request: (
+                type: 'object'
+                description: 'The request that failed'
+                required: ('method' ⋄ 'endpoint')
+                properties: (
+                    method:   (type: 'string' ⋄ example: 'GET')
+                    endpoint: (type: 'string' ⋄ example: '/videos')
+                )
+            )
+            query_parameters: (
+                type: 'object'
+                description: 'Query parameters as received; empty object when there were none'
+                additionalProperties: (type: 'string')
+            )
+            detail: (type: 'string' ⋄ description: 'Technical detail of the fault. Present on 500 only.')
+            report_url: (type: 'string' ⋄ format: 'uri' ⋄ description: 'Pre-filled issue report for this fault. Present on 500 only.')
         )
        )
 
@@ -113,7 +130,7 @@
             description: 'Missing or invalid API key.'
             content: (⍙application⍙47⍙json: (schema: ##.schemas.error))
             example: (
-                error: 'unauthorized'
+                error: 401
                 message: 'Missing or invalid X-API-Key header'
             )
         ))

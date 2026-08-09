@@ -1,0 +1,15 @@
+ r←Reject req;json;payload
+⍝ Build the 401 envelope for a request that failed authentication.
+⍝ Jarvis converts a payload to JSON only for requests that reach a handler
+⍝ so this payload is serialised here and sent verbatim
+⍝ JSON sanitisation copied from Jarvis
+⍝ req: Jarvis request object    :: namespace reference
+⍝   r: Jarvis auth result       :: 1, meaning unauthorized
+ payload←(error:401 ⋄ message:'Missing or invalid X-API-Key header')
+ payload.request←(method:req.Method ⋄ endpoint:req.Endpoint)
+⍝ Pre-routing, so QueryParams is still Jarvis's name/value matrix, not Stark's namespace
+ payload.query_parameters←{0::⎕JSON'{}' ⋄ ()⎕VSET↓⍵}req.QueryParams
+ json←∊{127<c←⎕UCS ⍵:'\u','0123456789ABCDEF'[1+16 16 16 16⊤c] ⋄ ⍵}¨1 ⎕JSON payload
+ 'content-type'req.SetHeader'application/json'
+ req.Response.Payload←⎕UCS json
+ r←1
