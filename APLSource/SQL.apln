@@ -250,15 +250,18 @@
           migrations←schema_definitions
       :EndIf
       Run←{
-          0=⊃r←SQA.Do db ⍵:⍬
+          0=⊃r←SQA.Do db ⍵:1
           ⎕←'Migration failed: ',⍺
           ⎕←'  Statement: ',⍵
           ⎕←'  Error: ',,⍕3⊃r
+          0
       }
       :For (migration batch) :InEach (migrations sequence)
           ##.Log migration
           statements←StatementsFromSchema migration
-          migration∘Run¨statements
+          :If ~∧/migration∘Run¨statements   ⍝ Recording a failed migration would skip it forever
+              ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Migration failed: ',migration))
+          :EndIf
           SQA.Do db'insert into migrations (`migration`,`batch`) values (:file<C255:,:num<I:);'migration batch
       :EndFor
       msg←'Finished SetupSchema'
