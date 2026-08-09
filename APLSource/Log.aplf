@@ -1,6 +1,6 @@
  {msg}←Log msg
 ⍝ Timestamp a message, append to the global log and echo it
  :If GLOBAL.logging
-     GLOBAL.log,←⊂('[',⍕⎕TS,'] ',msg)
+     GLOBAL.log←{(-5000⌊≢⍵)↑⍵}GLOBAL.log,⊂('[',⍕⎕TS,'] ',msg)
      ⎕←⊃⊢/GLOBAL.log
  :EndIf
