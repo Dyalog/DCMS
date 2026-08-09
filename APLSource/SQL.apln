@@ -66,7 +66,10 @@
           found←(1⌷datasource)∊⍥⎕C⊣/src
           opt.wait-←1 ⋄ timeout←opt.wait≤0
       :Until timeout∨found
-      ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Datasource ',(⊃datasource),' not found.'))
+      :If ~found
+          ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Datasource ',(⊃datasource),' not found.'))
+      :EndIf
+      r←found
     ∇
 
     ∇ r←Use database
