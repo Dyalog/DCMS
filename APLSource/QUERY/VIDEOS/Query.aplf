@@ -76,6 +76,9 @@
  :If 0≥pg
      ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, page number must be a positive integer.')('Vendor' 'DCMS')
  :EndIf
+ :If ~(⊂Q⊂'sort' '')∊'' 'relevance' 'newest' 'oldest'
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Sort must be "relevance", "newest" or "oldest".')('Vendor' 'DCMS')
+ :EndIf
 
  req←##.CacheControl req
  :If 304=req.Response.Status
@@ -85,16 +88,16 @@
 
  CACHE←#.DCMS.GLOBAL.cache
  C←CACHE.videos.(index_cols⊃⍨fields⍳⊂)
+ Norm←##.##.Unidecode.NormaliseText
 
 ⍝ Filter by date range
  in_range←(fm to)FilterDateTimes ddn←C'presented_at'
 
 ⍝ Filter by columns: presenter_id, event
  presenter_id←∧⌿∨/(2⊃','⎕VFI Q⊂'presenter_id' '')∘.=(C'presenter_id')
- event←(q_event∘≡¨C'event_shortname')∨0∊⍴q_event←Q⊂'event' ''
+ event←(q_event∘≡¨C'event_shortname')∨0∊⍴q_event←Norm Q⊂'event' ''
  filter←in_range∧event∧presenter_id
 
- Norm←##.##.Unidecode.NormaliseText
  stemmer←⎕NEW #.DCMS.Porter2Stemmer.EnglishPorter2Stemmer
  Stem←{
      stemmed←stemmer.Stem⊆⍵
@@ -109,7 +112,7 @@
  :EndIf
 
 ⍝ Sort
- :Select Q⊂'sort' ''   ⍝ FIXME should be newest unless search is not empty
+ :Select Q⊂'sort' ''   ⍝ Default is cache order: newest first, or Rank order when search terms were given
  :Case 'newest'
      rows←rows[⍒ddn[rows]]   ⍝ newest
  :Case 'oldest'
