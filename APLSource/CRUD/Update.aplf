@@ -53,6 +53,10 @@
  :EndIf
 
  id←req.PathParams ⎕VGET 'id'
+ :If 0=≢id
+ :OrIf ∨/~id∊⎕D
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
+ :EndIf
  values←,req.Payload ⎕VGET columns   ⍝ Quick fix for rank-compatibility with SQL CRUD functions. FIXME consider modifying Update path to allow bulk updates
 
  :Hold 'SQL.db'
