@@ -182,7 +182,8 @@
           (values nulls)←⍺ ⋄ sql←⍵
           _←Do'START TRANSACTION'
           0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
-          ⊃⍪⌿(values,nulls)(Fetch⍤1)sql
+          rows←⊃⍪⌿(values,nulls)(Fetch⍤1)sql
+          rows⊣Do'COMMIT'
       }
 
       Update←{
@@ -203,7 +204,8 @@
           _←Do'START TRANSACTION'
           0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
           _←(values,nulls)(ExecBind⍤1)upd_sql
-          ⊃Fetch sel_sql
+          rows←⊃Fetch sel_sql
+          rows⊣Do'COMMIT'
       }
 
       Delete←{
