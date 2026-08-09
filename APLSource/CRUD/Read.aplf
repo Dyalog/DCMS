@@ -57,6 +57,7 @@
  fields←idx⊃GBL.columns
  id←req.PathParams ⎕VGET⊂('id' '')
  (pg ppg)←2⊃∘⎕VFI¨req.QueryParams ⎕VGET('page' '1')('per_page' '20')
+ (pg ppg)←⊃¨(pg,1)(ppg,20)   ⍝ ?page= / ?per_page= with no value take the defaults
 
  :Hold 'SQL.db'
      :If 0=≢id
