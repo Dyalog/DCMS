@@ -24,10 +24,10 @@
  new.videos←⎕NS new.videos
 
  Content←{1(220⌶)(⍵.videos.(fields values))(⍵.events.data)(⍵.events.has_videos)(⍵.presenters)}
- :If (Content new)≡Content #.DCMS.GLOBAL.cache
-     new.last_updated←#.DCMS.GLOBAL.cache.last_updated
- :Else
-     new.last_updated←1 ⎕DT'Z'
+ new.last_updated←1 ⎕DT'Z'
+ :If 0≠#.DCMS.GLOBAL.⎕NC'cache'   ⍝ Cold start has no cache to compare against
+ :AndIf (Content new)≡Content #.DCMS.GLOBAL.cache
+     new.last_updated←#.DCMS.GLOBAL.cache.last_updated   ⍝ Unchanged content keeps its ETag
  :EndIf
 
  new.etag←'W/"','"',⍨'0'@(' '∘=)∊4 2 2 2 2 2 3-⍛↑∘⍕¨⊃1 ¯1 ⎕DT new.last_updated
