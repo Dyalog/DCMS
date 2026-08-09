@@ -29,10 +29,7 @@
      :Case 'swagger-ui-bundle.js' ⋄ ct←'application/javascript; charset=utf-8'
  :EndSelect
  :If 0∊⍴ct
-     req.Response.Payload←(error:404 ⋄ message:'Not found')
-     payload←''
-     req.Fail 404
-     :Return
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Not found')   ⍝ HandleError builds the envelope
  :EndIf
  'content-type' req.SetHeader ct
  payload←(##.GLOBAL.web_asset_names⍳⊂name)⊃##.GLOBAL.web_assets   ⍝ cached byte payload (see Run.apf)
