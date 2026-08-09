@@ -24,6 +24,9 @@
 
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id
 
+ :If 0=#.DCMS.GLOBAL.⎕NC'cache'   ⍝ 503 unavailable instead of 500 VALUE ERROR
+     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+ :EndIf
  CACHE←#.DCMS.GLOBAL.cache
 
  id←req.PathParams.youtube_id

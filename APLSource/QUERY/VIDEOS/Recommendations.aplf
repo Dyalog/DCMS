@@ -32,12 +32,21 @@
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id,'/recommendations'
  
  ytid←req.PathParams.youtube_id
- n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'5'   ⍝ Number of results. Default 5.
- vids←#.DCMS.GLOBAL.cache.videos
- all_id←vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id'
  :If 11≠≢ytid
      ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'YouTube ID must be an 11-character string.')
- :ElseIf (≢ytid)=⊢/⍴all_id
+ :EndIf
+ n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'5'   ⍝ Number of results. Default 5.
+ n←⊃n,5                                     ⍝ ?n= with no value takes the default
+ :If (1>n)∨n≠⌊n
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'If supplied, n must be a positive integer.')
+ :EndIf
+
+ :If 0=#.DCMS.GLOBAL.⎕NC'cache'   ⍝ 503 unavailable instead of 500 VALUE ERROR
+     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+ :EndIf
+ vids←#.DCMS.GLOBAL.cache.videos
+ all_id←vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id'
+ :If (≢ytid)=⊢/⍴all_id
      this←all_id⍳ytid
  :AndIf this≤≢vids.values
      n←n⌊⊢/⍴vids.recommendations   ⍝ Corpus may hold fewer than n
