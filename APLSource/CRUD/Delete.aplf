@@ -15,10 +15,6 @@
             )
             ⍙401:responses.unauthorized
             ⍙404:responses.not_found
-            ⍙409:(
-                description:'Delete blocked by foreign key constraint.'
-                content:(⍙application⍙47⍙json:(schema:schemas.error))
-            )
          )
      )
      :Return
