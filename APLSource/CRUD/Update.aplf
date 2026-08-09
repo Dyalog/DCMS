@@ -1,4 +1,4 @@
- r←Update req;GBL;columns;eg;id;idx;our_cols;parameters;responses;schemas;table;values
+ r←Update req;GBL;columns;eg;id;idx;our_cols;parameters;record;responses;schemas;table;values
 ⍝ Handles PATCH /crud/{table}/{id}; updates one row, returns updated record
 
  :If 2=⎕NC'req'
@@ -60,5 +60,9 @@
  values←,req.Payload ⎕VGET columns   ⍝ Quick fix for rank-compatibility with SQL CRUD functions. FIXME consider modifying Update path to allow bulk updates
 
  :Hold 'SQL.db'
-     r←##.QUERY.Table2JSON our_cols⍪##.SQL.Update(table:table ⋄ columns:columns ⋄ values:values ⋄ where: 'id=',id ⋄ returning:our_cols)
+     record←##.SQL.Update(table:table ⋄ columns:columns ⋄ values:values ⋄ where: 'id=',id ⋄ returning:our_cols)
  :EndHold
+ :If 0=≢record
+     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+ :EndIf
+ r←⊃##.QUERY.Table2JSON our_cols⍪record   ⍝ One row, so an object not an array
