@@ -3,6 +3,7 @@
 ⍝  file: component file path            :: simple character vector
 ⍝ cache: self-contained cache namespace :: namespace ref
  tmp←file,'.tmp'
+ ##.Log'[REFRESH] Writing cache to ',file
  :Trap 0
      :If ⎕NEXISTS tmp
          {}⎕NDELETE tmp    ⍝ Discard a temporary file left by an interrupted write
