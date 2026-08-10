@@ -4,7 +4,7 @@
  :Trap 202 404
      ##.IMPORT.YOUTUBE.RefreshData''
  :Else
-     ##.Log'[REFRESH] DATA NOT REFRESHED. ',⎕DMX.Message
+     ⎕←'[REFRESH] DATA NOT REFRESHED. ',⎕DMX.Message
  :EndTrap
  build_opt←(
      using:##.⎕USING

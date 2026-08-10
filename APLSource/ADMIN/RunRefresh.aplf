@@ -18,7 +18,7 @@
      :Else
          state.last_error_at←⊃ISODateTime 1⎕DT'Z'
          state.last_error_message←⎕DMX.(EM,': ',Message)
-         ##.Log'[REFRESH] ',state.last_error_message
+         ⎕←'[REFRESH] ',state.last_error_message,∊(⎕UCS 10),¨1↓⎕DMX.DM
      :EndTrap
      state.finished_at←⊃ISODateTime 1⎕DT'Z'
      :Hold '#.DCMS.GLOBAL.refresh'
