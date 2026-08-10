@@ -12,9 +12,10 @@
 
 ⍝ One day we'll have modules and do ⎕IMPORT'SQL' etc. Not today.
 ⍝ CACHE.Build is callable from the main process and in an isolate. CACHE.Setup imports dependencies into the CACHE namespace.
- {}Setup opt
 ⍝ Append-per-call so a trace survives a hung isolate, in APP_DIR so it survives the container
  Trace←{(⊂(⍕⎕TS),' [BUILD] ',⍵)⎕NPUT(opt.app_dir,'build-trace.log')2 ⋄ ⍵}
+ {}Trace'Entered Build, isSlave=',⍕#.isolate.isSlave
+ {}Setup opt
  {}Trace'Setup done'
 
  'cache'⎕NS''
