@@ -63,6 +63,8 @@ node ('Docker') {
 				DockerAppDB.stop()
 				println 'DCMS tests failed - cleaning up.'
 				sh ("docker logs ${DockerApp.id}")
+				// Isolate stdout goes to a file, not the container console
+				sh ("docker exec ${DockerApp.id} cat /tmp/isolate.log || true")
 				sh ('git rev-parse --short HEAD > .git/commit-id')
 				withCredentials([string(credentialsId: '250bdc45-ee69-451a-8783-30701df16935', variable: 'GHTOKEN')]) {
 					commit_id = readFile('.git/commit-id')
