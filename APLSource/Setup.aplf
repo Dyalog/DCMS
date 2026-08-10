@@ -21,7 +21,7 @@
          ⎕←'Conga initialised'
      :EndIf
      #.⎕CY'isolate'
-     {}#.isolate.Config'outfile' '/tmp/isolate.log'   ⍝ Isolate stdout does not reach the parent console
+     {}#.isolate.Config'outfile'(app_dir,'isolate.log')   ⍝ Isolate stdout does not reach the parent console
      ⎕←'Isolate loaded into #'
      Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
      ⎕←'Loading Tatin packages...'

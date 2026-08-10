@@ -1,4 +1,4 @@
- cache←Build opt;Stem;Tokenise;dt_fields;ep;mat_fields;norm;pid;pname;search_columns;search_fields;stemmer;title;vids;weights;ytid
+ cache←Build opt;Stem;Tokenise;dt_fields;ep;mat_fields;norm;pid;pname;search_columns;search_fields;stemmer;title;vids;weights;ytid;Trace
  ;GetEnv;ReadJSON;Unidecode;SQL;Table2JSON;TimeStamp2DDN
 ⍝ The external dependencies above are localised so that Setup's assignments appear as
 ⍝ Build's locals and vanish on return, otherwise certain names (e.g. .NET class instances)
@@ -13,18 +13,20 @@
 ⍝ One day we'll have modules and do ⎕IMPORT'SQL' etc. Not today.
 ⍝ CACHE.Build is callable from the main process and in an isolate. CACHE.Setup imports dependencies into the CACHE namespace.
  {}Setup opt
- ⎕←'[BUILD] Setup done'
+⍝ Append-per-call so a trace survives a hung isolate, in APP_DIR so it survives the container
+ Trace←{(⊂(⍕⎕TS),' [BUILD] ',⍵)⎕NPUT(opt.app_dir,'build-trace.log')2 ⋄ ⍵}
+ {}Trace'Setup done'
 
  'cache'⎕NS''
 
  ep←ReadJSON opt.app_dir,'APLSource/QUERY/endpoints.json5'
 
  cache.presenters←Table2JSON ep.presenters.fields⍪SQL.Do ep.presenters.sql
- ⎕←'[BUILD] Presenters'
+ {}Trace'Presenters'
 
  'cache.events'⎕NS''
  cache.events.data←Table2JSON ep.events.fields⍪SQL.Do ep.events.sql
- ⎕←'[BUILD] Events'
+ {}Trace'Events'
 ⍝ has_videos is a derived column for filtering events with and without videos
 ⍝ returned in the API response as enclosed string which translates to JSON boolean values
 ⍝ stored in APL as numeric 0 and 1 for efficient filtering
@@ -40,9 +42,9 @@
 
  vids.fields←ep.videos.fields
  vids.values←SQL.Do ep.videos.sql
- ⎕←'[BUILD] Videos'
+ {}Trace'Videos'
  (title ytid pname pid)←↓⍉SQL.Do ep.videos.presenter.sql   ⍝ YouTube ID, presenter name
- ⎕←'[BUILD] Video presenters'
+ {}Trace'Video presenters'
  :If 0<≢vids.values
      (ytid pname pid)←↓⍉ytid{(pname pid)←↓⍉⍵ ⋄ ⍺,(⊃(⊣,', ',⊢)/pname)(pid)}⌸⍉↑pname pid
  :EndIf
@@ -72,7 +74,7 @@
  search_fields←'title' 'event' 'event_shortname' 'description' 'youtube_id' 'presenter'
  weights←2 2 1 2 1 3
  stemmer←⎕NEW Porter2Stemmer.EnglishPorter2Stemmer
- ⎕←'[BUILD] Stemmer'
+ {}Trace'Stemmer'
  Stem←{
      stemmed←stemmer.Stem⊆⍵
      stemmed.Value
@@ -87,9 +89,9 @@
  vids.index_width←0⌈⌈/(⊢/⍴)¨,search_columns
  search_columns←{(≢⍵)(vids.index_width)↑⍵}¨search_columns
  vids.index←∪⊃⍪/,search_columns
- ⎕←'[BUILD] Tokenised'
+ {}Trace'Tokenised'
 
  vids.search←vids.index ComputeSearch weights search_columns
- ⎕←'[BUILD] Search'
+ {}Trace'Search'
  vids.recommendations←ComputeRecommendations vids.search
- ⎕←'[BUILD] Recommendations'
+ {}Trace'Recommendations'
