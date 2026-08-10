@@ -73,8 +73,10 @@
  :EndTrap
  (pg ppg)←2⊃∘⎕VFI¨Q('page' '1')('per_page' '20')
  (pg ppg)←⊃¨(pg,1)(ppg,20)   ⍝ ?page= / ?per_page= with no value take the defaults
- :If 0≥pg
+ :If (0≥pg)∨pg≠⌊pg
      ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, page number must be a positive integer.')('Vendor' 'DCMS')
+ :ElseIf (0≥ppg)∨ppg≠⌊ppg
+     ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, items per page must be a positive integer.')('Vendor' 'DCMS')
  :EndIf
  :If ~(⊂Q⊂'sort' '')∊'' 'relevance' 'newest' 'oldest'
      ⎕SIGNAL⊂('EN' 400)('Message' 'Sort must be "relevance", "newest" or "oldest".')('Vendor' 'DCMS')
