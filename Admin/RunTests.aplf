@@ -9,6 +9,9 @@
  :If ~TESTS.WaitRefreshIdle 300
      ⎕←'Startup cache build did not complete; aborting test run.'
      ⎕OFF 1
+ :ElseIf 0=#.DCMS.GLOBAL.⎕NC'cache'   ⍝ Idle with no cache means the build failed, and every cached endpoint will 503
+     ⎕←'Startup cache build failed; aborting test run. ',#.DCMS.GLOBAL.refresh.last_error_message
+     ⎕OFF 1
  :EndIf
  TESTS.ClearData
  r←show_pass TESTS.Run GetEnv'LOCAL_URL'
