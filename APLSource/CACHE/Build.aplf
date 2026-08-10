@@ -27,7 +27,7 @@
 ⍝ stored in APL as numeric 0 and 1 for efficient filtering
  :If 0=≢cache.events.data
      cache.events.has_videos←⍬
-     cache.events.data←''
+     cache.events.data←⍬
  :Else
      cache.events.has_videos←cache.events.data.has_videos
      cache.events.data.has_videos←⊂¨'false' 'true'[1+cache.events.has_videos]   ⍝ Convert APL Bool to JSON Bool

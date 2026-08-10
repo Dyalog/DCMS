@@ -1,4 +1,4 @@
- {new}←RefreshData opt;build_opt;result;⍙CACHE;Content
+ {new}←RefreshData opt;build_opt;result;⍙CACHE;Content;Copy
 ⍝ opt: whether to build cache in isolate or main process :: Boolean
 ⍝ new: newly built cache namespace                       :: namespace
  :Trap 202 404
@@ -19,8 +19,9 @@
      'new'⎕NS #.DCMS.CACHE.Build build_opt
  :EndIf
 ⍝ Replace sub-namespace references with local copies, so the cache is self-contained and can be written to a component file.
- new.presenters←⎕NS¨new.presenters
- new.events.data←⎕NS¨new.events.data
+ Copy←{0=≢⍵:⍵ ⋄ ⎕NS¨⍵}
+ new.presenters←Copy new.presenters
+ new.events.data←Copy new.events.data
  new.videos←⎕NS new.videos
 
  Content←{1(220⌶)(⍵.videos.(fields values))(⍵.events.data)(⍵.events.has_videos)(⍵.presenters)}
