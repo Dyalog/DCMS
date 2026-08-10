@@ -1,15 +1,18 @@
  {new}←RefreshData opt;build_opt;result;⍙CACHE;Content;Copy
 ⍝ opt: whether to build cache in isolate or main process :: Boolean
 ⍝ new: newly built cache namespace                       :: namespace
+ ##.Log'[REFRESH] Importing from YouTube'
  :Trap 202 404
      ##.IMPORT.YOUTUBE.RefreshData''
  :Else
      ⎕←'[REFRESH] DATA NOT REFRESHED. ',⎕DMX.Message
  :EndTrap
+ ##.Log'[REFRESH] Imported from YouTube'
  build_opt←(
      using:##.⎕USING
      app_dir:##.app_dir
  )
+ ##.Log'[REFRESH] Building cache'
  :If opt
      ⍙CACHE←#.ø #.DCMS.CACHE         ⍝ Spawn isolate to build cache in separate process
      result←⍙CACHE.Build build_opt   ⍝ Build new cache in isolate. Does not block threads in main process despite waiting for future to resolve.
@@ -18,6 +21,7 @@
  :Else
      'new'⎕NS #.DCMS.CACHE.Build build_opt
  :EndIf
+ ##.Log'[REFRESH] Built cache'
 ⍝ Replace sub-namespace references with local copies, so the cache is self-contained and can be written to a component file.
  Copy←{0=≢⍵:⍵ ⋄ ⎕NS¨⍵}
  new.presenters←Copy new.presenters

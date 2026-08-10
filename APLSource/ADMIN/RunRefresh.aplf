@@ -6,6 +6,7 @@
  ISODateTime←#.DCMS.DT.ISODateTime
  state←##.GLOBAL.refresh
  :Repeat
+     ##.Log'[REFRESH] Cycle start on thread ',⍕⎕TID
      state.pending←0                  ⍝ This cycle satisfies any trigger queued so far
      state.started_at←⊃ISODateTime 1⎕DT'Z'
      state.finished_at←⊂'null'
@@ -28,4 +29,5 @@
              state.(running thread)←0 ¯1
          :EndIf
      :EndHold
+     ##.Log'[REFRESH] Cycle end, again=',⍕again
  :Until ~again
