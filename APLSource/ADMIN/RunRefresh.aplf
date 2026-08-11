@@ -13,7 +13,7 @@
     ⍝ Blanket trap: this thread has no request and no OnErrorFn, so an escaping error
     ⍝ would hold the lock forever.
      :Trap 0
-         RefreshData ##.GLOBAL.build_in_isolate
+         RefreshData
          state.last_success_at←⊃ISODateTime 1⎕DT'Z'
          state.last_error_message←''
      :Else

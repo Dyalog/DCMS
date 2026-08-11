@@ -12,8 +12,6 @@
          last_success_at:⊂'null' ⋄ last_error_at:⊂'null'
          last_error_message:''
      )
-    ⍝ Whether the cache is built in an isolate (production) or the main process (tests)
-     GLOBAL.build_in_isolate←⊃(2⊃⎕VFI GetEnv'BUILD_IN_ISOLATE'),1
      ⎕←'Loading dependencies...'
      :If 0=#.⎕NC'Conga'
          'Conga'#.⎕CY'conga'

@@ -22,13 +22,14 @@ connects to the database, registers the routes, and starts the server;
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **[AUTH](../APLSource/AUTH)**           | Authenticates each request and gates it by path prefix (`ControlAccess`).                                                                                                                                                                     |
 | **[QUERY](../APLSource/QUERY)**         | Read-optimised public endpoints (video search, recommendations, events, presenters), served from an in-memory cache (`GLOBAL.cache`).                                                                                                         |
-| **[CACHE](../APLSource/CACHE)**         | Builds that cache — the joined tables, the BM25F search index, and the recommendation matrix — in a separate CPU process (a Dyalog isolate), so rebuilds do not block request handling. `Build` also runs in the main process, for debugging. |
+| **[CACHE](../APLSource/CACHE)**         | Builds that cache — the joined tables, the BM25F search index, and the recommendation matrix — in a separate CPU process (a Dyalog isolate), so rebuilds do not block request handling. `Build` is also callable in the main process, for debugging. |
 | **[CRUD](../APLSource/CRUD)**           | Generic create/read/update/delete over the database tables.                                                                                                                                                                                   |
 | **[IMPORT](../APLSource/IMPORT)**       | Fetches external data into the database; `IMPORT/YOUTUBE` pulls video metadata from the YouTube Data API.                                                                                                                                     |
 | **[ADMIN](../APLSource/ADMIN)**         | Operational endpoints: refresh cached data, push content to WordPress.                                                                                                                                                                        |
 | **[WP](../APLSource/WP)**               | WordPress REST client that publishes video posts to the Dyalog website (internal use, see [wp.md](wp.md)).                                                                                                                                    |
 | **[WEB](../APLSource/WEB)**             | Serves the Swagger UI at `/`.                                                                                                                                                                                                                 |
 | **[PROFILING](../APLSource/PROFILING)** | Request-profiling toggle and data endpoints.                                                                                                                                                                                                  |
+| **[DT](../APLSource/DT)**               | Date and time conversions shared across modules: ISO 8601, HTTP-date, and Dyalog Day Numbers.                                                                                                                                                  |
 | **[SQL.apln](../APLSource/SQL.apln)**   | SQAPL wrapper: connection, schema setup, query execution.                                                                                                                                                                                     |
 | **[SPEC.apln](../APLSource/SPEC.apln)** | OpenAPI schema components shared across endpoint specifications.                                                                                                                                                                              |
 
@@ -58,11 +59,12 @@ YouTube Data API ─▶ IMPORT ─▶ MariaDB ─▶ QUERY cache ─▶ read end
                                 WP ─▶ Dyalog WordPress site
 ```
 
-- **Ingest** — `ADMIN.Refresh` (a 24-hour timer, or `POST /admin/refresh`) takes the
-  refresh serialisation lock and spawns `ADMIN.RunRefresh`, which calls
-  `IMPORT.YOUTUBE.RefreshData` to fetch video metadata into MariaDB, then runs
-  `DCMS.CACHE.Build` in an isolate subprocess and swaps the rebuilt cache in
-  atomically for the read endpoints to serve from. The **refresh serialisation
+- **Ingest** — `ADMIN.Refresh` (at start-up, on a 24-hour timer, or
+  `POST /admin/refresh`) takes the refresh serialisation lock and spawns
+  `ADMIN.RunRefresh`, which calls `IMPORT.YOUTUBE.RefreshData` to fetch video
+  metadata into MariaDB, then runs `DCMS.CACHE.Build` in an isolate subprocess
+  and swaps the rebuilt cache in atomically for the read endpoints to serve
+  from. The **refresh serialisation
   lock** ensures only one thread is doing a cache refresh at a time, to prevent
   race conditions and clobbering that could cause system lockups or a request
   reading a half-updated cache.
@@ -102,8 +104,11 @@ development. `Admin.TESTS` holds four suites, run against a clean database:
 
 - **In a development session**, against the running server:
   ```apl
-  Admin.(TESTS.Run GetEnv'LOCAL_URL')
+  Admin.RunTests 1
   ```
+  `RunTests` waits for the start-up cache build and clears the database first; the
+  `1` keeps the session alive afterwards. `Admin.(TESTS.Run GetEnv'LOCAL_URL')` runs
+  the suites without clearing.
 - **Full local CI run** — **[CI/run-tests-in-docker.sh](../CI/run-tests-in-docker.sh)**
   builds the stack in Docker, runs the suites, and exits with the test status.
 

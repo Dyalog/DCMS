@@ -166,11 +166,13 @@ precomputes the search and recommendation matrices.
 Building the cache is expensive, so it runs in a **separate CPU process** (a Dyalog
 [isolate](https://docs.dyalog.com/20.0/files/Parallel_Language_Features.pdf)) to
 keep HTTP serving responsive while the cache is rebuilt.
-**[ADMIN/RefreshData.aplf](APLSource/ADMIN/RefreshData.aplf)** rebuilds it on a
-24-hour timer and on `POST /admin/refresh` (after fresh data is imported from
-YouTube): it seeds the isolate with the module, runs `CACHE.Build` there, and swaps
-`GLOBAL.cache` in atomically. For debugging, `DCMS.CACHE.Build` also runs in the
-main process; both files' comments cover the isolate-boundary details.
+
+A rebuild is triggered at start-up, on a 24-hour timer, and by `POST /admin/refresh`
+(after fresh data is imported from YouTube).
+**[ADMIN/RefreshData.aplf](APLSource/ADMIN/RefreshData.aplf)** seeds the isolate with
+the module, runs `CACHE.Build` there, and swaps `GLOBAL.cache` in atomically. For
+debugging, `DCMS.CACHE.Build` is also callable in the main process; both files'
+comments cover the isolate-boundary details.
 
 ### Search
 

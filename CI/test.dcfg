@@ -4,7 +4,6 @@
         LOGGING:      0,
         SUSPEND:      0,
         TRACE:        0,
-        BUILD_IN_ISOLATE: 1,
         CACHE_FILE:   "/tmp/test_cache.dcf",
 
         LX: "⎕TRAP ← 0 'C' '⎕←''Error during setup for test run'' ⋄ ⎕←1⎕JSON⎕OPT''Compact''0⊢⎕DMX ⋄ ⎕OFF 1' ⋄\
