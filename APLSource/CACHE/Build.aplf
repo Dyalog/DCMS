@@ -87,10 +87,13 @@
      ↑non_words,(⊢,Stem¨)words
  }
  search_columns←Tokenise¨(vids.fields∊search_fields)/vids.index_all
+ {}Trace'Tokenised tokens=',⍕+/≢¨,search_columns
  vids.index_width←0⌈⌈/(⊢/⍴)¨,search_columns
+ {}Trace'Width ',⍕vids.index_width
  search_columns←{(≢⍵)(vids.index_width)↑⍵}¨search_columns
+ {}Trace'Padded'
  vids.index←∪⊃⍪/,search_columns
- {}Trace'Tokenised'
+ {}Trace'Index rows=',⍕≢vids.index
 
  vids.search←vids.index ComputeSearch weights search_columns
  {}Trace'Search'
