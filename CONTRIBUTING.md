@@ -174,6 +174,19 @@ the module, runs `CACHE.Build` there, and swaps `GLOBAL.cache` in atomically. Fo
 debugging, `DCMS.CACHE.Build` is also callable in the main process; both files'
 comments cover the isolate-boundary details.
 
+### Persistence and Conditional Requests
+
+Each refresh also writes the cache it is now serving to the `CACHE_FILE` component
+file (**[ADMIN/WriteCache.aplf](APLSource/ADMIN/WriteCache.aplf)**. At start-up it is read back, checked and the search terms index is hashed in the active workspace ready for queries. A
+cold start serves the previous run's data straight away while the first refresh runs. Until either is ready, the cached read endpoints signal `503`.
+
+`RefreshData` derives each cache's `ETag` from its `last_updated` stamp, and keeps the
+previous stamp when a rebuild produces identical content, so a routine refresh
+does not invalidate clients' copies.
+**[QUERY/CacheControl.aplf](APLSource/QUERY/CacheControl.aplf)** sets the validation
+headers on every cached read endpoint and fails the request with `304` when
+`If-None-Match` or `If-Modified-Since` matches.
+
 ### Search
 
 The `GET /videos` handler is **[QUERY/VIDEOS/Query.aplf](APLSource/QUERY/VIDEOS/Query.aplf)**:

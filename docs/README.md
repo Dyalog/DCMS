@@ -67,9 +67,16 @@ YouTube Data API ─▶ IMPORT ─▶ MariaDB ─▶ QUERY cache ─▶ read end
   from. The **refresh serialisation
   lock** ensures only one thread is doing a cache refresh at a time, to prevent
   race conditions and clobbering that could cause system lockups or a request
-  reading a half-updated cache.
-- **Serve** — read endpoints answer from the cache; CRUD endpoints read and
-  write MariaDB directly.
+  reading a half-updated cache. `GET /admin/refresh/status`
+  (`ADMIN.RefreshStatus`) reports whether a refresh is running, whether one is
+  queued behind it, and when one last succeeded or failed.
+- **Persist** — each refresh writes the cache it is now serving to `CACHE_FILE`
+  (`ADMIN.WriteCache`), and start-up reads it back (`ADMIN.ReadCache`, checked by
+  `CACHE.Valid` and re-hashed by `CACHE.Rehydrate`), so a cold start serves the
+  previous run's data while the first refresh runs.
+- **Serve** — read endpoints answer from the cache, with `ETag` /
+  `Last-Modified` validation and `304` replies (`QUERY.CacheControl`), or `503`
+  while no cache exists yet; CRUD endpoints read and write MariaDB directly.
 - **Publish** — `ADMIN.WPPush` (`POST /admin/wp-push`) pushes video posts to the
   Dyalog WordPress site through the `WP` client.
 

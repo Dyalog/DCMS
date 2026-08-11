@@ -34,9 +34,18 @@ DCMS.SetDebug logging suspend trace   ⍝ 3-element integer vector
 ```
 
 | Config key | `DCMS.GLOBAL` | Values    | Meaning                                                                    |
-| ---------- | ---------- | --------- | -------------------------------------------------------------------------- |
-| `LOGGING`  | `logging`  | 0 / 1     | print `Log` lines to the session                                           |
-| `SUSPEND`  | `suspend`  | 0 / 1 / 2 | suspend on error: none / bugs only / all (rest are trapped into responses) |
-| `TRACE`    | `trace`    | 0 / 1     | suspend on request entry for step-through debugging                        |
+| ---------- | ------------- | --------- | -------------------------------------------------------------------------- |
+| `LOGGING`  | `logging`     | 0 / 1     | print `Log` lines to the session                                           |
+| `SUSPEND`  | `suspend`     | 0 / 1 / 2 | suspend on error: none / bugs only / all (rest are trapped into responses) |
+| `TRACE`    | `trace`       | 0 / 1     | suspend on request entry for step-through debugging                        |
 
 See [error-handling.md](error-handling.md) for the full scheme.
+
+## Cache Persistence
+
+| Config key   | Meaning                                                                                                                                                                |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CACHE_FILE` | Component file the search and recommendation cache is written to after each refresh, and read back from at start-up so a cold start can serve the previous run's data. |
+
+See [Persistence and Conditional Requests](../CONTRIBUTING.md#persistence-and-conditional-requests)
+for how the file is written, validated and rehydrated.
