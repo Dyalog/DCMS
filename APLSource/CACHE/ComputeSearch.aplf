@@ -1,9 +1,9 @@
  ComputeSearch←{
-⍝ ⍺: unique search terms                       :: character matrix
-⍝ ⍵: (weights search_columns)
-⍝    weights: influence factor for each field  :: simple numeric vector
-⍝    search_columns: tokenised document fields :: nested vector of character matrices, each the same width as index. ⍺≡⍥(⊢/⍴)⍵
-     index←⍺ ⋄ (weights search_columns)←⍵
+⍝ ⍺: unique search terms                      :: character matrix
+⍝ ⍵: (weights term_count)
+⍝    weights: influence factor for each field :: simple numeric vector
+⍝    term_count: count of terms found in docs :: simple numeric 3D array ≢documents × ≢fields × ≢terms
+     index←⍺ ⋄ (weights term_count)←⍵
 
 ⍝ Tokenised best-match
 ⍝ Pre-compute BM25F best-match score for all tokens in corpus across all documents
@@ -11,14 +11,11 @@
 ⍝ Zaragoza, H., Craswell, N., Taylor, M.J., Saria, S. and Robertson, S.E., 2004, November. Microsoft Cambridge at TREC 13: Web and Hard Tracks. In Trec (Vol. 4, pp. 1-1).
 ⍝ Then, search queries become a fast lookup into the BM25 scores table to rank relevancy
 
-     Lookup←index∘⍳   ⍝ Cannot pass derived function across isolate boundary, so hashed Lookup function used here and recreated in main process
-     search_index←Lookup¨search_columns
-     term_count←¯1+↑{{≢⍵}⌸(⍳≢index)⍪⍵}¨search_index   ⍝ 3D term count: doc × field × term
-     fl←≢¨search_columns                                   ⍝ Field lengths
-     B←0.6                                                 ⍝ Field length normalisation parameter: 0 for none, 1 for full
-     tc←term_count÷[1 2]1+B×¯1+fl÷[2](+⌿÷≢)fl              ⍝ Field length normalised term count
-     tf←weights+.×2 1 3⍉tc                                 ⍝ Field-dependent normalised Term-Frequency
-     rw←(⍟≢÷+⌿)+/[2]0<tc                                   ⍝ Relevance Weight (inverse document frequency for now, RSJ relevance weight in general)
+     fl←+/term_count                            ⍝ Field lengths
+     B←0.6                                      ⍝ Field length normalisation parameter: 0 for none, 1 for full
+     tc←term_count÷[1 2]1+B×¯1+fl÷[2](+⌿÷≢)fl   ⍝ Field length normalised term count
+     tf←weights+.×2 1 3⍉tc                      ⍝ Field-dependent normalised Term-Frequency
+     rw←(⍟≢÷+⌿)+/[2]0<tc                        ⍝ Relevance Weight (inverse document frequency for now, RSJ relevance weight in general)
     ⍝ 1+rw ensures videos still appear in results if they contain a term, even if the term doesn't affect relative ranking because it is ubiquitous
      tf(×⍤1)1+rw
  }

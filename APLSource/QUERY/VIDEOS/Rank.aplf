@@ -1,0 +1,8 @@
+ Rank←{
+⍝ ⍺: index columns of the search terms :: integer vector
+⍝ ⍵: (BM25F score matrix)(row indices) :: numeric matrix ⍴(≢documents)×(≢index), integer vector
+⍝ ←: Rows of ⍵ containing at least one search term, descending BM25F (see CACHE.ComputeSearch)
+     (BM25F rows)←⍵
+     score←+/BM25F[rows;(⍺≤⊢/⍴BM25F)/⍺]   ⍝ Terms absent from the index score zero
+     rows[order/⍨0<score[order←⍒score]]
+ }

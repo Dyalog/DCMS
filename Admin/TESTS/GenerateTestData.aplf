@@ -2,7 +2,7 @@
 ⍝ Insert dummy data into the database for testing
 ⍝ First tests considered:
 ⍝ - /videos?search= should return all videos with matching terms
-⍝ - /videos?presenter=p_name should return all videos by presenter p_name
+⍝ - /videos?presenter_id= should return all videos by any of those presenters
 ⍝ - /videos?search=p_name       should include videos by presenter p_name
 ⍝ FIXME this is not comprehensive. Fields essential to the video library are used, but many are not.
 
@@ -64,9 +64,10 @@
 
  presenter←()
  ⍝ Using fixed keys in the presenter and presentation_video tables ensures that stems are found in video results for testing
- presenter.(presentation_id person_id)←fixed_keys←(1 2 3 3)(1 2 3 4)   ⍝ presentation 1 has presenter 1; presentation 2 has presenter 2; presentation 3 has presenters 3 and 4
+ presenter.(presentation_id person_id)←fixed_keys←(1 2 3 3 4)(1 2 3 4 3)   ⍝ presentation 1 has presenter 1; presentation 2 has presenter 2; presentation 3 has presenters 3 and 4; presentation 4 has presenter 3
  _NotFixedKeys←{⍺←⊢ ⋄ ~∨/,(⍉↑fixed_keys)⍷⍤1 2⊢r←⍺ ⍺⍺ ⍵:r ⋄ ⍺ ∇ ⍵}
- presenter.(presentation_id person_id),←↓⍉{?⍵⍴⍛⍴n}_NotFixedKeys _Unique(n-≢⊃fixed_keys)2⍴0
+ ⍝ Random rows draw persons 5..n, so persons 1-4 present only the presentations fixed above
+ presenter.(presentation_id person_id),←↓⍉{0 4+⍤1⊢?⍵⍴⍛⍴n(n-4)}_NotFixedKeys _Unique(n-≢⊃fixed_keys)2⍴0
  presenter.⎕DF'presenter'
 
  ⍝ Videos is not a table to insert, but its data is used in other tables and must be consistent, so we create it here and re-use it below

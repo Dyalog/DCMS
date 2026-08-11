@@ -1,0 +1,5 @@
+ Test_GETVideos_BadDate_Status←{
+⍝ Test that an unparseable ?from= date gives 400, as declared in the spec
+     H←##.##.##.HttpCommand
+     400=(H.Get ⍵,'/videos?from=notadate').HttpStatus
+ }

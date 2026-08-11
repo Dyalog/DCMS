@@ -1,0 +1,24 @@
+ r←Test_POSTRefresh_Accepted url;Assert;Authed;live;res;state;suffix
+⍝ Check POST /admin/refresh returns 202 with a message and a status monitor URL.
+⍝ Runs behind a stand-in worker so no real refresh is triggered: the assertions are
+⍝ about the response envelope, which is identical for a started and a queued refresh.
+ r←0
+ Assert←##.Assert
+ Authed←##.MAIN.Authed
+ state←#.DCMS.GLOBAL.refresh
+ suffix←'/admin/refresh/status'
+ :Trap 0
+     'Refresh already running at start of test'Assert ##.WaitRefreshIdle 150
+     live←{⎕DL ⍵}&10
+     state.(running thread pending)←1 live 0
+     res←('POST'Authed url,'/admin/refresh').Run
+     'Expected 202 Accepted'Assert 202=res.HttpStatus
+     'message must be a character vector'Assert 1=≡res.Data.message
+     'monitorUrl must point at the status endpoint'Assert suffix≡(-≢suffix)↑res.Data.monitorUrl
+     r←1
+ :EndTrap
+⍝ Teardown: kill the stand-in and release the forged lock
+ :If 0≠⎕NC'live'
+     {}⎕TKILL live
+ :EndIf
+ state.(running thread pending)←0 ¯1 0

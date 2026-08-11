@@ -1,0 +1,9 @@
+ WaitRefreshIdle←{
+⍝ Poll until no refresh worker holds the refresh serialisation lock
+⍝ ⍵: maximum number of 0.2s polls to wait
+⍝ ←: 1 if idle, 0 if a worker was still running when max polls done
+     ~#.DCMS.GLOBAL.refresh.running:1
+     0=⍵:0
+     _←⎕DL 0.2
+     ∇⍵-1
+ }

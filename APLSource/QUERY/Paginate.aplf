@@ -9,8 +9,7 @@
  :EndIf
  (pg ppg)←⍬∘⍴¨pg ppg
  n←≢results      ⍝ Total results count
- ppg←n⌊ppg       ⍝ Results per page
- lp←⌈n÷ppg       ⍝ Last page number
+ lp←1⌈⌈n÷ppg     ⍝ Last page number. No results is still one (empty) page
  pg←lp⌊⊃pg,1     ⍝ Current page capped at last page number
 
 ⍝ Return a subset of results as a page
@@ -56,11 +55,10 @@
  response.from←1+ppg×¯1+pg
  response.to←n⌊ppg×pg
  response.total←n
- response.data←results⌷⍨⊂∪n⌊(ppg×¯1+pg)+⍳ppg
+ response.data←results⌷⍨⊂(ppg×¯1+pg)+⍳0⌈response.to-response.from-1   ⍝ Short last page, empty when there are no results
  response.first_page_url←url,'1'
  response.last_page_url←url,⍕lp
  response.prev_page_url←pu
  response.next_page_url←nu
  response.path←#.DCMS.url,'/',ep
  response.links←Link¨↓⍉↑lu ll la
-⍝ response FIXME was tradfn'd due to bug in Ride

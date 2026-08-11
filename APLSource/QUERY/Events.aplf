@@ -1,15 +1,17 @@
- res←Events req
+ res←Events req;events;has_videos;headers;parameters;responses
 ⍝ Serve GET /events, optionally filtered by has_videos
 
  :If req≡'⍠SPEC'
+     (responses parameters headers)←##.SPEC.(responses parameters headers)
      res←(
         tags: ,⊂'Events' ⋄ summary:'List events' ⋄ operationId: 'getEvents' ⋄ security:⍬
         parameters: (
-            (name: 'has_videos' ⋄ in: 'query' ⋄ required: ⊂'false' ⋄ schema: (type: 'boolean') ⋄ description: 'Filter whether events have videos of presentations.')
-        )
+            (name: 'has_videos' ⋄ in: 'query' ⋄ required: ⊂'false' ⋄ schema: (type: 'boolean') ⋄ description: 'Filter events by whether they have videos of presentations. Omit for all events; "true" for events with videos; "false" for events without.')
+        ),parameters.conditional
         responses: (
             ⍙200: (
                 description: 'List of events'
+                headers: headers.cache
                 content: (⍙application⍙47⍙json: (schema: (type: 'array' ⋄ items: (type: 'object' ⋄ properties: (
                     id: (type: 'integer')
                     title: (type: 'string')
@@ -20,15 +22,32 @@
                     has_videos: (type: 'boolean')
                 )))))
             )
+            ⍙304: responses.not_modified
+            ⍙400: (description: 'Query parameter "has_videos" is not "true" or "false".' ⋄ content: (⍙application⍙47⍙json: (schema: ##.SPEC.schemas.error)))
+            ⍙503:responses.unavailable
         )
      )
      :Return
  :EndIf
 
  ##.Log'[REQ] GET /events ',1⎕JSON req.QueryParams
-
+ 
  ⍝ has_videos ← one of (0 1 2)
  ⍝ 0: only events without videos, 1: only events with videos, 2: all events (default)
- has_videos←¯1+'false' 'true'⍳⊂req.QueryParams ⎕VGET⊂'has_videos' 'ignore'
+ has_videos←req.QueryParams ⎕VGET⊂'has_videos' ⎕NULL
+ :If ⎕NULL≡has_videos
+     has_videos←2
+ :ElseIf (⊂has_videos)∊'false' 'true'
+     has_videos←¯1+'false' 'true'⍳⊂has_videos
+ :Else
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Query parameter "has_videos" must be "true" or "false".')
+ :EndIf
+
+ req←CacheControl req
+ :If 304=req.Response.Status
+     res←''
+     :Return
+ :EndIf
+
  events←#.DCMS.GLOBAL.cache.events
  res←events.data⌿⍨(2=has_videos)∨(1⌊has_videos)=events.has_videos

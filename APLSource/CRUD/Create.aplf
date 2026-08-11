@@ -32,6 +32,8 @@
 
  ##.Log'[REQ] POST /crud/',req.PathParams ⎕VGET⊂'table' ''
 
+ 'Cache-Control' req.SetHeader 'no-store'
+
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL
  :If 0∊⍴table
@@ -40,8 +42,9 @@
  :EndIf
 
  :If 1≠≢⍴req.Payload
+ :OrIf 0=≢req.Payload
  :OrIf 9≠⎕NC'eg'⊣eg←req.Payload[1]
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request body must be a JSON array of objects.')
+     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request body must be a non-empty JSON array of objects.')
  :EndIf
  columns←req.Payload[1].⎕NL ¯2
  our_cols←idx⊃GBL.columns

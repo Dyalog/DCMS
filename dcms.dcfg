@@ -8,6 +8,7 @@
 		LOGGING:      0,
 		SUSPEND:      0,
 		TRACE:        0,
+		CACHE_FILE:   "/data/cache.dcf",                   // File for future builds to use at cold start
 		log_file:     "[APP_DIR]/dyalog_log_file.dlf",
 		SCHEMA_DEFS:  "[APP_DIR]/sql/*.sql",
 

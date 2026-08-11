@@ -37,11 +37,11 @@ This starts the Dyalog web server and MariaDB. Connect to RIDE in your browser a
 
 The services are defined in [docker-compose.yml](../docker-compose.yml):
 
-| Service   | Image                       | Purpose                                    |
-|-----------|-----------------------------|--------------------------------------------|
-| `web`     | `dyalog/techpreview:latest` | Dyalog APL + Jarvis HTTP server            |
-| `db`      | `mariadb:10.8.2`            | MariaDB database                           |
-| `install` | Built from `Dockerfile`     | One-off dependency installer               |
+| Service   | Image                                                   | Purpose                         |
+|-----------|---------------------------------------------------------|---------------------------------|
+| `web`     | Built from `Dockerfile` (`dyalog/dyalog:20.0` + .NET 8) | Dyalog APL + Jarvis HTTP server |
+| `db`      | `mariadb:10.8.2`                                        | MariaDB database                |
+| `install` | Built from `Dockerfile`                                 | One-off dependency installer    |
 
 ## Configuration
 
@@ -54,8 +54,12 @@ The `SUSPEND` flag controls request handling behaviour from full error trapping 
 In the RIDE session:
 
 ```apl
-Admin.(Tests.Run GetEnv'URL')
+Admin.RunTests 1
 ```
+
+`RunTests` waits for the start-up cache build, clears the database, and runs the
+suites; the `1` keeps the session alive afterwards. To run the suites without
+clearing first, call `Admin.(TESTS.Run GetEnv'LOCAL_URL')` directly.
 
 ### CI-Style Tests Locally
 

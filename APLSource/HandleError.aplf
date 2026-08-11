@@ -1,8 +1,10 @@
- res←dmx HandleError req;NL;URLEncode;repo;reqline;params;detail;json;title;body;link;msg;suspend;⎕IO
+ res←dmx HandleError req;NL;URLEncode;body;detail;json;link;params;repo;reqline;status;suspend;title;⎕IO
 ⍝ Stark's OnErrorFn (registered in Run.aplf): converts any error raised while
 ⍝ servicing a request into the HTTP response.
 ⍝   dmx: the ⎕DMX caught by Stark
 ⍝   req: the request object (Fail / Method / Endpoint / QueryParams)
+⍝ Every error answers the same envelope, so a client can format the parts it wants:
+⍝   error message request query_parameters, plus detail and report_url on a 500.
  NL←⎕UCS 10
 ⍝ How many classes of error suspend (default to production if not yet configured)
  suspend←0
@@ -15,20 +17,18 @@
      :If 0∊⍴detail                                 ⍝ fall back to the diagnostic message lines
          detail←1↓∊NL,¨dmx.DM
      :EndIf
-     :If (dmx.EN≥400)∧(dmx.EN<500)                 ⍝ client error → respond with that status
-         res←(error:dmx.EN ⋄ message:detail)
-         req.Fail dmx.EN
-     :Else                                         ⍝ server-side expected error → 500 with message
-         res←(error:500 ⋄ message:detail)
-         req.Fail 500
+     status←500                                    ⍝ server-side expected error
+     :If (dmx.EN≥400)∧(dmx.EN<600)                 ⍝ client error → respond with that status
+         status←dmx.EN
      :EndIf
+     res←(error:status ⋄ message:detail)
  :Else                                             ⍝ Unexpected error.
      Log'[ERR] ',⍕dmx.(EN Vendor Message DM)
      :If 1=suspend                                ⍝ development: leave the bug to suspend
          ⎕SIGNAL⊂('EN' dmx.EN)('EM' dmx.EM)('Message' dmx.Message)
      :EndIf
- ⍝ suspend=0 (production): turn the bug into a generic 500 + a pre-filled issue link
-     ⍝ Percent-encode a character vector (UTF-8) for use in a URL query value
+    ⍝ suspend=0 (production): turn the bug into a generic 500 + a pre-filled issue link
+    ⍝ Percent-encode a character vector (UTF-8) for use in a URL query value
      URLEncode←{
          unreserved←'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~'
          hex←'0123456789ABCDEF'
@@ -40,23 +40,23 @@
      params←1 ⎕JSON req.QueryParams                ⍝ {} when no query parameters
      detail←dmx.Message
      :If 0∊⍴detail                                 ⍝ unexpected errors often carry no Message
-         detail←1↓∊NL,¨dmx.DM                      ⍝ fall back to the diagnostic message lines
+         detail←dmx.EM                             ⍝ error name only; DM would leak source lines
      :EndIf
      json←1 ⎕JSON ⎕OPT'Compact' 0⊢dmx              ⍝ full, uncompacted error details
-     ⍝ Pre-fill a GitHub issue with the request context and the full error JSON
+     ⎕←'[ERR] ',json                               ⍝ Stays server-side. Not via Log: production sets logging 0
+     ⍝ Pre-fill a GitHub issue with the request context
      title←'API error: ',reqline
      body←'**Request:** ',reqline,NL,NL
      body,←'**Query parameters:** ',params,NL,NL
      body,←'**Error message:** ',detail,NL,NL
-     body,←'**Full error details:**',NL,'```json',NL,json,NL,'```'
+     body,←'Please describe what you were doing when this happened.'
      link←repo,'/issues/new?title=',(URLEncode title),'&body=',(URLEncode body)
-     ⍝ Human-readable message for the client
-     msg←'There was an error processing your request.'
-     msg,←NL,NL,reqline
-     msg,←NL,'Query parameters: ',params
-     msg,←NL,NL,detail
-     msg,←NL,NL,'To help us fix this, please open an issue:'
-     msg,←NL,link
-     res←(error:500 ⋄ message:msg)
-     req.Fail 500
+     status←500
+     res←(error:status ⋄ message:'There was an error processing your request.')
+     res.detail←detail
+     res.report_url←link
  :EndIf
+⍝ Request context, on every error
+ res.request←(method:req.Method ⋄ endpoint:req.Endpoint)
+ res.query_parameters←⎕NS req.QueryParams          ⍝ Copy: the response must not alias the request
+ req.Fail status

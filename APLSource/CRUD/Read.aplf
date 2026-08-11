@@ -1,4 +1,4 @@
- r←Read req;GBL;data;fields;id;idx;pg;ppg;responses;schemas;table
+ r←Read req;GBL;data;fields;id;idx;parameters;pg;ppg;responses;schemas;table
 ⍝ Handles GET /crud/{table}; lists paginated rows or fetches one by id
 
  :If 2=⎕NC'req'
@@ -45,6 +45,8 @@
 
  ##.Log'[REQ] GET /crud/',req.PathParams ⎕VGET⊂'table' ''
 
+ 'Cache-Control' req.SetHeader 'no-store'
+
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL
  :If 0∊⍴table
@@ -55,6 +57,7 @@
  fields←idx⊃GBL.columns
  id←req.PathParams ⎕VGET⊂('id' '')
  (pg ppg)←2⊃∘⎕VFI¨req.QueryParams ⎕VGET('page' '1')('per_page' '20')
+ (pg ppg)←⊃¨(pg,1)(ppg,20)   ⍝ ?page= / ?per_page= with no value take the defaults
 
  :Hold 'SQL.db'
      :If 0=≢id

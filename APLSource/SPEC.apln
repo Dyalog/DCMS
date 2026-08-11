@@ -21,10 +21,27 @@
 
        error←(
         type: 'object'
-        required: ('error' ⋄ 'message')
+        description: 'Every error uses this envelope. Sections are separate so a client can format each as it likes.'
+        required: ('error' ⋄ 'message' ⋄ 'request' ⋄ 'query_parameters')
         properties: (
-            error: (type: 'string' ⋄ description: 'Machine-readable error code')
-            message: (type: 'string' ⋄ description: 'Human-readable description')
+            error:   (type: 'integer' ⋄ description: 'HTTP status code, matching the status line')
+            message: (type: 'string' ⋄ description: 'Human-readable description, safe to show a user')
+            request: (
+                type: 'object'
+                description: 'The request that failed'
+                required: ('method' ⋄ 'endpoint')
+                properties: (
+                    method:   (type: 'string' ⋄ example: 'GET')
+                    endpoint: (type: 'string' ⋄ example: '/videos')
+                )
+            )
+            query_parameters: (
+                type: 'object'
+                description: 'Query parameters as received; empty object when there were none'
+                additionalProperties: (type: 'string')
+            )
+            detail: (type: 'string' ⋄ description: 'Technical detail of the fault. Present on 500 only.')
+            report_url: (type: 'string' ⋄ format: 'uri' ⋄ description: 'Pre-filled issue report for this fault. Present on 500 only.')
         )
        )
 
@@ -84,6 +101,22 @@
             description: 'Page number.'
         )
 
+       ⍝ Request headers a client sends to make a conditional request.
+        conditional←(
+                (name:'If-None-Match' ⋄ in:'header' ⋄ required:⊂'false' ⋄ schema:(type:'string') ⋄ description:'ETag from an earlier response. Returns 304 if it still matches, so the body is not re-sent.')
+                (name:'If-Modified-Since' ⋄ in:'header' ⋄ required:⊂'false' ⋄ schema:(type:'string') ⋄ description:'Last-Modified HTTP-date from an earlier response. Returns 304 if the data has not changed since. Ignored when If-None-Match is also supplied.')
+        )
+
+   :EndNamespace
+
+   :Namespace headers   ⍝ Response headers. A Header Object is a Parameter Object without "name" and "in".
+
+        cache←(
+            ETag: (schema:(type:'string') ⋄ description:'Datetime of last successful cache build YYYYMMDDhhmmssfff by convention. Updates only when cache content changes.')
+            ⍙Last⍙45⍙Modified: (schema:(type:'string') ⋄ description:'HTTP-date of the last time the cache data changed.')
+            ⍙Cache⍙45⍙Control: (schema:(type:'string') ⋄ description:'Instructions for downstream caches (browsers, proxies, CDNs etc.)')
+        )
+
    :EndNamespace
 
    :Namespace responses
@@ -97,10 +130,24 @@
             description: 'Missing or invalid API key.'
             content: (⍙application⍙47⍙json: (schema: ##.schemas.error))
             example: (
-                error: 'unauthorized'
+                error: 401
                 message: 'Missing or invalid X-API-Key header'
             )
         ))
+
+        not_modified←(
+            description: 'Cache was not modified since this ETag or Last-Modified datetime'
+            headers: ##.headers.cache
+        )
+
+        unavailable←(
+            description: 'Cache has not been built yet. Retry shortly.'
+            content: (⍙application⍙47⍙json: (schema: ##.schemas.error))
+            example: (
+                error: 503
+                message: 'Cache is being built. Retry shortly.'
+            )
+        )
 
    :EndNamespace
 

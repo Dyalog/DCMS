@@ -15,8 +15,18 @@
  ⎕←SQL.SetupSchema ⍬
  ⎕←SQL.ProcessTableInformation ⍬
 
-⍝ Initialise search and recommendations cache in main process.
- ADMIN.RefreshData 0
+⍝ Serve the last persisted cache.
+ ⎕←ADMIN.ReadCache GetEnv'CACHE_FILE'
+
+ ⎕←'Building search and recommendations indexes in the background...'
+ {}ADMIN.Refresh ⍬
+
+ ⎕←'Setting up data refresh timer...'
+ :If 0=GLOBAL.⎕NC'data_refresh_timer'
+     'data_refresh_timer'GLOBAL.⎕WC'Timer'
+     GLOBAL.data_refresh_timer.Interval←×/24 60 60 1000
+     GLOBAL.data_refresh_timer.onTimer←'ADMIN.Refresh'
+ :EndIf
 
 ⍝ Set up Stark router
  url←GetEnv'PUBLIC_URL'
@@ -52,8 +62,9 @@
      '/crud/{table}/{id}' router.Patch ('CRUD.Update' (CRUD.Update'⍠SPEC'))
      '/crud/{table}/{id}' router.Delete('CRUD.Delete' (CRUD.Delete'⍠SPEC'))
 
-     '/admin/refresh'     router.Post  ('ADMIN.RefreshData' (ADMIN.Refresh'⍠SPEC'))
-     '/admin/wp-push'     router.Post  ('ADMIN.WPPush'       (ADMIN.WPPush'⍠SPEC'))
+     '/admin/refresh'        router.Post('ADMIN.Refresh'       (ADMIN.Refresh'⍠SPEC'))
+     '/admin/refresh/status' router.Get ('ADMIN.RefreshStatus' (ADMIN.RefreshStatus'⍠SPEC'))
+     '/admin/wp-push'        router.Post('ADMIN.WPPush'        (ADMIN.WPPush'⍠SPEC'))
 
      '/admin/profiling'   router.Get   ('PROFILING.Status' (PROFILING.Status'⍠SPEC'))
      '/admin/profiling'   router.Put   ('PROFILING.Toggle' (PROFILING.Toggle'⍠SPEC'))
@@ -62,7 +73,13 @@
      PROFILING.status←(on: 0 ⋄ since: ⊂'null' ⋄ last_cleared: ⊂'null')
 
      Teapot←{⎕SIGNAL⊂('EN' 418)('Message' 'I am a teapot')('Vendor' 'DCMS')}
-     '/teapot'            router.Get 'Teapot' (responses: (⍙418: 'AM TEAPOT'))
+     '/teapot'            router.Get 'Teapot' (
+         tags:,⊂'System' ⋄ summary:'Short and stout' ⋄ operationId:'getTeapot' ⋄ security:⍬
+         responses:(⍙418:(
+             description:'I am a teapot'
+             content:(⍙application⍙47⍙json:(schema:SPEC.schemas.error))
+         ))
+     )
 
      router.OnErrorFn←'HandleError'
     ⍝ Make sure Jarvis can find authentication function until Stark supports middleware or similar for pre-processing requests
@@ -74,10 +91,3 @@
  :EndIf
 ⍝ Apply debug controls (after router.Start so Stark does not overwrite jarvis.Debug)
  SetDebug logging suspend trace
-
- ⎕←'Setting up data refresh timer...'
- :If 0=GLOBAL.⎕NC'data_refresh_timer'
-     'data_refresh_timer'GLOBAL.⎕WC'Timer'
-     GLOBAL.data_refresh_timer.Interval←×/24 60 60 1000
-     GLOBAL.data_refresh_timer.onTimer←'ADMIN.Refresh'
- :EndIf

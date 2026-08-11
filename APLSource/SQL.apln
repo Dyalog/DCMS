@@ -1,6 +1,5 @@
 :Namespace SQL   ⍝ SQAPL wrapper: connection, schema setup and query execution
 
-    Check←{ 0≠⊃⍵:1 1⊂⍵ ⋄ 0 2⍴⍬'' }
     FromUTF8←'UTF-8'∘(⊣⎕UCS ⎕UCS)
 
     db←'db'                   ⍝ SQAPL connector identifier
@@ -66,7 +65,10 @@
           found←(1⌷datasource)∊⍥⎕C⊣/src
           opt.wait-←1 ⋄ timeout←opt.wait≤0
       :Until timeout∨found
-      ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Datasource ',(⊃datasource),' not found.'))
+      :If ~found
+          ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Datasource ',(⊃datasource),' not found.'))
+      :EndIf
+      r←found
     ∇
 
     ∇ r←Use database
@@ -179,7 +181,8 @@
           (values nulls)←⍺ ⋄ sql←⍵
           _←Do'START TRANSACTION'
           0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
-          ⊃⍪⌿(values,nulls)(Fetch⍤1)sql
+          rows←⊃⍪⌿(values,nulls)(Fetch⍤1)sql
+          rows⊣Do'COMMIT'
       }
 
       Update←{
@@ -200,7 +203,8 @@
           _←Do'START TRANSACTION'
           0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
           _←(values,nulls)(ExecBind⍤1)upd_sql
-          ⊃Fetch sel_sql
+          rows←⊃Fetch sel_sql
+          rows⊣Do'COMMIT'
       }
 
       Delete←{
@@ -245,15 +249,18 @@
           migrations←schema_definitions
       :EndIf
       Run←{
-          0=⊃r←SQA.Do db ⍵:⍬
+          0=⊃r←SQA.Do db ⍵:1
           ⎕←'Migration failed: ',⍺
           ⎕←'  Statement: ',⍵
           ⎕←'  Error: ',,⍕3⊃r
+          0
       }
       :For (migration batch) :InEach (migrations sequence)
           ##.Log migration
           statements←StatementsFromSchema migration
-          migration∘Run¨statements
+          :If ~∧/migration∘Run¨statements   ⍝ Recording a failed migration would skip it forever
+              ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Migration failed: ',migration))
+          :EndIf
           SQA.Do db'insert into migrations (`migration`,`batch`) values (:file<C255:,:num<I:);'migration batch
       :EndFor
       msg←'Finished SetupSchema'
@@ -262,7 +269,6 @@
       ProcessTableInformation←{
           table_information←2⊃SQA.Columns db
           h←1⌷table_information ⋄ d←1↓table_information   ⍝ Header; Data
-          ##.GLOBAL.tables←∪d[;h⍳⊂'TABLE_NAME']
           tc←⎕CSV(##.GLOBAL.app_dir,'/sql/type_conversions.csv')⍬ 4  ⍝ Type conversions matrix
           cz←d[;h⍳⊂'COLUMN_SIZE']
           tp←d[;h⍳⊂'DATA_TYPE']

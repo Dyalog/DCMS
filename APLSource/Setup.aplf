@@ -5,15 +5,21 @@
      'GLOBAL'⎕NS''
      GLOBAL.app_dir←app_dir←{'/'=⊃⌽⍵:⍵ ⋄ '/',⍨⍵}GetEnv'APP_DIR'
      ⎕←'App directory is ',app_dir
+    ⍝ Data refresh state. running/thread are the refresh serialisation lock; the rest is served by /admin/refresh/status.
+     GLOBAL.refresh←(
+         running:0 ⋄ thread:¯1 ⋄ pending:0
+         started_at:⊂'null' ⋄ finished_at:⊂'null'
+         last_success_at:⊂'null' ⋄ last_error_at:⊂'null'
+         last_error_message:''
+     )
      ⎕←'Loading dependencies...'
      :If 0=#.⎕NC'Conga'
          'Conga'#.⎕CY'conga'
          #.DRC←#.Conga.Init''
-         ⎕←'Conga initalised'
+         ⎕←'Conga initialised'
      :EndIf
-     ⍝'SQA'SQL.⎕CY'sqapl' FIXME remove once confirmed OK
-     ⍝⎕←'SQAPL loaded into SQL.SQA'
      #.⎕CY'isolate'
+     {}#.isolate.Config'maxws'(GetEnv'MAXWS')   ⍝ Isolates default to 256M
      ⎕←'Isolate loaded into #'
      Unidecode.MakeCharMap app_dir,'/APLSource/charmap.json'
      ⎕←'Loading Tatin packages...'

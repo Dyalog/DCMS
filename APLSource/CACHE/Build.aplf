@@ -1,9 +1,9 @@
- cache←Build opt;Stem;Tokenise;dt_fields;ep;mat_fields;norm;pid;pname;search_columns;search_fields;stemmer;title;vids;weights;ytid
+ cache←Build opt;CountTerms;Stem;dt_fields;ep;mat_fields;norm;pid;pname;search_fields;stemmer;term_count;title;vids;weights;ytid
  ;GetEnv;ReadJSON;Unidecode;SQL;Table2JSON;TimeStamp2DDN
 ⍝ The external dependencies above are localised so that Setup's assignments appear as
 ⍝ Build's locals and vanish on return, otherwise certain names (e.g. .NET class instances)
 ⍝ prevent the CACHE namespace from being serialised into isolate processes.
-⍝ opt: options namespace (currently unused)
+⍝ opt: using and app_dir, computed in the main process
 ⍝ cache: cache namespace for wholesale replacement
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Create character and numeric matrices for filters
@@ -27,13 +27,14 @@
 ⍝ stored in APL as numeric 0 and 1 for efficient filtering
  :If 0=≢cache.events.data
      cache.events.has_videos←⍬
-     cache.events.data←''
+     cache.events.data←⍬
  :Else
      cache.events.has_videos←cache.events.data.has_videos
      cache.events.data.has_videos←⊂¨'false' 'true'[1+cache.events.has_videos]   ⍝ Convert APL Bool to JSON Bool
  :EndIf
 
  vids←cache.videos←⎕NS''   ⍝ Namespaces pass by reference, so assignment to vids shorthand updates cache namespace
+
  vids.fields←ep.videos.fields
  vids.values←SQL.Do ep.videos.sql
  (title ytid pname pid)←↓⍉SQL.Do ep.videos.presenter.sql   ⍝ YouTube ID, presenter name
@@ -70,16 +71,30 @@
      stemmed←stemmer.Stem⊆⍵
      stemmed.Value
  }
- Tokenise←{
-     text←('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵
-     words←(⎕C ⎕A)(∊⍨⊆⊢)text
-     non_words←(' ',⎕C ⎕A)(~⍤∊⍨⊆⊢)text
-     ↑non_words,(⊢,Stem¨)words
- }
- search_columns←Tokenise¨(vids.fields∊search_fields)/vids.index_all
- vids.index_width←0⌈⌈/(⊢/⍴)¨,search_columns
- search_columns←{(≢⍵)(vids.index_width)↑⍵}¨search_columns
- vids.index←∪⊃⍪/,search_columns
 
- vids.search←vids.index ComputeSearch weights search_columns
+ CountTerms←{
+     text←{('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵}¨⍵
+     words←(⎕C ⎕A)∘(∊⍨⊆⊢)¨text
+     non_words←(' ',⎕C ⎕A)∘(~⍤∊⍨⊆⊢)¨text
+     w_index←∪⊃,/,words
+     find_words←w_index∘⍳¨words
+     w_count←¯1+↑{{≢⍵}⌸(⍳≢w_index)⍪⍵}¨find_words
+   ⍝ Only stem the unique index words to reduce number of calls to .NET. Stemmer package
+   ⍝ FIXME modify package to accept a list of words, else implement in Dyalog
+     new←w_index≢¨stems←Stem¨w_index
+     w_count,←new/w_count   ⍝ Count of stemmed words is count of original words
+     w_index,←new/stems
+    ⍝ Add non_word term counts
+     nw_index←∪⊃,/,non_words
+     find_nw←nw_index∘⍳¨non_words
+     nw_count←¯1+↑{{≢⍵}⌸(⍳≢nw_index)⍪⍵}¨find_nw
+
+     index←↑w_index,nw_index
+     term_count←w_count,nw_count
+     index term_count
+ }
+
+ (vids.index term_count)←CountTerms(vids.fields∊search_fields)/vids.index_all
+
+ vids.search←vids.index ComputeSearch weights term_count
  vids.recommendations←ComputeRecommendations vids.search

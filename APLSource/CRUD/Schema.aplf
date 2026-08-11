@@ -44,7 +44,9 @@
      :Return
  :EndIf
 
- ##.Log'[REQ] GET /crud/',(req.PathParams ⎕VGET⊂'table' ''),'/schema'
+ ##.Log'[REQ] GET /schema/',req.PathParams ⎕VGET⊂'table' ''
+
+ 'Cache-Control' req.SetHeader 'no-store'
 
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL

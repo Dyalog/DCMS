@@ -2,19 +2,19 @@
  ⎕←'Testing ',url
  show_pass←⎕VGET⊂'show_pass' 0
  ##.MOCKYT.Run
- DoTest←url∘(show_pass Test)
+ DoTest←url∘(show_pass _Test)
  result←1
  result∧←DoTest MAIN     ⍝ General tests should pass from clean start
  InsertDummyData
 
- ⍝ Refresh search and recommendations cache
- ⍝ FIXME Performing the cache build in the main process for the tests suite as workaround.
- ⍝ For some reason on Jenkins the isolate never finishes.
- #.DCMS.ADMIN.RefreshData 0
+ ⍝ Refresh search and recommendations cache.
+ ⍝ Wait for any worker left by a refresh test, or its cache build finishes mid-run.
+ {}WaitRefreshIdle 300
+ ⍝ Build cache synchronously because the MOCK tests below depend on it having finished.
+ {}#.DCMS.ADMIN.RefreshData
 
- ⍝ FIXME once RefreshData builds cache in isolate, reinstate wait til ready for tests
- ⍝:While ~#.isolate.Available'#.DCMS.QUERY.VIDEOS.recommendations'   ⍝ Wait until recommendations ready
- ⍝:EndWhile
  result∧←DoTest MOCK   ⍝ Test insert and retrieve dummy data
  result∧←DoTest MAIN   ⍝ General tests should still pass after populating database, cache etc.
  result∧←DoTest CRUD   ⍝ Test Create Read Update Delete
+
+ result∧←DoTest REFRESH

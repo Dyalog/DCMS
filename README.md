@@ -40,7 +40,7 @@ To work against live YouTube data instead of `MockYT`, obtain a [YouTube Data AP
 
 ## Calling The API
 
-`GET /videos` searches the video library. It needs no authentication and returns a paginated JSON result. Query parameters include `search` (full-text), `event`, `presenter`, `from`, `to`, `sort` (`relevance`, `newest`, `oldest`), `page`, and `per_page`. The [Swagger UI](https://dcms.dyalog.com) and [OpenAPI spec](https://dcms.dyalog.com/openapi.json) document every endpoint and field.
+`GET /videos` searches the video library. It needs no authentication and returns a paginated JSON result. Query parameters include `search` (full-text), `event`, `presenter_id`, `from`, `to`, `sort` (`relevance`, `newest`, `oldest`), `page`, and `per_page`. `presenter_id` takes a comma-separated list, matched inclusively: `presenter_id=12,34` returns videos presented by either. The [Swagger UI](https://dcms.dyalog.com) and [OpenAPI spec](https://dcms.dyalog.com/openapi.json) document every endpoint and field.
 
 The examples below hit the local stack. Against the live service, replace `http://localhost:8081` with `https://dcms.dyalog.com`.
 
@@ -63,7 +63,26 @@ const res = await fetch("http://localhost:8081/videos?search=apl&per_page=5");
 const data = await res.json();
 ```
 
-The query routes (`/videos`, `/events`, `/presenters`, `/version`) are public. The write routes (`/crud` and `/admin`) require an `X-API-Key` request header.
+The query routes (`/videos`, `/events`, `/presenters`, `/version`) are public. The `/crud`, `/schema` and `/admin` routes require an `X-API-Key` request header. A path in neither group is rejected with `404` before it reaches the router.
+
+## Caching
+
+The read/query endpoints are served from an in-memory cache rebuilt daily, and carry validation headers:
+
+| Header          | Value                                                                              |
+| --------------- | ---------------------------------------------------------------------------------- |
+| `ETag`          | Weak tag, e.g. `W/"20260811094500000"`, changing only when the cached data changes |
+| `Last-Modified` | HTTP-date of the cache the response was served from                                |
+| `Cache-Control` | `public, no-cache` means store the response, but revalidate before reusing it      |
+| `Vary`          | `Accept-Encoding, Origin`                                                          |
+
+A request sent with the tag in an `If-None-Match` header, or the date as `If-Modified-Since`, and an unchanged cache answers `304 Not Modified` with no body:
+
+```sh
+curl -H 'If-None-Match: W/"20260811094500000"' 'http://localhost:8081/videos?per_page=5'
+```
+
+On a cold start with no cache yet to serve, these endpoints answer `503` with `Cache is being built. Retry shortly.`
 
 ## YouTube API
 

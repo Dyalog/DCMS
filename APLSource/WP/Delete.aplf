@@ -1,4 +1,4 @@
- r←Delete post_id;name;pass;h;wp
+ r←Delete post_id;name;pass;h;wp;success
  :If 0≡post_id ⋄ r←'' ⋄ →0 ⋄ :EndIf   ⍝ info is a prototype if the list is empty
  wp←##.GLOBAL.secrets.wordpress
  name←wp.user

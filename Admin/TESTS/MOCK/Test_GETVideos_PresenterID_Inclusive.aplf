@@ -1,8 +1,20 @@
  Test_GETVideos_PresenterID_Inclusive←{
-⍝ Test that ?presenter_id=3,4 returns only videos with both presenters
+⍝ Test that ?presenter_id=3,4 returns videos with presenter 3 or 4, not only those with both
+⍝ GenerateTestData fixes presenter 3 on presentations 3 and 4, presenter 4 on presentation 3 only,
+⍝ so an AND filter would drop presentation 4's video from the result.
      H←##.##.##.HttpCommand
-     res←H.GetJSON'GET'(⍵,'/videos?presenter_id=3,4')
-     200≠res.HttpStatus:0
-     0∊⍴res.Data:0
-     ∧/,3 4∘.∊res.Data.data.presenter_id
+     Assert←##.Assert
+     Videos←⍵∘{
+         res←H.GetJSON'GET'(⍺,'/videos?per_page=1000&presenter_id=',⍵)
+         'Expected 200 OK from /videos'Assert 200=res.HttpStatus:
+         'Expected a paginated envelope from /videos'Assert~0∊⍴res.Data:
+         res.Data.data
+     }
+     either←Videos'3,4'
+     'Expected videos for presenters 3 or 4'Assert 0<≢either:
+     'Every result must have presenter 3 or presenter 4'Assert ∧/∨⌿3 4∘.∊either.presenter_id:
+⍝ The union, not the intersection: each presenter's own videos must all be present
+     each←∪(Videos'3').youtube_id,(Videos'4').youtube_id
+     'Results must include every video of presenter 3 and of presenter 4'Assert ∧/each∊either.youtube_id:
+     1
  }

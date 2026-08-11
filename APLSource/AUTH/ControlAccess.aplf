@@ -6,10 +6,13 @@
 ⍝   authed prefix → require valid x-api-key
 ⍝   neither       → 404 unregistered routes
      public←⊆'/version' '/videos' '/presenters' '/events' '/openapi.json' '/teapot' '/swagger/'
-     authed←⊆'/crud' '/schema' '/admin' '/teapot'
+     authed←⊆'/crud' '/schema' '/admin'
      '/',⍛≡⍵.Endpoint:0                          ⍝ Swagger UI home page at root (Endpoint is ,'/' or ''); exact, not a prefix — '/' as a prefix would open everything
      ∨/public(⊃⍷)¨⊂⍵.Endpoint:0
      ∨/authed(⊃⍷)¨⊂⍵.Endpoint:r⊣##.Log'[AUTH] ',('allow' 'deny'⊃⍨1+r←VerifyToken ⍵),' ',⍵.Endpoint
-     ⍵.Response.Payload←(error:404 ⋄ message:'Not found')
+     payload←(error:404 ⋄ message:'Not found')   ⍝ Pre-routing, so HandleError cannot build this one
+     payload.request←(method:⍵.Method ⋄ endpoint:⍵.Endpoint)
+     payload.query_parameters←{0::⎕JSON'{}' ⋄ ⎕NS ⍵}⍵.QueryParams
+     ⍵.Response.Payload←payload
      0⊣⍵.Fail 404
  }

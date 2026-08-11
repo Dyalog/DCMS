@@ -1,0 +1,24 @@
+ r←ReadCache file;cache;tie
+⍝ Load a persisted cache so a cold start serves the previous refresh's data immediately.
+⍝ file: component file path                       :: simple character vector
+⍝    r: what happened, for the startup transcript :: simple character vector
+ :If ~⎕NEXISTS file
+     r←'No cache file at ',file,'. One will be written when the cache is next built.'
+     :Return
+ :EndIf
+ r←'Cache file could not be used; waiting on the background build instead.'
+ :Trap 0
+     tie←file ⎕FTIE 0
+     cache←⎕FREAD tie 1
+     ⎕FUNTIE tie
+     :If #.DCMS.CACHE.Valid cache
+         #.DCMS.CACHE.Rehydrate cache
+         #.DCMS.GLOBAL.cache←cache   ⍝ Single-line update is safe across threads. Readers take snapshots to get complete cache view.
+         r←'Loaded cache written at ',(⊃##.DT.ISODateTime 13 ⎕NINFO file),' UTC'
+     :Else
+         ⎕←'Cache file ',file,' is not the shape this version of DCMS expects.'
+     :EndIf
+ :Else
+     ⎕←'Could not read ',file,'. ',⎕DMX.(EM,': ',Message)
+     {0::⍬ ⋄ ⎕FUNTIE tie}⍬            ⍝ tie is unassigned if ⎕FTIE was what failed
+ :EndTrap

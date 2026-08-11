@@ -15,16 +15,14 @@
             )
             ⍙401:responses.unauthorized
             ⍙404:responses.not_found
-            ⍙409:(
-                description:'Delete blocked by foreign key constraint.'
-                content:(⍙application⍙47⍙json:(schema:schemas.error))
-            )
          )
      )
      :Return
  :EndIf
 
  ##.Log'[REQ] DELETE /crud/',req.PathParams ⎕VGET⊂'table' ''
+
+ 'Cache-Control' req.SetHeader 'no-store'
 
  table←req.PathParams ⎕VGET⊂'table' ''
  GBL←##.GLOBAL

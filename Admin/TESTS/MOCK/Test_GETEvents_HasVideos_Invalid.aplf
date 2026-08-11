@@ -1,0 +1,10 @@
+ Test_GETEvents_HasVideos_Invalid←{
+⍝ Test that an unrecognised ?has_videos value gives 400, and that omitting it still returns all events
+     H←##.##.##.HttpCommand
+     Assert←##.Assert
+     'An unrecognised has_videos value must be 400'Assert 400=(H.Get ⍵,'/events?has_videos=banana').HttpStatus:
+     all←H.GetJSON'GET'(⍵,'/events')
+     'Expected 200 OK from /events'Assert 200=all.HttpStatus:
+     'Omitting has_videos must return all events'Assert 0<≢all.Data:
+     1
+ }

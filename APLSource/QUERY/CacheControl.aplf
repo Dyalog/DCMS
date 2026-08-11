@@ -1,0 +1,33 @@
+ req←CacheControl req;FormatDateTime;GetETag;HTTPDate2DDN;cache;not_modified;requested_ddn;requested_etag
+⍝ Request helper for cache validation headers
+⍝ Modifies the Stark/Jarvis request in-place
+⍝ req: Stark request namespace :: namespace reference
+
+ :If 0=#.DCMS.GLOBAL.⎕NC'cache'
+     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+ :EndIf
+
+ cache←#.DCMS.GLOBAL.cache
+ FormatDateTime←#.DCMS.DT.FormatDateTime
+ HTTPDate2DDN←#.DCMS.DT.HTTPDate2DDN
+ 'ETag'req.SetHeader cache.etag
+ 'Last-Modified'req.SetHeader⊃'Ddd, DD Mmm YYYY hh:mm:ss "GMT"'FormatDateTime cache.last_updated
+ 'Cache-Control'req.SetHeader'public, no-cache'   ⍝ Downstream caches should always validate
+ 'Vary'req.SetHeader'Accept-Encoding, Origin'     ⍝ Jarvis gzips payloads over a certain size
+
+ requested_etag←req.GetHeader'If-None-Match'
+ GetETag←{⍵⊆⍨¯1(⊢∧⌽)≠\'"'=⍵}   ⍝ Weak ETag supported
+
+⍝ If-None-Match takes precedence.
+ :If 0∊⍴requested_etag
+     requested_ddn←HTTPDate2DDN req.GetHeader'If-Modified-Since'
+     not_modified←∨/requested_ddn≥cache.last_updated   ⍝ ∨/⍬ gives 0 so invalid dates fall through to 200
+ :ElseIf (,'*')≡requested_etag~' '
+     not_modified←1
+ :Else
+     not_modified←cache.etag∊⍥GetETag requested_etag
+ :EndIf
+
+ :If not_modified
+     req.Fail 304
+ :EndIf

@@ -1,7 +1,5 @@
 # Contributing to DCMS
 
-<!-- Banner image slot: drop a contributor banner here once it has been sourced (REPO.md, step 11). -->
-
 This guide covers getting set up, the change workflow, and where to look in the
 code for the most common contributions. For the full development setup see
 **[docs/dev.md](docs/dev.md)**; for the architecture overview and a guide to the
@@ -26,8 +24,12 @@ The whole stack runs in Docker. From a local clone:
 In the RIDE session, against the running server:
 
 ```apl
-Admin.(Tests.Run GetEnv'LOCAL_URL')
+Admin.RunTests 1
 ```
+
+`RunTests` waits for the start-up cache build, clears the database, and runs the
+suites; the `1` keeps the session alive afterwards. To run the suites without
+clearing first, call `Admin.(TESTS.Run GetEnv'LOCAL_URL')` directly.
 
 The full CI scenario (install dependencies, start the stack, run the suite):
 
@@ -164,11 +166,26 @@ precomputes the search and recommendation matrices.
 Building the cache is expensive, so it runs in a **separate CPU process** (a Dyalog
 [isolate](https://docs.dyalog.com/20.0/files/Parallel_Language_Features.pdf)) to
 keep HTTP serving responsive while the cache is rebuilt.
-**[ADMIN/RefreshData.aplf](APLSource/ADMIN/RefreshData.aplf)** rebuilds it on a
-24-hour timer and on `POST /admin/refresh` (after fresh data is imported from
-YouTube): it seeds the isolate with the module, runs `CACHE.Build` there, and swaps
-`GLOBAL.cache` in atomically. For debugging, `DCMS.CACHE.Build` also runs in the
-main process; both files' comments cover the isolate-boundary details.
+
+A rebuild is triggered at start-up, on a 24-hour timer, and by `POST /admin/refresh`
+(after fresh data is imported from YouTube).
+**[ADMIN/RefreshData.aplf](APLSource/ADMIN/RefreshData.aplf)** seeds the isolate with
+the module, runs `CACHE.Build` there, and swaps `GLOBAL.cache` in atomically. For
+debugging, `DCMS.CACHE.Build` is also callable in the main process; both files'
+comments cover the isolate-boundary details.
+
+### Persistence and Conditional Requests
+
+Each refresh also writes the cache it is now serving to the `CACHE_FILE` component
+file (**[ADMIN/WriteCache.aplf](APLSource/ADMIN/WriteCache.aplf)**. At start-up it is read back, checked and the search terms index is hashed in the active workspace ready for queries. A
+cold start serves the previous run's data straight away while the first refresh runs. Until either is ready, the cached read endpoints signal `503`.
+
+`RefreshData` derives each cache's `ETag` from its `last_updated` stamp, and keeps the
+previous stamp when a rebuild produces identical content, so a routine refresh
+does not invalidate clients' copies.
+**[QUERY/CacheControl.aplf](APLSource/QUERY/CacheControl.aplf)** sets the validation
+headers on every cached read endpoint and fails the request with `304` when
+`If-None-Match` or `If-Modified-Since` matches.
 
 ### Search
 
@@ -176,17 +193,17 @@ The `GET /videos` handler is **[QUERY/VIDEOS/Query.aplf](APLSource/QUERY/VIDEOS/
 
 1. **Filter** the cached rows by the query parameters: date range
    (**[FilterDateTimes.aplf](APLSource/QUERY/VIDEOS/FilterDateTimes.aplf)**),
-   presenter (**[FilterPresenter.aplf](APLSource/QUERY/VIDEOS/FilterPresenter.aplf)**),
-   and event.
+   `presenter_id`, and `event`.
 2. **Rank** the survivors against the `search` terms. Per-term relevance is a BM25F
    measure — how often the terms occur, weighted down by how common each term is
    across all videos — precomputed for the whole corpus during the cache build
    (**[CACHE/ComputeSearch.aplf](APLSource/CACHE/ComputeSearch.aplf)**). At request
-   time **[\_Rank.aplo](APLSource/QUERY/VIDEOS/_Rank.aplo)** looks the terms up in
-   that matrix and returns the rows in descending score order. Terms are normalised
-   and stemmed (`Porter2Stemmer`) first; with no `search` term, every filtered row
-   is kept.
-3. **Sort** (`newest` / `oldest`) and paginate, then return JSON.
+   time **[Rank.aplf](APLSource/QUERY/VIDEOS/Rank.aplf)** scores the survivors against
+   the terms' columns of that matrix and returns them in descending score order. Terms
+   are normalised and stemmed (`Porter2Stemmer`) first; with no `search` term, every
+   filtered row is kept.
+3. **Sort** (`newest` / `oldest`) and paginate. Only row indices are passed to **[Paginate.aplf](APLSource/QUERY/Paginate.aplf)**, which selects the page
+   before **[Table2JSON.aplf](APLSource/QUERY/Table2JSON.aplf)** converts it.
 
 ### Recommendations
 

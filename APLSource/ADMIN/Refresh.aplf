@@ -1,16 +1,47 @@
- r←Refresh req
-⍝ Stark endpoint function, argument is request object or spec sigil
+ r←Refresh req;msg;owned;responses;state
+⍝ Stark endpoint function, argument is request object, timer object, or spec sigil
  :If '⍠SPEC'≡req
+     responses←##.SPEC.responses
      r←(
          tags:,⊂'Admin' ⋄ summary:'Refresh cached API data' ⋄ operationId:'refreshData'
-         description:'Fetches external API data, then rebuilds the cached joined views served by the public read endpoints.'
+         description:'Fetches external API data, then rebuilds the cached joined views served by the public read endpoints. Returns immediately; the refresh runs in the background. At most one refresh runs at a time, with at most one queued behind it.'
+         responses:(
+             ⍙202:(
+                 description:'Request accepted. A refresh was started, or queued behind the one already running.'
+                 content:(⍙application⍙47⍙json:(schema:(
+                     type:'object'
+                     required:('message' ⋄ 'monitorUrl')
+                     properties:(
+                         message:(type:'string' ⋄ description:'Whether the refresh started immediately or was queued behind a running one.')
+                         monitorUrl:(type:'string' ⋄ format:'uri' ⋄ description:'Status endpoint for monitoring this refresh.')
+                     )
+                 )))
+             )
+             ⍙401:responses.unauthorized
+         )
      )
      :Return
  :EndIf
- :Trap 202 404
-     ##.IMPORT.YOUTUBE.RefreshData''
+ state←##.GLOBAL.refresh
+⍝ Take the refresh serialisation lock: only one thread may rebuild the cache at a time.
+ :Hold '#.DCMS.GLOBAL.refresh'
+     :If state.running∧state.thread∊⎕TNUMS
+         state.pending←1              ⍝ At most one pending job; a further trigger is a no-op
+         owned←0
+     :Else
+         state.running←1
+         state.thread←RunRefresh&⍬    ⍝ the worker thread ID
+         state.pending←0
+         owned←1
+     :EndIf
+ :EndHold
+ :If owned
+     msg←'Request accepted. Refresh task started. View status at monitorUrl'
  :Else
-     ⎕←'DATA NOT REFRESHED. ',⎕DMX.Message
- :EndTrap
- RefreshData&1   ⍝ Trigger cache build in new thread, so GET /admin/refresh can return immediately
- ⎕←r←'Refreshed data at ',⍕⎕TS
+     msg←'Request accepted. One refresh task is pending and will begin once the current task is finished. View status at monitorUrl'
+ :EndIf
+ ##.Log'[REFRESH] ',msg
+ r←(message:msg ⋄ monitorUrl:(##.GetEnv'PUBLIC_URL'),'/admin/refresh/status')
+ :If 9=⎕NC'req'                       ⍝ Only a Jarvis request object can carry a status
+     'Accepted'req.SetStatus 202       ⍝ Jarvis has no 202 in HttpStatus, so name it explicitly
+ :EndIf

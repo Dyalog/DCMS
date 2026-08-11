@@ -1,10 +1,11 @@
- result←url (show_pass Test) ns;DoTest;suite;tests
+ result←url(show_pass _Test)ns;DoTest;suite;tests
  tests⌿⍨←'Test'∘(⊃⍷)¨tests←'T'ns.⎕NL ¯3
  suite←⍕ns
  result←1
  DoTest←{
      F←ns⍎⍵
-     0::0⊣⎕←'**TEST ERROR** ',suite,'.',⍵
+     0::0⊣⎕←'**TEST ERROR** ',suite,'.',⍵,,(⎕UCS 13),⍕↑⎕DMX.DM
+     8::0⊣⎕←'**TEST FAIL** ',suite,'.',⍵,(⎕UCS 13),'  ','ASSERT FAILED: ',⍕⊃⎕DMX.DM
      0=F url:0⊣⎕←'**TEST FAIL** ',suite,'.',⍵
      ⍺←0
      ⍺:1⊣⎕←'TEST PASS ',suite,'.',⍵
