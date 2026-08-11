@@ -106,7 +106,7 @@
      stemmed.Value
  }
 ⍝ Rank by search terms
- index_width←CACHE.videos.index_width
+ index_width←⊢/⍴CACHE.videos.index
  terms←(≢terms)(index_width)↑↑terms←∪terms⊆⍛,Stem¨terms←', '(~⍤∊⍨⊆⊢)Norm Q⊂'search' ''
  rows←⍸filter   ⍝ Rows matching the filters
  :If 0<≢terms
