@@ -11,7 +11,7 @@ sudo apt install mariadb-server
 sudo mysql_secure_installation
 ```
 
-Create the database `dyalog_cms`, create user `dcms` and grant privileges. Generate a secure password — it should also be set in `secrets/secrets.json5`.
+Create the database `dyalog_cms`, create user `dcms` and grant privileges. The password `YOUR_MARIADB_PASSWORD` should be replaced by whatever is written to the `env` file as `SQL_PASSWORD` by [dev](../dev).
 
 ```bash
 sudo mariadb -u root -p

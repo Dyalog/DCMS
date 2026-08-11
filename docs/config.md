@@ -8,12 +8,7 @@ Secrets are stored in `secrets/secrets.json5`. This file is gitignored. Each dev
 
 ```json5
 {
-  youtube: "https://www.googleapis.com/youtube/v3/", // Changes to a localhost dummy server for testing
   youtube_key: "YOUTUBE_API_KEY",
-  youtube_channels: [
-    { name: "Dyalog Usermeeting", id: "UC89lIdGnKlEozb1WcYQprNw" },
-    { name: "DyalogLtd", id: "UCRFAE1uHnrhXlSkoaAgKsIQ" },
-  ],
   thumbnails_root: "https://dyalog.com/uploads/video-thumbnails/", // Video thumbnails hosted on the same server as the front end app for GDPR compliance
   upload_token: "", // DCMS API token, only authorised POST requests allowed
   wordpress: {
@@ -24,6 +19,9 @@ Secrets are stored in `secrets/secrets.json5`. This file is gitignored. Each dev
   },
 }
 ```
+
+The YouTube API base URL is not a secret: it is the `YOUTUBE` configuration key, which
+`dev.dcfg` points at the local `MockYT` server.
 
 ## Debug Controls
 

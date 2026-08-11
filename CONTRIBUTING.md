@@ -24,8 +24,12 @@ The whole stack runs in Docker. From a local clone:
 In the RIDE session, against the running server:
 
 ```apl
-Admin.(TESTS.Run GetEnv'LOCAL_URL')
+Admin.RunTests 1
 ```
+
+`RunTests` waits for the start-up cache build, clears the database, and runs the
+suites; the `1` keeps the session alive afterwards. To run the suites without
+clearing first, call `Admin.(TESTS.Run GetEnv'LOCAL_URL')` directly.
 
 The full CI scenario (install dependencies, start the stack, run the suite):
 

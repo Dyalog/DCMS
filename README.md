@@ -63,7 +63,7 @@ const res = await fetch("http://localhost:8081/videos?search=apl&per_page=5");
 const data = await res.json();
 ```
 
-The query routes (`/videos`, `/events`, `/presenters`, `/version`) are public. The write routes (`/crud` and `/admin`) require an `X-API-Key` request header.
+The query routes (`/videos`, `/events`, `/presenters`, `/version`) are public. The `/crud`, `/schema` and `/admin` routes require an `X-API-Key` request header. A path in neither group is rejected with `404` before it reaches the router.
 
 ## YouTube API
 
