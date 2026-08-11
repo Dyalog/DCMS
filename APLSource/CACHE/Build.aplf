@@ -1,4 +1,4 @@
- cache←Build opt;Stem;Tokenise;dt_fields;ep;mat_fields;norm;pid;pname;search_columns;search_fields;stemmer;title;vids;weights;ytid;Trace
+ cache←Build opt;CountTerms;Stem;Trace;dt_fields;ep;mat_fields;norm;pid;pname;search_fields;stemmer;term_count;title;vids;weights;ytid
  ;GetEnv;ReadJSON;Unidecode;SQL;Table2JSON;TimeStamp2DDN
 ⍝ The external dependencies above are localised so that Setup's assignments appear as
 ⍝ Build's locals and vanish on return, otherwise certain names (e.g. .NET class instances)
@@ -75,27 +75,40 @@
  search_fields←'title' 'event' 'event_shortname' 'description' 'youtube_id' 'presenter'
  weights←2 2 1 2 1 3
  stemmer←⎕NEW Porter2Stemmer.EnglishPorter2Stemmer
- {}Trace'Stemmer'
+ {}Trace'Make Stemmer Function'
  Stem←{
      stemmed←stemmer.Stem⊆⍵
      stemmed.Value
  }
- Tokenise←{
-     text←('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵
-     words←(⎕C ⎕A)(∊⍨⊆⊢)text
-     non_words←(' ',⎕C ⎕A)(~⍤∊⍨⊆⊢)text
-     ↑non_words,(⊢,Stem¨)words
- }
- search_columns←Tokenise¨(vids.fields∊search_fields)/vids.index_all
- {}Trace'Tokenised tokens=',⍕+/≢¨,search_columns
- vids.index_width←0⌈⌈/(⊢/⍴)¨,search_columns
- {}Trace'Width ',⍕vids.index_width
- search_columns←{(≢⍵)(vids.index_width)↑⍵}¨search_columns
- {}Trace'Padded'
- vids.index←∪⊃⍪/,search_columns
- {}Trace'Index rows=',⍕≢vids.index
 
- vids.search←vids.index ComputeSearch weights search_columns
+ CountTerms←{
+     _←Trace'Start Count Terms'
+     text←{('  '∘⍷~⍛/⊢)(⎕UCS 10 13)~⍨,⍕⍵}¨⍵
+     words←(⎕C ⎕A)∘(∊⍨⊆⊢)¨text
+     non_words←(' ',⎕C ⎕A)∘(~⍤∊⍨⊆⊢)¨text
+     w_index←∪⊃,/,words
+     find_words←w_index∘⍳¨words
+     w_count←¯1+↑{{≢⍵}⌸(⍳≢w_index)⍪⍵}¨find_words
+⍝ Only stem the unique index words to reduce number of calls to .NET. Stemmer package
+⍝ FIXME modify package to accept a list of words, else implement in Dyalog
+     _←Trace'Do Stemming'
+     new←w_index≢¨stems←Stem¨w_index
+     w_count,←new/w_count   ⍝ Count of stemmed words is count of original words
+     w_index,←new/stems
+     _←Trace'Count Non-Word Terms'
+⍝ Add non_word term counts
+     nw_index←∪⊃,/,non_words
+     find_nw←nw_index∘⍳¨non_words
+     nw_count←¯1+↑{{≢⍵}⌸(⍳≢nw_index)⍪⍵}¨find_nw
+
+     index←↑w_index,nw_index
+     term_count←w_count,nw_count
+     index term_count
+ }
+
+ (vids.index term_count)←CountTerms(vids.fields∊search_fields)/vids.index_all
+
+ vids.search←vids.index ComputeSearch weights term_count
  {}Trace'Search'
  vids.recommendations←ComputeRecommendations vids.search
  {}Trace'Recommendations'
