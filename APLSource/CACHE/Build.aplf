@@ -3,7 +3,7 @@
 ⍝ The external dependencies above are localised so that Setup's assignments appear as
 ⍝ Build's locals and vanish on return, otherwise certain names (e.g. .NET class instances)
 ⍝ prevent the CACHE namespace from being serialised into isolate processes.
-⍝ opt: options namespace (currently unused)
+⍝ opt: using and app_dir, computed in the main process
 ⍝ cache: cache namespace for wholesale replacement
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Create character and numeric matrices for filters
