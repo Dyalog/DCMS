@@ -1,0 +1,124 @@
+#!/usr/bin/dyalogscript
+⍝ Stemming benchmark: current per-word .NET calls vs batch wrapper formats.
+⍝
+⍝ Usage: Admin/BENCH/stem.apls [sizes] [min_ms]
+⍝   sizes   comma-separated word counts (default 1,2,5,10,25,50,100,250,500,1000,2500,5000)
+⍝   min_ms  timed budget per trial, repetitions adapt to reach it (default 100).
+⍝           Each measurement runs 3 trials and reports the fastest.
+⍝
+⍝ Emits CSV to stdout: size,variant,thread,ms_per_call,words_per_ms
+
+⎕IO←⎕ML←1
+⎕PW←32767
+
+∇ ms←(f Bench)data;t0;n;el;i;trial;runs
+⍝ Mean over an adaptive batch, repeated TRIALS times, reporting the fastest. Noise only
+⍝ ever adds time, so the minimum estimates the true cost; a mean drifts several-fold
+⍝ when the dev stack and MariaDB compete for the same cores.
+  runs←⍬
+  :For trial :In ⍳TRIALS
+      n←1
+      :Repeat
+          t0←⎕AI[3]
+          :For i :In ⍳n ⋄ {}f data ⋄ :EndFor
+          el←⎕AI[3]-t0
+          :If ((el≥min_ms)∧n≥3)∨n≥1e6 ⋄ :Leave ⋄ :EndIf   ⍝ never report a single rep
+          n×←2⌈⌈min_ms÷1⌈el
+      :EndRepeat
+      runs,←el÷n
+  :EndFor
+  ms←⌊/runs
+∇
+
+∇ r←LoadNuGet dir;f
+⍝ ⎕FX each function; these are function source files, so ⎕FIX'file://' will not do.
+  'NuGet'#.⎕NS''
+  :For f :In (⊃⎕NINFO⍠1⊢dir,'/APLSource/NuGet/*.aplf')
+      {}#.NuGet.⎕FX⊃⎕NGET f 1
+  :EndFor
+  r←≢#.NuGet.⎕NL ¯3
+∇
+
+∇ v←Vocabulary root;srcs;text;w
+⍝ Real English from the repo's own prose — stemmer cost varies with suffix structure.
+  srcs←(⊃⎕NINFO⍠1⊢root,'docs/*.md'),(⊂root,'CONTRIBUTING.md'),(⊂root,'README.md')
+  srcs←(⎕NEXISTS¨srcs)/srcs
+  text←∊{⊃⎕NGET ⍵}¨srcs
+  w←∪(⎕C ⎕A)∘(∊⍨⊆⊢)⎕C text
+  v←(2≤≢¨w)/w
+  :If 100>≢v
+      v←'running' 'packages' 'dyalog' 'arrays' 'conferences' 'programming' 'happily'
+      v,←'nationalisation' 'the' 'quick' 'ingenuity' 'amicable' 'words' 'fugiativity'
+  :EndIf
+∇
+
+⍝ ─── setup ──────────────────────────────────────────────────────────────────
+argv←2 ⎕NQ # 'GetCommandLineArgs'
+args←1↓argv
+root←⊃⎕NPARTS ¯1↓⊃⎕NPARTS ¯1↓⊃⎕NPARTS⊃argv   ⍝ <root>/Admin/BENCH/stem.apls → <root>/
+
+sizes←1 2 5 10 25 50 100 250 500 1000 2500 5000
+:If 0<≢args ⋄ sizes←2⊃⎕VFI' '@(','∘=)⊃args ⋄ :EndIf
+TRIALS←3
+min_ms←100
+:If 1<≢args ⋄ min_ms←⊃2⊃⎕VFI 2⊃args ⋄ :EndIf
+
+{}LoadNuGet root,'packages/dyalog-NuGet-0.2.6'
+⎕USING←(#.NuGet.Using root,'nuget-packages'),⊂'System'   ⍝ System for the marshalling controls
+
+vocab←Vocabulary root
+⎕RL←42
+Sample←{vocab[?⍵⍴≢vocab]}
+
+stemmer←⎕NEW Porter2Stemmer.EnglishPorter2Stemmer
+
+⍝ ─── variants ───────────────────────────────────────────────────────────────
+⍝ All take and return a nested vector of char vectors, so timings include whatever
+⍝ APL-side reshaping each format demands.
+PerWord←{{(stemmer.Stem⊂⍵).Value}¨⍵}                        ⍝ current code
+Nested←{Stemming.Batch.StemAll⊂⍵}                           ⍝ string[] <-> string[]
+Delimited←{' '(≠⊆⊢)Stemming.Batch.StemLine⊂1↓∊' ',¨⍵}       ⍝ one string, both ways
+⍝ Controls: same data across the boundary, no stemming. Bounds transport vs work.
+MarshalNested←{String.Join ' '⍵}                            ⍝ string[] in
+MarshalDelim←{String.Concat(⊂1↓∊' ',¨⍵)(⊂'')}               ⍝ one string in
+
+⍝ ─── correctness gate ───────────────────────────────────────────────────────
+ref←PerWord vocab
+bad←''
+:If ref≢Nested vocab ⋄ bad,←⊂'StemAll disagrees with per-word stemming' ⋄ :EndIf
+:If ref≢Delimited vocab ⋄ bad,←⊂'StemLine disagrees with per-word stemming' ⋄ :EndIf
+:If 0<≢bad
+    ⎕←∊{⍵,⎕UCS 10}¨(⊂'CORRECTNESS FAILURE — not timing a wrong answer:'),bad
+    ⎕OFF 1
+:EndIf
+
+⍝ ─── warm up ────────────────────────────────────────────────────────────────
+⍝ JIT and first-call assembly load are worth several ms; without this the first row
+⍝ of the sweep reads roughly double.
+{}PerWord 50↑vocab ⋄ {}Nested 50↑vocab ⋄ {}Delimited 50↑vocab
+{}MarshalNested 50↑vocab ⋄ {}MarshalDelim 50↑vocab
+
+⍝ ─── sweep ──────────────────────────────────────────────────────────────────
+⍝ DCMS serves requests off thread 0, where APL→.NET calls cost ~7-10x more, so the
+⍝ spawned column is the one that matters.
+out←⊂'size,variant,thread,ms_per_call,words_per_ms'
+Row←{(s v th ms)←⍵ ⋄ (⍕s),',',v,',',th,',',(⍕ms),',',{0=⍵:'' ⋄ ⍕⌊0.5+s÷⍵}ms}
+
+fns←'PerWord' 'Nested' 'Delimited' 'MarshalNested' 'MarshalDelim'
+labels←'per-word' 'nested' 'delimited' 'marshal-nested' 'marshal-delim'
+
+:For n :In sizes
+    data←Sample n
+    :For i :In ⍳≢fns
+        f←i⊃fns
+        out,←⊂Row n(i⊃labels)'main'(⍎f,' Bench data')
+        out,←⊂Row n(i⊃labels)'spawned'(⍎'⎕TSYNC(',f,' Bench)&data')
+    :EndFor
+:EndFor
+
+⍝ Object construction, size-independent. Query.aplf currently pays this per request.
+new←{t←⎕AI[3] ⋄ z←{⎕NEW Porter2Stemmer.EnglishPorter2Stemmer}¨⍳⍵ ⋄ (⎕AI[3]-t)÷⍵}
+out,←⊂'0,new-stemmer,main,',(⍕new 2000),',0'
+
+⎕←∊{⍵,⎕UCS 10}¨out
+⎕OFF 0
