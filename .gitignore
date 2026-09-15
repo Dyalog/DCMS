@@ -6,3 +6,4 @@ packages/*
 !packages/apl-buildlist.json
 nuget-packages/*
 !nuget-packages/_nuget-packages.csproj
+!nuget-packages/*.cs
