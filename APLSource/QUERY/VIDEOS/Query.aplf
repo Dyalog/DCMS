@@ -102,11 +102,11 @@
 
  Stem←{
      0∊⍴⍵:⍵
-     ' '(≠⊆⊢)#.DCMS.Stemming.Batch.StemLine⊂1↓∊' ',¨⍵
+     #.DCMS.Stemming.Batch.StemLine⊂Q⊂'search' ''
  }
 ⍝ Rank by search terms
  index_width←⊢/⍴CACHE.videos.index
- terms←(≢terms)(index_width)↑↑terms←∪terms,Stem terms←', '(~⍤∊⍨⊆⊢)Norm Q⊂'search' ''
+ terms←(≢terms)(index_width)↑↑terms←∪' '(≠⊆⊢)terms,' ',Stem terms←Norm Q⊂'search' ''
  rows←⍸filter   ⍝ Rows matching the filters
  :If 0<≢terms
      rows←(CACHE.videos.Lookup terms)Rank CACHE.videos.search rows
