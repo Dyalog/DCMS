@@ -3,8 +3,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.50"
-          memory: "1073741824"
+          cpus: "2"
+          memory: "1G"
     env_file: env
     image: mariadb:10.8.2
     networks:
