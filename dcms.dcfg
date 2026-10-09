@@ -1,6 +1,6 @@
 {
 	Settings: {
-		MAXWS:        "2G",
+		MAXWS:        "1.5G",
 		PW:           300,
 		SERVICE_PORT:  8080,
 		LOCAL_URL:    "http://localhost:[SERVICE_PORT]",   // My URL, for testing
