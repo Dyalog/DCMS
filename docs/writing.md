@@ -50,7 +50,7 @@ Use British spelling: behaviour, normalise, serialisation. Spell an identifier a
 
 ## Markdown
 
-- Write headings in Title Case, with minor words (the, and, of, to) in lowercase: "Calling the API". Go no deeper than `###`.
+- Write headings in Title Case, with articles, conjunctions and prepositions in lowercase: "Calling the API", "Run Locally with Dummy Data". Go no deeper than `###`.
 - Don't wrap lines. Write each paragraph or list item on one line.
 - Link to source files with plain links, not bold ones.
 - Put identifiers, file paths, status codes and config keys in inline code.
