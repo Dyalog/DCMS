@@ -30,7 +30,7 @@ Vary the grammatical structure and framing of your sentences. Prose in which eve
 
 ### Write Rules as Instructions
 
-In a guide, write each rule in the imperative: "Name modules in uppercase", not "Modules are UPPERCASE". Elsewhere, address the reader as "you" only where it helps.
+In a guide, write each rule in the imperative: "Name modules in uppercase", not "Modules are UPPERCASE". To avoid a run of rules that all open the same way, you may occasionally state one as a description instead. Elsewhere, address the reader as "you" only where it helps.
 
 ### Write Full Sentences
 
