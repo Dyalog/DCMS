@@ -1,41 +1,41 @@
 services:
-    install:
-        build: .
-        volumes:
-        - ${PROJECT_DIR}:/app
-        - dcms_home:/data
-        env_file: env
-        command: "bash -c '/app/CI/activate.apls && /app/CI/install.apls'"
-        entrypoint: ""
+  install:
+    build: .
+    volumes:
+      - ${PROJECT_DIR}:/app
+      - dcms_home:/data
+    env_file: env
+    command: "bash -c '/app/CI/activate.apls && /app/CI/install.apls'"
+    entrypoint: ""
 
-    web:
-        build: .
-        volumes:
-        - ${PROJECT_DIR}:/app
-        - dcms_home:/data
-        - ${PROJECT_DIR}/secrets:/secrets
-        tty: true
-        env_file: env
-        ports:
-            - 4502:4502
-            - 8081:8081
-        deploy:
-            resources:
-                limits:
-                    cpus: "2"
-                    memory: 2G
-    db:
-        image: mariadb:10.8.2   # https://serverfault.com/questions/1103333/mariadb-10-8-3-in-docker-cant-initialize-timers
-        volumes:
-            - dcms_db:/var/lib/mysql
-        env_file: env
-        tty: true
-        deploy:
-            resources:
-                limits:
-                    cpus: "1"
-                    memory: 1G
+  web:
+    build: .
+    volumes:
+      - ${PROJECT_DIR}:/app
+      - dcms_home:/data
+      - ${PROJECT_DIR}/secrets:/secrets
+    tty: true
+    env_file: env
+    ports:
+      - 4502:4502
+      - 8081:8081
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+  db:
+    image: mariadb:10.8.2 # https://serverfault.com/questions/1103333/mariadb-10-8-3-in-docker-cant-initialize-timers
+    volumes:
+      - dcms_db:/var/lib/mysql
+    env_file: env
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
 
 volumes:
-    dcms_home:
-    dcms_db:
+  dcms_home:
+  dcms_db:
