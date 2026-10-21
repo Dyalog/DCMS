@@ -24,6 +24,10 @@ Code may be the subject when it really performs the action:
 
 > `HandleError` converts the error to an HTTP response.
 
+### Name What You Mean
+
+Prefer naming what you mean to pointing back at it with "it", "this", "those" or "ones". Write "every error suspends, including expected errors", not "every error suspends, including the deliberately signalled ones". A pronoun is fine when the thing it refers to is in the same sentence and can't be mistaken.
+
 ### Vary the Structure
 
 Vary the grammatical structure and framing of your sentences. Prose in which every sentence has the same shape is tiring to read, even when each sentence is correct on its own.
@@ -34,7 +38,11 @@ In a guide, write each rule in the imperative: "Name modules in uppercase", not 
 
 ### Write Full Sentences
 
-Prefer a full sentence to a slogan ("Call down, signal up.") or a fragment ("How DCMS APL code is written."). You may use a slogan in very rare cases: where it is clearer than the full sentence, or where it deliberately emphasises a principle the reader must remember. Follow it with the full statement.
+Prefer a full sentence to a slogan ("Call down, signal up.") or a fragment ("How DCMS APL code is written."). You may use a slogan in very rare cases: where it is clearer than the full sentence, or where it deliberately emphasises a principle the reader must remember. Follow it with the full statement. Short clauses joined by semicolons read as slogans too. Write "every error is trapped and returned to the client as an HTTP response", not "nothing suspends; every error becomes a response".
+
+### Say It Once
+
+Make each point once. If a sentence repeats what the paragraph has already said, cut it or replace it with something the reader doesn't know yet.
 
 ### Use Emphasis Sparingly
 
@@ -46,7 +54,7 @@ Use at most one em-dash in five paragraphs. A comma, colon, brackets or a new se
 
 ## Language
 
-Use British spelling: behaviour, normalise, serialisation. Spell an identifier as it is in the code, such as `responses.unauthorized`. Write "start-up" with a hyphen. As in the Dyalog documentation, write "Ride" for the development environment and `RIDE_INIT` for the configuration parameter.
+Use British spelling: behaviour, normalise, serialisation. Spell an identifier as it is in the code, such as `responses.unauthorized`. Write "start-up" with a hyphen. Don't hyphenate an adverb ending in "-ly": write "deliberately signalled", not "deliberately-signalled". As in the Dyalog documentation, write "Ride" for the development environment and `RIDE_INIT` for the configuration parameter.
 
 ## Markdown
 
