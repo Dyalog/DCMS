@@ -1,6 +1,6 @@
 # DCMS Writing Style
 
-Follow this guide when writing documentation for DCMS, including Markdown files, `CLAUDE.md`, and OpenAPI `description:` strings. To review a change against it, run `/drev`.
+Follow this guide when writing documentation for DCMS, including Markdown files, `CLAUDE.md`, and OpenAPI `description:` strings. To review a change against this guide, run `/drev`.
 
 ## Readers
 
@@ -46,15 +46,17 @@ Make each point once. If a sentence repeats what the paragraph has already said,
 
 ### Use Emphasis Sparingly
 
-Bold a term where you define it, or a warning the reader must not miss. Use a bold lead-in on a bullet, or a colon that stages a reveal ("The exception is: …"), only rarely.
+Bold a term where you define it, or a warning the reader must not miss. Use a bold lead-in on a bullet only rarely.
+
+Don't hold back a point behind a colon for suspense, as in "The exception is: a code block that shows a session". Write a plain sentence instead: "If a code block shows a session, leave it unlabelled."
 
 Use a GitHub callout (`> [!WARNING]`) only for a hazard or limit the reader must not miss, such as a required driver.
 
-Use at most one em-dash in five paragraphs. A comma, colon, brackets or a new sentence usually does the job.
+Use at most one em-dash in five paragraphs. Use a comma, a colon, brackets or a new sentence instead.
 
 ## Language
 
-Use British spelling: behaviour, normalise, serialisation. Spell an identifier as it is in the code, such as `responses.unauthorized`. Write "start-up" with a hyphen. Don't hyphenate an adverb ending in "-ly": write "deliberately signalled", not "deliberately-signalled". As in the Dyalog documentation, write "Ride" for the development environment and `RIDE_INIT` for the configuration parameter.
+Use British spelling: behaviour, normalise, serialisation. Spell an identifier as it is in the code, such as `responses.unauthorized`. Use a serial comma before the final "and" or "or" when a list item has parts of its own, so that the reader can tell where each item ends: "the router, the database, and the cache build and its isolate". Write "start-up" with a hyphen. Don't hyphenate an adverb ending in "-ly": write "deliberately signalled", not "deliberately-signalled". As in the Dyalog documentation, write "Ride" for the development environment and `RIDE_INIT` for the configuration parameter.
 
 ## Markdown
 

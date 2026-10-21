@@ -1,10 +1,10 @@
 # DCMS Code Style
 
-Follow this guide when writing APL for DCMS. For a style decision this guide doesn't cover, follow the style of the surrounding code. To review a change against this guide, run `/crev`.
+Follow this guide when writing APL for DCMS. For a style decision not covered here, follow the style of the surrounding code. To review a change against this guide, run `/crev`.
 
 ## Naming
 
-- Name the modules in `#.DCMS` in uppercase: `QUERY`, `CACHE`, `SQL`. The namespace that holds globals is uppercase so that it stands out: `GLOBAL`.
+- Name the modules in `#.DCMS` in uppercase: `QUERY`, `CACHE`, `SQL`. `GLOBAL`, the namespace that holds globals, is uppercase too, so that it stands out.
 - Keep the names of imported modules as they are. These include Tatin packages (`HttpCommand`, `Jarvis`), .NET classes (`Porter2Stemmer`), and `Unidecode`, which we intend to publish as a Tatin package. The roots `#.DCMS` and `#.Admin` also keep their names.
 - Name functions in PascalCase, including dfns assigned locally inside a tradfn: `CountTerms`, `URLEncode`.
 - Variables are lowercase, in snake_case (`has_videos`, `search_fields`) or terse (`pg`, `res`). Since a namespace passed as an argument is a variable, name it like one: `req`, `cache`, `build_opt`.
@@ -19,7 +19,7 @@ Follow this guide when writing APL for DCMS. For a style decision this guide doe
 
 ## Module References
 
-DCMS is one application in control of its own workspace, so refer to anything outside the current module by its absolute name. For another module, or a function at the root of `#.DCMS`, that means `#.DCMS.SQL`, `#.DCMS.GLOBAL.cache` or `#.DCMS.Log`. Tatin packages are loaded into `#`, so write `#.HttpCommand`.
+DCMS is one application in control of its own workspace, so refer to anything outside the current module by its absolute name. For another module, or a function at the root of `#.DCMS`, write for example `#.DCMS.SQL`, `#.DCMS.GLOBAL.cache` or `#.DCMS.Log`. Tatin packages are loaded into `#`, so write `#.HttpCommand`.
 
 Inside a module, use the names in the current namespace without a prefix. A sub-namespace may use `##.` to refer to its own module: `QUERY.VIDEOS` calls `##.CacheControl`, and the suites in `Admin.TESTS` call `##.Assert`.
 
@@ -31,7 +31,7 @@ GBL←#.DCMS.GLOBAL
 
 ### The Cache-Build Isolate
 
-Neither absolute nor relative references work as usual inside an isolate. There, `#` refers to the isolate's own root, where `#.DCMS` doesn't exist. Unlike in a normal namespace, `##` refers to the root of the parent process, not to the namespace in which the isolate was created, so a call through `##.` runs in the main process instead of the isolate (see [Parallel Language Features](https://docs.dyalog.com/20.0/files/Parallel_Language_Features.pdf)). Code that runs in the cache-build isolate, which is `CACHE.Build` and everything it calls, must use the names that `CACHE.Setup` binds, and never `#.DCMS.` or `##.`. To give that code a new dependency, add it to the import list in `CACHE.Setup`.
+Neither absolute nor relative references work as usual inside an isolate. There, `#` refers to the isolate's own root, where `#.DCMS` doesn't exist. Unlike in a normal namespace, `##` refers to the root of the parent process, not to the namespace in which the isolate was created, so a call through `##.` runs in the main process instead of the isolate (see [Parallel Language Features](https://docs.dyalog.com/20.0/files/Parallel_Language_Features.pdf)). In code that runs in the cache-build isolate (`CACHE.Build` and everything it calls), use the names that `CACHE.Setup` binds, never `#.DCMS.` or `##.`. To give the isolate a new dependency, add it to the import list in `CACHE.Setup`.
 
 ## Function Shape
 
@@ -52,7 +52,7 @@ Neither absolute nor relative references work as usual inside an isolate. There,
 
 ## Comments
 
-- Start every function with a `⍝` header block on line 2 that describes what the function does.
+- Give every function a `⍝` header block, starting on line 2, that describes what the function does.
 - Document an argument or result if its shape or type isn't clear from its name, for example a namespace, a nested array or a matrix. Scalars and simple vectors usually need no documentation.
 - Write argument docs as `⍝ name: description`, adding `:: type` when the description doesn't make the type clear, and align the `::` column. In a dfn the names are `⍺`, `⍵` and `←`. In a tradfn, use the names declared in the header:
 
