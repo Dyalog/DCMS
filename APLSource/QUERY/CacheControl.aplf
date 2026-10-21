@@ -29,5 +29,5 @@
  :EndIf
 
  :If not_modified
-     req.Fail 304
+     req.Fail 304   ⍝ Fail only sets the HTTP status
  :EndIf

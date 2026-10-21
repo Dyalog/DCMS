@@ -1,10 +1,10 @@
 # DCMS Developer Documentation
 
-Architecture and reference for working on DCMS itself. To find your way around the code when making a change, start with [../CONTRIBUTING.md](../CONTRIBUTING.md).
+Read this document for the architecture of DCMS and for reference material on working on it. To find your way around the code when making a change, start with [../CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## The Stack
 
-DCMS doubles as a worked example of how Dyalog's tools fit together: the [Stark](https://github.com/dyalog-labs/stark) REST router on top of the [Jarvis](https://github.com/Dyalog/Jarvis) web service framework; SQAPL talking to MariaDB; the Isolate workspace for concurrent computation; and Docker for consistent development and deployment environments.
+DCMS is also a worked example of how Dyalog's tools fit together: the [Stark](https://github.com/dyalog-labs/stark) REST router on top of the [Jarvis](https://github.com/Dyalog/Jarvis) web service framework; SQAPL connecting to MariaDB; the Isolate workspace for concurrent computation; and Docker for consistent development and deployment environments.
 
 ## Architecture
 
@@ -32,7 +32,7 @@ The application is a set of namespaces under `#.DCMS`, linked from [../APLSource
 3. The handler reads `req.PathParams` and `req.QueryParams`, does its work (through `SQL` or the cache), and returns a value Jarvis serialises to JSON.
 4. An untrapped error reaches Stark's `OnErrorFn`, `HandleError`, which turns it into an HTTP response.
 
-The [Routing](../CONTRIBUTING.md#routing) and [Error Handling](../CONTRIBUTING.md#error-handling) walkthroughs cover steps 2 and 4 in detail.
+For steps 2 and 4 in detail, see the [Routing](../CONTRIBUTING.md#routing) and [Error Handling](../CONTRIBUTING.md#error-handling) walkthroughs in `CONTRIBUTING.md`.
 
 ### Data Flow
 
@@ -45,22 +45,22 @@ YouTube Data API ─▶ IMPORT ─▶ MariaDB ─▶ QUERY cache ─▶ read end
                                 WP ─▶ Dyalog WordPress site
 ```
 
-- **Ingest:** `ADMIN.Refresh` (at start-up, on a 24-hour timer, or `POST /admin/refresh`) takes the refresh serialisation lock and spawns `ADMIN.RunRefresh`, which calls `IMPORT.YOUTUBE.RefreshData` to fetch video metadata into MariaDB, then runs `DCMS.CACHE.Build` in an isolate subprocess and swaps the rebuilt cache in atomically for the read endpoints to serve from. The **refresh serialisation lock** ensures only one thread is doing a cache refresh at a time, to prevent race conditions and clobbering that could cause system lockups or a request reading a half-updated cache. `GET /admin/refresh/status` (`ADMIN.RefreshStatus`) reports whether a refresh is running, whether one is queued behind it, and when one last succeeded or failed.
-- **Persist:** each refresh writes the cache it is now serving to `CACHE_FILE` (`ADMIN.WriteCache`), and start-up reads it back (`ADMIN.ReadCache`, checked by `CACHE.Valid` and re-hashed by `CACHE.Rehydrate`), so a cold start serves the previous run's data while the first refresh runs.
+- **Ingest:** `ADMIN.Refresh` (at start-up, on a 24-hour timer, or `POST /admin/refresh`) takes the refresh serialisation lock and spawns `ADMIN.RunRefresh`, which calls `IMPORT.YOUTUBE.RefreshData` to fetch video metadata into MariaDB, then runs `DCMS.CACHE.Build` in an isolate subprocess and swaps the rebuilt cache in atomically for the read endpoints to serve from. The **refresh serialisation lock** lets only one thread refresh the cache at a time, so that concurrent refreshes can't overwrite each other's work, lock up the system, or leave a request reading a half-updated cache. `GET /admin/refresh/status` (`ADMIN.RefreshStatus`) reports whether a refresh is running, whether one is queued behind it, and when one last succeeded or failed.
+- **Persist:** each refresh writes the cache it is now serving to `CACHE_FILE` (`ADMIN.WriteCache`), and DCMS reads the file back at start-up (`ADMIN.ReadCache`, checked by `CACHE.Valid` and re-hashed by `CACHE.Rehydrate`), so that after a cold start DCMS serves the previous run's data while the first refresh runs.
 - **Serve:** read endpoints answer from the cache, with `ETag` / `Last-Modified` validation and `304` replies (`QUERY.CacheControl`), or `503` while no cache exists yet; CRUD endpoints read and write MariaDB directly.
 - **Publish:** `ADMIN.WPPush` (`POST /admin/wp-push`) pushes video posts to the Dyalog WordPress site through the `WP` client.
 
 ## Running the Stack
 
-The primary path is Docker Compose, driven by the [dev](../dev) script: `./dev -i` on the first run (installs Tatin and NuGet dependencies), `./dev` after. It starts the `web` (Dyalog + Jarvis) and `db` (MariaDB) services. See [dev.md](dev.md) for the full workflow and what `dev` does.
+Run the stack with Docker Compose through the [dev](../dev) script: run `./dev -i` the first time, to install the Tatin and NuGet dependencies, and `./dev` after that. `dev` starts the `web` (Dyalog + Jarvis) and `db` (MariaDB) services. See [dev.md](dev.md) for the full workflow and what `dev` does.
 
 ### Manual Setup (without Docker)
 
-Running MariaDB host-native (for a non-Docker setup, or to debug type conversions) needs the MySQL ODBC driver and a `dyalog_cms` database. The driver requirement is strict: the SQAPL type conversions depend on its `DATA_TYPE` numbers. [database.md](database.md) has the setup and the ODBC details; [dependencies.md](dependencies.md) covers the Tatin and NuGet packages.
+Running MariaDB host-native (for a non-Docker setup, or to debug type conversions) needs the MySQL ODBC driver and a `dyalog_cms` database. The driver requirement is strict: the SQAPL type conversions depend on its `DATA_TYPE` numbers. See [database.md](database.md) for the setup and the ODBC details, and [dependencies.md](dependencies.md) for the Tatin and NuGet packages.
 
 ## Tests
 
-Test code lives in [../Admin](../Admin), loaded as the `Admin` namespace in development. `Admin.TESTS` holds four suites, run against a clean database:
+Test code is in [../Admin](../Admin), which is loaded as the `Admin` namespace in development. `Admin.TESTS` holds four suites, run against a clean database:
 
 | Suite     | Covers                                                                            |
 | --------- | --------------------------------------------------------------------------------- |
@@ -71,12 +71,12 @@ Test code lives in [../Admin](../Admin), loaded as the `Admin` namespace in deve
 
 `Admin.TESTS.GENERATE` produces the dummy data; `InsertDummyData` loads it.
 
-- **In a development session**, against the running server:
+- In a development session, against the running server:
   ```apl
   Admin.RunTests 1
   ```
   `RunTests` waits for the start-up cache build and clears the database first; the `1` keeps the session alive afterwards. `Admin.(TESTS.Run GetEnv'LOCAL_URL')` runs the suites without clearing.
-- **Full local CI run:** [CI/run-tests-in-docker.sh](../CI/run-tests-in-docker.sh) builds the stack in Docker, runs the suites, and exits with the test status.
+- For a full local CI run, run [CI/run-tests-in-docker.sh](../CI/run-tests-in-docker.sh), which builds the stack in Docker, runs the suites, and exits with the test status.
 
 ## Continuous Integration
 
@@ -89,6 +89,8 @@ Test code lives in [../Admin](../Admin), loaded as the `Admin` namespace in deve
 ## Documentation
 
 - [dev.md](dev.md): getting started, running tests, deployment
+- [code-style.md](code-style.md): naming, layout, comments, errors and tests in DCMS APL code
+- [writing-style.md](writing-style.md): prose and Markdown style for the documentation
 - [config.md](config.md): configuration parameters and debug flags
 - [error-handling.md](error-handling.md): the call-down, signal-up error scheme
 - [database.md](database.md): ODBC drivers and host-native MariaDB setup

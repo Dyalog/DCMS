@@ -1,6 +1,6 @@
 # Contributing to DCMS
 
-This guide covers getting set up, the change workflow, and where to look in the code for the most common contributions. For the full development setup see [docs/dev.md](docs/dev.md); for the architecture overview and a guide to the other docs see [docs/README.md](docs/README.md).
+Use this guide to get set up, follow the change workflow, and find where in the code to make the most common contributions. For the full development setup see [docs/dev.md](docs/dev.md); for the architecture overview and a guide to the other docs see [docs/README.md](docs/README.md).
 
 ## Getting Started
 
@@ -23,7 +23,7 @@ Admin.RunTests 1
 
 `RunTests` waits for the start-up cache build, clears the database, and runs the suites; the `1` keeps the session alive afterwards. To run the suites without clearing first, call `Admin.(TESTS.Run GetEnv'LOCAL_URL')` directly.
 
-The full CI scenario (install dependencies, start the stack, run the suite):
+To install dependencies, start the stack and run the suite as CI does, run:
 
 ```sh
 ./CI/run-tests-in-docker.sh
@@ -34,7 +34,7 @@ The full CI scenario (install dependencies, start the stack, run the suite):
 Search the [open issues](https://github.com/Dyalog/DCMS/issues) before filing a new one. A useful bug report includes:
 
 - The DCMS version, from [`/version`](https://dcms.dyalog.com/version).
-- A minimal reproducible example: the request, or the APL expression, that triggers it.
+- A minimal reproducible example: the request, or the APL expression, that triggers the bug.
 - What you expected, and what happened instead.
 
 For a substantial change, open an issue to discuss the approach before writing code.
@@ -43,20 +43,20 @@ For a substantial change, open an issue to discuss the approach before writing c
 
 DCMS uses a fork-and-pull-request workflow:
 
-1. **Fork** the repository and clone your fork.
-2. **Branch** from `master` for your change.
-3. Commit, push to your fork, and open a **pull request** against `master`.
+1. Fork the repository and clone your fork.
+2. Branch from `master` for your change.
+3. Commit, push to your fork, and open a pull request against `master`.
 
-New to this? GitHub's [contributing-to-a-project guide](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) walks through every step.
+If you haven't contributed to a GitHub project before, follow GitHub's [contributing-to-a-project guide](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project).
 
 Before you open the pull request:
 
-- Keep it to a single logical change; split unrelated work into separate PRs.
+- Keep the pull request to a single logical change; split unrelated work into separate PRs.
 - Match the conventions of the code around you.
 - Update the docs and tests your change affects, and run the suite (see [Running Tests](#running-tests)).
 - By contributing, you agree your work is licensed under the repository's [LICENSE](LICENSE) (MIT).
 
-Production deploys from `master` via the [Jenkinsfile](Jenkinsfile), so keep `master` releasable.
+Production is deployed from `master` via the [Jenkinsfile](Jenkinsfile), so keep `master` releasable.
 
 ## Routing
 
@@ -74,7 +74,7 @@ Every route is registered in [APLSource/Run.aplf](APLSource/Run.aplf), using the
 ⍝  └──────────────────────────────────route path
 ```
 
-Handlers take the [Jarvis request object](https://dyalog.github.io/Jarvis/1.21/request/) as right argument, but most return their OpenAPI specification instead when called with the `'⍠SPEC'` sigil. Stark assembles those into the `/openapi.json` spec.
+Handlers take the [Jarvis request object](https://dyalog.github.io/Jarvis/1.21/request/) as right argument, but most return their OpenAPI specification instead when called with the `'⍠SPEC'` sigil. Stark assembles these specifications into `/openapi.json`.
 
 A path segment in `{braces}` is a _path parameter_. In `/crud/{table}`, the segment at `{table}` is passed to the handler as `req.PathParams.table`. A handler reads the request through three members: `req.Endpoint` (the matched path), `req.PathParams`, and `req.QueryParams`.
 
@@ -82,24 +82,20 @@ A path segment in `{braces}` is a _path parameter_. In `/crud/{table}`, the segm
 
 `ControlAccess` ([APLSource/AUTH/ControlAccess.aplf](APLSource/AUTH/ControlAccess.aplf)) gates every request before Stark dispatches it, as Jarvis's `AuthenticateFn`. It matches the request path against two prefix lists:
 
-- **`public`** endpoints are served without authentication (`/version`, `/videos`, …).
-- **`authed`** endpoints are served only with a valid `X-API-Key` (`/crud`, `/admin`, …).
+- `public` endpoints are served without authentication (`/version`, `/videos`, …).
+- `authed` endpoints are served only with a valid `X-API-Key` (`/crud`, `/admin`, …).
 
-A path under neither prefix is rejected with `404` here, before routing. So a new route under an existing prefix needs no change; a new top-level prefix (say `/stats`) must be added to one of the lists. A path that clears the prefix check but matches no registered route gets its `404` from Stark instead.
-
-### Errors
-
-The handler call runs inside an error trap whose behaviour follows the debug controls. On an untrapped error Stark calls its `OnErrorFn`, which DCMS sets to `HandleError`, turning the error into an HTTP response. See [docs/error-handling.md](docs/error-handling.md) for more details.
+`ControlAccess` rejects a path under neither prefix with `404`, before routing. So a new route under an existing prefix needs no change; a new top-level prefix (say `/stats`) must be added to one of the lists. A path that clears the prefix check but matches no registered route gets its `404` from Stark instead.
 
 ## Error Handling
 
-DCMS uses a call-down, signal-up scheme. A handler calls lower functions that validate the request and `⎕SIGNAL` an error tagged `Vendor:'DCMS'`, with an `EN` equal to the intended HTTP status. The router's `OnErrorFn`, [HandleError.aplf](APLSource/HandleError.aplf), turns that into the response:
+DCMS uses a call-down, signal-up scheme. A handler calls lower functions that validate the request and `⎕SIGNAL` an error tagged `Vendor:'DCMS'`, with an `EN` equal to the intended HTTP status. The router's `OnErrorFn`, [HandleError.aplf](APLSource/HandleError.aplf), turns the error into the response:
 
 ```apl
-⎕SIGNAL⊂('EN' 404)('Message' 'Video not found')('Vendor' 'DCMS')
+⎕SIGNAL⊂('EN' 404)('Message' 'Video not found.')('Vendor' 'DCMS')
 ```
 
-Three independent `DCMS.GLOBAL` controls (`logging`, `suspend`, `trace`) govern what you see while developing. Set them with [SetDebug.aplf](APLSource/SetDebug.aplf), called as `DCMS.SetDebug logging suspend trace`:
+The handler call runs inside an error trap whose behaviour follows the debug controls. Three independent `DCMS.GLOBAL` controls (`logging`, `suspend`, `trace`) govern what you see while developing. Set them with [SetDebug.aplf](APLSource/SetDebug.aplf), called as `DCMS.SetDebug logging suspend trace`:
 
 | Control   | Effect                                                                                    |
 | --------- | ----------------------------------------------------------------------------------------- |
@@ -111,24 +107,24 @@ Three independent `DCMS.GLOBAL` controls (`logging`, `suspend`, `trace`) govern 
 
 ## Search and Recommendations
 
-Both features read from an in-memory cache held in `DCMS.GLOBAL.cache`, instead of querying SQL per request. The [DCMS.CACHE](APLSource/CACHE) module builds it: [CACHE/Build.aplf](APLSource/CACHE/Build.aplf) pulls the joined video, presenter, and event tables from SQL, normalises the searchable text (`Unidecode.NormaliseText`, with datetimes converted to Dyalog Day Numbers), and precomputes the search and recommendation matrices.
+Search and recommendations are served from an in-memory cache, `DCMS.GLOBAL.cache`, instead of from SQL queries per request. The [DCMS.CACHE](APLSource/CACHE) module builds the cache: [CACHE/Build.aplf](APLSource/CACHE/Build.aplf) pulls the joined video, presenter, and event tables from SQL, normalises the searchable text (`Unidecode.NormaliseText`, with datetimes converted to Dyalog Day Numbers), and precomputes the search and recommendation matrices.
 
-Building the cache is expensive, so it runs in a **separate CPU process** (a Dyalog [isolate](https://docs.dyalog.com/20.0/files/Parallel_Language_Features.pdf)) to keep HTTP serving responsive while the cache is rebuilt.
+Building the cache is expensive, so it runs in a separate CPU process (a Dyalog [isolate](https://docs.dyalog.com/20.0/files/Parallel_Language_Features.pdf)) to keep HTTP serving responsive while the cache is rebuilt.
 
-A rebuild is triggered at start-up, on a 24-hour timer, and by `POST /admin/refresh` (after fresh data is imported from YouTube). [ADMIN/RefreshData.aplf](APLSource/ADMIN/RefreshData.aplf) seeds the isolate with the module, runs `CACHE.Build` there, and swaps `GLOBAL.cache` in atomically. For debugging, `DCMS.CACHE.Build` is also callable in the main process; both files' comments cover the isolate-boundary details.
+A rebuild is triggered at start-up, on a 24-hour timer, and by `POST /admin/refresh` (after fresh data is imported from YouTube). [ADMIN/RefreshData.aplf](APLSource/ADMIN/RefreshData.aplf) seeds the isolate with the module, runs `CACHE.Build` there, and swaps `GLOBAL.cache` in atomically. For debugging, `DCMS.CACHE.Build` is also callable in the main process; see the comments in both files for the isolate-boundary details.
 
 ### Persistence and Conditional Requests
 
-Each refresh also writes the cache it is now serving to the `CACHE_FILE` component file ([ADMIN/WriteCache.aplf](APLSource/ADMIN/WriteCache.aplf)). At start-up it is read back, checked and the search terms index is hashed in the active workspace ready for queries. A cold start serves the previous run's data straight away while the first refresh runs. Until either is ready, the cached read endpoints signal `503`.
+Each refresh also writes the cache it is now serving to the `CACHE_FILE` component file ([ADMIN/WriteCache.aplf](APLSource/ADMIN/WriteCache.aplf)). At start-up, the cache is read back and checked, and its search terms index is hashed in the active workspace, ready for queries. After a cold start, DCMS serves the previous run's data straight away while the first refresh runs. Until either the saved cache or the first refresh is ready, the cached read endpoints signal `503`.
 
-`RefreshData` derives each cache's `ETag` from its `last_updated` stamp, and keeps the previous stamp when a rebuild produces identical content, so a routine refresh does not invalidate clients' copies. [QUERY/CacheControl.aplf](APLSource/QUERY/CacheControl.aplf) sets the validation headers on every cached read endpoint and fails the request with `304` when `If-None-Match` or `If-Modified-Since` matches.
+`RefreshData` derives each cache's `ETag` from its `last_updated` stamp, and keeps the previous stamp when a rebuild produces identical content, so a routine refresh does not invalidate clients' copies. [QUERY/CacheControl.aplf](APLSource/QUERY/CacheControl.aplf) sets the validation headers on every cached read endpoint. When the request's `If-None-Match` or `If-Modified-Since` header shows that the client's copy is still current, `CacheControl` sets the status to `304 Not Modified`, and the handler returns an empty body so that the client uses its own copy.
 
 ### Search
 
 The `GET /videos` handler is [QUERY/VIDEOS/Query.aplf](APLSource/QUERY/VIDEOS/Query.aplf):
 
 1. **Filter** the cached rows by the query parameters: date range ([FilterDateTimes.aplf](APLSource/QUERY/VIDEOS/FilterDateTimes.aplf)), `presenter_id`, and `event`.
-2. **Rank** the survivors against the `search` terms. Per-term relevance is a BM25F measure, precomputed for the whole corpus during the cache build ([CACHE/ComputeSearch.aplf](APLSource/CACHE/ComputeSearch.aplf)). It reflects how often the terms occur, weighted down by how common each term is across all videos. At request time [Rank.aplf](APLSource/QUERY/VIDEOS/Rank.aplf) scores the survivors against the terms' columns of that matrix and returns them in descending score order. Terms are normalised and stemmed (`Porter2Stemmer`) first; with no `search` term, every filtered row is kept.
+2. **Rank** the filtered rows against the `search` terms. Per-term relevance is a BM25F measure, precomputed for the whole corpus during the cache build ([CACHE/ComputeSearch.aplf](APLSource/CACHE/ComputeSearch.aplf)). The measure reflects how often the terms occur, weighted down by how common each term is across all videos. At request time [Rank.aplf](APLSource/QUERY/VIDEOS/Rank.aplf) scores the filtered rows against the terms' columns of that matrix and returns them in descending score order. Terms are normalised and stemmed (`Porter2Stemmer`) first; with no `search` term, every filtered row is kept.
 3. **Sort** (`newest` / `oldest`) and paginate. Only row indices are passed to [Paginate.aplf](APLSource/QUERY/Paginate.aplf), which selects the page before [Table2JSON.aplf](APLSource/QUERY/Table2JSON.aplf) converts it.
 
 ### Recommendations
