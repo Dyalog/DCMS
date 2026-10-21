@@ -21,19 +21,19 @@ Then go to **Custom Fields**. From here you can add and edit field groups.
 	1. In the **Location Rules** tab, set to **Show this field group if** post is equal to the CPT we just created
 	1. In the **Group Settings** tab, enable **Show in REST API**
 
-### Push Data From DCMS to WordPress via REST
-DCMS *pushes* data to WordPress through its REST API to populate the CPT fields. The push is triggered by `POST /admin/wp-push` (handled by **[ADMIN.WPPush](../APLSource/ADMIN/WPPush.aplf)**) and currently covers one post type, **Team Dyalog Videos**.
+### Push Data from DCMS to WordPress via REST
+DCMS _pushes_ data to WordPress through its REST API to populate the CPT fields. The push is triggered by `POST /admin/wp-push` (handled by [ADMIN.WPPush](../APLSource/ADMIN/WPPush.aplf)) and currently covers one post type, **Team Dyalog Videos**.
 
-**[WP.PushTeamDyalogVideos](../APLSource/WP/PushTeamDyalogVideos.aplf)** runs the whole cycle:
+[WP.PushTeamDyalogVideos](../APLSource/WP/PushTeamDyalogVideos.aplf) runs the whole cycle:
 
 1. Read the existing `team-dyalog` member posts and `team-dyalog-videos` posts from WordPress, to map DCMS IDs onto WordPress post IDs.
 2. Query MariaDB for the most recent videos per team member (up to `n`, default 10, set with the `?n=` query parameter).
-3. **[WP.BuildVideoPosts](../APLSource/WP/BuildVideoPosts.aplf)** turns each row into a `team-dyalog-videos` post body, mapping the SQL columns onto the ACF fields and computing the derived fields (the HTML `<img>` thumbnail, the video-library URL, the event link, and the readable date). Videos with no matching Team Dyalog member are dropped.
-4. Existing posts are updated and new ones created in batches through the WordPress `batch/v1` endpoint (**[WP.DoBulk](../APLSource/WP/DoBulk.aplf)**); posts no longer returned by the query are deleted.
+3. [WP.BuildVideoPosts](../APLSource/WP/BuildVideoPosts.aplf) turns each row into a `team-dyalog-videos` post body, mapping the SQL columns onto the ACF fields and computing the derived fields (the HTML `<img>` thumbnail, the video-library URL, the event link, and the readable date). Videos with no matching Team Dyalog member are dropped.
+4. Existing posts are updated and new ones created in batches through the WordPress `batch/v1` endpoint ([WP.DoBulk](../APLSource/WP/DoBulk.aplf)); posts no longer returned by the query are deleted.
 
 The handler returns one `{post_id, action, success}` object per create, update, or delete.
 
-The SQL statement lives in **[PushTeamDyalogVideos.aplf](../APLSource/WP/PushTeamDyalogVideos.aplf)**; the field mapping lives in **[BuildVideoPosts.aplf](../APLSource/WP/BuildVideoPosts.aplf)**. Each `team-dyalog-videos` post carries a `title`, a `date` (set to the presentation date), a `status` of `publish`, and these ACF fields:
+The SQL statement lives in [PushTeamDyalogVideos.aplf](../APLSource/WP/PushTeamDyalogVideos.aplf); the field mapping lives in [BuildVideoPosts.aplf](../APLSource/WP/BuildVideoPosts.aplf). Each `team-dyalog-videos` post carries a `title`, a `date` (set to the presentation date), a `status` of `publish`, and these ACF fields:
 
 | ACF field | Meaning |
 | --------- | ------- |

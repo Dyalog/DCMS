@@ -6,14 +6,14 @@ This page covers ODBC driver requirements and host-native MariaDB setup. It is o
 
 Install MariaDB and set your database root user password:
 
-```bash
+```sh
 sudo apt install mariadb-server
 sudo mysql_secure_installation
 ```
 
 Create the database `dyalog_cms`, create user `dcms` and grant privileges. The password `YOUR_MARIADB_PASSWORD` should be replaced by whatever is written to the `env` file as `SQL_PASSWORD` by [dev](../dev).
 
-```bash
+```sh
 sudo mariadb -u root -p
 create database dyalog_cms;
 create user dcms identified by 'YOUR_MARIADB_PASSWORD';
@@ -32,14 +32,14 @@ If you use a different driver, check the output of `#.SQA.Columns #.DCMS.SQL.db`
 
 You can find out which `DATA_TYPE` numbers should be used with:
 
-```APL
-      ]view 2(↑⍤1)2⊃#.SQA.TypeInfo #.DCMS.SQL.db
+```apl
+]view 2(↑⍤1)2⊃#.SQA.TypeInfo #.DCMS.SQL.db
 ```
 
 and relating the `TYPE_NAME` column to those specified in `sql/type_conversions.csv`.
 
 To see only types used in the database, try:
 
-```APL
-      {∪1↓⍵[;(1⌷⍵)⍳⊆'DATA_TYPE' 'TYPE_NAME']}2⊃#.SQA.Columns db
+```apl
+{∪1↓⍵[;(1⌷⍵)⍳⊆'DATA_TYPE' 'TYPE_NAME']}2⊃#.SQA.Columns db
 ```

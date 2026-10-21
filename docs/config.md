@@ -20,14 +20,11 @@ Secrets are stored in `secrets/secrets.json5`. This file is gitignored. Each dev
 }
 ```
 
-The YouTube API base URL is not a secret: it is the `YOUTUBE` configuration key, which
-`dev.dcfg` points at the local `MockYT` server.
+The YouTube API base URL is not a secret: it is the `YOUTUBE` configuration key, which `dev.dcfg` points at the local `MockYT` server.
 
 ## Debug Controls
 
-Error-handling and developer-debugging behaviour is governed by three **independent**
-configuration keys, applied at start-up to `DCMS.GLOBAL.(logging suspend trace)` by
-`DCMS.SetDebug`:
+Error-handling and developer-debugging behaviour is governed by three **independent** configuration keys, applied at start-up to `DCMS.GLOBAL.(logging suspend trace)` by `DCMS.SetDebug`:
 
 ```apl
 DCMS.SetDebug logging suspend trace   ⍝ 3-element integer vector
@@ -47,5 +44,4 @@ See [error-handling.md](error-handling.md) for the full scheme.
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `CACHE_FILE` | Component file the search and recommendation cache is written to after each refresh, and read back from at start-up so a cold start can serve the previous run's data. |
 
-See [Persistence and Conditional Requests](../CONTRIBUTING.md#persistence-and-conditional-requests)
-for how the file is written, validated and rehydrated.
+See [Persistence and Conditional Requests](../CONTRIBUTING.md#persistence-and-conditional-requests) for how the file is written, validated and rehydrated.

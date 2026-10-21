@@ -20,9 +20,9 @@ Error-handling behaviour is governed by three **independent** variables in `DCMS
 | 1 (bugs) | trapped → HTTP response                           | left to suspend in the debugger                          |
 | 2 (all)  | left to suspend                                   | left to suspend                                          |
 
-- **0** — production / tests: nothing suspends; every error becomes a response.
-- **1** — development: routine 4xx/5xx still answer the client; unexpected errors open the debugger.
-- **2** — strict: every error suspends, including the deliberately-signalled ones.
+- **0** (production and tests): every error is trapped and returned to the client as an HTTP response, instead of suspending in the debugger.
+- **1** (development): routine 4xx/5xx still answer the client; unexpected errors open the debugger.
+- **2** (strict): every error suspends in the debugger, including expected errors.
 
 The three are orthogonal: e.g. logging can be enabled in production (`logging 1, suspend 0`), or a request stepped through while errors are still trapped into responses (`trace 1, suspend 0`).
 
@@ -35,7 +35,7 @@ The three are orthogonal: e.g. logging can be enabled in production (`logging 1,
 
 `jarvis.Debug` must be set **after** `router.Start` (Stark forwards its own bit 1 to Jarvis at start time), which `Run` ensures.
 
-`Run` accepts either an explicit `(logging suspend trace)` triple or a preset scalar — `0` = production `(0 0 0)`, `1` = development `(1 1 0)`, `2` = strict `(1 2 0)`. The configs (`dcms.dcfg`, `dev.dcfg`, `CI/test.dcfg`) pass the values via the `LOGGING` / `SUSPEND` / `TRACE` keys. To retune a running server, call `DCMS.SetDebug` directly.
+`Run` accepts either an explicit `(logging suspend trace)` triple or a preset scalar: `0` = production `(0 0 0)`, `1` = development `(1 1 0)`, `2` = strict `(1 2 0)`. The configs (`dcms.dcfg`, `dev.dcfg`, `CI/test.dcfg`) pass the values via the `LOGGING` / `SUSPEND` / `TRACE` keys. To retune a running server, call `DCMS.SetDebug` directly.
 
 ## How Lower Functions Signal Expected Errors
 
@@ -49,8 +49,8 @@ When a function detects an anticipated condition (missing parameter, unauthorise
 
 `HandleError` (the router's `OnErrorFn`) classifies every trapped error:
 
-- **Expected** — `Vendor≡'DCMS'`. A 4xx `EN` becomes a response with that status; any other `EN` (5xx, etc.) becomes a 500 response. The signalled `Message` is preserved.
-- **Unexpected** — no DCMS vendor tag (a genuine bug). Always logged via `Log`. With `suspend=0` it becomes a generic 500 response carrying a pre-filled GitHub issue link; with `suspend=1` it is re-signalled so it propagates to the debugger (Jarvis does not trap it).
+- **Expected**: `Vendor≡'DCMS'`. A 4xx `EN` becomes a response with that status; any other `EN` (5xx, etc.) becomes a 500 response. The signalled `Message` is preserved.
+- **Unexpected**: no DCMS vendor tag (a genuine bug). Always logged via `Log`. With `suspend=0` it becomes a generic 500 response carrying a pre-filled GitHub issue link; with `suspend=1` it is re-signalled so it propagates to the debugger (Jarvis does not trap it).
 
 ### Where the Debugger Suspends (`suspend=1`)
 

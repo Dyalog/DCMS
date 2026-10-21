@@ -26,11 +26,11 @@ The entire stack runs in Docker, so development, testing and production all use 
 ./dev
 ```
 
-This starts the Dyalog web server and MariaDB. Connect to RIDE in your browser at `http://localhost:4502` to interact with the running APL session.
+This starts the Dyalog web server and MariaDB. Connect to Ride in your browser at `http://localhost:4502` to interact with the running APL session.
 
 ## How `dev` Works
 
-1. Writes the `env` file with container configuration (database credentials, paths, RIDE port)
+1. Writes the `env` file with container configuration (database credentials, paths, Ride port)
 2. Pulls the latest Docker images
 3. If `-i` was passed, runs the `install` service to activate Tatin and install dependencies
 4. Runs `docker compose up web db`
@@ -51,15 +51,13 @@ The `SUSPEND` flag controls request handling behaviour from full error trapping 
 
 ### During Development
 
-In the RIDE session:
+In the Ride session:
 
 ```apl
 Admin.RunTests 1
 ```
 
-`RunTests` waits for the start-up cache build, clears the database, and runs the
-suites; the `1` keeps the session alive afterwards. To run the suites without
-clearing first, call `Admin.(TESTS.Run GetEnv'LOCAL_URL')` directly.
+`RunTests` waits for the start-up cache build, clears the database, and runs the suites; the `1` keeps the session alive afterwards. To run the suites without clearing first, call `Admin.(TESTS.Run GetEnv'LOCAL_URL')` directly.
 
 ### CI-Style Tests Locally
 

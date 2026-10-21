@@ -2,13 +2,13 @@
 
 DCMS is a REST API serving the Dyalog website and video library. It provides search and recommendation endpoints over a database of videos, presenters, and events, plus a CRUD interface for managing that content. The service is written in Dyalog APL and runs under Docker, using [Jarvis](https://github.com/Dyalog/Jarvis) for HTTP and MariaDB for storage. DCMS doubles as a worked example of how these Dyalog tools fit together.
 
-This README is for developers building a frontend against the API. Contributors working on DCMS itself should start at **[docs/README.md](docs/README.md)**.
+This README is for developers building a frontend against the API. Contributors working on DCMS itself should start at [docs/README.md](docs/README.md).
 
 - [Live service](https://dcms.dyalog.com) with interactive API documentation (Swagger UI)
 - [OpenAPI specification](https://dcms.dyalog.com/openapi.json)
 - [DYNA talk: "An APL App End to End"](https://youtu.be/lawQ2T3nctY)
 
-## Run Locally With Dummy Data
+## Run Locally with Dummy Data
 
 You need [Docker](https://docs.docker.com/get-docker/) and a local clone. No YouTube credentials are required: the mock service `Admin.MOCKYT.Run` starts automatically with the tests so that you can test and develop offline.
 
@@ -22,7 +22,7 @@ You need [Docker](https://docs.docker.com/get-docker/) and a local clone. No You
 
    The `-i` installs the Tatin and NuGet [dependencies](docs/dependencies.md); drop it on later runs.
 
-3. Connect to RIDE at `http://localhost:4502` and seed the database:
+3. Connect to Ride at `http://localhost:4502` and seed the database:
    ```apl
    Admin.RunTests 1
    ```
@@ -34,11 +34,11 @@ The API is now at `http://localhost:8081`. Reset to an empty database at any tim
 Admin.TESTS.ClearData
 ```
 
-## Run With Real Data (Optional)
+## Run with Real Data (Optional)
 
 To work against live YouTube data instead of `MockYT`, obtain a [YouTube Data API v3 key](https://developers.google.com/youtube/v3/getting-started) and set `youtube_key` in `secrets/secrets.json5` (see [config.md](docs/config.md#secrets)). Point the `YOUTUBE` configuration key at the real API; `dev.dcfg` overrides it to the local `MockYT` server by default. With a valid key, `POST /admin/refresh` imports live video data. This is optional — `MockYT` covers normal local use.
 
-## Calling The API
+## Calling the API
 
 `GET /videos` searches the video library. It needs no authentication and returns a paginated JSON result. Query parameters include `search` (full-text), `event`, `presenter_id`, `from`, `to`, `sort` (`relevance`, `newest`, `oldest`), `page`, and `per_page`. `presenter_id` takes a comma-separated list, matched inclusively: `presenter_id=12,34` returns videos presented by either. The [Swagger UI](https://dcms.dyalog.com) and [OpenAPI spec](https://dcms.dyalog.com/openapi.json) document every endpoint and field.
 
