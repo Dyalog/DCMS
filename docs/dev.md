@@ -43,6 +43,8 @@ The services are defined in [docker-compose.yml](../docker-compose.yml):
 | `db`      | `mariadb:10.8.2`                                        | MariaDB database                |
 | `install` | Built from `Dockerfile`                                 | One-off dependency installer    |
 
+The `web` and `db` services have the same CPU and memory limits as in production. If you change the limits in [service.yml](../service.yml), change them in `docker-compose.yml` too.
+
 ## Configuration
 
 The `SUSPEND` flag controls request handling behaviour from full error trapping to suspending execution for debugging. See [error-handling.md](error-handling.md) for the full scheme and [config.md](config.md) for all configuration parameters.
