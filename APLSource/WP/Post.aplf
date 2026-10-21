@@ -1,4 +1,5 @@
- r←Post info;url;name;pass;h;wp
+ r←Post info;h;name;pass;url;wp
+⍝ POST info to WordPress at info.endpoint and return the response data.
  :If 0≡info ⋄ r←'' ⋄ →0 ⋄ :EndIf   ⍝ info is a prototype if the list is empty
  wp←##.GLOBAL.secrets.wordpress
  url←wp.url

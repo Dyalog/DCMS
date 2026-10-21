@@ -51,7 +51,7 @@
  GBL←##.GLOBAL
  :If 0∊⍴table
  :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+     ⎕SIGNAL⊂('EN' 404)('Message'(##.SPEC.responses.not_found.description))('Vendor' 'DCMS')
  :EndIf
 
  fields←idx⊃GBL.columns
@@ -65,11 +65,11 @@
          data←##.SQL.Select(table:table ⋄ columns:fields)
          r←(('crud/',table)pg ppg)##.QUERY.(Paginate∘Table2JSON)fields⍪data
      :ElseIf ∨/~id∊⎕D
-         ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
+         ⎕SIGNAL⊂('EN' 400)('Message' 'ID must be a positive integer.')('Vendor' 'DCMS')
      :Else
          data←##.SQL.Select(table:table ⋄ columns:fields ⋄ where:'id=',id)
          :If 0=≢data
-             ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+             ⎕SIGNAL⊂('EN' 404)('Message'(##.SPEC.responses.not_found.description))('Vendor' 'DCMS')
          :Else
              r←⊃##.QUERY.Table2JSON fields⍪data
          :EndIf

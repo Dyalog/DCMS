@@ -1,4 +1,4 @@
- r←CreateUpdate opts;nulls;WrapBackticks;WrapColons;table;exists;ids;columns;types;values;sql;updates;inserts;i_values;i_nulls;i_columns;i_types;u_values;u_nulls;ColumnEquals;here;remove_id;u_columns;u_types
+ r←CreateUpdate opts;ColumnEquals;WrapBackticks;WrapColons;columns;exists;here;i_columns;i_nulls;i_types;i_values;ids;inserts;nulls;remove_id;sql;table;types;u_columns;u_nulls;u_types;u_values;updates;values
 ⍝ opts:
 ⍝ -   table : table name                                  :: char vec
 ⍝ -  exists : rows in values to update                    :: bool vec

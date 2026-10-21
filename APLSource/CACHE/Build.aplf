@@ -1,14 +1,15 @@
  cache←Build opt;CountTerms;Stem;dt_fields;ep;mat_fields;norm;pid;pname;search_fields;stemmer;term_count;title;vids;weights;ytid
  ;GetEnv;ReadJSON;Unidecode;SQL;Table2JSON;TimeStamp2DDN
-⍝ The external dependencies above are localised so that Setup's assignments appear as
-⍝ Build's locals and vanish on return, otherwise certain names (e.g. .NET class instances)
-⍝ prevent the CACHE namespace from being serialised into isolate processes.
-⍝ opt: using and app_dir, computed in the main process
-⍝ cache: cache namespace for wholesale replacement
+⍝ Build the cache namespace from the database.
 ⍝ Store pre-joined tables for API endpoints and query results
 ⍝ Create character and numeric matrices for filters
 ⍝ Compute BM25F score matrix for search
 ⍝ Compute cosine similarity matrix for recommendations
+⍝ opt: using and app_dir, set by the main process
+⍝ cache: cache namespace for wholesale replacement
+⍝ The external dependencies above are localised so that Setup's assignments appear as
+⍝ Build's locals and vanish on return, otherwise certain names (e.g. .NET class instances)
+⍝ prevent the CACHE namespace from being serialised into isolate processes.
 
 ⍝ One day we'll have modules and do ⎕IMPORT'SQL' etc. Not today.
 ⍝ CACHE.Build is callable from the main process and in an isolate. CACHE.Setup imports dependencies into the CACHE namespace.
@@ -45,7 +46,7 @@
  vids.values,←(pid,⊂⍬)[ytid⍳vids.values[;vids.fields⍳⊂'youtube_id']]
 
  :If (≢vids.fields)≠⊢/⍴vids.values
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'endpoints.json5 videos endpoint number of fields does not match number of columns')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'endpoints.json5 videos endpoint number of fields does not match number of columns')('Vendor' 'DCMS')
  :EndIf
 
 ⍝ For indexing, normalise all except those with YouTube IDs and convert datetimes to Dyalog Day Number

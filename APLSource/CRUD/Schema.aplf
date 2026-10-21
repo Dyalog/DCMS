@@ -52,7 +52,7 @@
  GBL←##.GLOBAL
  :If 0∊⍴table
  :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(responses.not_found.description))
+     ⎕SIGNAL⊂('EN' 404)('Message'(responses.not_found.description))('Vendor' 'DCMS')
  :EndIf
 
  cols←idx⊃GBL.columns

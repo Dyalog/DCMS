@@ -62,14 +62,14 @@
  :EndIf
 
  ##.##.Log'[REQ] GET /videos ',1 ⎕JSON req.QueryParams
- 
+
  Q←req.QueryParams∘⎕VGET
 
 ⍝ Validate query parameters that can 400 before the cache control check. A 304 stands in for a 200 so malformed requests must fail first.
  :Trap 11
      (fm to)←##.TimeStamp2DDN Q('from' '')('to' '')
  :Else
-     ⎕SIGNAL⊂('EN' 400)('Message' 'Invalid date-time')('Vendor' 'DCMS')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Query parameters "from" and "to" must be date-times in the format YYYY-MM-DD hh:mm:ss.')('Vendor' 'DCMS')
  :EndTrap
  (pg ppg)←2⊃∘⎕VFI¨Q('page' '1')('per_page' '20')
  (pg ppg)←⊃¨(pg,1)(ppg,20)   ⍝ ?page= / ?per_page= with no value take the defaults

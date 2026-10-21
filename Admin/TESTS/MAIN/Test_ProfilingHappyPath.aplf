@@ -1,4 +1,4 @@
- r←Test_ProfilingHappyPath url;key;Assert;res
+ r←Test_ProfilingHappyPath url;Assert;key;res
 ⍝ Check the full profiling enable, read, clear and disable cycle
  r←0
  key←#.DCMS.GLOBAL.secrets.upload_token

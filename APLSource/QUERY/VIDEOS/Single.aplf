@@ -25,7 +25,7 @@
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id
 
  :If 0=#.DCMS.GLOBAL.⎕NC'cache'   ⍝ 503 unavailable instead of 500 VALUE ERROR
-     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+     ⎕SIGNAL⊂('EN' 503)('Message' 'Cache is being built. Retry shortly.')('Vendor' 'DCMS')
  :EndIf
  CACHE←#.DCMS.GLOBAL.cache
 
@@ -35,7 +35,7 @@
  idx←ytid⍳id
 
  :If idx>≢ytid
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Video not found.')
+     ⎕SIGNAL⊂('EN' 404)('Message' 'Video not found.')('Vendor' 'DCMS')
  :Else
      res←⊃##.Table2JSON CACHE.videos.fields⍪(CACHE.videos.values⍪⊂'')[,ytid⍳id;]
  :EndIf

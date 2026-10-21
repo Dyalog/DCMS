@@ -10,10 +10,10 @@
                  description:'Request accepted. A refresh was started, or queued behind the one already running.'
                  content:(⍙application⍙47⍙json:(schema:(
                      type:'object'
-                     required:('message' ⋄ 'monitorUrl')
+                     required:('message' ⋄ 'monitor_url')
                      properties:(
                          message:(type:'string' ⋄ description:'Whether the refresh started immediately or was queued behind a running one.')
-                         monitorUrl:(type:'string' ⋄ format:'uri' ⋄ description:'Status endpoint for monitoring this refresh.')
+                         monitor_url:(type:'string' ⋄ format:'uri' ⋄ description:'Status endpoint for monitoring this refresh.')
                      )
                  )))
              )
@@ -36,12 +36,12 @@
      :EndIf
  :EndHold
  :If owned
-     msg←'Request accepted. Refresh task started. View status at monitorUrl'
+     msg←'Request accepted. Refresh task started. View status at monitor_url'
  :Else
-     msg←'Request accepted. One refresh task is pending and will begin once the current task is finished. View status at monitorUrl'
+     msg←'Request accepted. One refresh task is pending and will begin once the current task is finished. View status at monitor_url'
  :EndIf
  ##.Log'[REFRESH] ',msg
- r←(message:msg ⋄ monitorUrl:(##.GetEnv'PUBLIC_URL'),'/admin/refresh/status')
+ r←(message:msg ⋄ monitor_url:(##.GetEnv'PUBLIC_URL'),'/admin/refresh/status')
  :If 9=⎕NC'req'                       ⍝ Only a Jarvis request object can carry a status
      'Accepted'req.SetStatus 202       ⍝ Jarvis has no 202 in HttpStatus, so name it explicitly
  :EndIf

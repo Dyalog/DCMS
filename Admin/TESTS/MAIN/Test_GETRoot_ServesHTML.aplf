@@ -1,4 +1,4 @@
- r←TestGetRoot_ServesHTML url;h;res;ct
+ r←Test_GETRoot_ServesHTML url;ct;h;res
 ⍝ GET / serves the Swagger UI page (public, HTML, driven by /openapi.json)
  h←##.##.##.HttpCommand.New'GET'
  h.URL←url,'/'

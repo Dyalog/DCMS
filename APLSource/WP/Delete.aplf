@@ -1,5 +1,6 @@
- r←Delete post_id;name;pass;h;wp;success
- :If 0≡post_id ⋄ r←'' ⋄ →0 ⋄ :EndIf   ⍝ info is a prototype if the list is empty
+ r←Delete post_id;h;name;pass;success;wp
+⍝ Delete Team Dyalog Video post post_id from WordPress and report whether it succeeded.
+ :If 0≡post_id ⋄ r←'' ⋄ →0 ⋄ :EndIf   ⍝ post_id is a prototype if the list is empty
  wp←##.GLOBAL.secrets.wordpress
  name←wp.user
  pass←wp.token~' '

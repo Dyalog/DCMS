@@ -38,20 +38,20 @@
  GBL←##.GLOBAL
  :If 0∊⍴table
  :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+     ⎕SIGNAL⊂('EN' 404)('Message'(##.SPEC.responses.not_found.description))('Vendor' 'DCMS')
  :EndIf
 
  :If 1≠≢⍴req.Payload
  :OrIf 0=≢req.Payload
  :OrIf 9≠⎕NC'eg'⊣eg←req.Payload[1]
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request body must be a non-empty JSON array of objects.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Request body must be a non-empty JSON array of objects.')('Vendor' 'DCMS')
  :EndIf
  columns←req.Payload[1].⎕NL ¯2
  our_cols←idx⊃GBL.columns
  :If 0∊⍴columns
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request payload must include columns to insert.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Request payload must include columns to insert.')('Vendor' 'DCMS')
  :ElseIf ∨/(≢our_cols)<our_cols⍳columns
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'One or more specified columns are not valid.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'One or more specified columns are not valid.')('Vendor' 'DCMS')
  :EndIf
 
  values←↑req.Payload ⎕VGET columns

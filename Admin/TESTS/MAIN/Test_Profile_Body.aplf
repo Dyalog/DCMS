@@ -1,4 +1,4 @@
- r←Test_Profile_Body url;key;Assert;res;fields;first
+ r←Test_Profile_Body url;Assert;fields;first;key;res
 ⍝ Check GET /admin/profile returns rows with the expected fields
  r←0
  key←#.DCMS.GLOBAL.secrets.upload_token

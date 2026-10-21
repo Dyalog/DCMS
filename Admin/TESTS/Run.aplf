@@ -1,4 +1,5 @@
  result←{show_pass}Run url;DoTest;F;LoadDependency;fn;r;tests
+⍝ Run every test suite against the server at url and return 1 if all tests pass.
  ⎕←'Testing ',url
  show_pass←⎕VGET⊂'show_pass' 0
  ##.MOCKYT.Run

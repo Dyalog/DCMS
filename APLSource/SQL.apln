@@ -3,7 +3,7 @@
     FromUTF8←'UTF-8'∘(⊣⎕UCS ⎕UCS)
 
     db←'db'                   ⍝ SQAPL connector identifier
-    cur←'db.i'                ⍝ Cursor for bulk operations    
+    cur←'db.i'                ⍝ Cursor for bulk operations
     debug←0                   ⍝ Debug flag
     GLOBAL←()                 ⍝ Source of table information for lookups
     'SQA'⎕CY'sqapl'           ⍝ Establish SQA namespace reference to SQAPL API
@@ -26,19 +26,19 @@
               SQA.Close db
               Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
           :Else
-              ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃msg))
+              ⎕SIGNAL⊂('EN' 500)('Message'(3⊃msg))('Vendor' 'DCMS')
           :EndIf
       :ElseIf 0>en
           ⎕←msg←SQA.GetWarning cur   ⍝ Print and pass on warning
       :EndIf
     ∇
 
-    ∇ r←Connect datasource;src;opt
+    ∇ r←Connect datasource;opt;src
       SQA.Init''
       :If 0=⊃src←SQA.DSN''
           src←2⊃src          ⍝ List of available ODBC data sources
       :Else
-          ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(2⊃src))   ⍝ Error getting ODBC data sources
+          ⎕SIGNAL⊂('EN' 500)('Message'(2⊃src))('Vendor' 'DCMS')   ⍝ Error getting ODBC data sources
       :EndIf
       :If ~(1⌷datasource)∊⍥⎕C⊣/src
           'opt'⎕NS ⍬ ⋄ opt.(wait timeout)←3 5 ⋄ opt.datasource←⊃datasource
@@ -49,7 +49,7 @@
               ⎕←'Already connected to ',⊃datasource
           :Else
               ⎕←r
-              ⎕SIGNAL⊂('EN'(⊃r))('Vendor' 'DCMS')('Message'('Could not connect to ',⊃datasource))
+              ⎕SIGNAL⊂('EN'(⊃r))('Message'('Could not connect to ',⊃datasource))('Vendor' 'DCMS')
           :EndIf
       :EndIf
       ⎕←Do'create database if not exists dyalog_cms'
@@ -57,7 +57,7 @@
       ⎕←'Connected to SQL database: ',⊃datasource
     ∇
 
-    ∇ r←Reconnect opt;src;timeout;found
+    ∇ r←Reconnect opt;found;src;timeout
       :Repeat
           Catch ¯1 'Attempting to find datasource ',opt.datasource,⊂'. ',(⍕opt.wait),' attempts remaining.'
           ⎕DL opt.timeout
@@ -66,7 +66,7 @@
           opt.wait-←1 ⋄ timeout←opt.wait≤0
       :Until timeout∨found
       :If ~found
-          ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Datasource ',(⊃datasource),' not found.'))
+          ⎕SIGNAL⊂('EN' 500)('Message'('Datasource ',(⊃datasource),' not found.'))('Vendor' 'DCMS')
       :EndIf
       r←found
     ∇
@@ -75,7 +75,7 @@
       r←Catch SQA.Do db('USE ',database)
     ∇
 
-    ∇ r←DoBulk(sql values);bulk;nulls;n
+    ∇ r←DoBulk(sql values);bulk;n;nulls
       n←≢⊃⍣(1=≢⍴values)⊢values
       r←Catch SQA.Prepare cur sql('Bulk'n)
       r←Catch SQA.X cur{2=≢⍴⍵:⍺ ⍵ ⋄ ⍺⊂⍛,⍵}values   ⍝ Allows SQAPL nulls matrix to be optionally provided stranded with values
@@ -97,7 +97,7 @@
           Connect ##.GetEnv¨'SQL_DATABASE' 'SQL_PASSWORD' 'SQL_USER'
           r←ucs Do sql
       :Else
-          ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(Print 3⊃r))   ⍝ Other SQL error
+          ⎕SIGNAL⊂('EN' 500)('Message'(Print 3⊃r))('Vendor' 'DCMS')   ⍝ Other SQL error
       :EndIf
     ∇
 
@@ -110,11 +110,11 @@
      ⍝ ⍺: table name. ⍵: column names.
      ⍝ ←: SQAPL type strings (with leading '<') for those columns in ⍵'s order.
           ti←##.GLOBAL.tables⍳⊂⍺
-          ti>≢##.GLOBAL.tables:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown table: ',⍺))
+          ti>≢##.GLOBAL.tables:⎕SIGNAL⊂('EN' 500)('Message'('Unknown table: ',⍺))('Vendor' 'DCMS')
           allcols←ti⊃##.GLOBAL.columns
           alltypes←ti⊃##.GLOBAL.type_sqapl
           ci←allcols⍳⍵
-          ∨/bad←ci>≢allcols:⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Unknown columns: ',⍕bad/⍵))
+          ∨/bad←ci>≢allcols:⎕SIGNAL⊂('EN' 500)('Message'('Unknown columns: ',⍕bad/⍵))('Vendor' 'DCMS')
           alltypes[ci]
       }
 
@@ -128,7 +128,7 @@
      ⍝ ←: result matrix (2⊃ of SQA.Fetch), or ⎕SIGNAL on failure.
           ⍺←⍬ ⋄ values←⍺ ⋄ sql←⍵
           cur←2⊃SQA.CursorName db
-          Fail←{_←SQA.Close cur ⋄ ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃⍵))}
+          Fail←{_←SQA.Close cur ⋄ ⎕SIGNAL⊂('EN' 500)('Message'(3⊃⍵))('Vendor' 'DCMS')}
           0≠⊃p←SQA.Prepare cur sql:Fail p
           e←{0=≢values:SQA.Exec cur ⋄ SQA.Exec cur⊂⍛,values}⍬
           0≠⊃e:Fail e
@@ -141,7 +141,7 @@
      ⍝ Like Fetch, but for statements that produce no result set.
           ⍺←⍬ ⋄ values←⍺ ⋄ sql←⍵
           cur←2⊃SQA.CursorName db
-          Fail←{_←SQA.Close cur ⋄ ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'(3⊃⍵))}
+          Fail←{_←SQA.Close cur ⋄ ⎕SIGNAL⊂('EN' 500)('Message'(3⊃⍵))('Vendor' 'DCMS')}
           0≠⊃p←SQA.Prepare cur sql:Fail p
           e←{0=≢values:SQA.Exec cur ⋄ SQA.Exec cur⊂⍛,values}⍬
           0≠⊃e:Fail ⎕←e
@@ -164,7 +164,7 @@
           sql←'SELECT ',(WrapColNames columns),' FROM ',table,((0<≢where)/' WHERE '),where,' ',WrapResultTypes return_types
           ⊃Fetch sql
       }
-      
+
       Insert←{
      ⍝ Empty cells in `values` become SQL NULLs. Returns matrix of inserted rows with "RETURNING".
           (table columns values returning)←⍵ ⎕VGET('table' '')('columns'⍬)('values'⍬)('returning'⍬)
@@ -180,7 +180,7 @@
       Transact←{
           (values nulls)←⍺ ⋄ sql←⍵
           _←Do'START TRANSACTION'
-          0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
+          0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Message'Message)('Vendor' 'DCMS'))⊣Do'ROLLBACK'
           rows←⊃⍪⌿(values,nulls)(Fetch⍤1)sql
           rows⊣Do'COMMIT'
       }
@@ -201,7 +201,7 @@
           values[⍸(set_types∊⊂'<S')(∧⍤1)nulls]←⊂19⍴''
           values[⍸(set_types∊⊂'<I')(∧⍤1)nulls]←0
           _←Do'START TRANSACTION'
-          0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Vendor' 'DCMS')('Message'Message))⊣Do'ROLLBACK'
+          0::⎕SIGNAL ⊂⎕DMX.(('EN'EN)('Message'Message)('Vendor' 'DCMS'))⊣Do'ROLLBACK'
           _←(values,nulls)(ExecBind⍤1)upd_sql
           rows←⊃Fetch sel_sql
           rows⊣Do'COMMIT'
@@ -235,14 +235,14 @@
     ∇ msg←SetupSchema dum;Run;batch;create_migrations;folder;latest;migration;migrations;order;schema_definitions;sequence;statements
       create_migrations←⊃⎕NGET ##.GLOBAL.app_dir,'/sql/migrations.sql'
       Do create_migrations
-     
+
       folder←##.GetEnv'SCHEMA_DEFS'
       schema_definitions←'.*\d+-.*.sql'⎕S'&'⊃0(⎕NINFO⍠'Wildcard' 1)folder
       sequence←∊2⊃¨⎕VFI¨⊃¨'-'(≠⊆⊢)¨2⊃¨⎕NPARTS¨schema_definitions
       order←⍋sequence
       schema_definitions←schema_definitions[order]
       sequence←sequence[order]
-     
+
       :If 0=⊃latest←SQA.Do db'select max(batch) from migrations'
           (migrations sequence)←(schema_definitions sequence)↓⍨¨3 1⊃latest   ⍝ Database exists, apply after most recent migration
       :Else
@@ -259,7 +259,7 @@
           ##.Log migration
           statements←StatementsFromSchema migration
           :If ~∧/migration∘Run¨statements   ⍝ Recording a failed migration would skip it forever
-              ⎕SIGNAL⊂('EN' 500)('Vendor' 'DCMS')('Message'('Migration failed: ',migration))
+              ⎕SIGNAL⊂('EN' 500)('Message'('Migration failed: ',migration))('Vendor' 'DCMS')
           :EndIf
           SQA.Do db'insert into migrations (`migration`,`batch`) values (:file<C255:,:num<I:);'migration batch
       :EndFor
@@ -273,7 +273,7 @@
           cz←d[;h⍳⊂'COLUMN_SIZE']
           tp←d[;h⍳⊂'DATA_TYPE']
           ti←(⊢/tc)⍳tp
-          ∨/ti>≢tc:⎕SIGNAL⊂('EN' 101)('Vendor' 'DCMS')('Message'('Unknown column types in rows ',⍕⍸ti>≢tc))
+          ∨/ti>≢tc:⎕SIGNAL⊂('EN' 101)('Message'('Unknown column types in rows ',⍕⍸ti>≢tc))('Vendor' 'DCMS')
           tn←tc[ti;2]
           sqat←('<'∘=⊂⊢)∊(⍕¨cz/⍨'⎕'∘∊¨tn)@('⎕'∘=)∊tn   ⍝ Replace ⎕ with numeric field widths (COLUMN_SIZE) in SQAPL type definitions
           t←d[;h⍳⊂'TABLE_NAME']

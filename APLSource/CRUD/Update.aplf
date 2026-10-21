@@ -38,24 +38,24 @@
  GBL←##.GLOBAL
  :If 0∊⍴table
  :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+     ⎕SIGNAL⊂('EN' 404)('Message'(##.SPEC.responses.not_found.description))('Vendor' 'DCMS')
  :EndIf
 
  :If 9≠⎕NC'eg'⊣eg←req.Payload
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request body must be a JSON object.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Request body must be a JSON object.')('Vendor' 'DCMS')
  :EndIf
  columns←(req.Payload.⎕NL ¯2)~⊂'id'
  our_cols←idx⊃GBL.columns
  :If 0∊⍴columns
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Request payload must include columns to update.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Request payload must include columns to update.')('Vendor' 'DCMS')
  :ElseIf ∨/(≢our_cols)<our_cols⍳columns
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'One or more specified columns are not valid.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'One or more specified columns are not valid.')('Vendor' 'DCMS')
  :EndIf
 
  id←req.PathParams ⎕VGET 'id'
  :If 0=≢id
  :OrIf ∨/~id∊⎕D
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'ID must be a positive integer.')('Vendor' 'DCMS')
  :EndIf
  values←,req.Payload ⎕VGET columns   ⍝ Quick fix for rank-compatibility with SQL CRUD functions. FIXME consider modifying Update path to allow bulk updates
 
@@ -63,6 +63,6 @@
      record←##.SQL.Update(table:table ⋄ columns:columns ⋄ values:values ⋄ where: 'id=',id ⋄ returning:our_cols)
  :EndHold
  :If 0=≢record
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+     ⎕SIGNAL⊂('EN' 404)('Message'(##.SPEC.responses.not_found.description))('Vendor' 'DCMS')
  :EndIf
  r←⊃##.QUERY.Table2JSON our_cols⍪record   ⍝ One row, so an object not an array

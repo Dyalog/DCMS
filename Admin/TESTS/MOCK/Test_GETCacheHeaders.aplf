@@ -1,4 +1,4 @@
- r←TestGetCacheHeaders url;Assert;New;_TestIfNoneMatch;cache_control;etag;h;mod_ddn;modified;old;res
+ r←Test_GETCacheHeaders url;Assert;New;_TestIfNoneMatch;cache_control;etag;h;mod_ddn;modified;old;res
 ⍝ Check GET QUERY endpoints return the correct headers related to the cache
 ⍝ No :Trap here: there is nothing to tear down, so an unexpected error reaches _Test,
 ⍝ which reports the failing statement.
@@ -44,7 +44,7 @@
  'If-None-Match on /events gave no empty 304'Assert h _TestIfNoneMatch(url,'/events')
  'If-None-Match on /presenters gave no empty 304'Assert h _TestIfNoneMatch(url,'/presenters')
 
-⍝ Invalid routes and parameters: a 304 stands in for a 200, never for an error (RFC 9110 §15.4.5)
+⍝ Invalid routes and parameters: a 304 stands in for a 200, never for an error
  h.URL←(url,'/videos/noexist1234')
  res←h.Run
  'Conditional GET for an unknown video must be 404, not 304'Assert 404=res.HttpStatus
@@ -78,7 +78,7 @@
  'If-Modified-Since'h.SetHeader old
  res←h.Run
  'If-Modified-Since a month ago must be 200'Assert 200=res.HttpStatus
- 
+
  'If-Modified-Since'h.SetHeader⊃'Ddd, DD Mmm YYYY hh:mm:ss "GMT"'#.DCMS.DT.FormatDateTime mod_ddn+30
  res←h.Run
  'If-Modified-Since a month ahead must be 304'Assert 304=res.HttpStatus

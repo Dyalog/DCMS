@@ -1,4 +1,5 @@
  GetVideos←{
+⍝ Fetch metadata for YouTube video IDs ⍵ from the YouTube Data API, one row per video.
      ⍺←##.##.GLOBAL.secrets.thumbnails_root
      50<≢⍵:(⍺ ∇ 50↑⍵)⍪⍺ ∇ 50↓⍵   ⍝ API limit. Download 50 videos at a time
      0=≢⍵:''
@@ -10,7 +11,7 @@
      r←#.HttpCommand.GetJSON'Get'q
      0≠r.rc:⎕SIGNAL⊂('EN'202)('Message' r.msg)('Vendor' 'DCMS')
      200≠r.HttpStatus:⎕SIGNAL⊂('EN' r.HttpStatus)('Message' r.HttpMessage)('Vendor' 'DCMS')
-    ⍝ ←: id  youtube_id  title  description  channel_id  channel  category_id  published_at  created_at  updated_at  updated_by
+    ⍝ ←: id  title  description  channel_id  channel  category_id  published_at  thumbnail
      0=⎕NC'r.Data.items':⎕SIGNAL⊂('EN'404)('Message' 'No items received from YouTube API')('Vendor' 'DCMS')
      id←{0∊⍴⍵:⍬ ⋄ ⍵.id}r.Data.items
      _←{0=≢⍵:'' ⋄ ⎕SIGNAL⊂('EN'404)('Message' ('YouTube videos ID= (',⍵,') not available.'))('Vendor' 'DCMS')}1↓∊','∘,¨⍵/⍨~⍵∊id

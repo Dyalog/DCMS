@@ -1,4 +1,4 @@
- r←Test_02_Read base_url;D;event_type;h;name;table;res
+ r←Test_02_Read base_url;D;event_type;h;name;res;table
 ⍝ Test that GET /crud/{table} lists rows and GET /crud/{table}/{id} returns a single row.
 
  D←#.DCMS

@@ -1,4 +1,4 @@
- Run cfg;logging;suspend;trace;LoadDependency
+ Run cfg;LoadDependency;logging;suspend;trace
 ⍝ cfg: a preset scalar (0=production, 1=development, 2=strict)
 ⍝      or an explicit (logging suspend trace) triple. See SetDebug.
  :If 0=≢⍴cfg
@@ -72,7 +72,7 @@
      '/admin/profile'     router.Delete('PROFILING.Clear'  (PROFILING.Clear'⍠SPEC'))
      PROFILING.status←(on: 0 ⋄ since: ⊂'null' ⋄ last_cleared: ⊂'null')
 
-     Teapot←{⎕SIGNAL⊂('EN' 418)('Message' 'I am a teapot')('Vendor' 'DCMS')}
+     Teapot←{⎕SIGNAL⊂('EN' 418)('Message' 'I am a teapot.')('Vendor' 'DCMS')}
      '/teapot'            router.Get 'Teapot' (
          tags:,⊂'System' ⋄ summary:'Short and stout' ⋄ operationId:'getTeapot' ⋄ security:⍬
          responses:(⍙418:(

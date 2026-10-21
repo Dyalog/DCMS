@@ -1,6 +1,6 @@
- r←Delete req;GBL;id;idx;responses;schemas;table;record
+ r←Delete req;GBL;id;idx;record;responses;schemas;table
 ⍝ Handles DELETE /crud/{table}/{id}; removes one row by id
- 
+
  :If 2=⎕NC'req'
      (schemas responses)←##.SPEC.(schemas responses)
  :EndIf
@@ -28,19 +28,19 @@
  GBL←##.GLOBAL
  :If 0∊⍴table
  :OrIf (≢GBL.tables)<idx←GBL.tables⍳⊆table
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+     ⎕SIGNAL⊂('EN' 404)('Message'(##.SPEC.responses.not_found.description))('Vendor' 'DCMS')
  :EndIf
 
  id←req.PathParams ⎕VGET'id'
  :If 0=≢id
  :OrIf ∨/~id∊⎕D
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'ID must be a positive integer.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'ID must be a positive integer.')('Vendor' 'DCMS')
  :EndIf
 
  :Hold 'SQL.db'
      record←##.SQL.Select(table:table ⋄ columns:,⊂'id' ⋄ where:'id=',id)
      :If 0=≢record
-         ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message'(##.SPEC.responses.not_found.description))
+         ⎕SIGNAL⊂('EN' 404)('Message'(##.SPEC.responses.not_found.description))('Vendor' 'DCMS')
      :EndIf
      _←##.SQL.Delete(table:table ⋄ where:'id=',id)
  :EndHold

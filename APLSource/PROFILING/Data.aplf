@@ -1,4 +1,4 @@
- r←Data req;responses;data
+ r←Data req;data;responses
 ⍝ GET /admin/profile — ⎕PROFILE data as JSON rows
  :If req≡'⍠SPEC'
      responses←##.SPEC.responses

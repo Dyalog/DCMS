@@ -1,4 +1,4 @@
- r←Test_PUTProfiling_Idempotent url;key;Assert;res;since1;since2
+ r←Test_PUTProfiling_Idempotent url;Assert;key;res;since1;since2
 ⍝ Check repeating PUT /admin/profiling?on=true leaves since unchanged
  r←0
  Assert←##.Assert

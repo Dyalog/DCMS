@@ -1,1 +1,4 @@
-FormatDateTime←{⍺(1200⌶)⍵}
+ FormatDateTime←{
+⍝ Format Dyalog Day Numbers ⍵ with the 1200⌶ pattern ⍺.
+     ⍺(1200⌶)⍵
+ }

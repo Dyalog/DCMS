@@ -6,7 +6,7 @@
  dt←1 1 1 1 2 1 1 2 1 1 3 1 1 4 1 1 4 1 1         ⍝ DateTime type signature, as Test_GETProfiling_Response
  IsDT←{dt≡1 2 3 4+.×⍨⍵∘.∊⎕D'-' 'T' ':'}
  NullOrDT←{((⊂'null')≡⍵)∨IsDT ⍵}                  ⍝ Timestamps are an ISO string until first set, then null
- 
+
  res←('GET'Authed url,'/admin/refresh/status').Run
  'Expected 200 OK'Assert 200=res.HttpStatus
  d←res.Data

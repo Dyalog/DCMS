@@ -1,4 +1,4 @@
- r←Toggle req;responses;new
+ r←Toggle req;new;responses
 ⍝ PUT /admin/profiling?on=true|false — turn ⎕PROFILE on or off (idempotent)
  :If req≡'⍠SPEC'
      responses←##.SPEC.responses
@@ -30,6 +30,6 @@
          status.since←⊃##.DT.ISODateTime 1⎕DT'Z'
      :EndIf
  :Else
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Query parameter "on" must be "true" or "false".')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Query parameter "on" must be "true" or "false".')('Vendor' 'DCMS')
  :EndIf
  req.SetStatus 204

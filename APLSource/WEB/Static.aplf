@@ -1,4 +1,4 @@
- payload←Static req;ep;name;ct
+ payload←Static req;ct;ep;name
 ⍝ Serve a bundled Swagger UI asset from assets/swagger-ui/.
  :If req≡'CSS⍠SPEC'
      payload←(
@@ -29,7 +29,7 @@
      :Case 'swagger-ui-bundle.js' ⋄ ct←'application/javascript; charset=utf-8'
  :EndSelect
  :If 0∊⍴ct
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Not found')   ⍝ HandleError builds the envelope
+     ⎕SIGNAL⊂('EN' 404)('Message' 'Resource not found.')('Vendor' 'DCMS')   ⍝ HandleError builds the envelope
  :EndIf
  'content-type' req.SetHeader ct
  payload←(##.GLOBAL.web_asset_names⍳⊂name)⊃##.GLOBAL.web_assets   ⍝ cached byte payload (see Run.aplf)

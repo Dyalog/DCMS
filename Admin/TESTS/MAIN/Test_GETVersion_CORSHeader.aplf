@@ -1,4 +1,4 @@
- r←TestGetCORSHeader url;h;res
+ r←Test_GETVersion_CORSHeader url;h;res
 ⍝ Check GET /version returns the CORS allow-origin header
  h←##.##.##.HttpCommand.New'GET'
  h.URL←url,'/version'

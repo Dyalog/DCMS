@@ -1,5 +1,4 @@
  {r}←SetDebug (logging suspend trace);logging;suspend;trace
-
 ⍝ Configure DCMS debug controls and propagate them to Stark (router) and Jarvis.
 ⍝
 ⍝ logging  ∈ 0 1     : whether Log lines print to the session

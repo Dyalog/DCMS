@@ -4,7 +4,7 @@
 ⍝ req: Stark request namespace :: namespace reference
 
  :If 0=#.DCMS.GLOBAL.⎕NC'cache'
-     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+     ⎕SIGNAL⊂('EN' 503)('Message' 'Cache is being built. Retry shortly.')('Vendor' 'DCMS')
  :EndIf
 
  cache←#.DCMS.GLOBAL.cache

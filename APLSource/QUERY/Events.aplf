@@ -31,7 +31,7 @@
  :EndIf
 
  ##.Log'[REQ] GET /events ',1⎕JSON req.QueryParams
- 
+
  ⍝ has_videos ← one of (0 1 2)
  ⍝ 0: only events without videos, 1: only events with videos, 2: all events (default)
  has_videos←req.QueryParams ⎕VGET⊂'has_videos' ⎕NULL
@@ -40,7 +40,7 @@
  :ElseIf (⊂has_videos)∊'false' 'true'
      has_videos←¯1+'false' 'true'⍳⊂has_videos
  :Else
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'Query parameter "has_videos" must be "true" or "false".')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'Query parameter "has_videos" must be "true" or "false".')('Vendor' 'DCMS')
  :EndIf
 
  req←CacheControl req

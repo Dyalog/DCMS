@@ -1,4 +1,4 @@
- r←Test_01_Create base_url;D;check_cols;cid;column;data;event;event_type;h;name;organisation;payload;person;presentation;presentation_media;presentation_video;presentation_type;presenter;res;table;tid;youtube_video
+ r←Test_01_Create base_url;D;check_cols;cid;column;data;event;event_type;h;name;organisation;payload;person;presentation;presentation_media;presentation_type;presentation_video;presenter;res;table;tid;youtube_video
 ⍝ Test that POST /crud/{table} creates a new record in the specified table and returns the created record with its new ID
 
  data←##.GenerateTestData 10

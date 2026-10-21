@@ -10,7 +10,7 @@
      :EndIf
      tie←tmp ⎕FCREATE 0    ⍝ Create temporary file and move so reader cannot read half-written file
      cache ⎕FAPPEND tie
-     ⎕FUNTIE tie 
+     ⎕FUNTIE tie
      :If ⎕NEXISTS file     ⍝ ⎕NMOVE does not overwrite.
          {}⎕NDELETE file
      :EndIf

@@ -1,4 +1,5 @@
  r←PushTeamDyalogVideos req;SQL;bulk;create;delete;exists;n;person;posted;responses;sql;vids
+⍝ Sync each Team Dyalog member's n most recent videos (default 10) to WordPress posts.
  SQL←##.SQL
 ⍝ Use WordPress API to get post IDs corresponding to Team Dyalog members via their DCMS ID custom field value
  person←Get'team-dyalog?status=any&_fields=id,acf.dcms_id'

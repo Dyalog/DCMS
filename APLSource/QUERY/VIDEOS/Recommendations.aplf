@@ -30,19 +30,19 @@
  :EndIf
 
  ##.##.Log'[REQ] GET /videos/',req.PathParams.youtube_id,'/recommendations'
- 
+
  ytid←req.PathParams.youtube_id
  :If 11≠≢ytid
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'YouTube ID must be an 11-character string.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'YouTube ID must be an 11-character string.')('Vendor' 'DCMS')
  :EndIf
  n←2⊃⎕VFI req.QueryParams ⎕VGET⊂(,'n')'5'   ⍝ Number of results. Default 5.
  n←⊃n,5                                     ⍝ ?n= with no value takes the default
  :If (1>n)∨n≠⌊n
-     ⎕SIGNAL⊂('EN' 400)('Vendor' 'DCMS')('Message' 'If supplied, n must be a positive integer.')
+     ⎕SIGNAL⊂('EN' 400)('Message' 'If supplied, n must be a positive integer.')('Vendor' 'DCMS')
  :EndIf
 
  :If 0=#.DCMS.GLOBAL.⎕NC'cache'   ⍝ 503 unavailable instead of 500 VALUE ERROR
-     ⎕SIGNAL⊂('EN' 503)('Vendor' 'DCMS')('Message' 'Cache is being built. Retry shortly.')
+     ⎕SIGNAL⊂('EN' 503)('Message' 'Cache is being built. Retry shortly.')('Vendor' 'DCMS')
  :EndIf
  vids←#.DCMS.GLOBAL.cache.videos
  all_id←vids.index_cols⊃⍨vids.fields⍳⊂'youtube_id'
@@ -53,7 +53,7 @@
      rec←vids.recommendations[this;⍳n]
      res←##.Table2JSON vids.fields⍪vids.values[rec;]
  :Else
-     ⎕SIGNAL⊂('EN' 404)('Vendor' 'DCMS')('Message' 'Video not found.')
+     ⎕SIGNAL⊂('EN' 404)('Message' 'Video not found.')('Vendor' 'DCMS')
  :EndIf
 
  req←##.CacheControl req

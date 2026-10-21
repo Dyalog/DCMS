@@ -1,5 +1,5 @@
  Test_PushTeamDyalog_MultiPresenterUpdate←{
-⍝ Issue #108 (the duplicate-producing case): when both posts already exist,
+⍝ Duplicate-producing case: when both posts already exist,
 ⍝ each presenter's post must UPDATE its own WordPress post. The bug keys the
 ⍝ existing-post lookup on media_id only, so two presenters of one video both
 ⍝ resolve to the same existing id and collide.

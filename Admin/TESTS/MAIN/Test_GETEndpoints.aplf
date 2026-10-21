@@ -1,4 +1,4 @@
- r←TestGetEndpoints url;GetEnv;api;c;d;e;ep;h;n;p;res;responses;t;url
+ r←Test_GETEndpoints url;GetEnv;api;c;d;e;ep;h;n;p;res;responses;t;url
 ⍝ Test that GET endpoints respond with appropriate HTTP status as described in openapi.json spec
 ⍝ FIXME add tests for endpoints with path parameters
  GetEnv←##.##.GetEnv

@@ -10,7 +10,7 @@
      '/',⍛≡⍵.Endpoint:0                          ⍝ Swagger UI home page at root (Endpoint is ,'/' or ''); exact, not a prefix — '/' as a prefix would open everything
      ∨/public(⊃⍷)¨⊂⍵.Endpoint:0
      ∨/authed(⊃⍷)¨⊂⍵.Endpoint:r⊣##.Log'[AUTH] ',('allow' 'deny'⊃⍨1+r←VerifyToken ⍵),' ',⍵.Endpoint
-     payload←(error:404 ⋄ message:'Not found')   ⍝ Pre-routing, so HandleError cannot build this one
+     payload←(error:404 ⋄ message:'Resource not found.')   ⍝ Pre-routing, so HandleError cannot build this one
      payload.request←(method:⍵.Method ⋄ endpoint:⍵.Endpoint)
      payload.query_parameters←{0::⎕JSON'{}' ⋄ ⎕NS ⍵}⍵.QueryParams
      ⍵.Response.Payload←payload

@@ -1,9 +1,9 @@
  r←Valid cache;ep;vids
-⍝ Is a cache namespace read back from file valid? DCMS should not serve an invalid cache namespace.
+⍝ Check whether a cache namespace read from file is valid.
 ⍝ cache: candidate cache namespace :: namespace ref
 ⍝     r: is cache valid            :: Boolean
  r←0
- :Trap 0
+ :Trap 0   ⍝ Any missing member means invalid
      vids←cache.videos
      r←0≠⎕NC'cache.presenters'
      r∧←0≠⎕NC'cache.events.data'

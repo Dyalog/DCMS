@@ -1,5 +1,5 @@
  ClearData;D;table;tables
-
+⍝ Delete every row from every table except migrations.
  D←#.DCMS
  tables←1↓3(⌷⍤1)2⊃#.DCMS.SQL.(SQA.Tables db)
  tables~←⊆'migrations'
